@@ -1,0 +1,128 @@
+; a konsole theme inspired by a galaxy far far away...
+
+[General]
+Description=An Old Hope
+Opacity=1
+Blur=true
+Wallpaper=
+
+; Color Arrangements
+;       * Vaders Lightsaber:   hsl(352, 081%, 058%)
+;       * Lukes Pilot Uniform: hsl(025, 086%, 055%)
+;       * C3PO:                hsl(050, 074%, 061%)
+;       * Yoda:                hsl(107, 040%, 057%)
+;       * Artoo:               hsl(196, 064%, 058%)
+;       * Purple:              hsl(313, 032%, 054%)
+;       * Turquoise:           hsl(161, 078%, 055%)
+;       * White:               hsl(000, 000%, 100%)
+;       * Millenium Falcon:
+;               * Very Light Grey: hsl(228, 007%, 081%)
+;               * Light Grey:      hsl(228, 007%, 055%)
+;               * Grey:            hsl(228, 007%, 044%)
+;               * Dark Grey:       hsl(228, 007%, 029%)
+;               * Very Dark Grey:  hsl(228, 007%, 012%)
+
+[Background]
+; Grey::VeryDarkGrey
+Color=28,29,33
+
+[Foreground]
+; Grey::VeryLightGrey
+Color=203,205,210
+
+[Color0]
+; Grey::Grey
+Color=104,107,120
+
+[Color1]
+; Red::VadersLightsaber
+Color=235,61,84
+
+[Color2]
+; Green::Yoda
+Color=120,189,101
+
+[Color3]
+; Orange::LukesPilotUniform
+Color=239,124,42
+
+[Color4]
+; Blue::Artoo
+Color=79,180,216
+
+[Color5]
+; Purple
+Color=175,100,159
+
+[Color6]
+; Turquoise
+Color=51,230,172
+
+[Color7]
+; White
+Color=255,255,255
+
+; Faint & Intense Are Variants on The Above Colors With:
+;       * Intense(h,s,l) -> (h,s,l-5)
+;       * Faint(h,s,l)   -> (h,s,l+5)
+
+[BackgroundFaint]
+Color=52,54,60
+
+[BackgroundIntense]
+Color=5,5,6
+
+[ForegroundFaint]
+Color=228,228,231
+
+[ForegroundIntense]
+Color=176,179,186
+
+[Color0Faint]
+Color=132,135,148
+
+[Color0Intense]
+Color=69,71,79
+
+[Color1Faint]
+Color=237,84,105
+
+[Color1Intense]
+Color=232,38,64
+
+[Color2Faint]
+Color=136,197,119
+
+[Color2Intense]
+Color=105,182,84
+
+[Color3Faint]
+Color=241,138,65
+
+[Color3Intense]
+Color=237,109,18
+
+[Color4Faint]
+Color=100,189,221
+
+[Color4Intense]
+Color=58,171,212
+
+[Color5Faint]
+Color=184,117,169
+
+[Color5Intense]
+Color=165,85,148
+
+[Color6Faint]
+Color=73,233,182
+
+[Color6Intense]
+Color=28,227,164
+
+[Color7Faint]
+Color=228,228,231
+
+[Color7Intense]
+Color=255,255,255
+

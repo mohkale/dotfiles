@@ -1,0 +1,70 @@
+[Appearance]
+BackgroundColorOpacity=42
+Skin=an-old-hope
+SkinInstalledWithKns=true
+Translucency=true
+
+[Behavior]
+FocusFollowsMouse=true
+OpenAfterStart=true
+
+[Desktop Entry]
+DefaultProfile=Mohkale.profile
+
+[Dialogs]
+FirstRun=false
+
+[DownloadDialog Settings]
+Height 1600=494
+Width 2560=700
+
+[Favorite Profiles]
+Favorites=
+
+[KFileDialog Settings]
+Recent Files[$e]=170824-breeze-gruvbox-dark.zip,file:///usr/share/sounds/Oxygen-Im-Sms.ogg,file:$HOME/Downloads/170824-breeze-gruvbox-dark.zip
+Recent URLs[$e]=file:///usr/share/sounds/
+
+[Shortcuts]
+close-active-terminal=Ctrl+Alt+C
+close-session=Ctrl+Shift+K
+decrease-window-height=Ctrl+-; Ctrl+_
+decrease-window-width=Ctrl+<;\s
+file_quit=Ctrl+Alt+K
+grow-terminal-bottom=Meta+Ctrl+Alt+J
+grow-terminal-left=Meta+Ctrl+Alt+H
+grow-terminal-right=Meta+Ctrl+Alt+L
+grow-terminal-top=Meta+Ctrl+Alt+K
+increase-window-height=Ctrl++; Ctrl+=
+increase-window-width=Ctrl+>;\s
+move-session-left=none
+move-session-right=none
+new-session=Ctrl+T
+next-session=Ctrl+Tab
+next-terminal=Meta+Ctrl+L; Meta+Ctrl+J
+options_configure=Meta+Alt+S
+previous-session=Ctrl+Shift+Tab
+previous-terminal=Meta+Ctrl+H; Meta+Ctrl+K
+rename-session=Alt+R
+split-left-right=Meta+Shift+V
+split-top-bottom=Meta+Shift+H
+switch-to-session-1=Ctrl+1
+switch-to-session-10=Ctrl+0
+switch-to-session-2=Ctrl+2
+switch-to-session-3=Ctrl+3
+switch-to-session-4=Ctrl+4
+switch-to-session-5=Ctrl+5
+switch-to-session-6=Ctrl+6
+switch-to-session-7=Alt+7
+switch-to-session-8=Ctrl+8
+switch-to-session-9=Ctrl+9
+toggle-session-keyboard-input=Alt+P
+toggle-window-state=Ctrl+"
+
+[Window]
+DynamicTabTitles=true
+Height=40
+KeepAbove=false
+KeepOpenAfterLastSessionCloses=true
+ShowOnAllDesktops=false
+Width=100

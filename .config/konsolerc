@@ -1,0 +1,16 @@
+[Desktop Entry]
+DefaultProfile=Mohkale.profile
+
+[Favorite Profiles]
+Favorites=
+
+[MainWindow]
+Height 1600=931
+State=AAAA/wAAAAD9AAAAAAAABu4AAAOFAAAABAAAAAQAAAAIAAAACPwAAAAA
+ToolBarsMovable=Disabled
+Width 2560=1774
+
+[TabBar]
+NewTabButton=true
+TabBarPosition=Top
+TabBarVisibility=AlwaysShowTabBar

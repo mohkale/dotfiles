@@ -1,0 +1,125 @@
+#!/bin/bash
+
+#  _               _         ____  ____  _
+# | |__   __ _ ___| |__     |  _ \/ ___|/ |
+# | '_ \ / _` / __| '_ \    | |_) \___ \| |
+# | |_) | (_| \__ \ | | |   |  __/ ___) | |
+# |_.__/ \__,_|___/_| |_|___|_|   |____/|_|
+#                      |_____|
+
+# bash script to setup and configure my bash prompt. The bash prompt is a direct
+# fork of the bash prompt used by default in CMDer, with some mild enhancements.
+#
+# Default format is:
+#
+# username@hostname path (git-branch)
+# λ
+#
+# if an environment variable, COLOR_CODED_PS1 is truthy, bash prompt will be set to
+# change color codes depending on the exit code of the last command.
+#
+
+case "${TERM}" in
+    dumb)
+        export PS1="> " # dumb terminal used be emacs tramp
+        ;;
+    xterm*|rxvt*|eterm*|screen*)
+        git_prompt_path="${HOME}/programming/scripts/external/git-prompt.sh"
+
+        if [ ! -f "${git_prompt_path}" ]; then
+            printf "bash_ps1::error() : git prompt script not found: %s" "${git_prompt_path}" >&2
+            __git_ps1() { echo ""; } # when not given, git PS1 just outputs an empty string to out
+        else
+            . "${git_prompt_path}" # source git prompt script to define __git_ps1
+        fi
+
+        if [ ! ${COLOR_CODED_PS1} ]; then
+            PS1='\[\033[01;32m\]\u@\h \[\033[33m\]\w\[\033[34m\]\e[2m$(__git_ps1)\n\[\033[0m\]λ '
+        else
+            _pre_prompt() {
+                # See For More: https://misc.flogisoft.com/bash/tip_colors_and_formatting
+                # Color Codes: \[\033[0;%dm\] % (code)
+                #     * BLACK             ~> 30
+                #     * RED               ~> 31
+                #     * GREEN             ~> 32
+                #     * YELLOW            ~> 33
+                #     * LIGHT_BLUE        ~> 34
+                #     * PURPLE            ~> 35
+                #     * CYAN              ~> 36
+                #     * WHITE             ~> 37
+                #     * RESTORE           ~> 39
+                #     * Dark Grey         ~> 90
+                #     * Light Red         ~> 91
+                #     * Light Green       ~> 92
+                #     * Light Yellow      ~> 93
+                #     * Light Blue        ~> 94
+                #     * Light Magenta     ~> 95
+                #     * Light Cyan        ~> 96
+                #     * Light Wight (WTF) ~> 97
+
+                local previous_exit_code="$?"
+                local user_color="\[\033[01;32m\]"
+
+                case $previous_exit_code in
+                    0) # success
+                        # no color binding for sucess
+                    ;;
+                    1) # catchall for general errors
+                        user_color="\[\033[01;91m\]"
+                    ;;
+                    2) # misuse of shell builtins
+                        user_color="\[\033[01;31m\]"
+                    ;;
+                    126) # command invoked cannot execute
+                        user_color="\[\033[01;31m\]"
+                    ;;
+                    127) # command not found
+                        user_color="\[\033[01;34m\]"
+                    ;;
+                    128) # invalid argument to exit	
+                        user_color="\[\033[01;31m\]"
+                    ;;
+                    129) # SIGHUP
+                        user_color="\[\033[01;31m\]"
+                    ;;
+                    130) # SIGINT
+                        user_color="\[\033[01;33m\]"
+                    ;;
+                    131) # SIGQUIT
+                        user_color="\[\033[01;31m\]"
+                    ;;
+                    132) # SIGILL
+                        user_color="\[\033[01;31m\]"
+                    ;;
+                    133) # SIGTRAP
+                        user_color="\[\033[01;31m\]"
+                    ;;
+                    134) # SIGABRT
+                        user_color="\[\033[01;31m\]"
+                    ;;
+                    135) # SIGBUS
+                        user_color="\[\033[01;31m\]"
+                    ;;
+                    136) # SIGFPE
+                        user_color="\[\033[01;31m\]"
+                    ;;
+                    137) # SIGKILL
+                        user_color="\[\033[01;35m\]"
+                    ;;
+                    255) # Exit Status Out Of Range
+                        user_color="\[\033[01;31m\]"
+                    ;;
+                    *)
+                        user_color="\[\033[01;31m\]"
+                    ;;
+                esac
+
+                export PS1="${user_color}\u@\h \[\033[33m\]\w\[\033[34m\]\e[2m\$(__git_ps1)\n\[\033[0m\]λ "
+
+                return $previous_exit_code # don't
+            }
+
+            export PROMPT_COMMAND=_pre_prompt
+        fi
+        ;;
+esac

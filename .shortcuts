@@ -1,0 +1,124 @@
+#        .__                   __                 __          
+#   _____|  |__   ____________/  |_  ____  __ ___/  |_  ______
+#  /  ___/  |  \ /  _ \_  __ \   __\/ ___\|  |  \   __\/  ___/
+#  \___ \|   Y  (  <_> )  | \/|  | \  \___|  |  /|  |  \___ \ 
+# /____  >___|  /\____/|__|   |__|  \___  >____/ |__| /____  >
+#      \/     \/                        \/                 \/ 
+
+# Windows Compatibility
+cls    clear
+
+
+# Emacs
+ec     emacsclient --no-wait --suppress-output
+enf    emacs-new-frame.sh
+
+
+# Python Shortcuts
+python python3.7
+py     python
+pip    py -m pip
+
+
+# ls Variants
+ll     ls -alf
+la     ls -A
+l      ls -CF
+ls     ls --color=auto --group-directories-first
+
+
+# Colors Colors Colors
+grep   grep  --color=auto
+fgrep  fgrep --color=auto
+egrep  egrep --color=auto
+
+
+# Git Shortcuts
+status  git status
+stage   git stage
+commit  git commit
+
+
+# Directory Maps
+dl      cd ~/Downloads
+music   cd /music
+dtop    cd ~/Desktop
+h       cd ~
+
+
+# File Maps
+st      nvim ~/.etc/shortcuts
+
+
+# Misc
+nv      nvim
+ccat    highlight --out-format=ansi
+image   sxiv
+
+
+# Configure Dotfiles
+dot     /usr/bin/git --git-dir=${HOME}/.dotfiles --work-tree=${HOME}
+dt      dot
+ds      dot status
+dc      dot commit
+da      dot add
+dP      dot pull
+dp      dot push
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Oh God!!! Please Don't Look
+alert notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"
