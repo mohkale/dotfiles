@@ -18,5 +18,9 @@ if [ ! -f "${build_scripts_script}" ]; then
 elif [ ! -f "${shortcuts_file}" ]; then
     printf "bash_aliases::error() : failed to find shortcuts definition file: %s\n" "${shortcuts_file}" >&2
 else
-    . ${build_scripts_script} "${shortcuts_file}"
+    if [ "${SILENCE_SHORTCUTS_WARNING}" ]; then
+        . ${build_scripts_script} "${shortcuts_file}" 2>/dev/null
+    else
+        . ${build_scripts_script} "${shortcuts_file}"
+    fi
 fi

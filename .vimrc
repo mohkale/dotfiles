@@ -38,7 +38,7 @@ call plug#end()
 """"""""""""""""""""""""""""""""""""
 " Configuration Options/Variables  "
 """"""""""""""""""""""""""""""""""""
-let &background = "dark"
+"let &background = "dark"
 let &number = 1
 let &whichwrap = "<,>,h,l,[,]"
 let &tabstop = 4
@@ -50,14 +50,23 @@ let g:NERDTreeWinSize=35
 let g:NERDTreeMinimalUI=1
 set relativenumber
 
+"use block cursor on cygwin
+
+if $TERM == "cygwin"
+    let &t_ti.="\e[1 q"
+    let &t_SI.="\e[5 q"
+    let &t_EI.="\e[1 q"
+    let &t_te.="\e[0 q"
+endif
+
 " SPACES NOT TABS
 set tabstop=8 softtabstop=0 expandtab shiftwidth=4 smarttab
 
 """"""""""""""""""""""""""""""""""""
 "        Needed By Ayu Theme       "
 """"""""""""""""""""""""""""""""""""
-let ayucolor = "mirage"
-let &termguicolors = 1
+"let ayucolor = "mirage"
+"let &termguicolors = 1
 "colorscheme ayu
 
 """"""""""""""""""""""""""""""""""""

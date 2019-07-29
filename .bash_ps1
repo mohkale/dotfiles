@@ -23,7 +23,7 @@ case "${TERM}" in
     dumb)
         export PS1="> " # dumb terminal used be emacs tramp
         ;;
-    xterm*|rxvt*|eterm*|screen*)
+    xterm*|rxvt*|eterm*|screen*|cygwin*)
         git_prompt_path="${HOME}/programming/scripts/external/git-prompt.sh"
 
         if [ ! -f "${git_prompt_path}" ]; then
@@ -34,7 +34,7 @@ case "${TERM}" in
         fi
 
         if [ ! ${COLOR_CODED_PS1} ]; then
-            PS1='\[\033[01;32m\]\u@\h \[\033[33m\]\w\[\033[34m\]\e[2m$(__git_ps1)\n\[\033[0m\]λ '
+            PS1="\[\033[01;32m\]\u@\h \[\033[33m\]\w\[\033[34m\]\e[2m\$(__git_ps1)"$'\n'"\[\033[0m\]λ "
         else
             _pre_prompt() {
                 # See For More: https://misc.flogisoft.com/bash/tip_colors_and_formatting
@@ -114,9 +114,9 @@ case "${TERM}" in
                     ;;
                 esac
 
-                export PS1="${user_color}\u@\h \[\033[33m\]\w\[\033[34m\]\e[2m\$(__git_ps1)\n\[\033[0m\]λ "
+                export PS1="${user_color}\u@\h \[\033[33m\]\w\[\033[34m\]\e[2m\$(__git_ps1)"$'\n'"\[\033[0m\]λ "
 
-                return $previous_exit_code # don't
+                return $previous_exit_code # chain exit code
             }
 
             export PROMPT_COMMAND=_pre_prompt
