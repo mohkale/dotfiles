@@ -21,10 +21,10 @@ pip    py -m pip
 
 
 # ls Variants
+ls     ls --color=auto --group-directories-first
 ll     ls -alf
 la     ls -A
 l      ls -CF
-ls     ls --color=auto --group-directories-first
 
 
 # Colors Colors Colors
@@ -53,17 +53,17 @@ st      nvim ~/.etc/shortcuts
 # Misc
 nv      nvim
 ccat    highlight --out-format=ansi
-image   sxiv
+img     sxiv
 
 
 # Configure Dotfiles
 dot     git --git-dir=${HOME}/.dotfiles --work-tree=${HOME}
-dt      dot
+dd      dot
 ds      dot status
 dc      dot commit
 da      dot add
-dP      dot pull
-dp      dot push
+dp      dot pull
+dP      dot push
 
 
 # Miscellaneous
@@ -122,5 +122,10 @@ cdd     cd -
 
 
 
+
+
+
+
+
 # Oh God!!! Please Don't Look
-alert notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"
+alert notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history | tail -n1 | sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"

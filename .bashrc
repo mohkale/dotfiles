@@ -34,7 +34,8 @@ fi
 scripts_path="${HOME}/programming/scripts"
 
 # COLOR_CODED_PS1=1 # uncomment line to color code bash prompt
-SILENCE_SHORTCUTS_WARNING=1 # uncomment to make build shortcuts quiet
+# SILENCE_SHORTCUTS_WARNING=1 # uncomment to make build shortcuts quiet
+export SHORTCUTS_OVERWRITE_EXISTING=1
 
 # Source all the following scripts
 plugin_scripts=( "${HOME}/.colors.bashrc" "${HOME}/.bash_aliases" "${HOME}/.bash_ps1" )

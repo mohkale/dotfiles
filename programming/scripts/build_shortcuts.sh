@@ -33,7 +33,7 @@ script="$(cat $@ | sed -r -e 's/#.*$//' -e '/^\s+/s/^\s+//' -e '/^\s*$/d' -)"
 # strip comments, entry level indentation & empty lines (in that order) from filestream
 
 while read cut dest; do
-    if alias "${cut}" &>/dev/null; then
+    if [ ! ${SHORTCUTS_OVERWRITE_EXISTING} ] && alias "${cut}" &>/dev/null; then
         echo "build_shortcuts::warning() : shortcut \"${cut}\" already exists" >&2
     else
         alias ${cut}="${dest}"

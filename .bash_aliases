@@ -7,7 +7,13 @@
 #  |___  (____  /____  |___|  _____(____  |____|__(____  /____  >\___  /____  >
 #      \/     \/     \/     \/_____/    \/             \/     \/     \/     \/
 
-smacs() { emacs $@ & } # run emacs as a background process
+case ${OSTYPE} in
+    cygwin*|msys*|win32*)
+        alias smacs='runemacs' ;;
+    *)
+        smacs() { emacs $@ & } ;;
+        # run as a background process
+esac
 
 # build aliases from shortcuts config file
 build_scripts_script="${scripts_path}/build_shortcuts.sh"
