@@ -26,7 +26,7 @@ case "${TERM}" in
     xterm*|rxvt*|eterm*|screen*|cygwin*)
         git_prompt_path="${HOME}/programming/scripts/external/git-prompt.sh"
 
-        __git_ps1 1>/dev/null 2>&1 # attempt to run executeable prompt
+        hash __git_ps1 1>/dev/null 2>&1 # attempt to run executeable prompt
         if [ ! $? -eq 127 ]; then
             if [ ! -f "${git_prompt_path}" ]; then
                 printf "bash_ps1::error() : git prompt script not found: %s" "${git_prompt_path}" >&2

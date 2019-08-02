@@ -58,7 +58,7 @@ img     sxiv
 
 # Configure Dotfiles
 dot     git --git-dir=${HOME}/.dotfiles --work-tree=${HOME}
-dd      dot
+#dd      dot
 ds      dot status
 dc      dot commit
 da      dot add
