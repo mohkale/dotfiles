@@ -23,7 +23,7 @@ case "${TERM}" in
     dumb)
         export PS1="> " # dumb terminal used be emacs tramp
         ;;
-    xterm*|rxvt*|eterm*|screen*|cygwin*)
+    xterm*|rxvt*|eterm*|screen*|cygwin*|emacs*)
         git_prompt_path="${HOME}/programming/scripts/external/git-prompt.sh"
 
         hash __git_ps1 1>/dev/null 2>&1 # attempt to run executeable prompt
