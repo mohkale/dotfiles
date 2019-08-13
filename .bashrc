@@ -47,3 +47,8 @@ for plugin_script in "${plugin_scripts[@]}"; do
         printf "bashrc::warning() : unable to source plugin script: %s\n" "${plugin_script}" >&2
     fi
 done
+
+if which thefuck 2>&1 >/dev/null; then
+    export PYTHONIOENCODING="utf-8"
+    eval $(thefuck --alias fx) 2>&1 >/dev/null
+fi

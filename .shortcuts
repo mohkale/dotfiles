@@ -41,13 +41,28 @@ commit  git commit
 
 # Directory Maps
 dl      cd ~/Downloads
-music   cd /music
+music   cd ~/multimedia/music
 dtop    cd ~/Desktop
 h       cd ~
+sc      cd ~/programming/scripts
+pj      cd ~/programming/projects
+rp      cd ~/programming/repos
+
+
+# directory stack maps
+## aliases of directory maps which push the
+## destinations onto the directory stack.
+qdl     pushd ~/Downloads
+qmusic  pushd ~/multimedia/music
+qdtop   pushd ~/Desktop
+qh      pushd ~
+qsc     pushd ~/programming/scripts
+qpj     pushd ~/programming/projects
+qrp     pushd ~/programming/repos
 
 
 # File Maps
-st      nvim ~/.etc/shortcuts
+st      nvim ~/shortcuts
 
 
 # Misc
@@ -69,63 +84,7 @@ dP      dot push
 # Miscellaneous
 cdd     cd -
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Oh God!!! Please Don't Look
-alert notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history | tail -n1 | sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"
+qa      pushd
+qd      popd
+qq      pushd # swap top two items in stack
+qs      dirs

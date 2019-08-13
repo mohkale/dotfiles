@@ -21,9 +21,9 @@ Plug 'Raimondi/delimitMate'
 Plug 'danro/rename.vim'
 Plug 'godlygeek/tabular'
 Plug 'skammer/vim-css-color'
-"Plug 'ide'
 Plug 'scrooloose/nerdtree'
 Plug 'j-tom/vim-old-hope'
+Plug 'tpope/vim-surround'
 
 """"""""""""""""""""""""""""""""""""
 "              Themes              "
@@ -49,19 +49,18 @@ colorscheme old-hope
 let g:NERDTreeWinSize=35
 let g:NERDTreeMinimalUI=1
 set relativenumber
+set encoding=utf8
+syntax on " syntax highlighting
+" allow backspace in insert mode
+set backspace=indent,eol,start
 
-"use block cursor on cygwin
-
-if $TERM == "cygwin"
-    let &t_ti.="\e[1 q"
-    let &t_SI.="\e[5 q"
-    let &t_EI.="\e[1 q"
-    let &t_te.="\e[0 q"
+if $TERM != "cygwin"
+    set termguicolors
 endif
 
 " SPACES NOT TABS
 set tabstop=8 softtabstop=0 expandtab shiftwidth=4 smarttab
-set termguicolors
+set nocompatible
 
 """"""""""""""""""""""""""""""""""""
 "        Needed By Ayu Theme       "
