@@ -53,6 +53,7 @@ set encoding=utf8
 syntax on " syntax highlighting
 " allow backspace in insert mode
 set backspace=indent,eol,start
+:set ff=dos
 
 if $TERM != "cygwin"
     set termguicolors
