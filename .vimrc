@@ -40,7 +40,7 @@ call plug#end()
 """"""""""""""""""""""""""""""""""""
 "let &background = "dark"
 let &number = 1
-let &whichwrap = "<,>,h,l,[,]"
+set whichwrap = "<,>,h,l,[,]"
 let &tabstop = 4
 let &expandtab = 0
 let &shiftwidth = 4
