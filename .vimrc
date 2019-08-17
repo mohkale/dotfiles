@@ -13,7 +13,9 @@ call plug#begin('~/.vim/plugged')
 Plug 'rbgrouleff/bclose.vim'
 Plug 'francoiscabrol/ranger.vim'
 Plug 'terryma/vim-multiple-cursors'
-Plug 'Valloric/YouCompleteMe'
+if has('python')
+    Plug 'Valloric/YouCompleteMe'
+endif
 Plug 'scrooloose/nerdcommenter'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
@@ -57,6 +59,11 @@ set backspace=indent,eol,start
 
 if $TERM != "cygwin"
     set termguicolors
+else
+    let &t_ti.="\e[1 q"
+    let &t_SI.="\e[5 q"
+    let &t_EI.="\e[1 q"
+    let &t_te.="\e[0 q"
 endif
 
 " SPACES NOT TABS
