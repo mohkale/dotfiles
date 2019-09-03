@@ -47,6 +47,7 @@ h       cd ~
 sc      cd ~/programming/scripts
 pj      cd ~/programming/projects
 rp      cd ~/programming/repos
+em      cd ~/.emacs.d
 
 
 # directory stack maps
@@ -59,6 +60,7 @@ qh      pushd ~
 qsc     pushd ~/programming/scripts
 qpj     pushd ~/programming/projects
 qrp     pushd ~/programming/repos
+qem     pushd ~/.emacs.d
 
 
 # File Maps
