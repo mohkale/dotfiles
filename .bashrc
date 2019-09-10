@@ -48,6 +48,8 @@ for plugin_script in "${plugin_scripts[@]}"; do
     fi
 done
 
+export DOTFILES_REPO_PATH=${HOME}/.dotfiles
+
 if which thefuck 2>&1 >/dev/null; then
     export PYTHONIOENCODING="utf-8"
     eval $(thefuck --alias fx) 2>&1 >/dev/null

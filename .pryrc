@@ -9,4 +9,5 @@ if ENV["INSIDE_EMACS"]
     end
 
     Pry.config.input = Emacsable
+    Pry.color = true
 end

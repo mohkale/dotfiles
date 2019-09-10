@@ -1,16 +1,16 @@
-#        .__                   __                 __          
+#        .__                   __                 __
 #   _____|  |__   ____________/  |_  ____  __ ___/  |_  ______
 #  /  ___/  |  \ /  _ \_  __ \   __\/ ___\|  |  \   __\/  ___/
-#  \___ \|   Y  (  <_> )  | \/|  | \  \___|  |  /|  |  \___ \ 
+#  \___ \|   Y  (  <_> )  | \/|  | \  \___|  |  /|  |  \___ \
 # /____  >___|  /\____/|__|   |__|  \___  >____/ |__| /____  >
-#      \/     \/                        \/                 \/ 
+#      \/     \/                        \/                 \/
 
 # Windows Compatibility
 cls    clear
 
 
 # Emacs
-ec     emacsclient --no-wait --suppress-output
+ec     emacsclient --no-wait --suppress-output --server-file ~/.emacs.d/var/server/server
 enf    emacs-new-frame.sh
 
 
@@ -74,7 +74,7 @@ img     sxiv
 
 
 # Configure Dotfiles
-dot     git --git-dir=${HOME}/.dotfiles --work-tree=${HOME}
+dot     git --git-dir=${DOTFILES_REPO_PATH} --work-tree=${HOME}
 dd      dot
 ds      dot status
 dc      dot commit
