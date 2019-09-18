@@ -5,6 +5,10 @@
 # |_|   |_|  \___/|_| |_|_|\___|
 #
 
+# bootstrap guide:
+#  > git clone --bare https://github.com/MoHKale/.dotfiles $HOME/.dotfiles
+#  > git --git-dir=$HOME/.dotfiles --work-tree=$HOME config --local status.showUntrackedFiles no
+
 # platform dependent config
 case "${OSTYPE}" in
     *cygwin|*msys|*win32)
