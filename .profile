@@ -7,6 +7,7 @@
 
 # bootstrap guide:
 #  > git clone --bare https://github.com/MoHKale/.dotfiles $HOME/.dotfiles
+#  > git --git-dir=$HOME/.dotfiles --work-tree=$HOME checkout
 #  > git --git-dir=$HOME/.dotfiles --work-tree=$HOME config --local status.showUntrackedFiles no
 
 # platform dependent config

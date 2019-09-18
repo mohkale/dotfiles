@@ -104,6 +104,7 @@ _       sudo
 netcat  ncat
 chksum  cksum
 e       nvim
+vim     nvim
 
 
 # standalone-commands
