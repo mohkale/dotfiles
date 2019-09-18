@@ -85,8 +85,21 @@ dP      dot push
 
 # Miscellaneous
 cdd     cd -
+1       cd -
+2       cd -
+3       cd -
+4       cd -
+5       cd -
+6       cd -
+7       cd -
+8       cd -
+9       cd -
 
 qa      pushd
 qd      popd
-qq      pushd # swap top two items in stack
-qs      dirs
+qs      dirs -v
+
+_       sudo
+
+netcat  ncat
+chksum  cksum

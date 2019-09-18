@@ -38,7 +38,12 @@ scripts_path="${HOME}/programming/scripts"
 export SHORTCUTS_OVERWRITE_EXISTING=1
 
 # Source all the following scripts
-plugin_scripts=( "${HOME}/.colors.bashrc" "${HOME}/.bash_aliases" "${HOME}/.bash_ps1" )
+plugin_scripts=(
+    "${HOME}/.colors.bashrc"
+    "${HOME}/.bash_aliases"
+    "${HOME}/.bash_ps1"
+    "${HOME}/.rvm/scripts/rvm"
+)
 
 for plugin_script in "${plugin_scripts[@]}"; do
     if [ -f "${plugin_script}" ]; then
@@ -49,8 +54,3 @@ for plugin_script in "${plugin_scripts[@]}"; do
 done
 
 export DOTFILES_REPO_PATH=${HOME}/.dotfiles
-
-if which thefuck 2>&1 >/dev/null; then
-    export PYTHONIOENCODING="utf-8"
-    eval $(thefuck --alias fx) 2>&1 >/dev/null
-fi
