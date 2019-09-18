@@ -103,3 +103,8 @@ _       sudo
 
 netcat  ncat
 chksum  cksum
+e       nvim
+
+
+# standalone-commands
+bash-startup-files      echo exit | strace bash -li |& less | grep '^open'
