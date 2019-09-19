@@ -103,8 +103,8 @@ _       sudo
 
 netcat  ncat
 chksum  cksum
-e       nvim
-vim     nvim
+e       ${EDITOR}
+vim     ${EDITOR}
 
 
 # standalone-commands
