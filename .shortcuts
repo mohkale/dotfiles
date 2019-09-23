@@ -67,10 +67,22 @@ qem     pushd ~/.emacs.d
 st      nvim ~/shortcuts
 
 
-# Misc
+# Programs
+_       sudo
 nv      nvim
 ccat    highlight --out-format=ansi
 img     sxiv
+## istat = inline stat
+istat   stat -c "%A %08s %n"
+netcat  ncat
+chksum  cksum
+e       ${EDITOR}
+vim     ${EDITOR}
+unmount umount
+
+qa      pushd
+qd      popd
+qs      dirs -v
 
 
 # Configure Dotfiles
@@ -94,17 +106,6 @@ cdd     cd -
 7       cd -
 8       cd -
 9       cd -
-
-qa      pushd
-qd      popd
-qs      dirs -v
-
-_       sudo
-
-netcat  ncat
-chksum  cksum
-e       ${EDITOR}
-vim     ${EDITOR}
 
 
 # standalone-commands
