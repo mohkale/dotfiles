@@ -5,6 +5,7 @@
 "   \_/ |_|_| |_| |_|_|  \___|
 "
 
+
 """"""""""""""""""""""""""""""""""""
 "              Plugins             "
 """"""""""""""""""""""""""""""""""""
@@ -27,6 +28,9 @@ Plug 'danro/rename.vim'
 " Plug 'scrooloose/nerdtree'
 " change surrounding pairs
 Plug 'tpope/vim-surround'
+" like emacs avy-jump
+"" need to properly implement
+" Plug 'easymotion/vim-easymotion'
 
 if has('python')
     " vim on bash for windows isn't built
@@ -81,14 +85,14 @@ endif
 """"""""""""""""""""""""""""""""""""
 
 " use C-g as an alias for escape
-"" doesn't work for insert mode or which-key
-cnoremap <C-g> <Esc>      " command line mode
-nnoremap <C-g> <Esc>      " normal mode
-vnoremap <C-g> <Esc>gV    " visual & select mode
-onoremap <C-g> <Esc>      " operator pending mode
-cnoremap <C-g> <C-C><Esc> " command line mode
+"" doesn't work for insert mode
+cnoremap <C-g> <Esc>
+nnoremap <C-g> <Esc>
+vnoremap <C-g> <Esc>gV
+onoremap <C-g> <Esc>
+cnoremap <C-g> <C-C><Esc>
 " inoremap <C-g> <Esc>`^
-" nnoremap <Leader><C-g> :call which_key#window#close()<cr>
+let g:which_key_exit = [27, 7]
 
 " some nostalgic emacs like bindings
 inoremap <C-a>  <C-o>0
@@ -96,6 +100,9 @@ inoremap <C-e>  <C-o>$
 cnoremap <C-a>  <Home>
 cnoremap <C-e>  <End>
 imap     <C-y>  <C-o>p
+
+"
+nnoremap Y y$
 
 """"""""""""""""""""""""""""""""""""
 "           leader keys            "
@@ -107,16 +114,19 @@ let g:which_key_map = {}
 nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
 
 " Manipulate This Configuration File
-nnoremap <leader>fvc :tabedit ~/.vimrc<cr>
-nnoremap <leader>fvr :source  ~/.vimrc<cr>
+nnoremap <leader>fec :tabedit ~/.vimrc<cr>
+nnoremap <leader>fer :source  ~/.vimrc<cr>
 
 " Select All with Ctrl+A
-nnoremap <c-a> ggVGo
+nnoremap <C-a> ggVGo
 
 """"""""""""""""""""""""""""""""""""
 "         leader prefixes          "
 """"""""""""""""""""""""""""""""""""
-let g:which_key_map.f = { 'name' : '+files' }
+let g:which_key_map.f   = { 'name' : '+files' }
+" don't ask... emacs has made me used to fe
+let g:which_key_map.f.e = { 'name' : '+vim' }
+
 let g:which_key_map.c = { 'name' : '+compile/comments' }
 let g:which_key_map.b = { 'name' : '+buffers' }
 
