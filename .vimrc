@@ -62,6 +62,8 @@ set number         " enable line numbers
 set relativenumber " make them relative
 set noautoindent   " no auto indenting
 set ff=unix        " preffered file format
+set splitbelow     " split to below, not up
+set splitright     " split to right, not left
 set encoding=utf8
 
 set backspace=indent,eol,start " allow backspace in insert mode
