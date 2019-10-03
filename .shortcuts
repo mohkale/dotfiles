@@ -12,6 +12,8 @@ cls    clear
 # Emacs
 ec     emacsclient --no-wait --suppress-output --server-file ~/.emacs.d/var/server/server
 enf    emacs-new-frame.sh
+ex     emacs
+sx     smacs
 
 
 # Python Shortcuts

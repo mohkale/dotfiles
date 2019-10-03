@@ -67,19 +67,13 @@ export PYTHONPATH=`lines_to_path $PYTHONPATH <<EOF
 ~/programming/.modules/python
 EOF`
 
-export GEM_HOME=~/programming/.modules/ruby
-
-export GEM_PATH=`lines_to_path $GEM_PATH <<EOF
-${GEM_HOME}
-EOF`
-
 if [ ${OSTYPE} == "msys" -o ${OSTYPE} == "cygwin" ]; then
     # for programs that don't care about the environment,
     # only about the OS, convert back to a windows like path.
     # NOTE Also convert ~ to ${HOME} cause apparrently python
     #      won't accept ~ as ${HOME} in PATH variables.
 
-    for path_var in CLASSPATH PYTHONPATH GEM_PATH; do
+    for path_var in CLASSPATH PYTHONPATH; do
         export ${path_var}=$(cygpath --windows --path "$(echo "${!path_var}" | sed 's ~ '"${HOME}"' g')")
     done
 fi
