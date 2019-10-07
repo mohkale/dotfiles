@@ -86,7 +86,7 @@ if [ -n "$BASH_VERSION" ]; then
     fi
 fi
 
-if which thefuck 2>&1 >/dev/null; then
+if which thefuck >/dev/null 2>&1; then
     export PYTHONIOENCODING="utf-8"
     if ! eval $(thefuck --alias fx) 2>&1 >/dev/null; then
         echo "profile::warning() : failed to initialise 'thefuck'" >&2
