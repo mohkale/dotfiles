@@ -24,6 +24,8 @@ case "${OSTYPE}" in
 esac
 
 export VISUAL="${EDITOR}"
+export PAGER=less
+export LESS="-R"
 
 # set path based variables
 lines_to_path() { #(PATH [...PATH])
