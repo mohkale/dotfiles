@@ -37,7 +37,8 @@ pip    py -m pip
 # ls Variants
 ls     ls --color=auto --group-directories-first
 l      ls -CF
-ll     ls -alf
+ll     ls -l
+lal    ls -al
 la     ls -A
 
 

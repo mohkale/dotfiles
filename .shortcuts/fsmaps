@@ -17,8 +17,9 @@ dtop         ~/desktop
 music        ~/multimedia/music
 
 # Files
+profile@file ~/.profile
 ## edit shortcut files
-stg@file      ~/.shortcuts/shortcuts
+stg@file     ~/.shortcuts/shortcuts
 stw@file     ~/.shortcuts/shortcuts.windows
 stl@file     ~/.shortcuts/shortcuts.linux
 stm@file     ~/.shortcuts/shortcuts.macos
