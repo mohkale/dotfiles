@@ -9,35 +9,45 @@
 
 # build aliases from shortcuts config file
 build_shortcuts_script="${scripts_path}/build_shortcuts.sh"
-shortcuts_file="${HOME}/.shortcuts"
+build_fsshortcuts_script="${scripts_path}/build_fsshortcuts.sh"
 
-if [ ! -f "${build_shortcuts_script}" ]; then
-    printf "bash_aliases::error() : failed to find build_shortcuts script: %s\n" "${build_shortcuts_script}" >&2
-elif [ ! -f "${shortcuts_file}" ]; then
-    printf "bash_aliases::error() : failed to find shortcuts definition file: %s\n" "${shortcuts_file}" >&2
-else
-    if [ "${SILENCE_SHORTCUTS_WARNING}" ]; then
-        . ${build_shortcuts_script} "${shortcuts_file}" 2>/dev/null
+_source_shortcuts_file() { # (SCRIPT, PATH)
+    if [ ! -f "$1" ]; then
+        printf "bash_aliases::error : failed to find build shortcuts script: %s\n" "$1" >&2
+        return 1
+    elif [ ! -f "$2" ]; then
+        printf "bash_aliases::warning : failed to find shortcuts definition file: %s\n" "$2" >&2
+        return 2
     else
-        . ${build_shortcuts_script} "${shortcuts_file}"
+        if [ "${SILENCE_SHORTCUTS_WARNING}" ]; then
+            . "$1" "$2" 2>/dev/null
+        else
+            . "$1" "$2"
+        fi
     fi
-fi
+}
 
-# OS dependent bindings
+_source_shortcuts_file "${build_shortcuts_script}"   "${HOME}/.shortcuts/shortcuts"
+_source_shortcuts_file "${build_fsshortcuts_script}" "${HOME}/.shortcuts/fsmaps"
+
 get_last_command() { history | tail -n 2 | head -n 1 | sed -E 's/^ [0-9]+  //'; }
 
 case ${OSTYPE} in
     cygwin*|msys*|win32*)
-        alias smacs='runemacs'
-
         alert() {
             # no configuration, simply notify the user of a message under the title of the last command
             notifu -w -t $([ $? -eq 0 ] && echo "info" || echo "error") -p "$(get_last_command)" -m "$*"
         }
-        ;;
+
+        _source_shortcuts_file "${build_shortcuts_script}" "${HOME}/.shortcuts/shortcuts.windows" ;;
+    darwin*)
+        _source_shortcuts_file "${build_shortcuts_script}" "${HOME}/.shortcuts/shortcuts.macos" ;;
+    linux-gnu*)
+        smacs() { emacs "$@" & }  # run as a background process
+
+        _source_shortcuts_file "${build_shortcuts_script}" "${HOME}/.shortcuts/shortcuts.linux" ;;
     *)
-        smacs() { emacs $@ & }
-        alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(get_last_command)"'
-        ;;
-    # run as a background process
+        printf "basah_aliases::warning : unknown os type: %s\n" "${OSTYPE}" >&2 ;;
 esac
+
+unset -f _source_shortcuts_file

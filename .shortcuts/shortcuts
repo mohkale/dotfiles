@@ -1,0 +1,95 @@
+#        .__                   __                 __
+#   _____|  |__   ____________/  |_  ____  __ ___/  |_  ______
+#  /  ___/  |  \ /  _ \_  __ \   __\/ ___\|  |  \   __\/  ___/
+#  \___ \|   Y  (  <_> )  | \/|  | \  \___|  |  /|  |  \___ \
+# /____  >___|  /\____/|__|   |__|  \___  >____/ |__| /____  >
+#      \/     \/                        \/                 \/
+
+# Programs
+_       sudo
+e       ${EDITOR}
+nv      nvim
+ccat    highlight --out-format=ansi
+img     sxiv
+netcat  ncat
+chksum  cksum
+unmount umount
+istat   stat -c "%A %08s %n"  # inline stat
+
+
+# Windows Compatibility
+cls    clear
+
+
+# Emacs
+ec     emacsclient --no-wait --suppress-output --server-file ~/.emacs.d/var/server/server
+enf    emacs-new-frame.sh
+ex     emacs
+sx     smacs
+
+
+# Python Shortcuts
+python python3.7
+py     python
+pip    py -m pip
+
+
+# ls Variants
+ls     ls --color=auto --group-directories-first
+l      ls -CF
+ll     ls -alf
+la     ls -A
+
+
+# Colors Colors Colors
+grep   grep  --color=auto
+fgrep  fgrep --color=auto
+egrep  egrep --color=auto
+
+
+# Git - Version Control
+g       git
+ga      g add
+gc      g commit
+gd      g diff
+gl      g log
+gs      g status
+gm      g move
+gr      g rm
+gp      g pull
+gP      g push
+
+
+# Configure Dotfiles
+dot     git --git-dir=${DOTFILES_REPO_PATH} --work-tree=${HOME}
+d       dot
+da      d add
+dc      d commit
+dd      d diff
+dl      d log
+ds      d status
+dm      d move
+dr      d rm
+dp      d pull
+dP      d push
+
+
+# Change Directory
+qa      pushd
+qd      popd
+qs      dirs -v
+
+cdd     cd -
+cd1     cd ../
+cd2     cd ../../
+cd3     cd ../../../
+cd4     cd ../../../../
+cd5     cd ../../../../../
+cd6     cd ../../../../../../
+cd7     cd ../../../../../../../
+cd8     cd ../../../../../../../../
+cd9     cd ../../../../../../../../../
+
+
+# standalone-commands
+bash-startup-files      echo exit | strace bash -li | grep 'open(' | less
