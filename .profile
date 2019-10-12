@@ -82,11 +82,17 @@ fi
 
 unset -f lines_to_path # thank you, good bye
 
-# if [ -n "$BASH_VERSION" ]; then
-#     if [ -f "${HOME}/.bashrc" ]; then
-#         . "${HOME}/.bashrc"
-#     fi
-# fi
+case ${OSTYPE} in
+    cygwin*|msys*|win32*)
+        ;;  # sources bashrc automatically
+    *)
+        if [ -n "$BASH_VERSION" ]; then
+            if [ -f "${HOME}/.bashrc" ]; then
+                . "${HOME}/.bashrc"
+            fi
+        fi 
+        ;;
+esac
 
 if which thefuck >/dev/null 2>&1; then
     export PYTHONIOENCODING="utf-8"
