@@ -90,7 +90,7 @@ case ${OSTYPE} in
             if [ -f "${HOME}/.bashrc" ]; then
                 . "${HOME}/.bashrc"
             fi
-        fi 
+        fi
         ;;
 esac
 

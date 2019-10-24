@@ -33,9 +33,8 @@ fi
 
 scripts_path="${HOME}/programming/scripts"
 
-# COLOR_CODED_PS1=1 # uncomment line to color code bash prompt
+# COLOR_CODED_PS1=1           # uncomment line to color code bash prompt
 # SILENCE_SHORTCUTS_WARNING=1 # uncomment to make build shortcuts quiet
-export SHORTCUTS_OVERWRITE_EXISTING=1
 
 # Source all the following scripts
 plugin_scripts=(
@@ -49,7 +48,7 @@ for plugin_script in "${plugin_scripts[@]}"; do
     if [ -f "${plugin_script}" ]; then
         . "${plugin_script}"
     else
-        printf "bashrc::warning() : unable to source plugin script: %s\n" "${plugin_script}" >&2
+        printf "bashrc::warning : unable to source plugin script: %s\n" "${plugin_script}" >&2
     fi
 done
 

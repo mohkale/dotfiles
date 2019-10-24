@@ -21,7 +21,7 @@
 
 case "${TERM}" in
     dumb)
-        export PS1="> " # dumb terminal used be emacs tramp
+        export PS1="> " # dumb terminal used by emacs tramp
         ;;
     xterm*|rxvt*|eterm*|screen*|cygwin*|emacs*)
         git_prompt_path="${HOME}/programming/scripts/external/git-prompt.sh"
@@ -79,7 +79,7 @@ case "${TERM}" in
                     127) # command not found
                         user_color="\[\033[01;34m\]"
                     ;;
-                    128) # invalid argument to exit	
+                    128) # invalid argument to exit
                         user_color="\[\033[01;31m\]"
                     ;;
                     129) # SIGHUP

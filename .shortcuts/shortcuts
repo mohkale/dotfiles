@@ -7,9 +7,11 @@
 
 # Programs
 _       sudo
-e       ${EDITOR}
+edit    ${EDITOR}
+e       edit
 nv      nvim
 ccat    highlight --out-format=ansi
+mcd     makecd
 img     sxiv
 netcat  ncat
 chksum  cksum
@@ -79,6 +81,15 @@ dP      d push
 qa      pushd
 qd      popd
 qs      dirs -v
+q1      pushd +1
+q2      pushd +2
+q3      pushd +3
+q4      pushd +4
+q5      pushd +5
+q6      pushd +6
+q7      pushd +7
+q8      pushd +8
+q9      pushd +9
 
 cdd     cd -
 cd1     cd ../
