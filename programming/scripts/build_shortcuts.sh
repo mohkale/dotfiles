@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 read_scripts() { #(*files)
     cat $@ | sed -r - -e 's/#.*$//' -e '/^\s+/s/^\s+//' -e '/^\s*$/d' -e 's/'"'"'/'"'"'"'"'"'"'"'"'/g'
     # strip comments, entry level indentation, empty lines and escape single quotes (in that order)
