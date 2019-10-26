@@ -75,6 +75,7 @@ dm      d move
 dr      d rm
 dp      d pull
 dP      d push
+distat  d ls-tree --full-tree --full-name -r --name-only HEAD | awk '{ printf("%s/%s\\0", ''"'${HOME}'"'', $1) }' |  xargs -r0 stat -c "%A %08s %n"
 
 
 # Change Directory
