@@ -20,6 +20,7 @@ music        ~/multimedia/music
 profile@file ~/.profile
 ## edit shortcut files
 stg@file     ~/.shortcuts/shortcuts
+ste@file     ~/.shortcuts/shortcuts.eshell
 stw@file     ~/.shortcuts/shortcuts.windows
 stl@file     ~/.shortcuts/shortcuts.linux
 stm@file     ~/.shortcuts/shortcuts.macos
