@@ -7,7 +7,7 @@
 
 # Programs
 _       sudo
-edit    ${EDITOR}
+edit    $EDITOR
 e       edit
 nv      nvim
 ccat    highlight --out-format=ansi
@@ -17,6 +17,7 @@ netcat  ncat
 chksum  cksum
 unmount umount
 istat   stat -c "%A %08s %n"  # inline stat
+ctemp   mcd $(mktemp -d)
 
 
 # Windows Compatibility
@@ -64,7 +65,7 @@ gP      g push
 
 
 # Configure Dotfiles
-dot     git --git-dir=${DOTFILES_REPO_PATH} --work-tree=${HOME}
+dot     git --git-dir=$DOTFILES_REPO_PATH --work-tree=$HOME
 d       dot
 da      d add
 dc      d commit
@@ -75,7 +76,7 @@ dm      d move
 dr      d rm
 dp      d pull
 dP      d push
-distat  d ls-tree --full-tree --full-name -r --name-only HEAD | awk '{ printf("%s/%s\\0", ''"'${HOME}'"'', $1) }' |  xargs -r0 stat -c "%A %08s %n"
+distat  d ls-tree --full-tree --full-name -r --name-only HEAD | awk -v home="$HOME" '{ printf("%s/%s\\0", home, $1) }' |  xargs -r0 stat -c "%A %08s %n"
 
 
 # Change Directory

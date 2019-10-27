@@ -20,6 +20,10 @@ mktempb   create-new-empty-buffer
 scratch   switch-to-scratch-buffer $1
 
 
+# script invocations
+refresh-shortcuts . ~/.emacs.d/bin/eshell/eshortcuts.esh
+
+
 # directory stack
 cds       cd =
 cds0      cd -0

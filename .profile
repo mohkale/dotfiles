@@ -26,6 +26,7 @@ esac
 export VISUAL="${EDITOR}"
 export PAGER=less
 export LESS="-R"
+export DOTFILES_REPO_PATH=${HOME}/.dotfiles
 
 # set path based variables
 lines_to_path() { #(PATH [...PATH])
@@ -95,8 +96,15 @@ case ${OSTYPE} in
 esac
 
 if which thefuck >/dev/null 2>&1; then
-    export PYTHONIOENCODING="utf-8"
-    if ! eval $(thefuck --alias fx) 2>&1 >/dev/null; then
-        echo "profile::warning() : failed to initialise 'thefuck'" >&2
-    fi
+    # honestly I doubt I'll really be using 'the-fuck' but
+    # lazy loading it is a near effortless task so why not
+
+    export PYTHONIOENCODING="utf-8" # prevents error msg
+    # lazy load 'the fuck' using an alias which evaluates
+    # it removes the alias and then runs it for the first
+    # time
+
+    alias='fx' # alias under which 'the-fuck' will be invoked... actually a bash function
+    alias ${alias}='eval $(thefuck --alias '${alias}') && unalias '${alias}' && '${alias}
+    unset alias # remove a basically uselass environment variable from the local shell scope
 fi

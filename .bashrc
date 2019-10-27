@@ -51,5 +51,3 @@ for plugin_script in "${plugin_scripts[@]}"; do
         printf "bashrc::warning : unable to source plugin script: %s\n" "${plugin_script}" >&2
     fi
 done
-
-export DOTFILES_REPO_PATH=${HOME}/.dotfiles
