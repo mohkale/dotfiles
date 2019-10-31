@@ -25,3 +25,5 @@ stw@file     ~/.shortcuts/shortcuts.windows
 stl@file     ~/.shortcuts/shortcuts.linux
 stm@file     ~/.shortcuts/shortcuts.macos
 stf@file     ~/.shortcuts/fsmaps
+# Temp FS
+etemp@file   $(mktemp)

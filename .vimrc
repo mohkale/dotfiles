@@ -31,6 +31,7 @@ Plug 'tpope/vim-surround'
 " like emacs avy-jump
 "" need to properly implement
 " Plug 'easymotion/vim-easymotion'
+Plug 'udalov/kotlin-vim'
 
 if has('python')
     " vim on bash for windows isn't built

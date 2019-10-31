@@ -17,7 +17,8 @@ netcat  ncat
 chksum  cksum
 unmount umount
 istat   stat -c "%A %08s %n"  # inline stat
-ctemp   mcd $(mktemp -d)
+ctemp   cd    $(mktemp -d)
+qtemp   pushd $(mktemp -d)
 
 
 # Windows Compatibility
@@ -25,10 +26,12 @@ cls    clear
 
 
 # Emacs
-ec     emacsclient --no-wait --suppress-output --server-file ~/.emacs.d/var/server/server
-enf    emacs-new-frame.sh
-ex     emacs
-sx     smacs
+emacsclient  emacsclient --server-file ~/.emacs.d/var/server/server
+emacs-tangle bash -c 'cd ~/.emacs.d && ./bin/tangle'
+ec           emacsclient --no-wait --suppress-output
+ex           emacs
+sx           smacs
+et           emacs-tangle
 
 
 # Python Shortcuts

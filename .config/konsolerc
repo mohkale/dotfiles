@@ -5,11 +5,16 @@ DefaultProfile=Mohkale.profile
 Favorites=
 
 [MainWindow]
-Height 1600=1581
-State=AAAA/wAAAAD9AAAAAAAABP4AAAYOAAAABAAAAAQAAAAIAAAACPwAAAAA
+Height 1080=1028
+Height 1600=1064
+Height 800=774
+Height 900=848
+State=AAAA/wAAAAD9AAAAAAAABP4AAAL6AAAABAAAAAQAAAAIAAAACPwAAAAA
 ToolBarsMovable=Disabled
-Width 2560=2558
-Window-Maximized 1600x2560=true
+Width 1280=1278
+Width 1400=1396
+Width 1920=1916
+Width 2560=825
 
 [TabBar]
 NewTabButton=true

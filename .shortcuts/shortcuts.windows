@@ -1,2 +1,3 @@
 smacs      runemacs
 tree       tree.com
+ywd        pwd | tee /dev/tty | cygpath -f - -w | clip
