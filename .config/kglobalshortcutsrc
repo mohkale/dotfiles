@@ -25,11 +25,11 @@ display=Display\tMeta+P,Display\tMeta+P,Switch Display
 [khotkeys]
 _k_friendly_name=KDE Daemon
 {22feadfd-6078-4e90-a642-1eb28febc973}=Ctrl+.,none,New Emacs
-{99ba33ca-20aa-4843-81db-cc74f209a5a9}=Ctrl+:,none,Cycle Emacs Backwards
+{99ba33ca-20aa-4843-81db-cc74f209a5a9}=Alt+Return,none,Cycle Emacs Backwards
 {a19522af-8eaf-43ce-840d-8e1b645b0bc3}=Ctrl+',none,Toggle Yakuake
 {d03619b6-9b3c-48cc-9d9c-a2aadb485550}=,none,Search
 {f30fc2eb-1472-4c9b-982f-68467fc9fc20}=Ctrl+",none,Launch Konsole
-{f8dd916b-9cb6-4bec-897d-fe4a103c30c1}=Ctrl+;,none,Cycle Emacs
+{f8dd916b-9cb6-4bec-897d-fe4a103c30c1}=Ctrl+Return,none,Cycle Emacs
 
 [kmix]
 _k_friendly_name=Audio Volume
