@@ -19,11 +19,16 @@ music        ~/multimedia/music
 # Files
 profile@file ~/.profile
 ## edit shortcut files
+fsg@file     ~/.shortcuts/fsmaps
+fse@file     ~/.shortcuts/eshell/fsmaps
+fsw@file     ~/.shortcuts/windows/fsmaps
+fsl@file     ~/.shortcuts/linux/fsmaps
+fsm@file     ~/.shortcuts/macos/fsmaps
+
 stg@file     ~/.shortcuts/shortcuts
-ste@file     ~/.shortcuts/shortcuts.eshell
-stw@file     ~/.shortcuts/shortcuts.windows
-stl@file     ~/.shortcuts/shortcuts.linux
-stm@file     ~/.shortcuts/shortcuts.macos
-stf@file     ~/.shortcuts/fsmaps
+ste@file     ~/.shortcuts/eshell/shortcuts
+stw@file     ~/.shortcuts/windows/shortcuts
+stl@file     ~/.shortcuts/linux/shortcuts
+stm@file     ~/.shortcuts/macos/shortcuts
 # Temp FS
 etemp@file   $(mktemp)

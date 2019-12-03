@@ -7,6 +7,7 @@
 
 # Programs
 _       sudo
+wai     whoami
 edit    $EDITOR
 e       edit
 nv      nvim
@@ -75,7 +76,7 @@ dc      d commit
 dd      d diff
 dl      d log
 ds      d status
-dm      d move
+dm      d mv
 dr      d rm
 dp      d pull
 dP      d push

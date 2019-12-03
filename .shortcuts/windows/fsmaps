@@ -1,0 +1,17 @@
+# Directories
+avi          c:/Avibuso
+icons        c:/Avibuso/multifolder/icons
+dlrand       e:/Downloads/Random
+dlanime      e:/Downloads/Anime
+dlmusic      e:/Downloads/Music
+games        e:/Games
+movies       e:/Multimedia/Movies
+tv           e:/Multimedia/TV
+tvtemp       e:/Multimedia/TV/'(Temp)'
+
+# Directories
+pf           'c:/Program Files'
+pf86         'c:/Program Files (x86)'
+# horrendous naming... my bad :(
+cipf         'c:/C.I.Programs'
+sppf         'c:/SP_CI_PROGRAMS'

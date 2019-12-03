@@ -8,48 +8,61 @@ read_scripts() { #(*files)
 create_program_aliases() { #(*files)
     script="$(read_scripts $@)"
 
-    while read cut dest; do
-        echo alias ${cut}="'"${dest}"'"
-    done <<< ${script}
+    if [ ! -z "${script}" ]; then
+        while read cut dest; do
+            echo alias ${cut}="'"${dest}"'"
+        done <<< ${script}
+    fi
 }
 
 create_fs_aliases() {
     script="$(read_scripts $@)"
 
-    while read cut dest; do
-        is_file=1 # whether fs map references an editable file or (cd/pushd)-able directory
-        case $cut in *@file) cut=$(echo "${cut}" | sed -e 's/@file$//'); is_file=0; ;; esac
+    if [ ! -z "${script}" ]; then
+        while read cut dest; do
+            is_file=1 # whether fs map references an editable file or (cd/pushd)-able directory
+            case $cut in *@file) cut=$(echo "${cut}" | sed -e 's/@file$//'); is_file=0; ;; esac
 
-        if [ $is_file -eq 0 ]; then
-            echo alias ${cut}="'"${EDITOR:-edit}' '${dest}"'"
-        else
-            echo alias  ${cut}="'"'cd '${dest}"'"
-            echo alias q${cut}="'"'pushd '${dest}"'"
-        fi
-    done <<< ${script}
+            if [ $is_file -eq 0 ]; then
+                echo alias ${cut}="'"${EDITOR:-edit}' '${dest}"'"
+            else
+                echo alias  ${cut}="'"'cd '${dest}"'"
+                echo alias q${cut}="'"'pushd '${dest}"'"
+            fi
+        done <<< ${script}
+    fi
 }
 
 _inline_alias_calls() {
-    # turn an output stream with rows of alias calls, into one alias calls with multiple alias targets
-    cat | sed 's/^alias //' | tr '\n' ' ' | awk -e 'BEGIN { printf "alias " }' -e '{ printf("%s", $0) }' -e 'END { printf "\n" }'
+    # turn an output stream with rows of alias calls,
+    # into one alias calls with multiple alias targets
+
+    input=$(cat) # read STDIN into variable
+
+    if [ ! -z "${input}" ]; then
+        echo "${input}" \
+            | sed 's/^alias //' \
+            | tr '\n' ' '       \
+            | awk -e 'BEGIN { printf "alias " }' -e '{ printf("%s", $0) }' -e 'END { printf "\n" }'
+    fi
 }
 
 if [ $# = 0 ]; then
     echo 'Usage: eval "$(build_shortcuts.sh SHORTCUTS_FILE [SHORTCUTS_FILE...])"' >&2
     echo "       set the environment variable FS to 1 if creating file system maps"
-    echo "       set the environemnt variable INLINE to 1 to use only one alias command"
+    echo "       set the environment variable INLINE to 1 to use only one alias command"
 else
     failed=1
 
     for file in $@; do
-        if ! ls "${file}" >/dev/null 2>&1; then
-            echo "build_shortcuts::error : shortcut path '${file}' not found" >&2
+        if [ ! -e "${file}" ]; then
+            echo "build_shortcuts(error) : shortcut path '${file}' not found" >&2
             failed=0
         elif [ ! -f "${file}" ]; then
-            echo "build_shortcuts::error : shortcut path '${file}' is not a file" >&2
+            echo "build_shortcuts(error) : shortcut path '${file}' is not a file" >&2
             failed=0
         elif [ ! -r "${file}" ]; then
-            echo "build_shortcuts::error : shortcut file '${file}' is not readable" >&2
+            echo "build_shortcuts(error) : shortcut file '${file}' is not readable" >&2
             failed=0
         fi
     done
