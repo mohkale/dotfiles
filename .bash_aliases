@@ -50,16 +50,7 @@ linux_bindings() {
     smacs() { emacs "$@" & }  # run as a background process
 }
 
-# how it works from the root shortcuts directory:
-#   * shortcuts are read from a file named shortcuts
-#   * file maps are read from a file named fsmaps
-#   * file maps are also read from a files ending with
-#     the extension 'fs' (case insensitive) in the
-#     .private subdirectory
-#   * all other files in the .private directory are read
-#     as shortcut files.
-# the process is then repeated in the platform specific
-# subdirectory.
+# see ~/programming/scripts/list_shortcuts.sh
 get_shortcut_files_for_platform() { # (platform)
     shortcuts_root="$HOME/.shortcuts"
 
