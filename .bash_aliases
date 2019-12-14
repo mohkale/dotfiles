@@ -26,9 +26,9 @@ source_shortcuts() { # (PATH, FS=[1: true, 0: false])
         return 1
     else
         if [ "${SILENCE_SHORTCUTS_WARNING}" ]; then
-            eval $(INLINE=1 "${build_shortcuts_script}" "$@" 2>/dev/null)
+            eval $(INLINE=1 "$build_shortcuts_script" "$@" 2>/dev/null)
         else
-            eval $(INLINE=1 "${build_shortcuts_script}" "$@")
+            eval $(INLINE=1 "$build_shortcuts_script" "$@")
         fi
     fi
 }

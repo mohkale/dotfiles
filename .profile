@@ -63,6 +63,13 @@ EOF`
 
 export CLASSPATH=`lines_to_path $CLASSPATH <<EOF
 .
+# WARN you need to specify both the directory with
+#      wildcards to reference JARs and without them
+#      for finding classes from that directory.
+# WARN for some dumb reason... java & javac just
+#      completely ignore this environment variable
+#      when you pass the -cp argument.
+~/programming/.modules/java/
 ~/programming/.modules/java/*
 EOF`
 

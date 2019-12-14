@@ -1,6 +1,5 @@
-#!/bin/sh
+#!/bin/bash
 # -*- mode: shell-script -*-
-
 # how it works from the root shortcuts directory:
 #   * shortcuts are read from a file named shortcuts
 #   * file maps are read from a file named fsmaps
@@ -12,25 +11,44 @@
 # the process is then repeated in the platform specific
 # subdirectory.
 
-if [ "$1" = "-h" ]; then
-    echo "$0 [SHORTCUTS_PATH [PLATFORM]]"
-    exit 0
+export shortcuts_root="$HOME/.shortcuts"
+export FS=0 # not a file system shortcut
+skip_global=0 # not skipping global shortcuts
+
+while getopts "h?s:f!" option; do
+    case "$option" in
+        h|\?)
+            echo "$(basename "$0") [-h] [-!] [-s SHORTCUTS_PATH] [PLATFORM [PLATFORM...]]"
+            exit 0
+            ;;
+        s)  export shortcuts_root=$OPTARG
+            ;;
+        f)  export FS=1
+            ;;
+        \!) skip_global=1
+            ;;
+    esac
+done
+
+shift $(($OPTIND - 1))
+
+get_shortcut_files() { # (platform)
+    shortcuts_path=$shortcuts_root # root path default
+    [ $# != 0 ] && shortcuts_path=$shortcuts_root/$*
+
+    if [ $FS = 1 ]; then
+        [ -f $shortcuts_path/fsmaps ] && echo $shortcuts_path/fsmaps
+        find "$shortcuts_path/.private" -type f -iname '*.fs' 2>/dev/null
+    else
+        [ -f $shortcuts_path/shortcuts ] && echo $shortcuts_path/shortcuts
+        find "$shortcuts_path/.private" -type f -not -iname '*.fs' 2>/dev/null
+    fi
+}
+
+if [ $skip_global == 0 ]; then
+    get_shortcut_files # no platform
 fi
 
-shortcuts_root=${1:-"$HOME/.shortcuts"}
-shift # strip shortcut root from argv
-
-if [ $# != 0 ]; then
-    # platform specified, find the
-    # non platform shortcuts first
-    "$0"
-    shortcuts_root=$shortcuts_root/$*
-fi
-
-if [ ${FS:-0} = 1 ]; then
-    [ -f $shortcuts_root/fsmaps ] && echo $shortcuts_root/fsmaps
-    find "$shortcuts_root/.private" -type f -iname '*.fs' 2>/dev/null
-else
-    [ -f $shortcuts_root/shortcuts ] && echo $shortcuts_root/shortcuts
-    find "$shortcuts_root/.private" -type f -not -iname '*.fs' 2>/dev/null
-fi
+for platform in "$@"; do
+    get_shortcut_files "$platform"
+done
