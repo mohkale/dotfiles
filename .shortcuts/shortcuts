@@ -24,6 +24,7 @@ tl      thor list
 istat   stat -c "%A %08s %n"  # inline stat
 ctemp   cd    $(mktemp -d)
 qtemp   pushd $(mktemp -d)
+b       buku --suggest
 
 
 # Windows Compatibility
@@ -31,12 +32,12 @@ cls    clear
 
 
 # Emacs
-emacsclient  emacsclient --server-file ~/.emacs.d/var/server/server
 emacs-tangle bash -c 'cd ~/.emacs.d && ./bin/tangle'
 ec           emacsclient --no-wait --suppress-output
 ex           emacs
 sx           smacs
 et           emacs-tangle
+etsx         et && sx
 
 
 # Python Shortcuts
@@ -66,7 +67,7 @@ gc      g commit
 gd      g diff
 gl      g log
 gs      g status
-gm      g move
+gm      g mv
 gr      g rm
 gp      g pull
 gP      g push

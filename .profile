@@ -23,9 +23,8 @@ case "${OSTYPE}" in
         ;;
 esac
 
-export VISUAL="${EDITOR}"
-export PAGER=less
-export LESS="-R"
+export EMACS_SERVER_FILE="$HOME/.emacs.d/var/server/server"
+export VISUAL="$EDITOR" PAGER=less LESS="-R"
 export DOTFILES_REPO_PATH=${HOME}/.dotfiles
 
 # set path based variables
@@ -111,7 +110,7 @@ if which thefuck >/dev/null 2>&1; then
     # it removes the alias and then runs it for the first
     # time
 
-    alias='fx' # alias under which 'the-fuck' will be invoked... actually a bash function
-    alias ${alias}='eval $(thefuck --alias '${alias}') && unalias '${alias}' && '${alias}
-    unset alias # remove a basically uselass environment variable from the local shell scope
+    alias='fx' # alias under which 'the-fuck' will be invoked... actually a function
+    alias $alias='eval $(thefuck --alias '$alias') && unalias '$alias' && '$alias
+    unset alias # remove a basically uselass environment variable from the shell
 fi
