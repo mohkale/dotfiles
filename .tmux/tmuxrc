@@ -1,0 +1,134 @@
+# -*- mode: conf-space -*-
+
+set-window-option -g mode-keys vi
+# bash like bindings in command prompt
+set-window-option -g status-keys emacs
+set -g mouse on # Tmux >= 2.1
+# set -g mode-mouse on # Tmux < 2.1
+
+# windows and panes start from 1
+set -g base-index 1
+set -g pane-base-index 1
+# a lot of history is a good thing
+set -g history-limit 10000
+# cooler keybinding options
+set -gw xterm-keys on
+# improve color display for tmux session
+set -g default-terminal "screen-256color"
+
+# change prefix to C-SPC
+unbind C-b
+set-option -g prefix C-Space
+bind C-Space send-prefix
+bind Space command-prompt
+
+# reload my configuration
+bind r source ~/.tmux.conf \; display-message "Config reloaded..."
+
+# move between panes
+bind h   select-pane -L
+bind C-h select-pane -L
+bind j   select-pane -D
+bind C-j select-pane -D
+bind k   select-pane -U
+bind C-k select-pane -U
+bind l   select-pane -R
+bind C-l select-pane -R
+
+bind C-v split-window -h
+bind C-s split-window
+
+# vim like, pane resize keys
+bind < resize-pane -L 5
+bind > resize-pane -R 5
+bind + resize-pane -U 5
+bind - resize-pane -D 5
+bind M-< command-prompt -p "count" "resize-pane -L '%%'"
+bind M-> command-prompt -p "count" "resize-pane -R '%%'"
+bind M-+ command-prompt -p "count" "resize-pane -U '%%'"
+bind M-- command-prompt -p "count" "resize-pane -D '%%'"
+
+# move to next or previous window
+bind Tab   next-window
+bind C-Tab previous-window
+bind S-Tab last-pane
+
+bind @ clock-mode
+
+bind C-t new-window
+bind M-t new-window\; command-prompt -I "#W" "rename-window '%%'"
+
+# cycle preconfigured layouts
+bind _ next-layout
+bind x   kill-pane
+bind C-d kill-pane
+bind X confirm-before -p "kill-window #W? (y/n)" kill-window
+
+# move pane into it's own tab
+bind ! break-pane
+bind b choose-buffer
+# maximise current pane
+bind m   resize-pane -Z
+bind C-m resize-pane -Z
+# exit tmux client
+bind z   detach-client
+bind C-z detach-client
+
+bind 0 command-prompt -p index "select-pane -t ':%%'"
+bind 1 select-pane -t 1
+bind 2 select-pane -t 2
+bind 3 select-pane -t 3
+bind 4 select-pane -t 4
+bind 5 select-pane -t 5
+bind 6 select-pane -t 6
+bind 7 select-pane -t 7
+bind 8 select-pane -t 8
+bind 9 select-pane -t 9
+
+bind M-0 command-prompt -p index "select-window -t ':%%'"
+bind M-1 select-window -t 1
+bind M-2 select-window -t 2
+bind M-3 select-window -t 3
+bind M-4 select-window -t 4
+bind M-5 select-window -t 5
+bind M-6 select-window -t 6
+bind M-7 select-window -t 7
+bind M-8 select-window -t 8
+bind M-9 select-window -t 9
+
+# visual mode. selection, yanking and putting.
+bind p   paste-buffer
+bind v   copy-mode \; send-keys -X start-of-line
+bind u   copy-mode \; send-keys -X halfpage-up
+bind C-u copy-mode \; send-keys -X halfpage-up
+bind -T copy-mode-vi C-g send-keys -X cancel
+bind -T copy-mode-vi v   send-keys -X begin-selection
+bind -T copy-mode-vi y   send-keys -X copy-selection
+bind -T copy-mode-vi Y   send-keys -X copy-end-of-line
+bind -T copy-mode-vi C-y send-keys -X append-selection-and-cancel
+# replace search prompts with proper vim prompts. less verbose, but way cooler.
+bind -T copy-mode-vi /   command-prompt -p '/' 'send -X search-forward "%%%"'
+bind -T copy-mode-vi ?   command-prompt -p '?' 'send -X search-backward "%%%"'
+
+# # theming
+set -g status on
+set -g status-interval 15
+set -g status-justify left
+set -g status-position bottom
+# set -g status-style fg=black,bg=green
+
+set -g status-left "\
+#[fg=green,bg=black]#{?client_prefix, ^SPC ,}\
+#[fg=black,bg=yellow bright]#{?pane_in_mode, COPY ,}#[default] \
+[#S] "
+set -g status-left-length 20
+set -g status-left-style default
+
+set -g status-right " "#{=21:pane_title}" %H:%M %d-%b-%y"
+set -g status-right-length 40
+set -g status-right-style default
+
+# script bindings
+bind a run ~/.tmux/scripts/attach-session
+
+bind Enter set-window-option mouse # for some reason, can only be bound at EOF

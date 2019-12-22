@@ -1,17 +1,27 @@
-#            _                
-#           | |               
-#   ___ ___ | | ___  _ __ ___ 
+# -*- mode: sh -*-
+#            _
+#           | |
+#   ___ ___ | | ___  _ __ ___
 #  / __/ _ \| |/ _ \| '__/ __|
 # | (_| (_) | | (_) | |  \__ \
 #  \___\___/|_|\___/|_|  |___/
-#                             
+#
 
 # keep LINES & COLUMNS upto date after every command
 shopt -s checkwinsize
 
-
 # make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+
+# colorize less pager, format is red, green & white.
+# NOTE bold=1 but only works with colors in the ranhe 90+
+export LESS_TERMCAP_mb=$'\e[1;91m' # begin blinking
+export LESS_TERMCAP_md=$'\e[1;91m' # begin bold
+export LESS_TERMCAP_me=$'\e[0m'    # end mode
+export LESS_TERMCAP_se=$'\e[0m'    # end standout-mode
+export LESS_TERMCAP_ue=$'\e[0m'    # end underline
+export LESS_TERMCAP_us=$'\e[1;32m' # begin underline
+export LESS_TERMCAP_so=$'\e[36m'   # begin standout-mode - info box
 
 # set variable identifying the chroot you work in (used in the prompt below)
 if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
@@ -30,12 +40,12 @@ esac
 
 if [ -n "$force_color_prompt" ]; then
     if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
-	# We have color support; assume it's compliant with Ecma-48
-	# (ISO/IEC-6429). (Lack of such support is extremely rare, and such
-	# a case would tend to support setf rather than setaf.)
-	color_prompt=yes
+	    # We have color support; assume it's compliant with Ecma-48
+	    # (ISO/IEC-6429). (Lack of such support is extremely rare, and such
+	    # a case would tend to support setf rather than setaf.)
+	    color_prompt=yes
     else
-	color_prompt=
+        color_prompt=
     fi
 fi
 

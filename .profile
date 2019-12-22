@@ -23,9 +23,11 @@ case "${OSTYPE}" in
         ;;
 esac
 
-export EMACS_SERVER_FILE="$HOME/.emacs.d/var/server/server"
-export VISUAL="$EDITOR" PAGER=less LESS="-R"
-export DOTFILES_REPO_PATH=${HOME}/.dotfiles
+export VISUAL="${EDITOR}"
+export PAGER=less
+export LESS="-R"
+export DOTFILES_REPO_PATH=$HOME/.dotfiles
+export TMUX_TMPDIR=$HOME/.tmux/tmp/
 
 # set path based variables
 lines_to_path() { #(PATH [...PATH])
