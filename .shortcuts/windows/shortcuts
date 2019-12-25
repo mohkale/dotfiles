@@ -1,3 +1,4 @@
+# -*- mode: conf-space -*-
 smacs      runemacs
 tree       tree.com
 ywd        pwd | tee /dev/tty | cygpath -f - -w | tr -d "\n" | clip

@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+print_usage() { echo "$0 [-r] [-v] [-p] [-c]"; }
+
+[ $# -eq 0 ] && set -- '-rpvc'
+
+maps=(  )
+
+while getopts 'rpvc' option; do
+    case "$option" in
+        r) maps+=( root )
+           ;;
+        p) maps+=( prefix )
+           ;;
+        c) maps+=( copy-mode )
+           ;;
+        v) maps+=( copy-mode-vi )
+           ;;
+        [h|?]) print_usage >&2
+               exit 0
+               ;;
+        *) print_usage >&2
+            exit 1
+            ;;
+    esac
+done
+
+# bindings format is "key map values"
+bindings=$(tmux list-keys |
+               awk -e 'match($0, "'$(echo "${maps[@]}" | tr " " "|")'") { print $0 }' |
+               sed -E -e 's/bind-key +(-r *)?-T *//' |
+               awk -e '{ printf("%s %s ", $2, $1); for (i=3; i < NF; i++) { printf("%s ", $i) }; print $NF }')
+
+tabulated_columns=$(cut -d ' ' -f 1-2 <<< "$bindings" | column -tx) # key and map columns
+# pad key and map columns to max width then push the binding as the final unpadded column
+bindings=$(paste -d' ' \
+           <(awk -e '{ printf("%-'$(wc -L <<< "$tabulated_columns")'s \n",$0); }' <<< "$tabulated_columns") \
+           <(cut -d' ' -f3- <<< "$bindings") | sort)
+
+binding=$(fzf-tmux -- --prompt="binding: " <<< "$bindings")
+[ -z "$binding" ] && exit 1 # fzf session cancelled by user
+
+read key map binding <<< "$binding"
+
+# flags= # nice try hackers :P
+# if grep -Ei "copy-mode"   >/dev/null 2>&1; then flags="$flags -X"; fi <<< "$map"
+# if grep -Ei "mouse|wheel" >/dev/null 2>&1; then flags="$flags -M"; fi <<< "$binding"
+
+tmux $binding

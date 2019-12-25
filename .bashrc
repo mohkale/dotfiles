@@ -52,16 +52,3 @@ for plugin_script in "${plugin_scripts[@]}"; do
         printf "bashrc::warning() : unable to source plugin script: %s\n" "${plugin_script}" >&2
     fi
 done
-
-export FZF_DEFAULT_OPTS="
-    --bind ctrl-j:down
-    --bind ctrl-k:up
-    --bind ctrl-u:page-up
-    --bind ctrl-d:page-down
-    --bind alt-h:backward-word
-    --bind alt-l:forward-char
-    --bind alt-g:jump-accept
-    --bind alt-j:jump-accept
-    --bind shift-left:backward-word
-    --bind shift-right:forward-word
-"

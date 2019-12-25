@@ -103,6 +103,24 @@ case ${OSTYPE} in
         ;;
 esac
 
+# uses darcula theme from fzf color schemes wiki
+export FZF_DEFAULT_OPTS="
+    --bind ctrl-j:down
+    --bind ctrl-k:up
+    --bind ctrl-u:page-up
+    --bind ctrl-d:page-down
+    --bind alt-h:backward-word
+    --bind alt-l:forward-char
+    --bind alt-g:jump-accept
+    --bind alt-j:jump-accept
+    --bind shift-left:backward-word
+    --bind shift-right:forward-word
+    --bind ctrl-space:toggle+down
+    --color dark
+    --color fg:-1,bg:-1,hl:#5fff87,fg+:-1,bg+:-1,hl+:#ffaf5f
+    --color info:#af87ff,prompt:#5fff87,pointer:#ff87d7,marker:#ff87d7,spinner:#ff87d7
+"
+
 if which thefuck >/dev/null 2>&1; then
     # honestly I doubt I'll really be using 'the-fuck' but
     # lazy loading it is a near effortless task so why not
