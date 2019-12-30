@@ -19,8 +19,9 @@ chksum  cksum
 unmount umount
 r       rake
 rl      rake -T
-t       thor
-tl      thor list
+T       thor
+Tl      thor list
+Th      thor help
 istat   stat -c "%A %08s %n"  # inline stat
 ctemp   cd    $(mktemp -d)
 qtemp   pushd $(mktemp -d)

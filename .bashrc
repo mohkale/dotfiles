@@ -13,6 +13,7 @@ case $- in
 esac
 
 shopt -s globstar # enable **/* in shell globing
+shopt -s autocd   # cd to path automatically.
 
 # Configure Bash History
 HISTCONTROL=ignoreboth # ignore duplicate lines or lines with spaces
