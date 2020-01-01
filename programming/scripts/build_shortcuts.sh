@@ -18,9 +18,18 @@ done
 shift $(($OPTIND - 1))
 
 read_scripts() { #(*files)
-    cat "$@" | sed -r - -e 's/#.*$//' -e '/^\s+/s/^\s+//' -e '/^\s*$/d' -e 's/'"'"'/'"'"'"'"'"'"'"'"'/g' -e 's/\\/\\\\/g'
-    # strip comments, entry level indentation, empty lines and escape single quotes (in that order)
+    cat "$@" | sed -r - -e ':x /\\$/ { N; s/\\\n//g ; bx }' \
+                        -e 's/#.*$//'                       \
+                        -e '/^\s+/s/^\s+//'                 \
+                        -e '/^\s*$/d'                       \
+                        -e 's/'"'"'/'"'"'"'"'"'"'"'"'/g'    \
+                        -e 's/\\/\\\\/g'
+
+    # join lines ending with a backslash together, then strip comments, entry
+    # level indentation, empty lines and escape single quotes (in that order)
     # from every input file concatenated together.
+    # the line joining program was a godsend from the gnu sed menual:
+    #  * https://www.gnu.org/software/sed/manual/html_node/Joining-lines.html
 }
 
 create_program_aliases() { #(*files)

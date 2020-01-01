@@ -79,29 +79,41 @@ egrep  egrep --color=auto
 # Git - Version Control
 g       git
 ga      g add
+gb      g branch
 gc      g commit
+gC      g clone
 gd      g diff
+gf      g fetch
 gl      g log
 gs      g status
 gm      g mv
 gr      g rm
+gv      g checkout
 gp      g pull
 gP      g push
+gq      g rebase
 
 
 # Configure Dotfiles
-dot     git --git-dir=$DOTFILES_REPO_PATH --work-tree=$HOME
+dot     g --git-dir=$DOTFILES_REPO_PATH --work-tree=$HOME
 d       dot
 da      d add
+db      d branch
 dc      d commit
 dd      d diff
+df      d fetch
 dl      d log
 ds      d status
 dm      d mv
 dr      d rm
+dv      d checkout
 dp      d pull
 dP      d push
-distat  d ls-tree --full-tree --full-name -r --name-only HEAD | awk -v home="$HOME" '{ printf("%s/%s\\0", home, $1) }' |  xargs -r0 stat -c "%A %08s %n"
+dq      d rebase
+# istats every file within my dotfiles repository.
+distat  d ls-tree --full-tree --full-name -r --name-only HEAD   \
+        | awk -v home="$HOME" '{ printf("%s/%s\0", home, $1) }' \
+        | xargs -r0 stat -c "%A %08s %n"
 
 
 # Change Directory
