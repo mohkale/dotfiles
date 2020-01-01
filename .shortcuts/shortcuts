@@ -27,6 +27,7 @@ istat   stat -c "%A %08s %n"  # inline stat
 ctemp   cd    $(mktemp -d)
 qtemp   pushd $(mktemp -d)
 b       buku --suggest
+evipe   vipe -e emacsclient # emacs edit pipe
 
 
 # Windows Compatibility

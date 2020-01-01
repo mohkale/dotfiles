@@ -4,7 +4,7 @@ export INLINE=${INLINE:-${inline:-0}}
 
 while getopts "h?fi" option; do
     case "$option" in
-        [h|?])
+        [h?])
             echo 'Usage: eval "$(build_shortcuts.sh [-f] [-i] SHORTCUTS_FILE [SHORTCUTS_FILE...])"'
             exit 0
             ;;
