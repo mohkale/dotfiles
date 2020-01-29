@@ -32,23 +32,23 @@ fi
 # Configure Environment Variables
 # see also ./.bash_profile
 
-scripts_path="${HOME}/programming/scripts"
+scripts_path="$HOME/programming/scripts"
 
 # COLOR_CODED_PS1=1           # uncomment line to color code bash prompt
 # SILENCE_SHORTCUTS_WARNING=1 # uncomment to make build shortcuts quiet
 
 # Source all the following scripts
 plugin_scripts=(
-    "${HOME}/.colors.bashrc"
-    "${HOME}/.bash_aliases"
-    "${HOME}/.bash_ps1"
-    # "${HOME}/.rvm/scripts/rvm"
+    "$HOME/.colors.bashrc"
+    "$HOME/.bash_aliases"
+    "$scripts_path/.ps1/bash"
+    # "$HOME/.rvm/scripts/rvm"
 )
 
 for plugin_script in "${plugin_scripts[@]}"; do
-    if [ -f "${plugin_script}" ]; then
-        . "${plugin_script}"
+    if [ -f "$plugin_script" ]; then
+        . "$plugin_script"
     else
-        printf "bashrc::warning() : unable to source plugin script: %s\n" "${plugin_script}" >&2
+        printf "bashrc(warning) : unable to source plugin script: %s\n" "${plugin_script}" >&2
     fi
 done

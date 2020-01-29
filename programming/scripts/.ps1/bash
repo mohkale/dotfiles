@@ -26,13 +26,13 @@ case "$TERM" in
         PS1="> " # dumb terminal used by emacs tramp
         ;;
     xterm*|rxvt*|eterm*|screen*|cygwin*|emacs*)
-        git_prompt_path="${HOME}/programming/scripts/external/git-prompt.sh"
+        git_prompt_path="$scripts_path/.ps1/git-prompt.sh"
 
         if ! hash __git_ps1 1>/dev/null 2>&1; then
             if [ -f "$git_prompt_path" ]; then
                 . "$git_prompt_path" # source git prompt script to define __git_ps1
             else
-                printf "bash_ps1::error() : git prompt script not found: %s" "$git_prompt_path" >&2
+                echo "bash_ps1(error) : git prompt script not found: $git_prompt_path" >&2
                 __git_ps1() { echo ""; } # when not given, git PS1 just shows an empty string
             fi
         fi
