@@ -15,62 +15,59 @@
 # username@hostname path (git-branch)
 # λ
 #
-# if an environment variable, COLOR_CODED_PS1 is truthy, bash prompt will be set to
-# change color codes depending on the exit code of the last command.
+# Environment Variables:
+#  PS1_INLINE:      when set to 1, bash prompt won't spread over multiple lines.
+#  PS1_COLOR_CODED: when set to 1, bash prompt will change color depending on the
+#                   exit code of the last command.
 #
 
-case "${TERM}" in
+case "$TERM" in
     dumb)
-        export PS1="> " # dumb terminal used by emacs tramp
+        PS1="> " # dumb terminal used by emacs tramp
         ;;
     xterm*|rxvt*|eterm*|screen*|cygwin*|emacs*)
         git_prompt_path="${HOME}/programming/scripts/external/git-prompt.sh"
 
-        hash __git_ps1 1>/dev/null 2>&1 # attempt to run executeable prompt
-        if [ ! $? -eq 127 ]; then
-            if [ ! -f "${git_prompt_path}" ]; then
-                printf "bash_ps1::error() : git prompt script not found: %s" "${git_prompt_path}" >&2
-                __git_ps1() { echo ""; } # when not given, git PS1 just outputs an empty string to out
+        if ! hash __git_ps1 1>/dev/null 2>&1; then
+            if [ -f "$git_prompt_path" ]; then
+                . "$git_prompt_path" # source git prompt script to define __git_ps1
             else
-                . "${git_prompt_path}" # source git prompt script to define __git_ps1
+                printf "bash_ps1::error() : git prompt script not found: %s" "$git_prompt_path" >&2
+                __git_ps1() { echo ""; } # when not given, git PS1 just shows an empty string
             fi
         fi
 
-        if [ ! $COLOR_CODED_PS1 ]; then
-            PS1="\[\e[1;32m\]\u@\h \[\e[33m\]\w\[\e[2;34m\]\$(__git_ps1)"$'\n'"\[\e[0m\]λ "
-        else
-            _pre_prompt() {
-                # See For More: https://misc.flogisoft.com/bash/tip_colors_and_formatting
-                # See Here: https://wiki.archlinux.org/index.php/Bash/Prompt_customization
-                # NOTE 1 makes 30s colors bright, it makes 90s colors bold.
-                # Color Codes: \[\e[0;%dm\] % (code)
-                #     * BLACK             ~> 30
-                #     * RED               ~> 31
-                #     * GREEN             ~> 32
-                #     * YELLOW            ~> 33
-                #     * LIGHT_BLUE        ~> 34
-                #     * PURPLE            ~> 35
-                #     * CYAN              ~> 36
-                #     * WHITE             ~> 37
-                #     * RESTORE           ~> 39
-                #     * DARK GREY         ~> 90
-                #     * LIGHT RED         ~> 91
-                #     * LIGHT GREEN       ~> 92
-                #     * LIGHT YELLOW      ~> 93
-                #     * LIGHT BLUE        ~> 94
-                #     * LIGHT MAGENTA     ~> 95
-                #     * LIGHT CYAN        ~> 96
-                #     * LIGHT WHITE (WTF) ~> 97
+        _pre_prompt() {
+            # See For More: https://misc.flogisoft.com/bash/tip_colors_and_formatting
+            # Color Codes: \[\e[0;%dm\] % (code)
+            #     * DIM               ~> 0
+            #     * BRIGHT            ~> 1 (for colors in 30s)
+            #     * BOLD              ~> 1 (for colors in 90s)
+            #
+            #     * BLACK             ~> 30
+            #     * RED               ~> 31
+            #     * GREEN             ~> 32
+            #     * YELLOW            ~> 33
+            #     * LIGHT_BLUE        ~> 34
+            #     * PURPLE            ~> 35
+            #     * CYAN              ~> 36
+            #     * WHITE             ~> 37
+            #     * RESTORE           ~> 39
+            #     * DARK GREY         ~> 90
+            #     * LIGHT RED         ~> 91
+            #     * LIGHT GREEN       ~> 92
+            #     * LIGHT YELLOW      ~> 93
+            #     * LIGHT BLUE        ~> 94
+            #     * LIGHT MAGENTA     ~> 95
+            #     * LIGHT CYAN        ~> 96
+            #     * LIGHT WHITE (WTF) ~> 97
 
-                local previous_exit_code="$?"
-                local user_color
+            local previous_exit_code="$?" user_color="\[\e[0;32m\]"
 
-                case $previous_exit_code in
-                    0) # success
-                        # no color binding for sucess
-                    ;;
+            if [ "${PS1_COLOR_CODED:-0}" = 1 ]; then
+                case "$previous_exit_code" in
                     1) # catchall for general errors
-                        user_color="\[\e[1;91m\]"
+                        user_color="\[\e[1;31m\]"
                     ;;
                     2) # misuse of shell builtins
                         user_color="\[\e[1;31m\]"
@@ -114,17 +111,16 @@ case "${TERM}" in
                     255) # Exit Status Out Of Range
                         user_color="\[\e[1;31m\]"
                     ;;
-                    *)
-                        user_color="\[\e[1;91m\]"
-                    ;;
                 esac
+            fi
 
-                export PS1="${user_color}\u@\h \[\e[33m\]\w\[\e[34m\]\e[2m\$(__git_ps1)"$'\n'"\[\e[0m\]λ "
+            local ps1_pre="$user_color\u@\h \[\e[33m\]\w\[\e[1;34m\]\$(__git_ps1)" ps1_post="\[\e[0m\]λ "
+            if [ "${PS1_INLINE:-0}" = 1 ]; then ps1_pre="$ps1_pre "; else ps1_pre="$ps1_pre"$'\n'; fi
+            PS1="$ps1_pre$ps1_post\[\e[0m\]"
 
-                return $previous_exit_code # chain exit code
-            }
+            return "$previous_exit_code"
+        }
 
-            export PROMPT_COMMAND=_pre_prompt
-        fi
+        export PROMPT_COMMAND=_pre_prompt
         ;;
 esac
