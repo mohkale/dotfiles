@@ -57,7 +57,7 @@ trnw   tmux rename-window
 
 
 # Python Shortcuts
-python python3.7
+python python3
 py     python
 pip    py -m pip
 
@@ -83,7 +83,7 @@ gb      g branch
 gc      g commit
 gC      g clone
 gd      g diff
-gf      g fetch
+# gf      g fetch
 gl      g log
 gs      g status
 gm      g mv
@@ -101,7 +101,7 @@ da      d add
 db      d branch
 dc      d commit
 dd      d diff
-df      d fetch
+# df      d fetch
 dl      d log
 ds      d status
 dm      d mv
