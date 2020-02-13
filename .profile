@@ -28,6 +28,7 @@ export PAGER=less
 export LESS="-R"
 export DOTFILES_REPO_PATH=$HOME/.dotfiles
 export TMUX_TMPDIR=$HOME/.tmux/tmp/
+export EMACS_SERVER_FILE="$HOME/.emacs.d/var/server/server"
 
 # set path based variables
 lines_to_path() { #(PATH [...PATH])
@@ -59,6 +60,7 @@ export PATH=`lines_to_path $PATH <<EOF
 ~/programming/scripts/public
 ~/programming/programs
 ~/programming/.modules/node
+~/programming/.modules/ruby/bin
 ~/.rvm/bin
 EOF`
 
@@ -76,6 +78,11 @@ EOF`
 
 export PYTHONPATH=`lines_to_path $PYTHONPATH <<EOF
 ~/programming/.modules/python
+EOF`
+
+export GEM_HOME=$HOME/programming/.modules/ruby
+export GEM_PATH=`lines_to_path $GEM_PATH <<EOF
+~/programming/.modules/ruby
 EOF`
 
 if [ ${OSTYPE} == "msys" -o ${OSTYPE} == "cygwin" ]; then
