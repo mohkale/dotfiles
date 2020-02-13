@@ -37,18 +37,24 @@ scripts_path="$HOME/programming/scripts"
 # COLOR_CODED_PS1=1           # uncomment line to color code bash prompt
 # SILENCE_SHORTCUTS_WARNING=1 # uncomment to make build shortcuts quiet
 
-# Source all the following scripts
+# source all the following scripts
 plugin_scripts=(
     "$HOME/.colors.bashrc"
     "$HOME/.bash_aliases"
     "$scripts_path/.ps1/bash"
-    # "$HOME/.rvm/scripts/rvm"
+)
+
+# source if available, else ignore.
+optional_plugins=(
+    "$HOME/.rvm/scripts/rvm"
 )
 
 for plugin_script in "${plugin_scripts[@]}"; do
-    if [ -f "$plugin_script" ]; then
-        . "$plugin_script"
-    else
-        printf "bashrc(warning) : unable to source plugin script: %s\n" "${plugin_script}" >&2
+    if [ -f "$plugin_script" ]; then . "$plugin_script"; else
+        printf "bashrc(warning) : unable to source plugin script: %s\n" "$plugin_script" >&2
     fi
+done
+
+for plugin in "${optional_plugins[@]}"; do
+    . "$plugin"
 done
