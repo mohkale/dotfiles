@@ -14,11 +14,8 @@ esac
 
 shopt -s globstar # enable **/* in shell globing
 shopt -s autocd   # cd to path automatically.
-
-# Configure Bash History
-HISTCONTROL=ignoreboth # ignore duplicate lines or lines with spaces
 shopt -s histappend # open history file as a, not w
-HISTSIZE=1000 HISTFILESIZE=2000 # change command history sizes
+HISTCONTROL=ignoreboth # ignore duplicate lines or lines with spaces.
 
 # enable programmable completion features
 if ! shopt -oq posix; then

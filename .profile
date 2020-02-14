@@ -38,6 +38,8 @@ export EMACS_SERVER_FILE=$HOME/.emacs.d/var/server/server
 export PROGRAM_DIR=$HOME/programming
 export SCRIPTS_DIR="$PROGRAM_DIR"/scripts
 
+HISTSIZE=1000 HISTFILESIZE=2000 HISTFILE=~/.history
+
 # set path based variables
 lines_to_path() { #(PATH [...PATH])
     # converts a list of paths into a PATH like string sequence,
