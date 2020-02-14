@@ -56,5 +56,5 @@ for plugin_script in "${plugin_scripts[@]}"; do
 done
 
 for plugin in "${optional_plugins[@]}"; do
-    [ -x "$plugin"] && . "$plugin"
+    [ -x "$plugin" ] && . "$plugin"
 done
