@@ -30,6 +30,9 @@ export DOTFILES_REPO_PATH=$HOME/.dotfiles
 export TMUX_TMPDIR=$HOME/.tmux/tmp/
 export EMACS_SERVER_FILE="$HOME/.emacs.d/var/server/server"
 
+# set terminal used by i3
+export TERMINAL="st"
+
 # set path based variables
 lines_to_path() { #(PATH [...PATH])
     # converts a list of paths into a PATH like string sequence,
@@ -51,6 +54,7 @@ lines_to_path() { #(PATH [...PATH])
                 ;;
         esac
     fi
+    local home=$(sed -e 's/\//\\\//g' <<< "$HOME")
 
     sed -e 's/ *#.*$//g' -e '/^ *$/d' -e 's ^~/ '"${HOME}"/' g' | tr '\n' ':' | sed -e 's/:$//'
     # strip out empty lines and comments, replace ~/ with users home directory & join paths with a :
@@ -61,6 +65,7 @@ export PATH=`lines_to_path $PATH <<EOF
 ~/programming/programs
 ~/programming/.modules/node
 ~/programming/.modules/ruby/bin
+~/programming/.modules/go/bin
 ~/.rvm/bin
 EOF`
 
@@ -83,6 +88,10 @@ EOF`
 export GEM_HOME=$HOME/programming/.modules/ruby
 export GEM_PATH=`lines_to_path $GEM_PATH <<EOF
 ~/programming/.modules/ruby
+EOF`
+
+export GOPATH=`lines_to_path $GOPATH <<EOF
+~/programming/.modules/go
 EOF`
 
 if [ ${OSTYPE} == "msys" -o ${OSTYPE} == "cygwin" ]; then
@@ -141,3 +150,6 @@ if which thefuck >/dev/null 2>&1; then
     alias $alias='eval $(thefuck --alias '$alias') && unalias '$alias' && '$alias
     unset alias # remove a basically uselass environment variable from the shell
 fi
+
+# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
+export PATH="$PATH:$HOME/.rvm/bin"

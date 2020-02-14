@@ -14,7 +14,7 @@ e       edit
 nv      nvim
 ccat    highlight --out-format=ansi
 mcd     makecd
-img     sxiv
+img     feh
 netcat  ncat
 chksum  cksum
 unmount umount

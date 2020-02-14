@@ -16,6 +16,7 @@ sc           ~/programming/scripts
 st           ~/.shortcuts
 dtop         ~/desktop
 music        ~/multimedia/music
+dbox         ~/Dropbox
 
 # Files
 profile@file ~/.profile
