@@ -52,8 +52,8 @@ lines_to_path() { #(PATH [...PATH])
         esac
     fi
 
-    sed -e 's/ *#.*$//g' -e '/^ *$/d' | tr '\n' ':' | sed -e 's/:$//'
-    # strip out empty lines and comments and join paths with a :
+    sed -e 's/ *#.*$//g' -e '/^ *$/d' -e 's ^~/ '"${HOME}"/' g' | tr '\n' ':' | sed -e 's/:$//'
+    # strip out empty lines and comments, replace ~/ with users home directory & join paths with a :
 }
 
 export PATH=`lines_to_path $PATH <<EOF
@@ -92,7 +92,7 @@ if [ ${OSTYPE} == "msys" -o ${OSTYPE} == "cygwin" ]; then
     #      won't accept ~ as ${HOME} in PATH variables.
 
     for path_var in CLASSPATH PYTHONPATH; do
-        export ${path_var}=$(cygpath --windows --path "$(echo "${!path_var}" | sed 's ~ '"${HOME}"' g')")
+        export ${path_var}=$(cygpath --windows --path "$(echo "${!path_var}")")
     done
 fi
 
