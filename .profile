@@ -65,7 +65,7 @@ lines_to_path() { #(PATH [...PATH])
 }
 
 export PATH=`lines_to_path $PATH <<EOF
-$SCRIPTS_DIR/public
+$SCRIPTS_DIR
 $PROGRAM_DIR/bin
 $PROGRAM_DIR/.modules/node
 $PROGRAM_DIR/.modules/ruby/bin
