@@ -1,0 +1,15 @@
+# -*- mode: sh -*-
+
+git_prompt_path="$SCRIPTS_DIR/.ps1/git-prompt.sh"
+
+if ! hash __git_ps1 1>/dev/null 2>&1; then
+    if [ -f "$git_prompt_path" ]; then
+        . "$git_prompt_path" # source git prompt script to define __git_ps1
+    else
+        echo "bash_ps1(error) : git prompt script not found: $git_prompt_path" >&2
+        __git_ps1() { echo ""; } # when not given, git PS1 just shows an empty string
+    fi
+fi
+
+PS1="%B%F{green}%n@%m%f %F{yellow}%~%f %F{white}λ%f%b "
+RPS1='%F{blue}%B$(__git_ps1)%b%f %F{magenta}%D{%H:%M:%S %d.%m.%Y}$f'
