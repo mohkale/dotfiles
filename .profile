@@ -16,7 +16,11 @@ case "${OSTYPE}" in
         export EDITOR=vim
         ;;
     *linux-gnu|*darwin|*freebsd)
-        export EDITOR=nvim
+        if which nvim >/dev/null 2>&1; then
+            export EDITOR=nvim
+        else
+            export EDITOR=vim
+        fi
         ;;
     *)
         export EDITORY=vi
