@@ -32,8 +32,6 @@ fi
 # Configure Environment Variables
 # see also ./.bash_profile
 
-scripts_path="$HOME/programming/scripts"
-
 # COLOR_CODED_PS1=1           # uncomment line to color code bash prompt
 # SILENCE_SHORTCUTS_WARNING=1 # uncomment to make build shortcuts quiet
 
@@ -41,7 +39,7 @@ scripts_path="$HOME/programming/scripts"
 plugin_scripts=(
     "$HOME/.colors.bashrc"
     "$HOME/.bash_aliases"
-    "$scripts_path/.ps1/bash"
+    "$SCRIPTS_DIR/.ps1/bash"
 )
 
 # source if available, else ignore.
