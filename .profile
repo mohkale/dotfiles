@@ -66,7 +66,7 @@ lines_to_path() { #(PATH [...PATH])
     # strip out empty lines and comments, replace ~/ with users home directory & join paths with a :
 }
 
-export PATH=`lines_to_path $PATH <<EOF
+export PATH=`lines_to_path "$PATH" <<EOF
 $SCRIPTS_DIR
 $PROGRAM_DIR/bin
 $PROGRAM_DIR/.modules/node
@@ -74,7 +74,7 @@ $PROGRAM_DIR/.modules/ruby/bin
 ~/.rvm/bin
 EOF`
 
-export CLASSPATH=`lines_to_path $CLASSPATH <<EOF
+export CLASSPATH=`lines_to_path "$CLASSPATH" <<EOF
 .
 # WARN you need to specify both the directory with
 #      wildcards to reference JARs and without them
@@ -86,39 +86,27 @@ $PROGRAM_DIR/.modules/java/
 $PROGRAM_DIR/.modules/java/*
 EOF`
 
-export PYTHONPATH=`lines_to_path $PYTHONPATH <<EOF
+export PYTHONPATH=`lines_to_path "$PYTHONPATH" <<EOF
 $PROGRAM_DIR/.modules/python
 EOF`
 
 export GEM_HOME=$PROGRAM_DIR/.modules/ruby
-export GEM_PATH=`lines_to_path $GEM_PATH <<EOF
+export GEM_PATH=`lines_to_path "$GEM_PATH" <<EOF
 $PROGRAM_DIR/.modules/ruby
 EOF`
 
-if [ ${OSTYPE} == "msys" -o ${OSTYPE} == "cygwin" ]; then
-    # for programs that don't care about the environment,
-    # only about the OS, convert back to a windows like path.
-    # NOTE Also convert ~ to ${HOME} cause apparrently python
-    #      won't accept ~ as ${HOME} in PATH variables.
+case "$OSTYPE" in
+    msys|cygwin)
+        # for programs that don't care about the environment,
+        # only about the OS, convert back to a windows like path.
 
-    for path_var in CLASSPATH PYTHONPATH; do
-        export ${path_var}=$(cygpath --windows --path "$(echo "${!path_var}")")
-    done
-fi
-
-unset -f lines_to_path # thank you, good bye
-
-case ${OSTYPE} in
-    cygwin*|msys*|win32*)
-        ;;  # sources bashrc automatically
-    *)
-        if [ -n "$BASH_VERSION" ]; then
-            if [ -f "${HOME}/.bashrc" ]; then
-                . "${HOME}/.bashrc"
-            fi
-        fi
+        for path_var in CLASSPATH PYTHONPATH; do
+            export $path_var=$(cygpath --windows --path "$(echo "${!path_var}")")
+        done
         ;;
 esac
+
+unset -f lines_to_path # thank you, good bye
 
 # uses darcula theme from fzf color schemes wiki
 export FZF_DEFAULT_OPTS="
@@ -151,3 +139,25 @@ if which thefuck >/dev/null 2>&1; then
     alias $alias='eval $(thefuck --alias '$alias') && unalias '$alias' && '$alias
     unset alias # remove a basically uselass environment variable from the shell
 fi
+
+case "$TERM" in
+    dumb)
+        PS1="> " # dumb terminal used by emacs tramp
+        ;;
+    xterm*|rxvt*|eterm*|screen*|cygwin*|emacs*)
+        SMART_TERM=1 ;;
+    .*) SMART_TERM=0 ;;
+esac
+
+# some platforms autosource bashrc, others don't. it's weird.
+case $OSTYPE in
+    cygwin*|msys*|win32*)
+        ;;  # sources bashrc automatically
+    *)
+        if [ -n "$BASH_VERSION" ]; then
+            if [ -f "$HOME/.bashrc" ]; then
+                . "$HOME/.bashrc"
+            fi
+        fi
+        ;;
+esac
