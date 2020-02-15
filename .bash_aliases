@@ -20,6 +20,8 @@ export -f makecd # make available in bash subprocesses
 ec() { emacsclient; }
 export -f ec
 
+alias sd='sudo '
+
 # build aliases from shortcuts config file
 build_shortcuts_script="${scripts_path}/build_shortcuts.sh"
 
