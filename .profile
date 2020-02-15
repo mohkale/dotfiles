@@ -16,19 +16,29 @@ case "${OSTYPE}" in
         export EDITOR=vim
         ;;
     *linux-gnu|*darwin|*freebsd)
-        export EDITOR=nvim
+        if which nvim >/dev/null 2>&1; then
+            export EDITOR=nvim
+        else
+            export EDITOR=vim
+        fi
         ;;
     *)
         export EDITORY=vi
         ;;
 esac
 
-export VISUAL="${EDITOR}"
+export VISUAL="$EDITOR"
 export PAGER=less
 export LESS="-R"
 export DOTFILES_REPO_PATH=$HOME/.dotfiles
 export TMUX_TMPDIR=$HOME/.tmux/tmp/
-export EMACS_SERVER_FILE="$HOME/.emacs.d/var/server/server"
+export EMACS_SERVER_FILE=$HOME/.emacs.d/var/server/server
+
+# Custom Configuration Paths
+export PROGRAM_DIR=$HOME/programming
+export SCRIPTS_DIR="$PROGRAM_DIR"/scripts
+
+HISTSIZE=1000 HISTFILESIZE=2000 HISTFILE=~/.history
 
 # set path based variables
 lines_to_path() { #(PATH [...PATH])
@@ -56,15 +66,15 @@ lines_to_path() { #(PATH [...PATH])
     # strip out empty lines and comments, replace ~/ with users home directory & join paths with a :
 }
 
-export PATH=`lines_to_path $PATH <<EOF
-~/programming/scripts/public
-~/programming/programs
-~/programming/.modules/node
-~/programming/.modules/ruby/bin
+export PATH=`lines_to_path "$PATH" <<EOF
+$SCRIPTS_DIR
+$PROGRAM_DIR/bin
+$PROGRAM_DIR/.modules/node
+$PROGRAM_DIR/.modules/ruby/bin
 ~/.rvm/bin
 EOF`
 
-export CLASSPATH=`lines_to_path $CLASSPATH <<EOF
+export CLASSPATH=`lines_to_path "$CLASSPATH" <<EOF
 .
 # WARN you need to specify both the directory with
 #      wildcards to reference JARs and without them
@@ -72,43 +82,31 @@ export CLASSPATH=`lines_to_path $CLASSPATH <<EOF
 # WARN for some dumb reason... java & javac just
 #      completely ignore this environment variable
 #      when you pass the -cp argument.
-~/programming/.modules/java/
-~/programming/.modules/java/*
+$PROGRAM_DIR/.modules/java/
+$PROGRAM_DIR/.modules/java/*
 EOF`
 
-export PYTHONPATH=`lines_to_path $PYTHONPATH <<EOF
-~/programming/.modules/python
+export PYTHONPATH=`lines_to_path "$PYTHONPATH" <<EOF
+$PROGRAM_DIR/.modules/python
 EOF`
 
-export GEM_HOME=$HOME/programming/.modules/ruby
-export GEM_PATH=`lines_to_path $GEM_PATH <<EOF
-~/programming/.modules/ruby
+export GEM_HOME=$PROGRAM_DIR/.modules/ruby
+export GEM_PATH=`lines_to_path "$GEM_PATH" <<EOF
+$PROGRAM_DIR/.modules/ruby
 EOF`
 
-if [ ${OSTYPE} == "msys" -o ${OSTYPE} == "cygwin" ]; then
-    # for programs that don't care about the environment,
-    # only about the OS, convert back to a windows like path.
-    # NOTE Also convert ~ to ${HOME} cause apparrently python
-    #      won't accept ~ as ${HOME} in PATH variables.
+case "$OSTYPE" in
+    msys|cygwin)
+        # for programs that don't care about the environment,
+        # only about the OS, convert back to a windows like path.
 
-    for path_var in CLASSPATH PYTHONPATH; do
-        export ${path_var}=$(cygpath --windows --path "$(echo "${!path_var}")")
-    done
-fi
-
-unset -f lines_to_path # thank you, good bye
-
-case ${OSTYPE} in
-    cygwin*|msys*|win32*)
-        ;;  # sources bashrc automatically
-    *)
-        if [ -n "$BASH_VERSION" ]; then
-            if [ -f "${HOME}/.bashrc" ]; then
-                . "${HOME}/.bashrc"
-            fi
-        fi
+        for path_var in CLASSPATH PYTHONPATH; do
+            export $path_var=$(cygpath --windows --path "$(echo "${!path_var}")")
+        done
         ;;
 esac
+
+unset -f lines_to_path # thank you, good bye
 
 # uses darcula theme from fzf color schemes wiki
 export FZF_DEFAULT_OPTS="
@@ -141,3 +139,25 @@ if which thefuck >/dev/null 2>&1; then
     alias $alias='eval $(thefuck --alias '$alias') && unalias '$alias' && '$alias
     unset alias # remove a basically uselass environment variable from the shell
 fi
+
+case "$TERM" in
+    dumb)
+        PS1="> " # dumb terminal used by emacs tramp
+        ;;
+    xterm*|rxvt*|eterm*|screen*|cygwin*|emacs*)
+        SMART_TERM=1 ;;
+    .*) SMART_TERM=0 ;;
+esac
+
+# some platforms autosource bashrc, others don't. it's weird.
+case $OSTYPE in
+    cygwin*|msys*|win32*)
+        ;;  # sources bashrc automatically
+    *)
+        if [ -n "$BASH_VERSION" ]; then
+            if [ -f "$HOME/.bashrc" ]; then
+                . "$HOME/.bashrc"
+            fi
+        fi
+        ;;
+esac

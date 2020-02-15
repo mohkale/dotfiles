@@ -14,34 +14,24 @@ esac
 
 shopt -s globstar # enable **/* in shell globing
 shopt -s autocd   # cd to path automatically.
-
-# Configure Bash History
-HISTCONTROL=ignoreboth # ignore duplicate lines or lines with spaces
 shopt -s histappend # open history file as a, not w
-HISTSIZE=1000 HISTFILESIZE=2000 # change command history sizes
+HISTCONTROL=ignoreboth # ignore duplicate lines or lines with spaces.
 
 # enable programmable completion features
 if ! shopt -oq posix; then
-  if [ -f /usr/share/bash-completion/bash_completion ]; then
-    . /usr/share/bash-completion/bash_completion
-  elif [ -f /etc/bash_completion ]; then
-    . /etc/bash_completion
-  fi
+    if [ -f /usr/share/bash-completion/bash_completion ]; then
+        . /usr/share/bash-completion/bash_completion
+    elif [ -f /etc/bash_completion ]; then
+        . /etc/bash_completion
+    fi
 fi
 
-# Configure Environment Variables
-# see also ./.bash_profile
-
-scripts_path="$HOME/programming/scripts"
-
-# COLOR_CODED_PS1=1           # uncomment line to color code bash prompt
 # SILENCE_SHORTCUTS_WARNING=1 # uncomment to make build shortcuts quiet
 
 # source all the following scripts
 plugin_scripts=(
     "$HOME/.colors.bashrc"
     "$HOME/.bash_aliases"
-    "$scripts_path/.ps1/bash"
 )
 
 # source if available, else ignore.
@@ -58,3 +48,5 @@ done
 for plugin in "${optional_plugins[@]}"; do
     [ -x "$plugin" ] && . "$plugin"
 done
+
+[ "${SMART_TERM:-0}" -eq 1 ] && . "$SCRIPTS_DIR/.ps1/bash"

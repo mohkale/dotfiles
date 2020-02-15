@@ -5,6 +5,6 @@
 # |_.__/ \__,_|___/_| |_|____| .__/|_|  \___/|_| |_|_|\___|
 #                      |_____|_|
 
-if [ -f "${HOME}/.profile" ]; then
-    . "${HOME}/.profile"
+if [ -f "$HOME/.profile" ]; then
+    . "$HOME/.profile"
 fi
