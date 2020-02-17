@@ -47,4 +47,4 @@ _pre_prompt() {
     return "$previous_exit_code"
 }
 
-export PROMPT_COMMAND=' _pre_prompt'
+PROMPT_COMMAND='_pre_prompt'
