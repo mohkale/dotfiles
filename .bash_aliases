@@ -21,7 +21,7 @@ ec() { emacsclient; }
 export -f ec
 
 # build aliases from shortcuts config file
-build_shortcuts_script="${scripts_path}/build_shortcuts.sh"
+build_shortcuts_script="$SCRIPTS_DIR/private/build_shortcuts.sh"
 
 source_shortcuts() { # (PATH, FS=[1: true, 0: false])
     if [ ! -f "${build_shortcuts_script}" ]; then
