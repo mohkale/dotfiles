@@ -12,6 +12,8 @@ case $- in
       *) return;;
 esac
 
+. ~/.shenv
+
 shopt -s globstar # enable **/* in shell globing
 shopt -s autocd   # cd to path automatically.
 shopt -s histappend # open history file as a, not w

@@ -1,0 +1,26 @@
+# -*- mode: sh -*-
+
+set selection-clipboard clipboard
+set font "noto-sans 12"
+
+map [normal] gr reload
+
+# emacs like bindings
+map <C-g> abort
+map <C-a> scroll full-left
+map <C-b> scroll left
+map <C-e> scroll full-right
+map <C-f> scroll right
+map <C-n> scroll down
+map <C-p> scroll up
+
+set default-bg "#1C1D21"
+set inputbar-bg "#1C1D21"
+set default-fg "#CBCDD2"
+set inputbar-fg "#CBCDD2"
+
+set statusbar-fg "#1C1D21"
+set statusbar-bg "#CBCDD2"
+
+set window-title-home-tilde true
+set window-title-page true
