@@ -17,7 +17,7 @@ makecd() {
 
 export -f makecd # make available in bash subprocesses
 
-ec() { emacsclient; }
+ec() { emacsclient --socket-name "$EMACS_SERVER_FILE" --server-file "$EMACS_SERVER_FILE" "$@"; }
 export -f ec
 
 # build aliases from shortcuts config file
