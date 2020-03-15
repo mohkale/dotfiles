@@ -73,6 +73,7 @@ lines_to_path() { #(PATH [...PATH])
 
 export PATH=`lines_to_path $PATH <<EOF
 ~/programming/scripts/public
+~/.local/bin/
 $SCRIPTS_DIR
 $PROGRAM_DIR/bin
 $PROGRAM_DIR/.modules/node
