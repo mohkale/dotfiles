@@ -17,8 +17,47 @@ makecd() {
 
 export -f makecd # make available in bash subprocesses
 
-ec() { emacsclient --socket-name "$EMACS_SERVER_FILE" --server-file "$EMACS_SERVER_FILE" "$@"; }
+ec_cmd() {
+    # echo the valid emacsclient command for OSTYPE.
+    local flags= s_file="${EMACS_SERVER_FILE}"
+
+    case "$OSTYPE" in
+        cygwin*|msys*|win32*) ;;
+        *) flags='--socket-name '"$s_file"
+           # windows doesn't support --socket-name
+           ;;
+    esac
+
+    echo emacsclient $flags --server-file "$s_file";
+}
+
+ec() { $(ec_cmd) "$@"; }
 export -f ec
+
+with_emacs() {
+    # run a command with editor set to emacsclient.
+    local usage="with-emacs [-h] COMMAND [ARGS...]" cmd=$(ec_cmd)
+
+    if [ "$#" -eq 0 ]; then
+        echo -e "EDITOR=${cmd@Q}\nVISUAL=${cmd@Q}"
+    else
+        local OPTIND OPTION
+        while getopts 'h?' OPTION; do
+            case "$OPTION" in
+                h) echo "$usage"
+                   return 0
+                   ;;
+                *) echo "$usage" >&2
+                   return 1
+                   ;;
+            esac
+        done
+        shift $((OPTIND-1))
+
+        EDITOR="$cmd" VISUAL="$cmd" "$@"
+    fi
+}
+alias with-emacs='with_emacs ' # alias expanding version
 
 alias sd='sudo '
 
