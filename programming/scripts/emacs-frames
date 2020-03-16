@@ -1,0 +1,18 @@
+#!/usr/bin/sh
+# output the X-window spec for every currently open emacs frame.
+
+desired_application_name="Emacs"
+
+wmctrl -lp | while read window_row; do
+    window_id=$(cut -d ' ' -f1 <<< "$window_row")
+    xprop_out=$(xprop -id $window_id _NET_WM_WINDOW_TYPE WM_CLASS)
+
+    window_type=$(head -n 1 <<< "$xprop_out")
+
+    if $(grep -q '_NET_WM_WINDOW_TYPE_NORMAL' <<< "$window_type"); then
+        window_application=$(tail -n1 <<< "$xprop_out" | cut -d ' ' -f4-)
+        window_application="${window_application:1:-1}" # strip out wrapping ""
+
+        [ "$window_application" == "$desired_application_name" ] && echo "${window_row}"
+    fi
+done

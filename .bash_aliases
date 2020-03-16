@@ -17,7 +17,7 @@ makecd() {
 
 export -f makecd # make available in bash subprocesses
 
-ec() { emacsclient; }
+ec() { emacsclient --socket-name "$EMACS_SERVER_FILE" --server-file "$EMACS_SERVER_FILE" "$@"; }
 export -f ec
 
 alias sd='sudo '
@@ -41,7 +41,7 @@ source_shortcuts() { # (PATH, FS=[1: true, 0: false])
 source_file_maps() { FS=1 source_shortcuts "$@"; }
 
 windows_bindings() {
-    alert() {
+    function alert {
         # no configuration, simply notify the user of a message under the title of the last command
         notifu -w -t $([ $? -eq 0 ] && echo "info" || echo "error") -p "$(get_last_command)" -m "$*"
     }

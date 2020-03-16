@@ -73,6 +73,7 @@ lines_to_path() { #(PATH [...PATH])
 
 export PATH=`lines_to_path $PATH <<EOF
 ~/programming/scripts/public
+~/.local/bin/
 $SCRIPTS_DIR
 $PROGRAM_DIR/bin
 $PROGRAM_DIR/.modules/node
@@ -156,7 +157,7 @@ case "$TERM" in
     dumb)
         PS1="> " # dumb terminal used by emacs tramp
         ;;
-    xterm*|rxvt*|eterm*|screen*|cygwin*|emacs*)
+    xterm*|rxvt*|eterm*|screen*|cygwin*|emacs*|st*)
         SMART_TERM=1 ;;
     .*) SMART_TERM=0 ;;
 esac
