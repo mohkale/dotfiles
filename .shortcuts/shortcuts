@@ -14,6 +14,7 @@ e       edit
 nv      nvim
 ccat    highlight --out-format=ansi
 mcd     makecd
+mkcd    makecd
 img     feh
 netcat  ncat
 chksum  cksum
