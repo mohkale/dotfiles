@@ -9,7 +9,7 @@
 # Programs
 _       sudo
 wai     whoami
-edit    $EDITOR
+edit    sh --norc -c '$EDITOR "$@"' edit
 e       edit
 nv      nvim
 ccat    highlight --out-format=ansi
