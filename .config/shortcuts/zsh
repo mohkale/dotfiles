@@ -1,0 +1,13 @@
+# -*- mode: sh -*-
+echo "sourcing zsh"
+
+
+commands_dir="$XDG_CONFIG_HOME/shortcuts/commands"
+
+fpath+="$commands_dir"
+
+while read file; do
+    autoload "$file"
+done < <(find "$commands_dir" -type f)
+
+unset commands_dir

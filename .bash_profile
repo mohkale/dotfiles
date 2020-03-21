@@ -24,7 +24,6 @@ fi
 # source all the following scripts
 plugin_scripts=(
     "$HOME/.colors.bashrc"
-    "$HOME/.bash_aliases"
 )
 
 # source if available, else ignore.

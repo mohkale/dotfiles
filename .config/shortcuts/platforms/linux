@@ -1,0 +1,6 @@
+# -*- mode: sh -*-
+
+smacs() {
+    # run as a background process
+    emacs "$@" &
+}
