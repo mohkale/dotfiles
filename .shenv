@@ -10,6 +10,8 @@
 # don't source this script if you've already sourced it.
 [ -z "$SOURCED_SHENV" ] || return
 
+[ -f "$HOME/.config/user-dirs.dirs" ] && . "$HOME/.config/user-dirs.dirs"
+
 # platform dependent config
 case "${OSTYPE}" in
     *cygwin|*msys|*win32)
