@@ -32,7 +32,7 @@ case "$TERM" in
     *) SMART_TERM=0 ;;
 esac
 
-case "$(ps --no-headers -p $$ --format '%c')" in
+case "$(ps -p $$ | awk 'END { print($NF) }')" in
     *bash) shell="bash" ;;
     *zsh)  shell="zsh"  ;;
     *)     shell=       ;;
