@@ -6,6 +6,9 @@
 # /____  >___|  /\____/|__|   |__|  \___  >____/ |__| /____  >
 #      \/     \/                        \/                 \/
 
+# Global shortcuts file, these shortcuts will be sourced regardless
+# of which platform, shell or OS is invoked.
+
 # Programs
 _       sudo
 wai     whoami
@@ -131,29 +134,51 @@ q7      pushd +7
 q8      pushd +8
 q9      pushd +9
 
-cdd     cd -
-cd1     cd ../
-cd2     cd ../../
-cd3     cd ../../../
-cd4     cd ../../../../
-cd5     cd ../../../../../
-cd6     cd ../../../../../../
-cd7     cd ../../../../../../../
-cd8     cd ../../../../../../../../
-cd9     cd ../../../../../../../../../
-cd10    cd ../../../../../../../../../../
+cdd@dir     -
+cd1@dir     ../
+cd2@dir     ../../
+cd3@dir     ../../../
+cd4@dir     ../../../../
+cd5@dir     ../../../../../
+cd6@dir     ../../../../../../
+cd7@dir     ../../../../../../../
+cd8@dir     ../../../../../../../../
+cd9@dir     ../../../../../../../../../
+cd10@dir    ../../../../../../../../../../
 # why would I ever need any more of these :P
-cd11    cd ../../../../../../../../../../../
-cd12    cd ../../../../../../../../../../../../
-cd13    cd ../../../../../../../../../../../../../
-cd14    cd ../../../../../../../../../../../../../../
-cd15    cd ../../../../../../../../../../../../../../../
-cd16    cd ../../../../../../../../../../../../../../../../
-cd17    cd ../../../../../../../../../../../../../../../../../
-cd18    cd ../../../../../../../../../../../../../../../../../../
-cd19    cd ../../../../../../../../../../../../../../../../../../../
-cd20    cd ../../../../../../../../../../../../../../../../../../../../
+cd11@dir    ../../../../../../../../../../../
+cd12@dir    ../../../../../../../../../../../../
+cd13@dir    ../../../../../../../../../../../../../
+cd14@dir    ../../../../../../../../../../../../../../
+cd15@dir    ../../../../../../../../../../../../../../../
+cd16@dir    ../../../../../../../../../../../../../../../../
+cd17@dir    ../../../../../../../../../../../../../../../../../
+cd18@dir    ../../../../../../../../../../../../../../../../../../
+cd19@dir    ../../../../../../../../../../../../../../../../../../../
+cd20@dir    ../../../../../../../../../../../../../../../../../../../../
 
+# Directories Shortcuts
+h@dirx            ~
+dl@dirx           ~/downloads
+em@dirx           ~/.emacs.d
+pj@dirx           ~/programming/projects
+rp@dirx           ~/programming/repos
+sc@dirx           ~/programming/scripts
+st@dirx           ~/.shortcuts
+dtop@dirx         ~/desktop
+music@dirx        ~/multimedia/music
+dbox@dirx         ~/Dropbox
+
+# File Shortcuts
+profile@file     ~/.profile
+stg@file         $XDG_CONFIG_HOME/shortcuts/shortcuts
+ste@file         $XDG_CONFIG_HOME/shortcuts/eshell
+stw@file         $XDG_CONFIG_HOME/shortcuts/windows
+stl@file         $XDG_CONFIG_HOME/shortcuts/linux
+stm@file         $XDG_CONFIG_HOME/shortcuts/macos
+
+# Temp FS
+etemp@file   $(mktemp)
 
 # standalone-commands
 bash-startup-files      echo exit | strace bash -li | grep 'open(' | less

@@ -61,23 +61,15 @@ alias with-emacs='with_emacs ' # alias expanding version
 
 alias sd='sudo '
 
-# build aliases from shortcuts config file
-build_shortcuts_script="${SCRIPTS_DIR:-$HOME/programming/scripts}/private/build_shortcuts.sh"
-
-source_shortcuts() { # (PATH, FS=[1: true, 0: false])
-    if [ ! -f "${build_shortcuts_script}" ]; then
-        printf "bash_aliases(error) : failed to find build shortcuts script: %s\n" "$1" >&2
-        return 1
-    else
-        if [ "${SILENCE_SHORTCUTS_WARNING}" ]; then
-            eval $(INLINE=1 "$build_shortcuts_script" "$@" 2>/dev/null)
-        else
-            eval $(INLINE=1 "$build_shortcuts_script" "$@")
-        fi
-    fi
-}
-
-source_file_maps() { FS=1 source_shortcuts "$@"; }
+case $OSTYPE in
+    cygwin*|msys*|win32*) platform="windows" ;;
+    darwin*)              platform="macos"   ;;
+    linux-gnu*)           platform="linux"   ;;
+    *)
+        platform="mystery"
+        echo "bash_aliases(warning) : unknown os type: $OSTYPE" >&2
+        ;;
+esac
 
 windows_bindings() {
     function alert {
@@ -94,40 +86,24 @@ linux_bindings() {
     smacs() { emacs "$@" & }  # run as a background process
 }
 
-# see ~/programming/scripts/list_shortcuts.sh
-get_shortcut_files_for_platform() { # (platform)
-    shortcuts_root="${XDG_CONFIG_HOME}/shortcuts"
+[ "$platform" = "mystery" ] || ${platform}_bindings # invoke local function bindings for current platform
 
-    if [ $# != 0 ]; then
-        # platform specified, find the
-        # non platform shortcuts first
-        get_shortcut_files_for_platform
-        shortcuts_root="$shortcuts_root/$*"
-    fi
+# build aliases from shortcuts config file
+build_shortcuts_script="${SCRIPTS_DIR:-$HOME/programming/scripts}/private/build_shortcuts.sh"
 
-    if [ ${FS:-0} = 1 ]; then
-        [ -f $shortcuts_root/fsmaps ] && echo $shortcuts_root/fsmaps
-        find "$shortcuts_root/.private" -type f -iname '*.fs' 2>/dev/null
-    else
-        [ -f $shortcuts_root/shortcuts ] && echo $shortcuts_root/shortcuts
-        find "$shortcuts_root/.private" -type f -not -iname '*.fs' 2>/dev/null
-    fi
-}
+if [ ! -x "$build_shortcuts_script" ]; then
+    printf "bash_aliases(error) : failed to find build shortcuts script: %s\n" "$1" >&2
+else
+    shortcuts_root="$XDG_CONFIG_HOME/shortcuts"
 
-case $OSTYPE in
-    cygwin*|msys*|win32*) platform="windows" ;;
-    darwin*)              platform="macos"   ;;
-    linux-gnu*)           platform="linux"   ;;
-    *)
-        echo "bash_aliases(warning) : unknown os type: $OSTYPE" >&2 ;;
-esac
+    # nicest way to check whether the files exist or not, and then build shortcuts
+    eval "$(find $shortcuts_root/shortcuts $shortcuts_root/shortcuts.private \
+                 $shortcuts_root/$platform $shortcuts_root/$platform.private \
+                 -exec "$build_shortcuts_script" -i1 '{}' + 2>/dev/null)"
 
-source_shortcuts $(     get_shortcut_files_for_platform $platform)
-source_file_maps $(FS=1 get_shortcut_files_for_platform $platform)
+    unset -f source_shortcuts source_file_maps get_shortcut_files_for_platform
+    unset shortcuts_root
+fi
 
-[ -z "$platform" ] || ${platform}_bindings # invoke local function bindings for current platform
-
-unset platform
-unset -f source_shortcuts source_file_maps              \
-         windows_bindings macos_bindings linux_bindings \
-         get_shortcut_files_for_platform
+unset platform build_shortcuts_script
+unset -f windows_bindings macos_bindings linux_bindings
