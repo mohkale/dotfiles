@@ -1,0 +1,22 @@
+# -*- mode: conf-space -*-
+smacs      runemacs
+tree       tree.com
+ywd        pwd | tee /dev/tty | cygpath -f - -w | tr -d "\n" | clip
+
+# Directories
+avi@dirx          c:/Avibuso
+icons@dirx        c:/Avibuso/multifolder/icons
+dlrand@dirx       e:/Downloads/Random
+dlanime@dirx      e:/Downloads/Anime
+dlmusic@dirx      e:/Downloads/Music
+games@dirx        e:/Games
+movies@dirx       e:/Multimedia/Movies
+tv@dirx           e:/Multimedia/TV
+tvtemp@dirx       "e:/Multimedia/TV/(Temp)"
+
+# Directories
+pf@dirx           c:/Program Files
+pf86@dirx         "c:/Program Files (x86)"
+# horrendous naming... my bad :(
+cipf@dirx         c:/C.I.Programs
+sppf@dirx         c:/SP_CI_PROGRAMS

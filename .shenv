@@ -10,22 +10,39 @@
 # don't source this script if you've already sourced it.
 [ -z "$SOURCED_SHENV" ] || return
 
+[ -f "$HOME/.config/user-dirs.dirs" ] && . "$HOME/.config/user-dirs.dirs"
+
 # platform dependent config
-case "${OSTYPE}" in
-    *cygwin|*msys|*win32)
-        export EDITOR=vim
-        ;;
-    *linux-gnu|*darwin|*freebsd)
-        if which nvim >/dev/null 2>&1; then
-            export EDITOR=nvim
-        else
-            export EDITOR=vim
-        fi
-        ;;
+case "$OSTYPE" in
+    cygwin*|msys*|win32*) platform="windows" ;;
+    darwin*)              platform="macos"   ;;
+    linux-gnu*)           platform="linux"   ;;
     *)
-        export EDITORY=vi
+        platform=
+        echo "bash_aliases(warning) : unknown os type: $OSTYPE" >&2
         ;;
 esac
+
+case "$TERM" in
+    dumb)
+        PS1="> " # dumb terminal used by emacs tramp
+        ;;
+    xterm*|rxvt*|eterm*|screen*|cygwin*|emacs*|st*)
+        SMART_TERM=1 ;;
+    *) SMART_TERM=0 ;;
+esac
+
+case "$(ps --no-headers -p $$ --format '%c')" in
+    *bash) shell="bash" ;;
+    *zsh)  shell="zsh"  ;;
+    *)     shell=       ;;
+esac
+
+# prioritize editors in order of nvim, vim, vi.
+if   which nvim >/dev/null 2>&1; then export EDITOR=nvim
+elif which vim  >/dev/null 2>&1; then export EDITOR=vim
+else                                  export EDITOR=vi
+fi
 
 export VISUAL="$EDITOR"
 export PAGER=less
@@ -107,16 +124,15 @@ export GOPATH=`lines_to_path $GOPATH <<EOF
 ~/programming/.modules/go
 EOF`
 
-case "$OSTYPE" in
-    msys|cygwin)
+if [ "$platform" = "windows" ]; then
+    for path_var in CLASSPATH PYTHONPATH; do
         # for programs that don't care about the environment,
-        # only about the OS, convert back to a windows like path.
+        # only about the OS, convert paths back to a windows
+        # like path.
 
-        for path_var in CLASSPATH PYTHONPATH; do
-            export $path_var=$(cygpath --windows --path "$(echo "${!path_var}")")
-        done
-        ;;
-esac
+        export $path_var=$(cygpath --windows --path "$(echo "${!path_var}")")
+    done
+fi
 
 unset -f lines_to_path # thank you, good bye
 
@@ -152,27 +168,29 @@ if which thefuck >/dev/null 2>&1; then
     unset alias # remove a basically uselass environment variable from the shell
 fi
 
+# source shortcuts
+shortcuts_dir="$XDG_CONFIG_HOME/shortcuts"
+[ -f "$shortcuts_dir/shortcuts" ] && . "$shortcuts_dir/shortcuts"
+[ ! -z "$shell" -a -f "$shortcuts_dir/$shell" ] && . "$shortcuts_dir/$shell"
+unset shortcuts_script
 
-case "$TERM" in
-    dumb)
-        PS1="> " # dumb terminal used by emacs tramp
-        ;;
-    xterm*|rxvt*|eterm*|screen*|cygwin*|emacs*|st*)
-        SMART_TERM=1 ;;
-    .*) SMART_TERM=0 ;;
-esac
+# source aliases
+build_aliases_script="$SCRIPTS_DIR/private/build_aliases.sh"
+if [ ! -x "$build_aliases_script" ]; then
+    printf "bash_aliases(error) : failed to find build aliases script: %s\n" "$1" >&2
+else
+    aliases_root="$XDG_CONFIG_HOME/aliases"
 
-# some platforms autosource bashrc, others don't. it's weird.
-case $OSTYPE in
-    cygwin*|msys*|win32*)
-        ;;  # sources bashrc automatically
-    *)
-        # if [ -n "$BASH_VERSION" ]; then
-        #     if [ -f "$HOME/.bashrc" ]; then
-        #         . "$HOME/.bashrc"
-        #     fi
-        # fi
-        ;;
-esac
+    # nicest way to check whether the files exist or not, and then build aliases
+    eval "$(find $aliases_root/global    $aliases_root/global.private    \
+                 $aliases_root/$platform $aliases_root/$platform.private \
+                 -exec "$build_aliases_script" -i1 '{}' + 2>/dev/null)"
+
+    unset aliases_root
+fi
+
+unset build_aliases_script shell
+
+alias sd='sudo '
 
 SOURCED_SHENV=1
