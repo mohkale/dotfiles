@@ -96,13 +96,13 @@ linux_bindings() {
 
 # see ~/programming/scripts/list_shortcuts.sh
 get_shortcut_files_for_platform() { # (platform)
-    shortcuts_root="$HOME/.shortcuts"
+    shortcuts_root="${XDG_CONFIG_HOME}/shortcuts"
 
     if [ $# != 0 ]; then
         # platform specified, find the
         # non platform shortcuts first
         get_shortcut_files_for_platform
-        shortcuts_root=$shortcuts_root/$*
+        shortcuts_root="$shortcuts_root/$*"
     fi
 
     if [ ${FS:-0} = 1 ]; then
