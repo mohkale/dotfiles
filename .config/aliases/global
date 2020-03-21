@@ -10,7 +10,6 @@
 # of which platform, shell or OS is invoked.
 
 # Programs
-_       sudo
 wai     whoami
 edit    $EDITOR
 e       edit
