@@ -29,8 +29,7 @@ read_scripts() { #(*files)
     cat "$@" | sed -r - -e ':x /\\$/ { N; s/\\\n//g ; bx }' \
                         -e 's/#.*$//'                       \
                         -e '/^\s+/s/^\s+//'                 \
-                        -e '/^\s*$/d'                       \
-                        -e 's/\\/\\\\/g'
+                        -e '/^\s*$/d'
 
     # join lines ending with a backslash together, then strip comments, entry
     # level indentation, empty lines (in that order) from every input file
@@ -40,22 +39,24 @@ read_scripts() { #(*files)
 }
 
 create_aliases() { #(*files)
-    while read cut dest; do
+    while read -r cut dest; do
         # available tags:
         #  @file create a file shortcut, invoking it opens editor with it.
         #  @dir  create a dir shortcut, invoking it changes dir to it.
         #  @dirx same as @dir, but also creates a q{name} alias which
         #        pushes onto the directory stack.
         case "$cut" in
-            *@file) echo alias ${cut%@file*}=${editor@Q}"' '"${dest@Q}
+            *@file) cut=${cut%@file*}
+                    echo alias ${cut@Q}=${editor@Q}"' '"${dest@Q}
                     ;;
-            *@dir) echo alias  ${cut%@dir*}="'cd '"${dest@Q}
+            *@dir) cut=${cut%@dir*}
+                   echo alias ${cut@Q}="'cd '"${dest@Q}
                    ;;
             *@dirx) cut="${cut%@dir*}"
-                    echo alias  $cut="'cd '"${dest@Q}
-                    echo alias q$cut="'pushd '"${dest@Q}
+                    echo alias  ${cut@Q}="'cd '"${dest@Q}
+                    echo alias q${cut@Q}="'pushd '"${dest@Q}
                     ;;
-            *) echo alias $cut=${dest@Q}
+            *) echo alias ${cut@Q}=${dest@Q}
                ;;
         esac
     done < <(read_scripts "$@") | if [ "$prettify" -eq 1 ]; then sed "s/''//g"; else cat; fi
