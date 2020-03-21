@@ -88,22 +88,22 @@ linux_bindings() {
 
 [ "$platform" = "mystery" ] || ${platform}_bindings # invoke local function bindings for current platform
 
-# build aliases from shortcuts config file
-build_shortcuts_script="${SCRIPTS_DIR:-$HOME/programming/scripts}/private/build_shortcuts.sh"
+# build aliases from aliases config file
+build_aliases_script="${SCRIPTS_DIR:-$HOME/programming/scripts}/private/build_aliases.sh"
 
-if [ ! -x "$build_shortcuts_script" ]; then
-    printf "bash_aliases(error) : failed to find build shortcuts script: %s\n" "$1" >&2
+if [ ! -x "$build_aliases_script" ]; then
+    printf "bash_aliases(error) : failed to find build aliases script: %s\n" "$1" >&2
 else
-    shortcuts_root="$XDG_CONFIG_HOME/shortcuts"
+    aliases_root="$XDG_CONFIG_HOME/aliases"
 
-    # nicest way to check whether the files exist or not, and then build shortcuts
-    eval "$(find $shortcuts_root/shortcuts $shortcuts_root/shortcuts.private \
-                 $shortcuts_root/$platform $shortcuts_root/$platform.private \
-                 -exec "$build_shortcuts_script" -i1 '{}' + 2>/dev/null)"
+    # nicest way to check whether the files exist or not, and then build aliases
+    eval "$(find $aliases_root/global    $aliases_root/global.private    \
+                 $aliases_root/$platform $aliases_root/$platform.private \
+                 -exec "$build_aliases_script" -i1 '{}' + 2>/dev/null)"
 
-    unset -f source_shortcuts source_file_maps get_shortcut_files_for_platform
-    unset shortcuts_root
+    unset -f source_aliases source_file_maps get_shortcut_files_for_platform
+    unset aliases_root
 fi
 
-unset platform build_shortcuts_script
+unset platform build_aliases_script
 unset -f windows_bindings macos_bindings linux_bindings
