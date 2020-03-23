@@ -1,0 +1,13 @@
+- link:
+    ~/.tmux/tmuxrc: tmuxrc
+
+- bots:
+    - scripts
+
+- create:
+    - ~/.tmux/tmp
+
+- populate:
+    - path: ~/.tmux.conf
+      body: source-file ~/.tmux/tmuxrc
+      skip: True

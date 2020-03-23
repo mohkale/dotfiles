@@ -1,2 +1,3 @@
-.dotfiles
-.shortcuts/**/.private/
+shortcuts/**/*.private
+setup/plugins/__pycache__/
+README.html

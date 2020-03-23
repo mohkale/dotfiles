@@ -1,0 +1,10 @@
+- clean:
+    - ~/.local/share/fonts/
+- link:
+    ~/.local/share/fonts/:
+      path: "*.ttf"
+      glob: true
+- link:
+    ~/.local/share/fonts/:
+      path: "*.otf"
+      glob: true

@@ -1,0 +1,11 @@
+- bots:
+    - path: konsole
+      env:  true
+    - path: thefuck
+      env:  true
+    - path: tmux
+      env:  true
+    - path: yakuake
+      env:  true
+    - path: zathura
+      env:  true

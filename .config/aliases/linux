@@ -1,5 +1,0 @@
-# -*- mode: conf-space -*-
-alert      notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(get_last_command)"
-enf        emacs-new-frame.sh
-pdf        zathura
-clip       xclip -i -selection clipboard

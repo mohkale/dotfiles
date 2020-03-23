@@ -1,0 +1,6 @@
+- bots:
+    - path: ../vim
+      unsafe: true
+
+- link:
+    ~/.config/nvim/init.vim:

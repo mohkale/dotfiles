@@ -1,0 +1,5 @@
+- bots:
+    - path: ruby
+      env:  true
+    - path: haskell
+      env:  true

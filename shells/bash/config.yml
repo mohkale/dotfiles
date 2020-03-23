@@ -1,0 +1,5 @@
+- link:
+    ~/.bashrc:
+    ~/.bash_logout: logout
+    ~/.bash_profile: profile
+    ~/.colors.bashrc: colors.bashrc

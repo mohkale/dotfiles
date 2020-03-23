@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+set -e
+
+export SHELL="${SHELL:-/usr/bin/bash}"
+export HOME=$HOME
+
+CONFIG="config.yml"
+DOTBOT_DIR="setup/.dotbot"
+
+DOTBOT_BIN="bin/dotbot"
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")/../"
+
+cd "$BASEDIR"
+
+if [ "${sync:-0}" -eq 1 ]; then
+    git -C "$DOTBOT_DIR" submodule sync --quiet --recursive
+    git submodule update --init --recursive "$DOTBOT_DIR"
+fi
+
+python3 "$BASEDIR/$DOTBOT_DIR/$DOTBOT_BIN"    \
+    --plugin ./setup/plugins/subbot.py        \
+    --plugin ./setup/plugins/fix_link_test.py \
+    --plugin ./setup/plugins/populate.py      \
+    --plugin ./setup/plugins/shell.py         \
+    -c "$CONFIG" "$@"

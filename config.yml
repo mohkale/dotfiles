@@ -1,0 +1,34 @@
+# dotbot configuration file
+- defaults:
+    link:
+      relink: true
+      create: true
+    bots:
+      config: config.yml
+
+- clean: ['~']
+
+- create:
+    - ~/downloads
+    - ~/multifolder
+    - ~/multimedia
+    - ~/multimedia/images
+    - ~/multimedia/videos
+    - ~/multimedia/music
+    - ~/programming
+    - ~/programming/misc
+    - ~/programming/repos
+
+- bots:
+    - core
+    - desktop
+    - editors
+    - langs
+    - programs
+    - scripts
+    - shells
+
+- shell:
+  - command: git submodule update --init --recursive
+    description: Installing submodules
+    stdout: true

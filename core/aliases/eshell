@@ -1,0 +1,79 @@
+#                                          _          _ _
+#   ___ _ __ ___   __ _  ___ ___       ___| |__   ___| | |
+#  / _ \ '_ ` _ \ / _` |/ __/ __|_____/ __| '_ \ / _ \ | |
+# |  __/ | | | | | (_| | (__\__ \_____\__ \ | | |  __/ | |
+#  \___|_| |_| |_|\__,_|\___|___/     |___/_| |_|\___|_|_|
+
+# multi-execution commands
+edit      for f in ${eshell-flatten-list $*} { find-file $f }
+ff        for f in ${eshell-flatten-list $*} { find-file $f }
+fff       for f in ${eshell-flatten-list $*} { find-file-other-frame  $f }
+ffw       for f in ${eshell-flatten-list $*} { find-file-other-window $f }
+
+
+# fixed-argument commands
+clear     recenter 0
+cb        switch-to-buffer $1
+gb        get-buffer $1
+gbc       get-buffer-create $1
+mktempb   create-new-empty-buffer
+scratch   switch-to-scratch-buffer $1
+
+
+# script invocations
+refresh-shortcuts . ~/.emacs.d/bin/eshell/eshortcuts.esh
+
+
+# directory stack
+cds       cd =
+cds0      cd -0
+cds1      cd -1
+cds2      cd -2
+cds3      cd -3
+cds4      cd -4
+cds5      cd -5
+cds6      cd -6
+cds7      cd -7
+cds8      cd -8
+cds9      cd -9
+cds10     cd -10
+cds11     cd -11
+cds12     cd -12
+cds13     cd -13
+cds14     cd -14
+cds15     cd -15
+cds16     cd -16
+cds17     cd -17
+cds18     cd -18
+cds19     cd -19
+cds20     cd -20
+cds21     cd -21
+cds22     cd -22
+cds23     cd -23
+cds24     cd -24
+cds25     cd -25
+cds26     cd -26
+cds27     cd -27
+cds28     cd -28
+cds29     cd -29
+cds30     cd -30
+cds31     cd -31
+cds32     cd -32
+cds33     cd -33
+cds34     cd -34
+cds35     cd -35
+cds36     cd -36
+cds37     cd -37
+cds38     cd -38
+cds39     cd -39
+cds40     cd -40
+cds41     cd -41
+cds42     cd -42
+cds43     cd -43
+cds44     cd -44
+cds45     cd -45
+cds46     cd -46
+cds47     cd -47
+cds48     cd -48
+cds49     cd -49
+cds50     cd -50

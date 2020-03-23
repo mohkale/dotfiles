@@ -1,0 +1,14 @@
+- clean:
+    ~/programming/scripts:
+      recursive: true
+
+- link:
+    ~/programming/scripts/vipe: vipe
+    ~/programming/scripts/image2ascii: image2ascii
+    ~/programming/scripts/private:
+      path: private/*
+      glob: true
+
+- bots:
+    - path: emacs
+      env:  true

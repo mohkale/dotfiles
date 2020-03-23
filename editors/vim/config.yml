@@ -1,0 +1,22 @@
+- create:
+    - ~/.vim
+
+- link:
+    ~/.vimrc:
+    ~/_vimrc:
+      path: ~/.vimrc
+      if: &windows-p echo "$OSTYPE" | grep -i -E 'cygwin|msys|win32'
+    ~/_vim:
+      path: ~/.vim
+      if: *windows-p
+
+- shell:
+    - description: Install Vim Plug
+      stderr: true
+      stdout: true
+      stdin:  true
+      command: >-
+        curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+        'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+
+        vim -c :PlugInstall -c ':qa!'

@@ -1,0 +1,6 @@
+- link:
+    ~/.local/share/konsole/Mohkale.profile: profile
+    ~/.local/share/konsole/:
+      path: themes/*
+      glob: true
+    ~/.config/konsolerc: konsolerc

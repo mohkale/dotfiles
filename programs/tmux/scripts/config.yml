@@ -1,0 +1,4 @@
+- link:
+    ~/.tmux/scripts/:
+      path: "*.tsh"
+      glob: true
