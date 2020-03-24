@@ -1,5 +1,3 @@
-#+TITLE: Dotfiles
-
 #+STARTUP: showall
 
 # sets HTML export theme to readthedocs like theme.
