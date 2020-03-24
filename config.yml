@@ -23,9 +23,8 @@
     # determine the platform dotfiles are being
     # installed into.
     - description: Discovering Current Platform
-      command: >-
+      command: |-
         rm ./setup/platform.name
-
         ./setup/platform > ./setup/platform.name
 
 - bots:

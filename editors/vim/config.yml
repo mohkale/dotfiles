@@ -15,8 +15,11 @@
       stderr: true
       stdout: true
       stdin:  true
-      command: >-
-        curl -fLo ~/.vim/autoload/plug.vim --create-dirs
-        'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+      command: |-
+        autoload_path=~/.vim/autoload/plug.vim
+        autoload_url='https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+        if ! [ -f "$autoload_path" ]; then
+          curl -fLo "$autoload_path" --create-dirs "$autoload_url"
+        fi
 
         vim -c :PlugInstall -c ':qa!'
