@@ -54,7 +54,17 @@ from dotbot.dispatcher import Dispatcher
 from dotbot.config import ConfigReader, ReadingError
 
 sys.path.insert(0, os.path.dirname(__file__))
+from run_process import run_process
 from log_mixin import LogMixin
+
+def _populate_process_spec(cls, spec, cwd, defaults,
+                           default_key='package'):
+    if isinstance(spec, str):
+        spec = {default_key: spec}
+    spec.setdefault('stdin', False)
+    spec.setdefault('stdout', False)
+    spec.setdefault('stderr', False)
+    return spec
 
 class SubBotPlugin(LogMixin, dotbot.Plugin):
     def __init__(self, *args, **kwargs):
@@ -85,9 +95,6 @@ class SubBotPlugin(LogMixin, dotbot.Plugin):
                 if not isinstance(spec, dict):
                     self.error('specs must be a dict or str, not ' + spec.__class__.__name__)
                 else:
-                    self.info('invoking subbot %s (from %s)' % (
-                        spec.get('path', ''), self._context.base_directory()))
-
                     spec = self._populate_spec(spec, self._context.defaults())
                     if 'path' not in spec:
                         self.error('specs must supply a path argument')
@@ -122,8 +129,23 @@ class SubBotPlugin(LogMixin, dotbot.Plugin):
         if path in self._cached_subbots:
             return True
 
+        shell = os.getenv('SHELL') or 'sh'
+        for test in spec['if']:
+            test = _populate_process_spec(
+                test,
+                self._context.base_directory(),
+                self._context.defaults(),
+                default_key='command')
+            if run_process([shell, '-c', test['command']], test) != 0:
+                self.debug('skipping subbot %s because test `%s` failed' %
+                             (spec['path'], '; '.join(test['command'].split('\n'))))
+                return True
         if spec['cache']:
             self._cached_subbots.append(path)
+
+        self.info('invoking subbot %s (from %s)' % (
+            spec.get('path', ''), self._context.base_directory()))
+
         return self._invoke_subbot(spec, path, config)
 
     def _read_tasks(self, spec, config):
@@ -197,24 +219,26 @@ class SubBotPlugin(LogMixin, dotbot.Plugin):
                 self.debug('discovered allowed subot: ' + bot)
             return bots
 
-    @staticmethod
-    def _spec_defaults(ctx_defaults):
-        """get a dictionary containing default options for a spec."""
-        default = {
-            'cache':  True,
-            'unsafe': False,
-            'env': False,
-            'config': 'install.conf.yaml',
-        }
-        if ctx_defaults:
-            default.update(ctx_defaults.get('bots', {}))
-        return default
-
     @classmethod
-    def _populate_spec(cls, new_spec, ctx_defaults=None):
+    def _populate_spec(cls, spec, ctx_defaults=None):
         """given a spec SPEC, populate any ommited defaults."""
-        spec = cls._spec_defaults(ctx_defaults)
-        spec.update(new_spec)
+        for key, val in ctx_defaults.get('bots', {}).items():
+            spec.setdefault(key, val)
+
+        spec.setdefault('cache', True)
+        spec.setdefault('unsafe', False)
+        spec.setdefault('env', False)
+        spec.setdefault('config', 'install.conf.yaml')
+        spec.setdefault('if', [])
+
+        if not isinstance(spec['if'], list):
+            spec['if'] = [spec['if']]
+
+        if 'when' in spec:
+            when = spec.pop('when')
+            if not isinstance(when, list):
+                when = [when]
+            spec['if'] += when
 
         return spec
 
