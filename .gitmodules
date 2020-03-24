@@ -1,7 +1,7 @@
-[submodule "emacs"]
-	path = editors/emacs
-	url = git@github.com:mohkale/.emacs.d.git
 [submodule "dotbot"]
 	path = setup/.dotbot
 	url = https://github.com/anishathalye/dotbot
 	ignore = dirty
+[submodule "editors/emacs"]
+	path = editors/emacs
+	url = https://github.com/mohkale/.emacs.d
