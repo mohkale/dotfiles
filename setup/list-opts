@@ -1,0 +1,107 @@
+#!/usr/bin/env python3
+"""
+An ~ugly~ hack around subbot.py, which prints out all the available
+env options available across all configs in this dotfile repository.
+
+Be forewarned, this isn't pretty, I didn't think I'd use it very much,
+so I didn't invest much time on it 🤦.
+"""
+
+import os
+import sys
+
+if __name__ == '__main__':
+    from argparse import ArgumentParser
+
+    def parse_args():
+        parser = ArgumentParser()
+
+        parser.add_argument('-c', '--config', default='config.yml',
+                            help='the main dotbot config file.')
+        parser.add_argument('-d', '--dotbot', default='setup/.dotbot/',
+                            help='path to dotbot module directory.')
+        parser.add_argument('-p', '--plugins-dir', default='setup/plugins',
+                            help='directory containing dotbot plugins.')
+
+        args  = parser.parse_args()
+        vargs = vars(args)
+
+        if len(args.config.strip()) == 0 or not os.path.exists(args.config):
+            parser.error('unable to locate config file: ' + args.config)
+
+        parent_dir = os.path.dirname(args.config)
+        if len(parent_dir.strip()) != 0:
+            os.chdir(parent_dir)
+
+        dotbot_dir = vargs.pop('dotbot')
+        plugins_dir = vargs.pop('plugins_dir')
+        for p in [dotbot_dir, plugins_dir]:
+            if p and os.path.exists(p):
+                sys.path.insert(0, os.path.realpath(p))
+
+        return args, vargs, parser
+
+    args, vargs, parser = parse_args()
+
+    from collections import namedtuple
+    from subbot import SubBotPlugin
+    from typing import Dict
+    from dotbot.config import ConfigReader, ReadingError
+
+    class Context:
+        def __init__(self, base_directory, defaults):
+            self._base_directory = base_directory
+            self._defaults       = defaults
+
+        def base_directory(self, *args, **kwargs):
+            return self._base_directory
+
+        def defaults(self, *args, **kwargs):
+            return self._defaults
+
+    class ListOptionsPlugin(SubBotPlugin):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self._log.set_level(100)  # disable logging
+
+        def handle(self, action, data):
+            if action == 'defaults':
+                self._context._defaults.update(data)
+            else:
+                super().handle(action, data)
+
+        def run_tasks(self, tasks):
+            for item in tasks:
+                for action, data in item.items():
+                    if self.can_handle(action):
+                        self.handle(action, data)
+
+        def allowed_bot(self, *args, **kwargs):
+            return True
+
+        def _invoke_subbot(self, spec, path, config):
+            if spec['env'] and not spec['env'] in self.discovered:
+                self.discovered.append(spec['env'])
+                print(spec['env'])
+
+            cwd = self._context._base_directory
+            try:
+                self._context._base_directory = path
+                self.run_tasks(self._read_tasks(spec, config))
+            except ReadingError as e:
+                print('failed to read config file: %s, %s'
+                      % (config, e), file=sys.stderr)
+            finally:
+                self._context._base_directory = cwd
+            return True
+
+        discovered = []
+
+    try:
+        tasks = ConfigReader(args.config).get_config()
+    except ReadingError as e:
+        print('failed to read config file: ' + args.config, file=sys.stderr)
+        sys.exit(1)
+
+    ctx = Context(os.getcwd(), {})
+    ListOptionsPlugin(ctx).run_tasks(tasks)
