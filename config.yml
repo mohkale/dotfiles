@@ -27,8 +27,3 @@
     - programs
     - scripts
     - shells
-
-- shell:
-  - command: git submodule update --init --recursive
-    description: Installing submodules
-    stdout: true
