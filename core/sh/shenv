@@ -56,6 +56,8 @@ export LANG=en_GB.UTF-8 LC_MESSAGES="C"
 export PROGRAM_DIR=$HOME/programming
 export SCRIPTS_DIR="$PROGRAM_DIR"/scripts
 
+export PYTHONIOENCODING="utf-8" # prevents error msg
+
 HISTSIZE=1000 HISTFILESIZE=2000 HISTFILE=~/.history
 
 # set terminal used by i3
@@ -154,20 +156,6 @@ export FZF_DEFAULT_OPTS="
     --color info:#af87ff,prompt:#5fff87,pointer:#ff87d7,marker:#ff87d7,spinner:#ff87d7
 "
 
-if which thefuck >/dev/null 2>&1; then
-    # honestly I doubt I'll really be using 'the-fuck' but
-    # lazy loading it is a near effortless task so why not
-
-    export PYTHONIOENCODING="utf-8" # prevents error msg
-    # lazy load 'the fuck' using an alias which evaluates
-    # it removes the alias and then runs it for the first
-    # time
-
-    alias='fx' # alias under which 'the-fuck' will be invoked... actually a function
-    alias $alias='eval $(thefuck --alias '$alias') && unalias '$alias' && '$alias
-    unset alias # remove a basically uselass environment variable from the shell
-fi
-
 # source shortcuts
 shortcuts_dir="$XDG_CONFIG_HOME/shortcuts"
 [ -f "$shortcuts_dir/shortcuts" ] && . "$shortcuts_dir/shortcuts"
@@ -175,22 +163,39 @@ shortcuts_dir="$XDG_CONFIG_HOME/shortcuts"
 unset shortcuts_script
 
 # source aliases
-build_aliases_script="$SCRIPTS_DIR/private/build_aliases.sh"
-if [ ! -x "$build_aliases_script" ]; then
-    printf "bash_aliases(error) : failed to find build aliases script: %s\n" "$1" >&2
-else
-    aliases_root="$XDG_CONFIG_HOME/aliases"
+case "$-" in
+    *i*)
+        if which thefuck >/dev/null 2>&1; then
+            # honestly I doubt I'll really be using 'the-fuck' but
+            # lazy loading it is a near effortless task so why not
 
-    # nicest way to check whether the files exist or not, and then build aliases
-    eval "$(find $aliases_root/global    $aliases_root/global.private    \
-                 $aliases_root/$platform $aliases_root/$platform.private \
-                 -exec "$build_aliases_script" -i1 '{}' + 2>/dev/null)"
+            # lazy load 'the fuck' using an alias which evaluates
+            # it removes the alias and then runs it for the first
+            # time
 
-    unset aliases_root
-fi
+            alias='fx' # alias under which 'the-fuck' will be invoked... actually a function
+            alias $alias='eval $(thefuck --alias '$alias') && unalias '$alias' && '$alias
+            unset alias # remove a basically uselass environment variable from the shell
+        fi
 
-unset build_aliases_script shell
+        build_aliases_script="$SCRIPTS_DIR/private/build_aliases.sh"
+        if [ ! -x "$build_aliases_script" ]; then
+            printf "bash_aliases(error) : failed to find build aliases script: %s\n" "$1" >&2
+        else
+            aliases_root="$XDG_CONFIG_HOME/aliases"
 
-alias sd='sudo '
+            # nicest way to check whether the files exist or not, and then build aliases
+            eval "$(find $aliases_root/global    $aliases_root/global.private    \
+                         $aliases_root/$platform $aliases_root/$platform.private \
+                         -exec "$build_aliases_script" -i1 '{}' + 2>/dev/null)"
+
+            unset aliases_root
+        fi
+
+        unset build_aliases_script shell
+
+        alias sd='sudo '
+        ;;
+esac
 
 SOURCED_SHENV=1
