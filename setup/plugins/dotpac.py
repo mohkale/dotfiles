@@ -101,16 +101,18 @@ class DotbotPackageManager(AbstractClass):
         for key, val in self.process_kwargs.items():
             process_kwargs.setdefault(key, val)
         return run_process(*args, process_kwargs=process_kwargs, **kwargs)
+
     @classmethod
     def _update(cls):
         if not cls.updated:
-            cls._update()
+            cls.update()
             cls.updated = True
 
     @abstractmethod
     def install(self, spec, log=None):
         pass
 
+    @classmethod
     @abstractclassmethod
     def update(cls):
         pass
@@ -292,6 +294,7 @@ class PipPackageManager(DotbotPackageManager):
 
     # pip doesn't have a database of available packages. it get's data on
     # the packages it wants, when it wants them.
+    @classmethod
     def update(cls): pass
 
     def populate_spec(self, spec, cwd, defaults):
@@ -317,6 +320,7 @@ class GoPackageManager(DotbotPackageManager):
         self._log_installing(log, spec['package'])
         return self._run_process(cmd, spec) == 0
 
+    @classmethod
     def update(cls): pass
 
 # class PacmanPackageManager(DotbotPackageManager):
