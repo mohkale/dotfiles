@@ -5,3 +5,4 @@
 [submodule "editors/emacs"]
 	path = editors/emacs
 	url = https://github.com/mohkale/.emacs.d
+	ignore = dirty
