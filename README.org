@@ -17,8 +17,8 @@
    - python >= 3.7
 
 ** Installation Instructions
-   src_sh[:exports code]{git clone /uri/of/this/repo ~/.dotfiles && cd ~/.dotfiles && ./install}
-   will install a basic dotfile configuration for you.
+   ~git clone /uri/of/this/repo ~/.dotfiles && cd ~/.dotfiles && ./install~ will install
+   a basic dotfile configuration for you.
 
    However you'll more likely want to setup a bunch of different things, and to that end
    you can do so by passing the ~DOTBOTS~ environment variable to install. ~DOTBOTS~
@@ -32,6 +32,12 @@
 
    WARN: to run the above command, you must have loaded any required submodules.
          you can do so non-destructively by running src_sh[:exports code]{./install --help}.
+
+   I recommend using the dotbots specified by ~./setup/suggested -awe --nvim~. I.E.
+
+   #+BEGIN_SRC sh :results value :exports code
+   DOTBOTS=$(./setup/suggested -awe --nvim | tr '\n' ',') ./install
+   #+END_SRC
 
 ** Supported Platforms
    * [[https://gitforwindows.org/][git-bash-for-windows]]@2.25.1
