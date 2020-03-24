@@ -19,7 +19,7 @@ class PopulatePlugin(LogMixin, dotbot.Plugin):
         if isinstance(data, dict):
             data = [data]
 
-        result = False
+        result = True
         for spec in data:
             default = self.default_data
             default.update(spec)
