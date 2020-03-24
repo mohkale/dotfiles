@@ -15,6 +15,7 @@ import dotbot
 import subprocess
 
 sys.path.insert(0, os.path.dirname(__file__))
+from run_process import run_process
 from log_mixin import LogMixin
 
 class ShellCommandMixin(LogMixin, object):
@@ -27,71 +28,76 @@ class ShellCommandMixin(LogMixin, object):
     def can_handle(self, action):
         return action == self.action_name
 
+    def msg_spec(self, spec):
+        quiet = spec['quiet']
+        msg = spec.get('msg', None)
+
+        if msg is None:
+            self.lowinfo(spec['command'])
+        elif quiet:
+            self.lowinfo('%s' % msg)
+        else:
+            self.lowinfo('%s [%s]' % (msg, spec['command']))
+
+
     def handle(self, action, data):
         if not self.can_handle(action):
             raise ValueError(
                 self.action_name + ' cannot handle action ' + action)
 
+        shell = os.environ.get('SHELL')
         success = True
-        with open(os.devnull, 'w') as devnull:
-            for spec in data:
-                if isinstance(spec, list):
-                    spec = {'command': spec[0],
-                            'description': spec[1]}
-                elif not isinstance(spec, dict):
-                    spec = {'command': spec}
+        for spec in data:
+            spec = self._populate_spec(spec)
 
-                spec = self._populate_spec(spec)
+            if 'command' not in spec:
+                self.error('must specify command for shell.')
+                success = False
+                continue
 
-                if 'command' not in spec:
-                    self.error('must specify command for shell.')
-                    success = False
-                    continue
+            self.msg_spec(spec)
+            cmd = spec['command']
 
-                quiet = spec['quiet']
-                cmd   = spec['command']
-                msg   = spec.get('msg', None)
-                stdin  = None if spec['stdin']  else devnull
-                stderr = None if spec['stderr'] else devnull
-                stdout = None if spec['stdout'] else devnull
-
-                if msg is None:
-                    self.lowinfo(cmd)
-                elif quiet:
-                    self.lowinfo('%s' % msg)
-                else:
-                    self.lowinfo('%s [%s]' % (msg, cmd))
-                shell = os.environ.get('SHELL')
-                ret = subprocess.call(
-                    self._format_command(shell, cmd),
-                    stdin=stdin, stdout=stdout, stderr=stderr,
-                    cwd=self._context.base_directory(),
-                    executable=shell, **self.popen_kwargs)
-                if ret != 0:
-                    success = False
-                    self.warn('Command [%s] failed' % cmd)
+            ret = run_process(
+                self._format_command(shell, cmd),
+                options=spec,
+                process_kwargs={
+                    'cwd': self._context.base_directory(),
+                    'executable': shell,
+                    **self.popen_kwargs
+                }
+            )
+            if ret != 0:
+                success = False
+                self.warn('Command [%s] failed' % cmd)
         return success
 
     def _format_command(shell, cmd):
         raise NotImplementedError()
 
     def _populate_spec(self, spec):
-        default = {
-            'stdin': False,
-            'stdout': False,
-            'stderr': False,
-            'quiet': False
-        }
-        default.update(self._context.defaults().get(self.action_name, {}))
-        default.update(spec)
-        return default
+        if isinstance(spec, list):
+            spec = {'command': spec[0],
+                    'description': spec[1]}
+        elif not isinstance(spec, dict):
+            spec = {'command': spec}
+
+        spec.setdefault('stdin', False)
+        spec.setdefault('stdout', False)
+        spec.setdefault('stderr', False)
+        spec.setdefault('quiet', False)
+
+        for key, val in self._context.defaults().get(self.action_name, {}).items():
+            spec.setdefault(key, val)
+
+        return spec
 
 class Shell(ShellCommandMixin, dotbot.Plugin):
     action_name = 'shell'
 
     @staticmethod
     def _format_command(shell, cmd):
-        return [shell, '-c', cmd]
+        return [shell or 'sh', '-c', cmd]
 
 class Command(ShellCommandMixin, dotbot.Plugin):
     action_name = 'command'

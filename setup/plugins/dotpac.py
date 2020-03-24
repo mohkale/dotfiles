@@ -32,7 +32,6 @@ import sys
 import enum
 import dotbot
 import functools
-import subprocess
 
 from typing import Union, List
 
@@ -42,6 +41,7 @@ from abc import ABC as AbstractClass
 from abc import abstractmethod, abstractclassmethod
 
 sys.path.insert(0, os.path.dirname(__file__))
+from run_process import run_process
 from log_mixin import LogMixin
 
 class PackageStatus(enum.Enum):
@@ -89,9 +89,18 @@ class DotbotPackageManager(AbstractClass):
     updated: bool = False
     _exists: bool = None # don't know yet
 
+    process_kwargs = {
+        'shell': True
+    }
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+    def _run_process(self, *args, **kwargs):
+        process_kwargs = kwargs.pop('process_kwargs', {})
+        for key, val in self.process_kwargs.items():
+            process_kwargs.setdefault(key, val)
+        return run_process(*args, process_kwargs=process_kwargs, **kwargs)
     @classmethod
     def _update(cls):
         if not cls.updated:
@@ -113,17 +122,6 @@ class DotbotPackageManager(AbstractClass):
         spec.setdefault('stdout', False)
         spec.setdefault('stderr', False)
         return spec
-
-    def _run_process(self, cmd, options, cwd=None):
-        with open(os.devnull, 'w+') as null:
-            return subprocess.call(
-                cmd,
-                shell  = True,
-                stdout = None if options['stdout'] else null,
-                stderr = None if options['stderr'] else null,
-                stdin  = None if options['stdin']  else null,
-                cwd    = cwd or os.getcwd(),
-            )
 
     def _log_installing(self, log, package_name):
         log and log.info(f'installing {self.name} package [{package_name}]')
