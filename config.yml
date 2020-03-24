@@ -19,8 +19,35 @@
     - ~/programming/misc
     - ~/programming/repos
 
+- shell:
+    # determine the platform dotfiles are being
+    # installed into.
+    - description: Discovering Current Platform
+      command: >-
+        rm ./setup/platform.name
+
+        ./setup/platform > ./setup/platform.name
+
 - bots:
     - core
+
+    # platform specific setups.
+    - config: arch.yml
+      path: platforms
+      when:
+        grep -iE 'arch' ./setup/platform.name
+
+    - config: msys.yml
+      path: platforms
+      when:
+        grep -iE 'msys|mingw' ./setup/platform.name
+
+    - config: ubuntu.yml
+      path: platforms
+      when:
+        grep -iE 'ubuntu' ./setup/platform.name
+
+    # subbot directories
     - desktop
     - editors
     - langs

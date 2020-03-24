@@ -41,13 +41,14 @@
    * [[https://gitforwindows.org/][git-bash-for-windows]]@2.25.1
 
 ** Directory Layout
-   | path     | purpose                                                    |
-   |----------+------------------------------------------------------------|
-   | core     | core files which're installed regardless of environment.   |
-   | desktop  | configs for desktop environments, window managers, etc.    |
-   | editors  | vim, emacs... what more do you need.                       |
-   | langs    | setup multiple programming languages & environments.       |
-   | programs | sets up various programs, eg. zathura or konsole.          |
-   | scripts  | standalone shell scripts, use for lots of things :smile:.       |
-   | shells   | bash, zsh, etc. each have their own setup requirements.    |
-   | setup    | dotbot, plugins for dotbot, dotfile introspection scripts. |
+   | path      | purpose                                                    |
+   |-----------+------------------------------------------------------------|
+   | core      | core files which're installed regardless of environment.   |
+   | desktop   | configs for desktop environments, window managers, etc.    |
+   | editors   | vim, emacs... what more do you need.                       |
+   | langs     | setup multiple programming languages & environments.       |
+   | programs  | sets up various programs, eg. zathura or konsole.          |
+   | platforms | configurations for specific distros or environments.       |
+   | scripts   | standalone shell scripts, use for lots of things :smile:.       |
+   | shells    | bash, zsh, etc. each have their own setup requirements.    |
+   | setup     | dotbot, plugins for dotbot, dotfile introspection scripts. |

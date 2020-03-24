@@ -57,7 +57,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from run_process import run_process
 from log_mixin import LogMixin
 
-def _populate_process_spec(cls, spec, cwd, defaults,
+def _populate_process_spec(spec, cwd, defaults,
                            default_key='package'):
     if isinstance(spec, str):
         spec = {default_key: spec}
