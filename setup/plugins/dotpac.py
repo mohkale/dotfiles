@@ -335,6 +335,41 @@ class GoPackageManager(DotbotPackageManager):
     @classmethod
     def update(cls): pass
 
+class ChocolateyPackageManager(DotbotPackageManager):
+    """Package manager for the chocolatey (windows) package manager.
+    See also https://chocolatey.org/
+
+    Spec format
+
+      package: package-name
+      params:
+        - param1:arg
+        - param2
+    """
+    name = 'chocolatey'
+    filenames = 'choco'
+
+    def install(self, spec, log=None):
+        self.fail_if_not_exists()
+
+        cmd = [self.executable(log=self), 'install', '--yes', spec['package']]
+
+        if spec['params']:
+            cmd += ['--params', ''.join(spec['params'])]
+
+        self._log_installing(log, spec['package'])
+        return self._run_process(cmd, spec) == 0
+
+    def populate_spec(self, spec, cwd, defaults):
+        spec = super().populate_spec(spec, cwd, defaults)
+        spec.setdefault('params', [])
+        if isinstance(spec['params'], str):
+            spec['params'] = [spec['params']]
+        return spec
+
+    @classmethod
+    def update(cls): pass
+
 # class PacmanPackageManager(DotbotPackageManager):
 #     pass
 

@@ -1,1 +1,7 @@
-[]
+- defaults:
+    bots:
+      config: 'config.yml'
+      unsafe: true
+
+- bots:
+    - ../programs/chocolatey
