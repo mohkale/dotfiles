@@ -5,3 +5,11 @@
 
 - bots:
     - ../programs/chocolatey
+
+# packages without any configuration.
+- packages:
+    chocolatey:
+      - wsl
+      - package: cygwin
+        params: /NoStartMenu
+      - cyg-get
