@@ -9,6 +9,8 @@
       env:  true
     - path: zathura
       env:  true
+    - path: dropbox
+      env:  true
     - path: media/vlc
       env:  true
     - path: media/itunes
