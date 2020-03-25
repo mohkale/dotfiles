@@ -9,3 +9,11 @@
       env:  true
     - path: zathura
       env:  true
+    - path: media/vlc
+      env:  true
+    - path: media/itunes
+      env:  true
+    - path: browsers/firefox
+      env:  true
+    - path: browsers/brave
+      env:  true
