@@ -21,11 +21,19 @@
 
 - shell:
     # determine the platform dotfiles are being
-    # installed into.
+    # installed into. works by dumping a file with
+    # the same name as the platform to ./setup/dist.
     - description: Discovering Current Platform
+      quiet: true
       command: |-
-        rm ./setup/platform.name
-        ./setup/platform > ./setup/platform.name
+        dest_dir=./setup/dist/
+        rm -rf "$dest_dir"
+        mkdir -p "$dest_dir"
+
+        platform=$(./setup/platform)
+        if [ ! -z "${platform}" ]; then
+          touch "$dest_dir/$platform"
+        fi
 
 - bots:
     - core
@@ -33,18 +41,19 @@
     # platform specific setups.
     - config: arch.yml
       path: dist
-      when:
-        grep -iE 'arch' ./setup/platform.name
+      when: |-
+        [ -f ./setup/dist/arch ]
 
     - config: msys.yml
       path: dist
-      when:
-        grep -iE 'msys|mingw' ./setup/platform.name
+      when: <-
+        [ -f ./setup/dist/msys  ] ||
+        [ -f ./setup/dist/mingw ]
 
     - config: ubuntu.yml
       path: dist
-      when:
-        grep -iE 'ubuntu' ./setup/platform.name
+      when: |-
+        [ -f ./setup/dist/ubuntu ]
 
     # subbot directories
     - desktop
