@@ -46,9 +46,8 @@
 
     - config: msys.yml
       path: dist
-      when: <-
-        [ -f ./setup/dist/msys  ] ||
-        [ -f ./setup/dist/mingw ]
+      when: |-
+        [ -f ./setup/dist/windows ]
 
     - config: ubuntu.yml
       path: dist

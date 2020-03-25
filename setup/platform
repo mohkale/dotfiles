@@ -9,5 +9,5 @@ fi
 
 # maybe cygwin?
 is_cygwin=$(uname -s | tr '[:upper:]' '[:lower:]' | grep -Eo 'mingw|cygwin')
-! [ -z "$is_cygwin" ] && echo "$is_cygwin" && exit 0
+! [ -z "$is_cygwin" ] && echo "windows" && exit 0
 
