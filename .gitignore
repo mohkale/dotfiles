@@ -1,4 +1,4 @@
 shortcuts/**/*.private
 setup/plugins/__pycache__/
 README.html
-platform.name
+setup/cache/

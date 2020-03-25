@@ -18,6 +18,7 @@
     - ~/programming
     - ~/programming/misc
     - ~/programming/repos
+    - ./setup/cache
 
 - shell:
     # determine the platform dotfiles are being
@@ -26,12 +27,12 @@
     - description: Discovering Current Platform
       quiet: true
       command: |-
-        dest_dir=./setup/dist/
+        dest_dir=./setup/cache/dist/
         rm -rf "$dest_dir"
         mkdir -p "$dest_dir"
 
         platform=$(./setup/platform)
-        if [ ! -z "${platform}" ]; then
+        if [ ! -z "$platform" ]; then
           touch "$dest_dir/$platform"
         fi
 
@@ -43,19 +44,19 @@
       path: dist
       when: |-
         [ ! -z "$install" ] &&
-        [ -f ./setup/dist/arch ]
+        [ -f ./setup/cache/dist/arch ]
 
     - config: msys.yml
       path: dist
       when: |-
         [ ! -z "$install" ] &&
-        [ -f ./setup/dist/windows ]
+        [ -f ./setup/cache/dist/windows ]
 
     - config: ubuntu.yml
       path: dist
       when: |-
         [ ! -z "$install" ] &&
-        [ -f ./setup/dist/ubuntu ]
+        [ -f ./setup/cache/dist/ubuntu ]
 
     # subbot directories
     - desktop
