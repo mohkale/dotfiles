@@ -30,7 +30,7 @@ class ShellCommandMixin(LogMixin, object):
 
     def msg_spec(self, spec):
         quiet = spec['quiet']
-        msg = spec.get('msg', None)
+        msg = spec.get('description', None)
 
         if msg is None:
             self.lowinfo(spec['command'])
