@@ -12,9 +12,8 @@
 
 - shell:
     - description: Install Vim Plug
-      stderr: true
-      stdout: true
-      stdin:  true
+      interactive: true
+      quiet: true
       command: |-
         autoload_path=~/.vim/autoload/plug.vim
         autoload_url='https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'

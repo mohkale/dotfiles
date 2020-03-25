@@ -16,7 +16,8 @@ The format accepted by this plugin in your config.yaml file is:
           - spec-2
 
 Every spec must supply a package field, and optionally has stdin, stdout and
-stderr fields set to False.
+stderr. There's also an interactive field which determines the defaults of the
+stdin, stdout and stderr fields.
 
 Each package manager defines it's own spec (found below). The package plugin
 iterates through the specified managers until one which exists is found, then
@@ -39,6 +40,8 @@ from distutils.spawn import find_executable
 
 from abc import ABC as AbstractClass
 from abc import abstractmethod, abstractclassmethod
+
+from dotbot.messenger import Level
 
 sys.path.insert(0, os.path.dirname(__file__))
 from run_process import run_process
@@ -120,9 +123,6 @@ class DotbotPackageManager(AbstractClass):
     def populate_spec(self, spec, cwd, defaults):
         if isinstance(spec, str):
             spec = {'package': spec}
-        spec.setdefault('stdin', False)
-        spec.setdefault('stdout', False)
-        spec.setdefault('stderr', False)
         return spec
 
     def _log_installing(self, log, package_name):
@@ -221,7 +221,13 @@ class DotbotPackagePlugin(LogMixin, dotbot.Plugin):
                 for package in packages:
                     package = pacman.populate_spec(
                         package, self.cwd, self._context.defaults())
-                    ret &= pacman.install(package, log=self)
+                    if self._log._level <= Level.DEBUG:
+                        package['verbose'] = True
+                    res = pacman.install(package, log=self)
+                    ret &= res
+
+                    if not res:
+                        self.error('failed to install package')
                 return ret
             else:
                 return False
