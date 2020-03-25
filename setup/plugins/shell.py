@@ -82,9 +82,6 @@ class ShellCommandMixin(LogMixin, object):
         elif not isinstance(spec, dict):
             spec = {'command': spec}
 
-        spec.setdefault('stdin', False)
-        spec.setdefault('stdout', False)
-        spec.setdefault('stderr', False)
         spec.setdefault('quiet', False)
 
         for key, val in self._context.defaults().get(self.action_name, {}).items():
