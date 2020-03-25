@@ -19,3 +19,7 @@
       env:  true
     - path: browsers/brave
       env:  true
+    - path: games/steam
+      env:  true
+    - path: games/gog
+      env:  true
