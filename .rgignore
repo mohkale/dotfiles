@@ -1,0 +1,5 @@
+# -*- mode: gitignore -*-
+
+# ignore git submodules
+editors/emacs
+setup/.dotbot
