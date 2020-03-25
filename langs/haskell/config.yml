@@ -1,2 +1,6 @@
 - link:
     ~/.hindent.yaml: hindent.yml
+
+- packages:
+    - chocolatey:
+        - GHC

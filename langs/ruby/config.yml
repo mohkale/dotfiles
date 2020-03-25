@@ -3,3 +3,7 @@
     ~/.irbrc:
     ~/.pryrc:
     ~/.rvmrc:
+
+- packages:
+    - chocolatey:
+        - ruby

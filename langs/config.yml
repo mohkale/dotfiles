@@ -3,3 +3,11 @@
       env:  true
     - path: haskell
       env:  true
+    - path: python
+      env:  true
+    - path: rust
+      env:  true
+    - path: node
+      env:  true
+    - path: go
+      env:  true
