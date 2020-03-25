@@ -32,17 +32,17 @@
 
     # platform specific setups.
     - config: arch.yml
-      path: platforms
+      path: dist
       when:
         grep -iE 'arch' ./setup/platform.name
 
     - config: msys.yml
-      path: platforms
+      path: dist
       when:
         grep -iE 'msys|mingw' ./setup/platform.name
 
     - config: ubuntu.yml
-      path: platforms
+      path: dist
       when:
         grep -iE 'ubuntu' ./setup/platform.name
 
