@@ -42,16 +42,19 @@
     - config: arch.yml
       path: dist
       when: |-
+        [ ! -z "$install" ] &&
         [ -f ./setup/dist/arch ]
 
     - config: msys.yml
       path: dist
       when: |-
+        [ ! -z "$install" ] &&
         [ -f ./setup/dist/windows ]
 
     - config: ubuntu.yml
       path: dist
       when: |-
+        [ ! -z "$install" ] &&
         [ -f ./setup/dist/ubuntu ]
 
     # subbot directories

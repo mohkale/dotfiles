@@ -13,7 +13,7 @@ BASEDIR="$(dirname "${BASH_SOURCE[0]}")/../"
 
 cd "$BASEDIR"
 
-if [ "${sync:-0}" -eq 1 ]; then
+if [ "${sync_dotbot:-0}" -eq 1 ]; then
     git -C "$DOTBOT_DIR" submodule sync --quiet --recursive
     git submodule update --init --recursive "$DOTBOT_DIR"
 fi
