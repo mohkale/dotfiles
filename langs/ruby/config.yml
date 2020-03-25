@@ -7,3 +7,7 @@
 - packages:
     - chocolatey:
         - ruby
+
+- packages:
+    - gem:
+        - colorize

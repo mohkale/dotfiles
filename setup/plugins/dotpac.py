@@ -35,6 +35,7 @@ import os
 import sys
 import enum
 import dotbot
+import shutil
 import functools
 
 from typing import Union, List
@@ -153,7 +154,7 @@ class DotbotPackageManager(AbstractClass):
                     (cls.__name__, type(cls.filenames).__name__))
 
             for alias in execs:
-                file = find_executable(alias)
+                file = find_executable(alias) or shutil.which(alias)
                 if file is not None:
                     cls._executable = file
                     break
@@ -365,6 +366,28 @@ class ChocolateyPackageManager(DotbotPackageManager):
         spec.setdefault('params', [])
         if isinstance(spec['params'], str):
             spec['params'] = [spec['params']]
+        return spec
+
+    @classmethod
+    def update(cls): pass
+
+class GemPackageManager(DotbotPackageManager):
+    name = 'gem'
+    filenames = 'gem'
+
+    def install(self, spec, log=None):
+        self.fail_if_not_exists()
+
+        cmd = [self.executable(log=self), 'install', ]
+        if spec['user']:
+            cmd += ['--user-install']
+        cmd += [spec['package']]
+        self._log_installing(log, spec['package'])
+        return self._run_process(cmd, spec) == 0
+
+    def populate_spec(self, spec, cwd, defaults):
+        spec = super().populate_spec(spec, cwd, defaults)
+        spec.setdefault('user', False)
         return spec
 
     @classmethod
