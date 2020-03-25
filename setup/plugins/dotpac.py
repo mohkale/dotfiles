@@ -23,6 +23,9 @@ Each package manager defines it's own spec (found below). The package plugin
 iterates through the specified managers until one which exists is found, then
 all the specs for the specified manager are evaluated.
 
+You can pass a skip_package environment variable to skip this plugin from
+installing anything.
+
 NOTE: you can pass the package managers as a hash, instead of an array of hases
       but this will have undefined behaviour in earlier python versions. do so
       at your own risk :P.
@@ -202,6 +205,9 @@ class DotbotPackagePlugin(LogMixin, dotbot.Plugin):
         if not self.can_handle(action):
             raise ValueError(
                 "%s can't handle action: %s" % (self.__class__.__name__, action))
+
+        if os.getenv('skip_package') is not None:
+            return True
 
         if action == 'defaults':
             return True
