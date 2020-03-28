@@ -9,3 +9,6 @@
 [submodule "programs/konsole/themes/an-old-hope"]
 	path = programs/konsole/themes/an-old-hope
 	url = https://github.com/mohkale/an-old-hope-konsole
+[submodule "programs/yakuake/themes/an-old-hope"]
+	path = programs/yakuake/themes/an-old-hope
+	url = https://github.com/mohkale/an-old-hope-yakuake
