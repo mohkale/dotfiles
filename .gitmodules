@@ -6,3 +6,6 @@
 	path = editors/emacs
 	url = https://github.com/mohkale/.emacs.d
 	ignore = dirty
+[submodule "programs/konsole/themes/an-old-hope"]
+	path = programs/konsole/themes/an-old-hope
+	url = https://github.com/mohkale/an-old-hope-konsole

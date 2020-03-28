@@ -1,6 +1,13 @@
+- shell:
+    - description: Syncing Konsole Themes
+      quiet: true
+      command: |-
+        git -C themes submodule sync --quiet --recursive
+        git submodule update --init --recursive themes
+
 - link:
     ~/.local/share/konsole/Mohkale.profile: profile
     ~/.local/share/konsole/:
-      path: themes/*
+      path: themes/an-old-hope/*.colorscheme
       glob: true
     ~/.config/konsolerc: konsolerc
