@@ -310,6 +310,9 @@ class PipPackageManager(DotbotPackageManager):
 
       package: package-name
       user: false
+      git:
+        type: github
+        name: mohkale
     """
     name = 'pip'
     filenames = 'pip'
@@ -323,15 +326,35 @@ class PipPackageManager(DotbotPackageManager):
         if spec['user']:
             cmd += ['--user']
 
+        git = spec['git']
+        if git:
+            try:
+                spec['package'] = self.format_git(spec['package'], git)
+            except Exception as e:
+                self.error(str(e))
+                return False
 
         self._log_installing(package_name)
         cmd += [spec['package']]
         return self._run_process(cmd, spec) == 0
 
+    def format_git(self, package, git):
+        if git['type'] == 'github':
+            domain = 'https://github.com'
+        else:
+            raise ValueError('unknown git type for pip package manger: ' + git['type'])
+
+        return f"git+{domain}/{git['name']}/{package}"
 
     def populate_spec(self, spec, cwd, defaults):
         spec = super().populate_spec(spec, cwd, defaults)
         spec.setdefault('user', False)
+        spec.setdefault('git', False)
+
+        if isinstance(spec['git'], str):
+            spec['git'] = {'name': spec['git'],
+                           'type': 'github'}
+
         return spec
 
 class GoPackageManager(DotbotPackageManager):
