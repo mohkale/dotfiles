@@ -1,9 +1,8 @@
 - shell:
    - description: Sync Emacs Dotfiles
-     command: >-
-       git -C "." submodule sync --quiet --recursive
-
-       git submodule update --init --recursive "."
+     command: |-
+       git -C emacs submodule sync --quiet --recursive
+       git submodule update --init --recursive emacs
 
 - link:
-    ~/.emacs.d: ''
+    ~/.emacs.d: emacs

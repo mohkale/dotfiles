@@ -115,19 +115,25 @@ class SubBotPlugin(LogMixin, dotbot.Plugin):
         path = os.path.realpath(
             os.path.join(self._context.base_directory(True), spec['path']))
 
-        if spec['env']:
-            if not isinstance(spec['env'], str):
-                spec['env'] = os.path.basename(path.rstrip('/'))
-
-            if spec['env'] and not self.allowed_bot(spec['env']):
-                self.warn('subbot %s skipped because of DOTBOTS' % spec['env'])
-                return True
-
         config = self.get_config(spec, path, log=self)
 
         if not config: return False
         if path in self._cached_subbots:
             return True
+
+        if spec['config'] == os.path.basename(config):
+            name = os.path.basename(path)
+        else:
+            path = os.path.dirname(config)
+            name = os.path.splitext(os.path.basename(config))[0]
+
+        if spec['env']:
+            if not isinstance(spec['env'], str):
+                spec['env'] = name
+
+            if spec['env'] and not self.allowed_bot(spec['env']):
+                self.warn('subbot %s skipped because of DOTBOTS' % name)
+                return True
 
         shell = os.getenv('SHELL') or 'sh'
         for test in spec['if']:
@@ -138,13 +144,12 @@ class SubBotPlugin(LogMixin, dotbot.Plugin):
                 default_key='command')
             if run_process([shell, '-c', test['command']], test) != 0:
                 self.debug('skipping subbot %s because test `%s` failed' %
-                             (spec['path'], '; '.join(test['command'].split('\n'))))
+                             (name, '; '.join(test['command'].split('\n'))))
                 return True
         if spec['cache']:
             self._cached_subbots.append(path)
 
-        self.info('invoking subbot %s (from %s)' % (
-            spec.get('path', ''), self._context.base_directory()))
+        self.info('invoking subbot %s (from %s)' % (name, path))
 
         return self._invoke_subbot(spec, path, config)
 
@@ -245,6 +250,9 @@ class SubBotPlugin(LogMixin, dotbot.Plugin):
             if not isinstance(when, list):
                 when = [when]
             spec['if'] += when
+
+        if 'path' in spec:
+            spec['path'] = spec['path'].rstrip('/')
 
         return spec
 

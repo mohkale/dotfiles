@@ -40,20 +40,17 @@
     - core
 
     # platform specific setups.
-    - config: arch.yml
-      path: dist
+    - path: dist/arch
       when: |-
         [ ! -z "$install" ] &&
         [ -f ./setup/cache/dist/arch ]
 
-    - config: msys.yml
-      path: dist
+    - path: dist/msys
       when: |-
         [ ! -z "$install" ] &&
         [ -f ./setup/cache/dist/windows ]
 
-    - config: ubuntu.yml
-      path: dist
+    - path: dist/ubuntu
       when: |-
         [ ! -z "$install" ] &&
         [ -f ./setup/cache/dist/ubuntu ]
