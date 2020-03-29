@@ -51,13 +51,13 @@ sys.path.insert(0, os.path.dirname(__file__))
 from run_process import run_process
 from log_mixin import LogMixin
 
-class PackageStatus(enum.Enum):
-    # These names will be displayed
-    UP_TO_DATE = 'Up to date'
-    INSTALLED  = 'Installed'
-    NOT_FOUND  = 'Not Found'
-    ERROR      = "Build Error"
-    NOT_SURE   = 'Could not determine'
+# class PackageStatus(enum.Enum):
+#     # These names will be displayed
+#     UP_TO_DATE = 'Up to date'
+#     INSTALLED  = 'Installed'
+#     NOT_FOUND  = 'Not Found'
+#     ERROR      = "Build Error"
+#     NOT_SURE   = 'Could not determine'
 
 
 class DotbotPackageManager(AbstractClass):
@@ -133,8 +133,8 @@ class DotbotPackageManager(AbstractClass):
         log and log.info(f'installing {self.name} package [{package_name}]')
 
     # the status output of a given package
-    def status(self, pkg: str) -> PackageStatus:
-        return PackageStatus.NOT_SURE
+    # def status(self, pkg: str) -> PackageStatus:
+    #     return PackageStatus.NOT_SURE
 
     def fail_if_not_exists(self):
         if not self.exists:
