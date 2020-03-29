@@ -1,2 +1,3 @@
 - packages:
     - chocolatey: golang
+    - pacman: go

@@ -5,6 +5,7 @@
     ~/.rvmrc:
 
 - packages:
+    - pacman: ruby
     # if you have issues with gem install on cygwin, try
     # [[https://github.com/rubygems/rubygems/issues/2483][this]] to see if it fixes the issue.
     - cygwin: ruby

@@ -1,4 +1,5 @@
 - packages:
+    - pacman: vlc
     - chocolatey: vlc
 
 - link:

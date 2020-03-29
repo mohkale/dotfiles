@@ -1,3 +1,6 @@
+- packages:
+    - pacman: konsole
+
 - shell:
     - description: Syncing Konsole Themes
       quiet: true

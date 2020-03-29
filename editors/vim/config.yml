@@ -1,6 +1,8 @@
 - packages:
     - cygwin: vim
     - chocolatey: vim
+    # also provides clipboard support
+    - pacman: gvim
 
 - create:
     - ~/.vim

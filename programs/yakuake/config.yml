@@ -1,3 +1,6 @@
+- packages:
+    - pacman: yakuake
+
 - create:
     - ~/.local/share/yakuake/kns_skins
 

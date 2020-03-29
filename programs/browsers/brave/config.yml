@@ -1,2 +1,3 @@
 - packages:
+    - yay: brave
     - chocolatey: brave

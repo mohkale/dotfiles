@@ -1,2 +1,3 @@
 - packages:
+    - pacman: rust
     - chocolatey: rust

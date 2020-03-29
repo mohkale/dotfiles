@@ -2,5 +2,8 @@
     - path: ../vim
       unsafe: true
 
+- packages:
+    pacman: neovim
+
 - link:
     ~/.config/nvim/init.vim:

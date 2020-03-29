@@ -3,3 +3,4 @@
 
 - packages:
     - chocolatey: GHC
+    - pacman: ghc

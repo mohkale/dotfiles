@@ -1,3 +1,7 @@
+- packages:
+    - pacman: tmux
+    - cygwin: tmux
+
 - link:
     ~/.tmux/tmuxrc: tmuxrc
 

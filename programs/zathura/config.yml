@@ -1,2 +1,8 @@
+- packages:
+    - pacman:
+        - zathura
+        - zathura-cb
+        - zathura-pdf-mupdf
+
 - link:
     ~/.config/zathura/zathurarc:
