@@ -1,3 +1,6 @@
+- link:
+    ~/.Xresources:
+
 - packages:
     pacman:
       - xorg
