@@ -2,6 +2,12 @@
 
 set -e
 
+case "$(uname -s)" in
+    CYGWIN*)
+        SHELL=$(cygpath -w "$SHELL")
+        ;;
+esac
+
 export SHELL="${SHELL:-/usr/bin/bash}"
 export HOME=$HOME
 

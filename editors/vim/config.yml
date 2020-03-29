@@ -1,3 +1,7 @@
+- packages:
+    - cygwin: vim
+    - chocolatey: vim
+
 - create:
     - ~/.vim
 

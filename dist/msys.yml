@@ -6,10 +6,42 @@
 - bots:
     - ../programs/chocolatey
 
-# packages without any configuration.
+# setup cygwin, the unix like environment for windows
 - packages:
     chocolatey:
       - wsl
       - package: cygwin
         params: /NoStartMenu
       - cyg-get
+
+- shell:
+    # thanks [[https://unix.stackexchange.com/questions/44677/how-do-i-get-rid-of-cygwins-cygdrive-prefix-in-all-paths][stackoverflow]], you've been a great help :slight-smile:.
+    - description: removing cygdrive prefix
+      quiet: true
+      command: |-
+        fstab="$ChocolateyToolsLocation/cygwin/etc/fstab"
+        if ! [ -f "$fstab" ]; then
+          echo "failed to remove cygdrive prefix, /etc/fstab doesn't exist" >&2
+          exit 1
+        fi
+
+        sed -i 's/none \/cygdrive/none \//' "$fstab"
+
+    # thanks Mr. [[https://ryanharrison.co.uk/2015/12/01/cygwin-change-home-directory.html][Ryan Harrison]], this is much nicer than symlinks.
+    - description: setting cygdrive home directory
+      quiet: true
+      command: |-
+        conf_file="$ChocolateyToolsLocation/cygwin/etc/nsswitch.conf"
+        if ! [ -f "$conf_file" ]; then
+          echo "failed to set cygdrive user home directory, conf file doesn't exist"
+          exit 1
+        fi
+
+        sed -i 's/# *db_home: *\/home\/%U/db_home: \/%H/' "$conf_file"
+
+- packages:
+    - cygwin:
+        - git
+    - chocolatey:
+        - git
+

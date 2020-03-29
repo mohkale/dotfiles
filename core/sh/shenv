@@ -134,7 +134,7 @@ export GOPATH=`lines_to_path $GOPATH <<EOF
 EOF`
 
 if [ "$platform" = "windows" ]; then
-    for path_var in CLASSPATH PYTHONPATH; do
+    for path_var in CLASSPATH PYTHONPATH GEM_HOME; do
         # for programs that don't care about the environment,
         # only about the OS, convert paths back to a windows
         # like path.
