@@ -1,9 +1,11 @@
 [ColorEffects:Disabled]
+ChangeSelectionColor=
 Color=56,56,56
 ColorAmount=0
 ColorEffect=0
 ContrastAmount=0.65
 ContrastEffect=1
+Enable=
 IntensityAmount=0.1
 IntensityEffect=2
 
@@ -104,9 +106,9 @@ ForegroundVisited=127,140,141
 
 [General]
 BrowserApplication[$e]=brave-browser.desktop
-ColorScheme=Breeze Dark
+ColorScheme=BreezeDark
+Name=Breeze
 Name[en_GB]=Breeze Dark
-Name=Breeze Dark
 UseSystemBell=true
 XftHintStyle=
 XftSubPixel=
@@ -117,7 +119,7 @@ menuFont=Noto Sans,10,-1,5,50,0,0,0,0,0,Regular
 shadeSortColumn=true
 smallestReadableFont=Noto Sans,10,-1,5,50,0,0,0,0,0,Regular
 toolBarFont=Noto Sans,10,-1,5,50,0,0,0,0,0,Regular
-widgetStyle=Breeze
+widgetStyle=kvantum
 
 [Icons]
 Theme=breeze-dark
