@@ -6,7 +6,12 @@ case "$(uname -s)" in
         ;;
 esac
 
-py - <<"EOF"
+# prepend libraries to search path
+cwd=$(dirname "$BASH_SOURCE")
+export PYTHONPATH=$cwd/.dotbot/lib/pyyaml/lib3:$PYTHONPATH
+export PYTHONPATH=$cwd/.dotbot:$PYTHONPATH
+
+python3 - <<"EOF"
 """
 An ~ugly~ hack around subbot.py, which prints out all the available
 env options available across all configs in this dotfile repository.
