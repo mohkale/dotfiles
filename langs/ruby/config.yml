@@ -5,8 +5,7 @@
     ~/.rvmrc:
 
 - packages:
-    - chocolatey:
-        - ruby
+    - chocolatey: ruby
 
 - packages:
     - gem:
