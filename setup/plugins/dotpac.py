@@ -450,6 +450,17 @@ class ChocolateyPackageManager(DotbotPackageManager):
             spec['params'] = [spec['params']]
         return spec
 
+class CygwinPackageManager(DotbotPackageManager):
+    name = 'cygwin'
+    filenames = 'cyg-get.bat'
+
+    def install(self, spec):
+        self.fail_if_not_exists()
+
+        cmd = [self.executable, spec['package']]
+
+        self._log_installing(spec['package'])
+        return self._run_process(cmd, spec) == 0
 
 class GemPackageManager(DotbotPackageManager):
     name = 'gem'
