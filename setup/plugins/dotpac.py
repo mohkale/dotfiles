@@ -104,9 +104,7 @@ class DotbotPackageManager(LogMixin, AbstractClass):
     _executable: str = None  # path to found bin
     _exists: bool = None # don't know yet
 
-    process_kwargs = {
-        'shell': True
-    }
+    process_kwargs = {}
 
     def __init__(self, *args, log, **kwargs):
         self._log = log
@@ -482,7 +480,6 @@ class GemPackageManager(DotbotPackageManager):
         return spec
 
 class _ArchPacmanPackageManager(DotbotPackageManager):
-    process_kwargs = {}
     sudo = True
 
     def install(self, spec):
