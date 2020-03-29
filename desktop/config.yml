@@ -1,3 +1,7 @@
 - bots:
+    - path: login/sddm
+      env:  true
+    - path: login/ly
+      env:  true
     - path: plasma
       env:  true
