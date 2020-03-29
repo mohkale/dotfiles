@@ -15,6 +15,14 @@ The format accepted by this plugin in your config.yaml file is:
           - spec-1
           - spec-2
 
+Each spec can have the following default fields (unless overriden by a package
+manager):
+
+  - package: foo
+    interactive: false
+    stdin:  false
+    stderr: false
+    stdout: false
 Every spec must supply a package field, and optionally has stdin, stdout and
 stderr. There's also an interactive field which determines the defaults of the
 stdin, stdout and stderr fields.
