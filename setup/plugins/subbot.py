@@ -13,6 +13,10 @@ The format accepted by this plugin in your config.yaml file is:
       - path:   bar
         env:    bar
         cache:  true
+        when:
+          - command: [ -f foo ]
+            interactive: false
+            stdout: true
         unsafe: false
         config: baz.yaml
 
@@ -46,6 +50,7 @@ import os
 import io
 import csv
 import sys
+import copy
 import functools
 from typing import Dict
 
@@ -57,16 +62,15 @@ sys.path.insert(0, os.path.dirname(__file__))
 from run_process import run_process
 from log_mixin import LogMixin
 
+def create_dispatcher(path, context):
+    """create a new dispatcher, cloning the context of an existing one."""
+    dispatcher = Dispatcher(path)
+    dispatcher._context.set_defaults(copy.deepcopy(context.defaults()))
+    return dispatcher
 
 class SubBotPlugin(LogMixin, dotbot.Plugin):
-    def __init__(self, *args, **kwargs):
-        # tasks that're passed down to sub bots.
-        self.default_tasks = []
-
-        super().__init__(*args, **kwargs)
-
     def can_handle(self, action):
-        return action in ['bots', 'defaults']
+        return action in 'bots'
 
     def handle(self, action, data):
         if not self.can_handle(action):
@@ -74,25 +78,22 @@ class SubBotPlugin(LogMixin, dotbot.Plugin):
                 "%s can't handle action: %s" % (self.__class__.__name__, action))
 
         exit_status = True  # passed
-        if action == 'defaults':
-            self.default_tasks.append({action: data})
-        else:
-            # data has to be a list of spec values.
-            if not isinstance(data, list): data = [data]
+        # data has to be a list of spec values.
+        if not isinstance(data, list): data = [data]
 
-            for spec in data:
-                if isinstance(spec, str):
-                    spec = {'path': spec}
+        for spec in data:
+            if isinstance(spec, str):
+                spec = {'path': spec}
 
-                if not isinstance(spec, dict):
-                    self.error('specs must be a dict or str, not ' + spec.__class__.__name__)
+            if not isinstance(spec, dict):
+                self.error('specs must be a dict or str, not ' + spec.__class__.__name__)
+            else:
+                spec = self._populate_spec(spec, self._context.defaults())
+                if 'path' not in spec:
+                    self.error('specs must supply a path argument')
+                    exit_status = False
                 else:
-                    spec = self._populate_spec(spec, self._context.defaults())
-                    if 'path' not in spec:
-                        self.error('specs must supply a path argument')
-                        return False
-                    else:
-                        exit_status &= self._process(spec)
+                    exit_status &= self._process(spec)
         return exit_status
 
     def _process(self, spec: Dict[str, str]):
@@ -147,7 +148,6 @@ class SubBotPlugin(LogMixin, dotbot.Plugin):
         if not isinstance(tasks, list):
             raise ReadingError('Configuration file must be a list of tasks')
         tasks = spec.get('tasks', []) + tasks
-        tasks = self.default_tasks + tasks
         return tasks
 
     def _invoke_subbot(self, spec, path: str, config: str) -> bool:
@@ -156,7 +156,7 @@ class SubBotPlugin(LogMixin, dotbot.Plugin):
         try:
             os.chdir(path)
             tasks = self._read_tasks(spec, config)
-            return Dispatcher(path).dispatch(tasks)
+            return create_dispatcher(path, self._context).dispatch(tasks)
         except Exception as e:
             self.error(e)
             return False
