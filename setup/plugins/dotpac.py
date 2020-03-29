@@ -350,7 +350,7 @@ class PipPackageManager(DotbotPackageManager):
     Spec format
 
       package: package-name
-      user: false
+      global: false
       git:
         type: github
         name: mohkale
@@ -364,7 +364,7 @@ class PipPackageManager(DotbotPackageManager):
         package_name = spec['package']
 
         cmd = [self.executable, 'install']
-        if spec['user']:
+        if not spec['global']:
             cmd += ['--user']
 
         git = spec['git']
@@ -389,7 +389,7 @@ class PipPackageManager(DotbotPackageManager):
 
     def populate_spec(self, spec, cwd, defaults):
         spec = super().populate_spec(spec, cwd, defaults)
-        spec.setdefault('user', False)
+        spec.setdefault('global', False)
         spec.setdefault('git', False)
 
         if isinstance(spec['git'], str):
