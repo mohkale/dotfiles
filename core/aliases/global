@@ -98,8 +98,9 @@ gq      g rebase
 
 
 # Configure Dotfiles
-dot     g --git-dir=$DOTFILES_REPO_PATH --work-tree=$HOME
-d       dot
+dot@dirx $DOTFILES_REPO_PATH
+
+d       g --git-dir=$DOTFILES_REPO_PATH/.git --work-tree=$DOTFILES_REPO_PATH
 da      d add
 db      d branch
 dc      d commit
