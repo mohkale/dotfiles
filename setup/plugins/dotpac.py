@@ -140,6 +140,19 @@ class DotbotPackageManager(LogMixin, AbstractClass):
             process_kwargs.setdefault(key, val)
         return run_process(*args, process_kwargs=process_kwargs, **kwargs)
 
+    def sudo_validate(self):
+        if os.name == 'nt':
+            return True
+
+        ret = cls._run_process(
+            'sudo --validate',
+            options={'interactive': True},
+            process_kwargs={'shell': True}) == 0
+
+        if not ret:
+            self.error('failed to gain root user privileges.')
+
+        return ret
 
     def run_update(self):
         """runs update, unless this package managers already been updated."""
@@ -457,14 +470,36 @@ class GemPackageManager(DotbotPackageManager):
         spec.setdefault('user', False)
         return spec
 
-    @classmethod
-    def update(cls): pass
+class _ArchPacmanPackageManager(DotbotPackageManager):
+    process_kwargs = {}
 
-# class PacmanPackageManager(DotbotPackageManager):
-#     pass
+    def install(self, spec):
+        self.fail_if_not_exists()
 
-# class YayPackageManager(DotbotPackageManager):
-#     pass
+        if not self.sudo_validate():
+            return False
+
+        self._log_installing(spec['package'])
+        cmd = ['sudo', self.executable, '-S', '--needed', '--noconfirm', spec['package']]
+        return self._run_process(cmd, spec) == 0
+
+    def update(self):
+        if not self.sudo_validate():
+            return False
+
+        self.lowinfo(f'updating package database for: {self.name}')
+        return self._run_process(
+            ['sudo', self.executable, '-Sy'], {
+                'interactive': True
+            }) == 0
+
+class PacmanPackageManager(_ArchPacmanPackageManager):
+    name = 'pacman'
+    filenames = 'pacman'
+
+class YayPackageManager(_ArchPacmanPackageManager):
+    name = 'yay'
+    filenames = 'yay'
 
 # class AptPackageManager(DotbotPackageManager):
 #     pass
