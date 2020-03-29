@@ -12,3 +12,6 @@
 [submodule "programs/yakuake/themes/an-old-hope"]
 	path = programs/yakuake/themes/an-old-hope
 	url = https://github.com/mohkale/an-old-hope-yakuake
+[submodule "programs/st/st"]
+	path = programs/st/st
+	url = https://github.com/mohkale/st

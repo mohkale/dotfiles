@@ -1,4 +1,6 @@
 - bots:
+    - path: st
+      env:  true
     - path: konsole
       env:  true
     - path: thefuck
