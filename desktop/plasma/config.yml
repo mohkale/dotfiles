@@ -1,3 +1,11 @@
 - link:
     ~/.config/kglobalshortcutsrc: shortcuts
     ~/.kde4/share/config/kdeglobals: settings
+
+- bots:
+    - path: ../xorg
+      unsafe: true
+
+- packages:
+    pacman:
+      - plasma
