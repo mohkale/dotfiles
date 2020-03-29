@@ -45,3 +45,5 @@
     - chocolatey:
         - git
 
+- bots:
+    - ../programs/cmder
