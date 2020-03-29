@@ -1,6 +1,6 @@
 - link:
     ~/.config/kglobalshortcutsrc: shortcuts
-    ~/.kde4/share/config/kdeglobals: settings
+    ~/.config/kdeglobals: settings
 
 - bots:
     - path: ../xorg
@@ -8,4 +8,4 @@
 
 - packages:
     pacman:
-      - plasma
+      - plasma-meta
