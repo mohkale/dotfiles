@@ -483,6 +483,7 @@ class GemPackageManager(DotbotPackageManager):
 
 class _ArchPacmanPackageManager(DotbotPackageManager):
     process_kwargs = {}
+    sudo = True
 
     def install(self, spec):
         self.fail_if_not_exists()
@@ -491,7 +492,8 @@ class _ArchPacmanPackageManager(DotbotPackageManager):
             return False
 
         self._log_installing(spec['package'])
-        cmd = ['sudo', self.executable, '-S', '--needed', '--noconfirm', spec['package']]
+        cmd = [self.executable, '-S', '--needed', '--noconfirm', spec['package']]
+        if self.sudo: cmd.insert(0, 'sudo')
         return self._run_process(cmd, spec) == 0
 
     def update(self):
@@ -499,10 +501,10 @@ class _ArchPacmanPackageManager(DotbotPackageManager):
             return False
 
         self.lowinfo(f'updating package database for: {self.name}')
-        return self._run_process(
-            ['sudo', self.executable, '-Sy'], {
-                'interactive': True
-            }) == 0
+        ret = self._run_process(
+            ['sudo', self.executable, '-Sy'],
+            {'interactive': True})
+        return ret == 0
 
 class PacmanPackageManager(_ArchPacmanPackageManager):
     name = 'pacman'
@@ -511,6 +513,7 @@ class PacmanPackageManager(_ArchPacmanPackageManager):
 class YayPackageManager(_ArchPacmanPackageManager):
     name = 'yay'
     filenames = 'yay'
+    sudo = False # yay doesn't allow sudo installs
 
 # class AptPackageManager(DotbotPackageManager):
 #     pass
