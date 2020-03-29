@@ -144,7 +144,7 @@ class DotbotPackageManager(LogMixin, AbstractClass):
         if os.name == 'nt':
             return True
 
-        ret = cls._run_process(
+        ret = self._run_process(
             'sudo --validate',
             options={'interactive': True},
             process_kwargs={'shell': True}) == 0
