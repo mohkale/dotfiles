@@ -52,12 +52,9 @@ export TMUX_TMPDIR=$HOME/.tmux/tmp/
 export EMACS_SERVER_FILE=$HOME/.emacs.d/var/server/server
 export LANG=en_GB.UTF-8 LC_MESSAGES="C"
 
-# XDG compatibility for various programs, see [[https://wiki.archlinux.org/index.php/XDG_Base_Directory][here]].
-export INPUTRC="$XDG_CONFIG_HOME"/readline/inputrc
-export BUNDLE_USER_CONFIG="$XDG_CONFIG_HOME"/bundle
-export BUNDLE_USER_CACHE="$XDG_CACHE_HOME"/bundle
-export BUNDLE_USER_PLUGIN="$XDG_DATA_HOME"/bundle
-export IRBRC="$XDG_CONFIG_HOME"/irb/irbrc
+# source XDG compatibility script
+[ -r "$HOME/.config/xdg" ] && . "$HOME/.config/xdg"
+
 
 # Custom Configuration Paths
 export PROGRAM_DIR=$HOME/programming
@@ -65,7 +62,7 @@ export SCRIPTS_DIR="$PROGRAM_DIR"/scripts
 
 export PYTHONIOENCODING="utf-8" # prevents error msg
 
-HISTSIZE=1000 HISTFILESIZE=2000 HISTFILE=~/.history
+HISTSIZE=1000 HISTFILESIZE=2000
 
 # set terminal used by i3
 export TERMINAL="st"

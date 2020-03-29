@@ -1,0 +1,39 @@
+# -*- mode: sh -*- XDG compatibility for various programs, see [[https://wiki.archlinux.org/index.php/XDG_Base_Directory][here]].
+
+## GNU Readline
+export INPUTRC="$XDG_CONFIG_HOME"/readline/inputrc
+
+## Ruby Bundler
+export BUNDLE_USER_CONFIG="$XDG_CONFIG_HOME"/bundle
+export BUNDLE_USER_CACHE="$XDG_CACHE_HOME"/bundle
+export BUNDLE_USER_PLUGIN="$XDG_DATA_HOME"/bundle
+
+## Interactive Ruby (irb)
+export IRBRC="$XDG_CONFIG_HOME"/irb/irbrc
+
+## Solargraph
+export SOLARGRAPH_CACHE="$XDG_CACHE_HOME"/solargraph
+
+## Less is More
+[ -e "$XDG_CACHE_HOME/less" ] || mkdir -p "$XDG_CACHE_HOME/less"
+export LESSKEY="$XDG_CONFIG_HOME/less/lesskey"
+export LESSHISTFILE="$XDG_CACHE_HOME/less/history"
+
+## Node
+export NODE_REPL_HISTORY="$XDG_DATA_HOME/node_repl_history"
+
+## Xorg
+export XAUTHORITY="$XDG_RUNTIME_DIR/Xauthority"
+
+## Bash
+export HISTFILE="$XDG_DATA_HOME/bash/history"
+
+## XDG
+export GTK_RC_FILES="$XDG_CONFIG_HOME/gtk-1.0/gtkrc"
+export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
+
+## gradle
+export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
+
+## MySQL
+export MYSQL_HISTFILE="$XDG_DATA_HOME"/mysql_history
