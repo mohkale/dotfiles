@@ -1,6 +1,6 @@
 - link:
     ~/.gemrc:
-    ~/.irbrc:
+    ~/.config/irb/irbrc:
     ~/.pryrc:
     ~/.rvmrc:
 

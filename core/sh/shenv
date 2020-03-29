@@ -52,6 +52,9 @@ export TMUX_TMPDIR=$HOME/.tmux/tmp/
 export EMACS_SERVER_FILE=$HOME/.emacs.d/var/server/server
 export LANG=en_GB.UTF-8 LC_MESSAGES="C"
 
+# XDG compatibility for various programs, see [[https://wiki.archlinux.org/index.php/XDG_Base_Directory][here]].
+export IRBRC="$XDG_CONFIG_HOME"/irb/irbrc
+
 # Custom Configuration Paths
 export PROGRAM_DIR=$HOME/programming
 export SCRIPTS_DIR="$PROGRAM_DIR"/scripts
