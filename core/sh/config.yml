@@ -5,7 +5,7 @@
 
 - link:
     ~/.profile:
-    ~/.shenv:
+    ~/.config/shenv:
     ~/.config/xdg:
     ~/.config/readline/inputrc:
     ~/programming/scripts/.ps1: prompt
