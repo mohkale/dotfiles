@@ -17,6 +17,7 @@ import subprocess
 sys.path.insert(0, os.path.dirname(__file__))
 from run_process import run_process
 from log_mixin import LogMixin
+from dotbot.messenger import Level
 
 class ShellCommandMixin(LogMixin, object):
     action_name = 'shell-command-mixin'
@@ -54,6 +55,9 @@ class ShellCommandMixin(LogMixin, object):
                 self.error('must specify command for shell.')
                 success = False
                 continue
+
+            if self._log._level <= Level.DEBUG:
+                spec['verbose'] = True
 
             self.msg_spec(spec)
             cmd = spec['command']
