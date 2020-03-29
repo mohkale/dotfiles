@@ -15,7 +15,7 @@
    - python >= 3.7
 
 ** Installation Instructions
-   ~git clone /uri/of/this/repo ~/.dotfiles && cd ~/.dotfiles && ./install~ will install
+   =git clone /uri/of/this/repo ~/.dotfiles && cd ~/.dotfiles && ./install= will install
    a basic dotfile configuration for you.
 
    However you'll more likely want to setup a bunch of different things, and to that end
@@ -29,7 +29,7 @@
    #+END_SRC
 
    WARN: to run the above command, you must have loaded any required submodules.
-         you can do so non-destructively by running src_sh[:exports code]{./install --help}.
+         you can do so non-destructively by running ~./install --help~.
 
    I recommend using the dotbots specified by ~./setup/suggested -awe --nvim~. I.E.
 
@@ -52,3 +52,10 @@
    | scripts  | standalone shell scripts, use for lots of things :smile:.       |
    | shells   | bash, zsh, etc. each have their own setup requirements.    |
    | setup    | dotbot, plugins for dotbot, dotfile introspection scripts. |
+
+** Notes
+   - On windows, you must run install from an elevated shell. This is because windows
+     doesn't allow users with regular privilages to create symbolic links.
+   - On windows, [[https://chocolatey.org/][chocolatey]] doesn't seem to like installation when stderr is the null
+     device. The only workaround as of now is to run ~./install~ with the ~-v~ flag
+     (or to configure chocolatey to always output).
