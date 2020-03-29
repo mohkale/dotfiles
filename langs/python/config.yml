@@ -1,3 +1,10 @@
 - packages:
     - chocolatey: python
 
+- packages:
+    pip:
+      - requests
+      - package: RequestMixin
+        git: mohkale
+      - package: DownloadQueue
+        git: mohkale
