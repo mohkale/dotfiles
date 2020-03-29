@@ -1,1 +1,12 @@
-[]
+- packages:
+    pacman:
+      - base-devel
+
+- shell:
+    - description: Installing Yay (Yet Another Yogurt)
+      quiet: true
+      command: |-
+        [ -z "$(which yay)" ] || exit 0 # already installed
+        cd "$(mktemp -d)" || exit 1
+        git clone 'https://aur.archlinux.org/yay.git' .
+        makepkg -i --syncdeps --rmdeps --noconfirm
