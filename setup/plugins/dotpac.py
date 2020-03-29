@@ -128,6 +128,12 @@ class DotbotPackageManager(LogMixin, AbstractClass):
         return run_process(*args, process_kwargs=process_kwargs, **kwargs)
 
 
+    def run_update(self):
+        """runs update, unless this package managers already been updated."""
+        if not type(self).updated:
+            self.update()
+            type(self).updated = True
+
     def _log_installing(self, package_name):
         self.info(f'installing {self.name} package [{package_name}]')
 
@@ -227,7 +233,7 @@ class DotbotPackagePlugin(LogMixin, dotbot.Plugin):
             found = self.find_package_manager(data)
             if found:
                 pacman, packages = found  # unpack
-                pacman._update()
+                pacman.run_update()
 
                 if isinstance(packages, str):
                     packages = [packages]
