@@ -60,7 +60,7 @@ from log_mixin import LogMixin
 #     NOT_SURE   = 'Could not determine'
 
 
-class DotbotPackageManager(AbstractClass):
+class DotbotPackageManager(LogMixin, AbstractClass):
     """
     Root class for a package manager specification.
 
@@ -77,9 +77,6 @@ class DotbotPackageManager(AbstractClass):
     name
       the name of the package manager, used to match directives in config.yml.
 
-    display-name
-      the name shown for this package manager in dotbot logs.
-
     filenames
       the name of, or a list of aliases for, the executable tied to this
       package manager.
@@ -89,48 +86,50 @@ class DotbotPackageManager(AbstractClass):
       is assumed to be up to date or not.
     """
     name: str = None # used to match directive
-    display_name: str = None # what's shown in output logs
     filenames: Union[str, List[str]] = None
 
-    _executable: str = None  # path to found bin
     updated: bool = False
+
+    _executable: str = None  # path to found bin
     _exists: bool = None # don't know yet
 
     process_kwargs = {
         'shell': True
     }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, log, **kwargs):
+        self._log = log
         super().__init__(*args, **kwargs)
 
-    def _run_process(self, *args, **kwargs):
-        process_kwargs = kwargs.pop('process_kwargs', {})
-        for key, val in self.process_kwargs.items():
-            process_kwargs.setdefault(key, val)
-        return run_process(*args, process_kwargs=process_kwargs, **kwargs)
-
-    @classmethod
-    def _update(cls):
-        if not cls.updated:
-            cls.update()
-            cls.updated = True
-
+    #region: stuff you're allowed to override
     @abstractmethod
-    def install(self, spec, log=None):
+    def install(self, spec):
         pass
 
-    @classmethod
-    @abstractclassmethod
-    def update(cls):
+    def update(self):
+        """update managers package database."""
         pass
 
     def populate_spec(self, spec, cwd, defaults):
         if isinstance(spec, str):
             spec = {'package': spec}
         return spec
+    #endregion
 
-    def _log_installing(self, log, package_name):
-        log and log.info(f'installing {self.name} package [{package_name}]')
+    @property
+    def class_name(self):
+        return type(self).__name__
+
+    @classmethod
+    def _run_process(cls, *args, **kwargs):
+        process_kwargs = kwargs.pop('process_kwargs', {})
+        for key, val in cls.process_kwargs.items():
+            process_kwargs.setdefault(key, val)
+        return run_process(*args, process_kwargs=process_kwargs, **kwargs)
+
+
+    def _log_installing(self, package_name):
+        self.info(f'installing {self.name} package [{package_name}]')
 
     # the status output of a given package
     # def status(self, pkg: str) -> PackageStatus:
@@ -140,18 +139,36 @@ class DotbotPackageManager(AbstractClass):
         if not self.exists:
             raise RuntimeError(
                 'cannot run package manager %s with non-existant binary' %
-                self.__class__.__name__)
+                self.class_name)
 
     @classmethod
-    def executable(cls, log=None):
+    def matches(cls, name):
+        """check whether the directive NAME matches this package manager"""
+        return name == cls.name
+
+    @property
+    def exists(self):
+        """Whether or not the binary for this package manager exists."""
+        cls = type(self)
+
+        if cls._exists is None:
+            cls._exists = self.executable is not None
+
+        return cls._exists
+
+    @property
+    def executable(self):
+        cls = type(self)
+
         if cls._executable is None:
-            execs = cls.filenames
+            execs = self.filenames
             if isinstance(execs, str):
                 execs = [execs]
             elif not isinstance(execs, list):
-                raise ValueError(
+                self.error(
                     '%s.filenames should be a string or list of strings, not: %s' %
-                    (cls.__name__, type(cls.filenames).__name__))
+                    (self.class_name, type(cls.filenames).__name__))
+                return
 
             for alias in execs:
                 file = find_executable(alias) or shutil.which(alias)
@@ -160,18 +177,6 @@ class DotbotPackageManager(AbstractClass):
                     break
 
         return cls._executable
-
-    @classmethod
-    def matches(cls, name):
-        return name == cls.name
-
-    @classmethod
-    def exists(cls, log=None):
-        """Whether or not the binary for this package manager exists."""
-        if cls._exists is None:
-            cls._exists = cls.executable(log=log) is not None
-
-        return cls._exists
 
 
 def _leaf_subclasses(cls, collection=None):
@@ -205,7 +210,7 @@ class DotbotPackagePlugin(LogMixin, dotbot.Plugin):
     def handle(self, action, data):
         if not self.can_handle(action):
             raise ValueError(
-                "%s can't handle action: %s" % (self.__class__.__name__, action))
+                "%s can't handle action: %s" % (self.class_name, action))
 
         if os.getenv('skip_package') is not None:
             return True
@@ -230,7 +235,7 @@ class DotbotPackagePlugin(LogMixin, dotbot.Plugin):
                         package, self.cwd, self._context.defaults())
                     if self._log._level <= Level.DEBUG:
                         package['verbose'] = True
-                    res = pacman.install(package, log=self)
+                    res = self._process_install(pacman, package)
                     ret &= res
 
                     if not res:
@@ -239,6 +244,11 @@ class DotbotPackagePlugin(LogMixin, dotbot.Plugin):
             else:
                 return False
 
+    def _process_install(self, pacman, package):
+
+        res = pacman.install(package)
+
+        return res
     def find_package_manager(self, data):
         tried_pacmans = []
         for _ in data:  # package hash in data list
@@ -246,7 +256,7 @@ class DotbotPackagePlugin(LogMixin, dotbot.Plugin):
                 tried_pacmans.append(pacman)
                 for package_manager in self.package_managers():
                     if package_manager.matches(pacman) and \
-                       package_manager.exists(log=self):
+                       package_manager.exists:
                         return package_manager, packages
 
         self.error('failed to find package managers, tried: ' + ', '.join(tried_pacmans))
@@ -257,8 +267,7 @@ class DotbotPackagePlugin(LogMixin, dotbot.Plugin):
 
     _package_managers = None
 
-    @classmethod
-    def package_managers(cls):
+    def package_managers(self):
         """get a list of all the leaf level Package Manager instances.
         The idea here is you construct all package manager subclasses
         before you invoke this method, once you do, the package managers
@@ -271,8 +280,9 @@ class DotbotPackagePlugin(LogMixin, dotbot.Plugin):
         and manager, or construct a new class, or have both pip and pipx
         share from a common parent class.
         """
+        cls = type(self)
         if cls._package_managers is None:
-            cls._package_managers = [x() for x in _leaf_subclasses(DotbotPackageManager)]
+            cls._package_managers = [x(log=self) for x in _leaf_subclasses(DotbotPackageManager)]
         return cls._package_managers
 
 
@@ -295,20 +305,20 @@ class PipPackageManager(DotbotPackageManager):
     name = 'pip'
     filenames = 'pip'
 
-    def install(self, spec, log=None):
+    def install(self, spec):
         self.fail_if_not_exists()
 
-        cmd = [self.executable(log=self), 'install']
+        package_name = spec['package']
+
+        cmd = [self.executable, 'install']
         if spec['user']:
             cmd += ['--user']
+
+
+        self._log_installing(package_name)
         cmd += [spec['package']]
-        self._log_installing(log, spec['package'])
         return self._run_process(cmd, spec) == 0
 
-    # pip doesn't have a database of available packages. it get's data on
-    # the packages it wants, when it wants them.
-    @classmethod
-    def update(cls): pass
 
     def populate_spec(self, spec, cwd, defaults):
         spec = super().populate_spec(spec, cwd, defaults)
@@ -326,15 +336,12 @@ class GoPackageManager(DotbotPackageManager):
     name = 'go'
     filenames = 'go'
 
-    def install(self, spec, log=None):
+    def install(self, spec):
         self.fail_if_not_exists()
 
-        cmd = [self.executable(log=self), 'get', spec['package']]
-        self._log_installing(log, spec['package'])
+        cmd = [self.executable, 'get', spec['package']]
+        self._log_installing(spec['package'])
         return self._run_process(cmd, spec) == 0
-
-    @classmethod
-    def update(cls): pass
 
 class ChocolateyPackageManager(DotbotPackageManager):
     """Package manager for the chocolatey (windows) package manager.
@@ -350,15 +357,15 @@ class ChocolateyPackageManager(DotbotPackageManager):
     name = 'chocolatey'
     filenames = 'choco'
 
-    def install(self, spec, log=None):
+    def install(self, spec):
         self.fail_if_not_exists()
 
-        cmd = [self.executable(log=self), 'install', '--yes', spec['package']]
+        cmd = [self.executable, 'install', '--yes', spec['package']]
 
         if spec['params']:
             cmd += ['--params', ''.join(spec['params'])]
 
-        self._log_installing(log, spec['package'])
+        self._log_installing(spec['package'])
         return self._run_process(cmd, spec) == 0
 
     def populate_spec(self, spec, cwd, defaults):
@@ -368,21 +375,19 @@ class ChocolateyPackageManager(DotbotPackageManager):
             spec['params'] = [spec['params']]
         return spec
 
-    @classmethod
-    def update(cls): pass
 
 class GemPackageManager(DotbotPackageManager):
     name = 'gem'
     filenames = 'gem'
 
-    def install(self, spec, log=None):
+    def install(self, spec):
         self.fail_if_not_exists()
 
-        cmd = [self.executable(log=self), 'install', ]
+        cmd = [self.executable, 'install', ]
         if spec['user']:
             cmd += ['--user-install']
         cmd += [spec['package']]
-        self._log_installing(log, spec['package'])
+        self._log_installing(spec['package'])
         return self._run_process(cmd, spec) == 0
 
     def populate_spec(self, spec, cwd, defaults):
