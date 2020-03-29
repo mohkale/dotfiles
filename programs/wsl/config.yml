@@ -1,0 +1,9 @@
+- packages:
+    chocolatey:
+      - wsl
+      - wsltty
+
+- link:
+    ~/.config/mintty/config:
+      path: wsltty.conf
+      create: true

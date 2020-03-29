@@ -9,7 +9,6 @@
 # setup cygwin, the unix like environment for windows
 - packages:
     chocolatey:
-      - wsl
       - package: cygwin
         params: /NoStartMenu
       - cyg-get
@@ -46,4 +45,5 @@
         - git
 
 - bots:
+    - ../programs/wsl
     - ../programs/cmder
