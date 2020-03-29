@@ -229,6 +229,9 @@ class DotbotPackagePlugin(LogMixin, dotbot.Plugin):
                 pacman, packages = found  # unpack
                 pacman._update()
 
+                if isinstance(packages, str):
+                    packages = [packages]
+
                 ret = True
                 for package in packages:
                     package = pacman.populate_spec(
