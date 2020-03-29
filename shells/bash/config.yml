@@ -1,3 +1,7 @@
+- defaults:
+    link:
+      force: true
+
 - link:
     ~/.bashrc:
     ~/.bash_logout: logout
