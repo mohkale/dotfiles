@@ -205,19 +205,25 @@ class SubBotPlugin(LogMixin, dotbot.Plugin):
 
         return bot.lower() in self.dotbots
 
+    _dotbots = None
+
     @property
     @functools.lru_cache()
     def dotbots(self) -> [str]:
-        dotbots = os.getenv('DOTBOTS')
-        if dotbots is None:
-            return []  # no bots setup
-        else:
-            bots = []
-            for row in csv.reader(io.StringIO(dotbots)):
-                bots.extend(row)
-            for bot in bots:
-                self.debug('discovered allowed subot: ' + bot)
-            return bots
+        cls = type(self)
+        if cls._dotbots is None:
+            dotbots = os.getenv('DOTBOTS')
+            if dotbots is None:
+                cls._dotbots = []  # no bots setup
+            else:
+                bots = []
+                for row in csv.reader(io.StringIO(dotbots)):
+                    bots.extend(row)
+                for bot in bots:
+                    self.debug('discovered allowed subot: ' + bot)
+                    cls._dotbots = bots
+
+        return cls._dotbots
 
     @classmethod
     def _populate_spec(cls, spec, ctx_defaults=None):
