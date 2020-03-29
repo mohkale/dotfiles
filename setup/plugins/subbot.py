@@ -57,14 +57,6 @@ sys.path.insert(0, os.path.dirname(__file__))
 from run_process import run_process
 from log_mixin import LogMixin
 
-def _populate_process_spec(spec, cwd, defaults,
-                           default_key='package'):
-    if isinstance(spec, str):
-        spec = {default_key: spec}
-    spec.setdefault('stdin', False)
-    spec.setdefault('stdout', False)
-    spec.setdefault('stderr', False)
-    return spec
 
 class SubBotPlugin(LogMixin, dotbot.Plugin):
     def __init__(self, *args, **kwargs):
@@ -137,11 +129,8 @@ class SubBotPlugin(LogMixin, dotbot.Plugin):
 
         shell = os.getenv('SHELL') or 'sh'
         for test in spec['if']:
-            test = _populate_process_spec(
-                test,
-                self._context.base_directory(),
-                self._context.defaults(),
-                default_key='command')
+            if isinstance(test, str):
+                test = {'command': test}
             if run_process([shell, '-c', test['command']], test) != 0:
                 self.debug('skipping subbot %s because test `%s` failed' %
                              (name, '; '.join(test['command'].split('\n'))))
