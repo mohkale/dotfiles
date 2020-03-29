@@ -23,6 +23,9 @@ manager):
     stdin:  false
     stderr: false
     stdout: false
+    before: echo "i'm about to install foo"
+    after:  echo "it's done, yay!"
+
 Every spec must supply a package field, and optionally has stdin, stdout and
 stderr. There's also an interactive field which determines the defaults of the
 stdin, stdout and stderr fields.
@@ -121,6 +124,8 @@ class DotbotPackageManager(LogMixin, AbstractClass):
     def populate_spec(self, spec, cwd, defaults):
         if isinstance(spec, str):
             spec = {'package': spec}
+        spec.setdefault('before', None)
+        spec.setdefault('after', None)
         return spec
     #endregion
 
@@ -262,10 +267,27 @@ class DotbotPackagePlugin(LogMixin, dotbot.Plugin):
                 return False
 
     def _process_install(self, pacman, package):
+        if not self._run_test(package['before']):
+            self.warn("skipping %s package [%s] because `before' failed" %
+                      (pacman.name, package['package']))
+            return True
 
         res = pacman.install(package)
+        if not self._run_test(package['after']):
+            self.warn("post install command `after' failed")
 
         return res
+
+    def _run_test(self, test_spec):
+        if test_spec:
+            if isinstance(test_spec, str):
+                test_spec = {'command': test_spec}
+
+            shell = os.getenv('SHELL') or 'sh'
+            return run_process([shell, '-c', test_spec['command']], test_spec) == 0
+        else:
+            return True
+
     def find_package_manager(self, data):
         tried_pacmans = []
         for _ in data:  # package hash in data list
