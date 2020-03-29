@@ -1,0 +1,7 @@
+- packages:
+    - pacman: git
+    - cygwin: git
+    - chocolatey: git
+
+- link:
+    ~/.config/git/.gitconfig:

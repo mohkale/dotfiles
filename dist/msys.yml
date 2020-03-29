@@ -38,12 +38,6 @@
 
         sed -i 's/# *db_home: *\/home\/%U/db_home: \/%H/' "$conf_file"
 
-- packages:
-    - cygwin:
-        - git
-    - chocolatey:
-        - git
-
 - bots:
     - ../programs/wsl
     - ../programs/cmder
