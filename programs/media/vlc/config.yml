@@ -1,3 +1,11 @@
 - packages:
     - chocolatey: vlc
 
+- link:
+    ~/.config/vlc/vlcrc: vlcrc
+    $APPDATA/vlc/vlcrc:
+      path: vlcrc
+      force: true
+      if: >-
+        [ -e ../../../setup/cache/dist/windows ] &&
+        ! [ -z "$APPDATA" ]
