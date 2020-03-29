@@ -5,6 +5,7 @@
 
 . ~/.profile
 
+shopt -s checkwinsize # keep LINES & COLUMNS upto date after every command
 shopt -s globstar # enable **/* in shell globing
 shopt -s autocd   # cd to path automatically.
 shopt -s histappend # open history file as a, not w
@@ -22,9 +23,7 @@ fi
 # SILENCE_SHORTCUTS_WARNING=1 # uncomment to make build shortcuts quiet
 
 # source all the following scripts
-plugin_scripts=(
-    "$HOME/.colors.bashrc"
-)
+plugin_scripts=( )
 
 # source if available, else ignore.
 optional_plugins=(

@@ -55,6 +55,23 @@ export LANG=en_GB.UTF-8 LC_MESSAGES="C"
 # source XDG compatibility script
 [ -r "$HOME/.config/xdg" ] && . "$HOME/.config/xdg"
 
+# make less more friendly for non-text input files, see lesspipe(1)
+[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+
+# colorize less pager, format is red, green & white.
+# NOTE bold=1 but only works with colors in the range 90+
+export LESS_TERMCAP_mb=$'\e[1;91m' # begin blinking
+export LESS_TERMCAP_md=$'\e[1;91m' # begin bold
+export LESS_TERMCAP_me=$'\e[0m'    # end mode
+export LESS_TERMCAP_se=$'\e[0m'    # end standout-mode
+export LESS_TERMCAP_ue=$'\e[0m'    # end underline
+export LESS_TERMCAP_us=$'\e[1;32m' # begin underline
+export LESS_TERMCAP_so=$'\e[36m'   # begin standout-mode - info box
+
+# enable color support of ls and also add handy aliases
+if [ -x /usr/bin/dircolors ] && [ -r "$HOME/.config/dircolors" ]; then
+    eval "$(dircolors -b $HOME/.config/dircolors)" || eval "$(dircolors -b)"
+fi
 
 # Custom Configuration Paths
 export PROGRAM_DIR=$HOME/programming
