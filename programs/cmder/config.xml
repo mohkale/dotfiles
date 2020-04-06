@@ -187,7 +187,7 @@
 			<value name="CTS.SelectText" type="hex" data="01"/>
 			<value name="CTS.HtmlFormat" type="hex" data="00"/>
 			<value name="CTS.ForceLocale" type="dword" data="00000000"/>
-			<value name="CTS.RBtnAction" type="hex" data="03"/>
+			<value name="CTS.RBtnAction" type="hex" data="02"/>
 			<value name="CTS.MBtnAction" type="hex" data="00"/>
 			<value name="CTS.ColorIndex" type="hex" data="E0"/>
 			<value name="ClipboardConfirmEnter" type="hex" data="01"/>
@@ -397,7 +397,7 @@
 				<value name="Multi.ArrowsModifier" type="dword" data="0000005b"/>
 				<value name="MinimizeRestore" type="dword" data="001011c0"/>
 				<value name="MinimizeRestore2" type="dword" data="00000000"/>
-				<value name="GlobalRestore" type="dword" data="00000000"/>
+				<value name="GlobalRestore" type="dword" data="000011c0"/>
 				<value name="CdExplorerPath" type="dword" data="00000000"/>
 				<value name="ForcedFullScreen" type="dword" data="00000000"/>
 				<value name="SwitchGuiFocus" type="dword" data="00101146"/>
@@ -514,27 +514,27 @@
 				<value name="PasteFileKey" type="dword" data="00000000"/>
 				<value name="PastePathKey" type="dword" data="00000000"/>
 				<value name="PasteCygwinKey" type="dword" data="00000000"/>
-				<value name="KeyMacro01" type="dword" data="0000a031"/>
+				<value name="KeyMacro01" type="dword" data="00000000"/>
 				<value name="KeyMacro01.Text" type="string" data="Task(1)"/>
-				<value name="KeyMacro02" type="dword" data="0000a032"/>
+				<value name="KeyMacro02" type="dword" data="00000000"/>
 				<value name="KeyMacro02.Text" type="string" data="Task(2)"/>
 				<value name="KeyMacro03" type="dword" data="000011d0"/>
 				<value name="KeyMacro03.Text" type="string" data="FontSetSize(1,2)"/>
 				<value name="KeyMacro04" type="dword" data="000011d1"/>
 				<value name="KeyMacro04.Text" type="string" data="FontSetSize(1,-2)"/>
-				<value name="KeyMacro05" type="dword" data="0000a033"/>
+				<value name="KeyMacro05" type="dword" data="00000000"/>
 				<value name="KeyMacro05.Text" type="string" data="Task(3)"/>
-				<value name="KeyMacro06" type="dword" data="00000000"/>
+				<value name="KeyMacro06" type="dword" data="0000a032"/>
 				<value name="KeyMacro06.Text" type="string" data="Task(4)"/>
-				<value name="KeyMacro07" type="dword" data="0000a035"/>
+				<value name="KeyMacro07" type="dword" data="00001254"/>
 				<value name="KeyMacro07.Text" type="string" data="Task(5)"/>
-				<value name="KeyMacro08" type="dword" data="0000a036"/>
+				<value name="KeyMacro08" type="dword" data="00000000"/>
 				<value name="KeyMacro08.Text" type="string" data="Task(6)"/>
-				<value name="KeyMacro09" type="dword" data="0000a037"/>
+				<value name="KeyMacro09" type="dword" data="00000000"/>
 				<value name="KeyMacro09.Text" type="string" data="Task(7)"/>
-				<value name="KeyMacro10" type="dword" data="0000a038"/>
+				<value name="KeyMacro10" type="dword" data="00000000"/>
 				<value name="KeyMacro10.Text" type="string" data="Task(8)"/>
-				<value name="KeyMacro11" type="dword" data="0000a039"/>
+				<value name="KeyMacro11" type="dword" data="00000000"/>
 				<value name="KeyMacro11.Text" type="string" data="Task(9)"/>
 				<value name="KeyMacro12" type="dword" data="00000000"/>
 				<value name="KeyMacro12.Text" type="string" data=""/>
