@@ -38,13 +38,11 @@ cls    clear
 
 
 # Emacs
-emacs-tangle bash -c 'cd ~/.emacs.d && ./bin/tangle'
-ee           emacsclient --no-wait --suppress-output # emacs dispatch
-ex           emacs
-sx           smacs
-et           emacs-tangle
-etsx         et && sx
-
+ee      emacsclient --no-wait --suppress-output # emacs dispatch
+ex      emacs
+sx      smacs
+et      bash -c 'cd ~/.emacs.d && ./bin/tangle -i'
+etsx    et && sx
 
 # TMUX
 t      tmux
