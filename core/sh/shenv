@@ -51,6 +51,8 @@ export DOTFILES_REPO_PATH=$HOME/.dotfiles
 export TMUX_TMPDIR=$HOME/.tmux/tmp/
 export EMACS_SERVER_FILE=$HOME/.emacs.d/var/server/server
 export LANG=en_GB.UTF-8 LC_MESSAGES="C"
+export MANPATH=$XDG_DATA_HOME/man:$MANPATH
+export INFOPATH=$XDG_DATA_HOME/info:$INFOPATH
 
 # source XDG compatibility script
 [ -r "$HOME/.config/xdg" ] && . "$HOME/.config/xdg"

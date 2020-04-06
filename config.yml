@@ -19,6 +19,8 @@
     - ~/programming/misc
     - ~/programming/repos
     - ./setup/cache
+    - ~/.local/share/man
+    - ~/.local/share/info
 
 - shell:
     # determine the platform dotfiles are being
