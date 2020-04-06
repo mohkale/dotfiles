@@ -270,9 +270,6 @@ class DotbotPackagePlugin(LogMixin, dotbot.Plugin):
                         package['verbose'] = True
                     res = self._process_install(pacman, package)
                     ret &= res
-
-                    if not res:
-                        self.error('failed to install package')
                 return ret
             else:
                 return False
@@ -286,6 +283,9 @@ class DotbotPackagePlugin(LogMixin, dotbot.Plugin):
         res = pacman.install(package)
         if not self._run_test(package['after']):
             self.warn("post install command `after' failed")
+
+        if not res:
+            self.error('failed to install package: ' + package['package'])
 
         return res
 
@@ -479,13 +479,13 @@ class GemPackageManager(DotbotPackageManager):
         spec.setdefault('user', False)
         return spec
 
-class _ArchPacmanPackageManager(DotbotPackageManager):
+class _PacmanPackageManager(DotbotPackageManager):
     sudo = True
 
     def install(self, spec):
         self.fail_if_not_exists()
 
-        if not self.sudo_validate():
+        if self.sudo and not self.sudo_validate():
             return False
 
         self._log_installing(spec['package'])
@@ -494,23 +494,33 @@ class _ArchPacmanPackageManager(DotbotPackageManager):
         return self._run_process(cmd, spec) == 0
 
     def update(self):
-        if not self.sudo_validate():
+        if self.sudo and not self.sudo_validate():
             return False
 
         self.lowinfo(f'updating package database for: {self.name}')
+
+        command = [self.executable, '-Sy']
+        if self.sudo:
+            command = ['sudo'] + command
+
         ret = self._run_process(
-            ['sudo', self.executable, '-Sy'],
+            command,
             {'interactive': True})
         return ret == 0
 
-class PacmanPackageManager(_ArchPacmanPackageManager):
+class PacmanPackageManager(_PacmanPackageManager):
     name = 'pacman'
     filenames = 'pacman'
 
-class YayPackageManager(_ArchPacmanPackageManager):
+class YayPackageManager(_PacmanPackageManager):
     name = 'yay'
     filenames = 'yay'
     sudo = False # yay doesn't allow sudo installs
+
+class MsysPackageManager(_PacmanPackageManager):
+    name = 'msys'
+    filenames = 'pacman.exe'
+    sudo = False # windows doesn't have sudo :(
 
 # class AptPackageManager(DotbotPackageManager):
 #     pass
