@@ -5,11 +5,16 @@
     ~/.rvmrc:
 
 - packages:
+    - chocolatey:
+        - package: ruby
+          # setup the ruby installer developement kit (ridk).
+          # literally the only thing making ruby development on
+          # windows not maddening.
+          after: |-
+              powershell -c '
+                Set-ExecutionPolicy Bypass -Scope Process
+                c:/tools/ruby27/bin/ridk.ps1 install 2 3'
     - pacman: ruby
-    # if you have issues with gem install on cygwin, try
-    # [[https://github.com/rubygems/rubygems/issues/2483][this]] to see if it fixes the issue.
-    - cygwin: ruby
-    - chocolatey: ruby
 
 - packages:
     - gem:

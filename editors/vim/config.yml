@@ -1,5 +1,5 @@
 - packages:
-    - cygwin: vim
+    - msys: vim
     - chocolatey: vim
     # also provides clipboard support
     - pacman: gvim
@@ -11,7 +11,7 @@
     ~/.vimrc:
     ~/_vimrc:
       path: ~/.vimrc
-      if: &windows-p echo "$OSTYPE" | grep -i -E 'cygwin|msys|win32'
+      if: &windows-p "[ -e '../../setup/cache/dist/windows' ]"
     ~/_vim:
       path: ~/.vim
       if: *windows-p

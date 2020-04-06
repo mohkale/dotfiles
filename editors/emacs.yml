@@ -1,12 +1,13 @@
 - shell:
    - description: Sync Emacs Dotfiles
+     quiet: true
      command: |-
        git -C emacs submodule sync --quiet --recursive
        git submodule update --init --recursive emacs
 
 - packages:
-    - pacman: emacs
     - chocolatey: emacs
+    - pacman: emacs
 
 - link:
     ~/.emacs.d: emacs

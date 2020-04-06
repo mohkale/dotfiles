@@ -150,13 +150,15 @@ export GOPATH=`lines_to_path $GOPATH <<EOF
 EOF`
 
 if [ "$platform" = "windows" ]; then
-    for path_var in CLASSPATH PYTHONPATH GEM_HOME; do
+    for path_var in CLASSPATH PYTHONPATH; do
         # for programs that don't care about the environment,
         # only about the OS, convert paths back to a windows
         # like path.
 
-        export $path_var=$(cygpath --windows --path "$(echo "${!path_var}")")
+        export $path_var=$(cygpath --windows --path "${!path_var}")
     done
+
+    export GEM_HOME=$(cygpath --mixed "$GEM_HOME")
 fi
 
 unset -f lines_to_path # thank you, good bye
