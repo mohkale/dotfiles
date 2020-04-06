@@ -1,6 +1,6 @@
 - packages:
-    - yay: dropbox
     - chocolatey: dropbox
+    - yay: dropbox
 
 - link:
     ../../editors/emacs/org:

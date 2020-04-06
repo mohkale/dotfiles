@@ -37,3 +37,12 @@ export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
 
 ## MySQL
 export MYSQL_HISTFILE="$XDG_DATA_HOME"/mysql_history
+
+# Path Management
+if [ "$platform" == "windows" ]; then
+    # fix unconverted msys paths which crash some programs
+    for var in IRBRC SOLARGRAPH_CACHE BUNDLE_USER_CONFIG \
+               BUNDLE_USER_CACHE BUNDLE_USER_PLUGIN; do
+        export $var=$(cygpath --mixed "${!var}")
+    done
+fi

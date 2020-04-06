@@ -1,6 +1,6 @@
 - packages:
-    - pacman: vlc
     - chocolatey: vlc
+    - pacman: vlc
 
 - link:
     ~/.config/vlc/vlcrc: vlcrc
@@ -8,5 +8,4 @@
       path: vlcrc
       force: true
       if: >-
-        [ -e ../../../setup/cache/dist/windows ] &&
-        ! [ -z "$APPDATA" ]
+        [ -e ../../../setup/cache/dist/windows ]

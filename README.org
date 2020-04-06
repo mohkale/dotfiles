@@ -39,6 +39,7 @@
 
 ** Supported Platforms
    * [[https://gitforwindows.org/][git-bash-for-windows]]@2.25.1
+   * [[http://www.mingw.org/wiki/MSYS][msys]]@2019.05.24
 
 ** Directory Layout
    | path     | purpose                                                    |

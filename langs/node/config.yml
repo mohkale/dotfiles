@@ -1,8 +1,8 @@
 - packages:
+    - chocolatey:
+        - nodejs
+        - yarn
     - pacman:
         - nodejs
         - npm
-        - yarn
-    - chocolatey:
-        - nodejs
         - yarn

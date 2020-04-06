@@ -1,6 +1,6 @@
 - packages:
+    - msys: tmux
     - pacman: tmux
-    - cygwin: tmux
 
 - link:
     ~/.tmux/tmuxrc: tmuxrc

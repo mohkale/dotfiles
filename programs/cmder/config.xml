@@ -6,7 +6,7 @@
 			<value name="StartType" type="hex" data="02"/>
 			<value name="CmdLine" type="string" data=""/>
 			<value name="StartTasksFile" type="string" data=""/>
-			<value name="StartTasksName" type="string" data="{bash::cygwin}"/>
+			<value name="StartTasksName" type="string" data="{bash::msys}"/>
 			<value name="StartFarFolders" type="hex" data="00"/>
 			<value name="StartFarEditors" type="hex" data="00"/>
 			<value name="StartCreateDelay" type="ulong" data="100"/>
@@ -171,7 +171,8 @@
 			<value name="ComSpec.Path" type="string" data=""/>
 			<value name="AutoReloadEnvironment" type="hex" data="01"/>
 			<value name="EnvironmentSet" type="multi">
-				<line data="set PATH=%ConEmuBaseDir%\Scripts;%PATH%"/>
+				<line data="set MSYSDIR=c:\tools\msys64"/>
+				<line data="set PATH=%ConEmuBaseDir%\Scripts;%MSYSDIR%/usr/bin;%PATH%"/>
 			</value>
 			<value name="CTS.Intelligent" type="hex" data="01"/>
 			<value name="CTS.IntelligentExceptions" type="string" data="far|vim.exe"/>
@@ -586,18 +587,27 @@
 				<value name="DndRKey" type="hex" data="A2"/>
 				<value name="WndDragKey" type="dword" data="00121101"/>
 			</key>
-			<key name="Tasks" modified="2020-03-28 23:42:01" build="191012">
-				<value name="Count" type="long" data="6"/>
-				<key name="Task1" modified="2020-03-28 23:42:21" build="191012">
+			<key name="Tasks" modified="2020-04-01 17:40:36" build="191012">
+				<value name="Count" type="long" data="8"/>
+				<key name="Task1" modified="2020-04-01 22:09:13" build="191012">
+					<value name="Name" type="string" data="{bash::msys}"/>
+					<value name="Flags" type="dword" data="00000004"/>
+					<value name="Hotkey" type="dword" data="00000000"/>
+					<value name="GuiArgs" type="string" data=' /icon "%CMDER_ROOT%\icons\cmder_purple.ico"'/>
+					<value name="Active" type="long" data="0"/>
+					<value name="Count" type="long" data="1"/>
+					<value name="Cmd1" type="string" data='set temp= &amp; set tmp= &amp; set MSYS2_PATH_TYPE=inherit &amp; set CHERE_INVOKING=1 &amp; set "PATH=%MSYSDIR%\bin;%MSYSDIR%\usr\bin;%PATH%" &amp; %ConEmuDir%\ConEmu\conemu-msys2-64.exe /usr/bin/bash.exe --login -i -new_console:m:""'/>
+				</key>
+				<key name="Task2" modified="2020-04-01 17:37:26" build="191012">
 					<value name="Name" type="string" data="{bash::cygwin}"/>
 					<value name="Flags" type="dword" data="00000004"/>
 					<value name="Hotkey" type="dword" data="00000000"/>
 					<value name="GuiArgs" type="string" data=' /icon "%CMDER_ROOT%\icons\cmder_blue.ico"'/>
 					<value name="Active" type="long" data="0"/>
 					<value name="Count" type="long" data="1"/>
-					<value name="Cmd1" type="string" data='C:\tools\cygwin\Cygwin.bat -c "/bin/xhere /bin/bash.exe &apos;%V&apos;"'/>
+					<value name="Cmd1" type="string" data='C:\tools\cygwin\Cygwin.bat -c "/bin/xhere /bin/bash.exe &apos;%V&apos;" -new_console:m:""'/>
 				</key>
-				<key name="Task2" modified="2020-03-28 23:42:21" build="191012">
+				<key name="Task3" modified="2020-04-01 17:37:26" build="191012">
 					<value name="Name" type="string" data="{bash::wsl}"/>
 					<value name="Flags" type="dword" data="00000000"/>
 					<value name="Hotkey" type="dword" data="00000000"/>
@@ -606,7 +616,7 @@
 					<value name="Count" type="long" data="1"/>
 					<value name="Cmd1" type="string" data='set "PATH=%ConEmuBaseDirShort%\wsl;%PATH%" &amp; %ConEmuBaseDirShort%\conemu-cyg-64.exe --wsl -cur_console:pm:/mnt'/>
 				</key>
-				<key name="Task3" modified="2020-03-28 23:42:21" build="191012">
+				<key name="Task4" modified="2020-04-01 17:37:26" build="191012">
 					<value name="Name" type="string" data="{bash::wsltty}"/>
 					<value name="Flags" type="dword" data="00000000"/>
 					<value name="Hotkey" type="dword" data="00000000"/>
@@ -615,16 +625,25 @@
 					<value name="Count" type="long" data="1"/>
 					<value name="Cmd1" type="string" data='"%LOCALAPPDATA%\wsltty\bin\mintty.exe" --WSL= --configdir="C:\Users\MoHKale\AppData\Roaming\wsltty" -~ '/>
 				</key>
-				<key name="Task4" modified="2020-03-28 23:42:21" build="191012">
+				<key name="Task5" modified="2020-04-01 20:58:01" build="191012">
+					<value name="Name" type="string" data="{bash::msys as Admin}"/>
+					<value name="Flags" type="dword" data="00000004"/>
+					<value name="Hotkey" type="dword" data="00000000"/>
+					<value name="GuiArgs" type="string" data=' /icon "%CMDER_ROOT%\icons\cmder_purple.ico"'/>
+					<value name="Active" type="long" data="0"/>
+					<value name="Count" type="long" data="1"/>
+					<value name="Cmd1" type="string" data='*set MSYS2_PATH_TYPE=inherit &amp; set CHERE_INVOKING=1 &amp; set "PATH=%MSYSDIR%\bin;%MSYSDIR%\usr\bin;%PATH%" &amp; %ConEmuDir%\ConEmu\conemu-msys2-64.exe /usr/bin/bash.exe --login -i -new_console:m:""'/>
+				</key>
+				<key name="Task6" modified="2020-04-01 17:40:36" build="191012">
 					<value name="Name" type="string" data="{bash::cygwin as Admin}"/>
 					<value name="Flags" type="dword" data="00000004"/>
 					<value name="Hotkey" type="dword" data="00000000"/>
 					<value name="GuiArgs" type="string" data=' /icon "%CMDER_ROOT%\icons\cmder_blue.ico"'/>
 					<value name="Active" type="long" data="0"/>
 					<value name="Count" type="long" data="1"/>
-					<value name="Cmd1" type="string" data='*C:\tools\cygwin\Cygwin.bat -c "/bin/xhere /bin/bash.exe &apos;%V&apos;"'/>
+					<value name="Cmd1" type="string" data='*C:\tools\cygwin\Cygwin.bat -c "/bin/xhere /bin/bash.exe &apos;%V&apos;"  -new_console:m:""'/>
 				</key>
-				<key name="Task5" modified="2020-03-28 23:42:01" build="191012">
+				<key name="Task7" modified="2020-04-01 17:40:36" build="191012">
 					<value name="Name" type="string" data="{cmd::Cmder as Admin}"/>
 					<value name="Flags" type="dword" data="00000000"/>
 					<value name="Hotkey" type="dword" data="00000000"/>
@@ -633,7 +652,7 @@
 					<value name="Count" type="long" data="1"/>
 					<value name="Cmd1" type="string" data='*cmd /k ""%ConEmuDir%\..\init.bat" "'/>
 				</key>
-				<key name="Task6" modified="2020-03-28 23:42:01" build="191012">
+				<key name="Task8" modified="2020-04-01 17:40:36" build="191012">
 					<value name="Name" type="string" data="{cmd::Cmder}"/>
 					<value name="Flags" type="dword" data="00000000"/>
 					<value name="Hotkey" type="dword" data="00000000"/>

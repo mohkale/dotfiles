@@ -1,10 +1,12 @@
 - packages:
-    - pacman: python3
+    - msys: python
     - chocolatey: python
+    - pacman: python3
 
 - packages:
     pip:
       - requests
+      - youtube-dl
       - package: RequestMixin
         git: mohkale
       - package: DownloadQueue

@@ -6,37 +6,48 @@
 - bots:
     - ../programs/chocolatey
 
-# setup cygwin, the unix like environment for windows
+# setup msys, the unix like environment for windows
 - packages:
     chocolatey:
-      - package: cygwin
-        params: /NoStartMenu
-      - cyg-get
+      - msys2
 
 - shell:
-    # thanks [[https://unix.stackexchange.com/questions/44677/how-do-i-get-rid-of-cygwins-cygdrive-prefix-in-all-paths][stackoverflow]], you've been a great help :slight-smile:.
-    - description: removing cygdrive prefix
+    - description: setting msys home directory
       quiet: true
       command: |-
-        fstab="$ChocolateyToolsLocation/cygwin/etc/fstab"
-        if ! [ -f "$fstab" ]; then
-          echo "failed to remove cygdrive prefix, /etc/fstab doesn't exist" >&2
-          exit 1
-        fi
-
-        sed -i 's/none \/cygdrive/none \//' "$fstab"
-
-    # thanks Mr. [[https://ryanharrison.co.uk/2015/12/01/cygwin-change-home-directory.html][Ryan Harrison]], this is much nicer than symlinks.
-    - description: setting cygdrive home directory
-      quiet: true
-      command: |-
-        conf_file="$ChocolateyToolsLocation/cygwin/etc/nsswitch.conf"
+        conf_file="c:/tools/msys64/etc/nsswitch.conf"
         if ! [ -f "$conf_file" ]; then
-          echo "failed to set cygdrive user home directory, conf file doesn't exist"
+          echo "failed to set msys user home directory, conf file doesn't exist" >&2
           exit 1
         fi
 
-        sed -i 's/# *db_home: *\/home\/%U/db_home: \/%H/' "$conf_file"
+        sed -i -e 's/db_home: cygwin desc/db_home windows/' "$conf_file"
+
+- packages:
+    msys:
+      - base-devel
+      - make
+      - gcc
+      - mingw-w64-x86_64-gcc
+
+- bots:
+    - ../programs/git
+
+- shell:
+    - description: installing winpty
+      quiet: true
+      command: |-
+        [ -e "c:/tools/msys64/usr/local/bin/winpty.exe" ] && exit 0
+
+        c:/tools/msys64/bin/bash << "EOF"
+        cd $(mktemp -d)
+        git clone https://github.com/rprichard/winpty winpty
+        cd winpty
+
+        export PATH=/mingw64/bin/:$PATH
+        ./configure
+        make install
+        EOF
 
 - bots:
     - ../programs/wsl
