@@ -114,7 +114,7 @@ dP      d push
 dq      d rebase
 # istats every file within my dotfiles repository.
 distat  d ls-tree --full-tree --full-name -r --name-only HEAD   \
-        | awk -v home="$HOME" '{ printf("%s/%s\0", home, $1) }' \
+        | awk -v home="$DOTFILES_REPO_PATH" '{ printf("%s/%s\0", home, $1) }' \
         | xargs -r0 stat -c "%A %08s %n"
 
 
