@@ -3,6 +3,7 @@
       unsafe: true
 
 - packages:
+    apt: neovim
     pacman: neovim
 
 - link:

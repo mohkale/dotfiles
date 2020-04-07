@@ -1,1 +1,4 @@
-[]
+- packages:
+    - apt:
+        # installs add-apt-repository
+        - software-properties-common
