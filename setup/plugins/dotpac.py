@@ -522,6 +522,25 @@ class MsysPackageManager(_PacmanPackageManager):
     filenames = 'pacman.exe'
     sudo = False # windows doesn't have sudo :(
 
-# class AptPackageManager(DotbotPackageManager):
-#     pass
+class AptPackageManager(DotbotPackageManager):
+    name = 'apt'
+    filenames = 'apt'
+
+    def install(self, spec):
+        self.fail_if_not_exists()
+
+        if not self.sudo_validate():
+            return False
+
+        self._log_installing(spec['package'])
+        return self._run_process(
+                ['sudo', self.executable, 'install', spec['package']], spec) == 0
+
+    def update(self):
+        if not self.sudo_validate():
+            return False
+
+        self.lowinfo(f'updating package database for: {self.name}')
+
+        return self._run_process(['sudo', self.executable, 'update'], {'interactive': True}) == 0
 
