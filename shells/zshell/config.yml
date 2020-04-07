@@ -1,4 +1,5 @@
 - packages:
+    - apt: zsh
     - pacman: zsh
 
 - link:

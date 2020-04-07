@@ -5,6 +5,7 @@
     ~/.rvmrc:
 
 - packages:
+    - apt: ruby-full
     - chocolatey:
         - package: ruby
           # setup the ruby installer developement kit (ridk).

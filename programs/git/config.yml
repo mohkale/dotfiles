@@ -1,4 +1,5 @@
 - packages:
+    - apt: git
     - msys: git
     - chocolatey: git
     - pacman: git

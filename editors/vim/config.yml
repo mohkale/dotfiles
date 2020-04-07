@@ -1,4 +1,5 @@
 - packages:
+    - apt: vim
     - msys: vim
     - chocolatey: vim
     # also provides clipboard support

@@ -356,7 +356,7 @@ class PipPackageManager(DotbotPackageManager):
         name: mohkale
     """
     name = 'pip'
-    filenames = 'pip'
+    filenames = ['pip', 'pip3']
 
     def install(self, spec):
         self.fail_if_not_exists()
@@ -534,7 +534,7 @@ class AptPackageManager(DotbotPackageManager):
 
         self._log_installing(spec['package'])
         return self._run_process(
-                ['sudo', self.executable, 'install', spec['package']], spec) == 0
+                ['sudo', self.executable, 'install', '--yes', spec['package']], spec) == 0
 
     def update(self):
         if not self.sudo_validate():

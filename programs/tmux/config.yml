@@ -1,4 +1,5 @@
 - packages:
+    - apt: tmux
     - msys: tmux
     - pacman: tmux
 

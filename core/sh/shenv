@@ -149,6 +149,12 @@ export GOPATH=`lines_to_path $GOPATH <<EOF
 ~/programming/.modules/go
 EOF`
 
+export NODE_PATH=`lines_to_path $NODE_PATH <<EOF
+~/programming/.modules/node
+/usr/lib/nodejs
+/usr/share/nodejs
+EOF`
+
 if [ "$platform" = "windows" ]; then
     for path_var in CLASSPATH PYTHONPATH; do
         # for programs that don't care about the environment,
