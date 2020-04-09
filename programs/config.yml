@@ -4,6 +4,8 @@
       env:  true
     - path: fzf
       env:  true
+    - path: rtorrent
+      env:  true
     - path: st
       env:  true
     - path: konsole

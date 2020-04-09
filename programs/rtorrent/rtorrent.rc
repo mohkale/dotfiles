@@ -1,0 +1,154 @@
+# -*- mode: conf -*-
+
+#      _____                         _
+#  _ _|_   _|__  _ __ _ __ ___ _ __ | |_
+# | '__|| |/ _ \| '__| '__/ _ \ '_ \| __|
+# | |   | | (_) | |  | | |  __/ | | | |_
+# |_|   |_|\___/|_|  |_|  \___|_| |_|\__|
+
+## Configuration Stuff
+method.insert = cfg.home,       private|const|string, (cat,"/home/mohkale/")
+method.insert = cfg.basedir,    private|const|string, (cat,(cfg.home),".config/rtorrent")
+method.insert = cfg.nginx_conf, private|const|string, (cat,(cfg.basedir),"/nginx.conf")
+method.insert = cfg.scripts,    private|const|string, (cat,(cfg.basedir),"/scripts")
+method.insert = cfg.session,    private|const|string, (cat,(cfg.basedir),"/session")
+method.insert = cfg.logs,       private|const|string, (cat,(cfg.basedir),"/logs")
+method.insert = cfg.logfile,    private|const|string, (cat,(cfg.logs),"/rtorrent-",(system.time),".log")
+
+method.insert = cfg.downloads,      private|const|string, (cat,(cfg.home),"downloads")
+method.insert = cfg.downloads_new,  private|const|string, (cat,(cfg.downloads),"/incomplete")
+method.insert = cfg.downloads_done, private|const|string, (cat,(cfg.downloads),"/random")
+method.insert = cfg.watch,          private|const|string, (cat,(cfg.downloads),"/torrents")
+method.insert = cfg.watch_start,    private|const|string, ".start"
+
+## Ensure instance directories exist
+execute.throw = sh, -c, (cat,"mkdir -p ",\
+    "\"",(cfg.downloads_new),"\" ",\
+    "\"",(cfg.downloads_done),"\" ",\
+    "\"",(cfg.logs),"\" ",\
+    "\"",(cfg.session),"\" ",\
+    "\"",(cfg.watch),"/",(cfg.watch_start),"\" ",)
+
+# Listening port for incoming peer traffic (fixed; you can also randomize it)
+network.port_range.set = 50000-50000
+network.port_random.set = no
+
+## Tracker-less torrent and UDP tracker support
+## (conservative settings for 'private' trackers, change for 'public')
+dht.mode.set = disable
+protocol.pex.set = no
+
+trackers.use_udp.set = no
+
+## Peer settings
+throttle.max_uploads.set = 8
+throttle.max_uploads.global.set = 40
+
+throttle.min_peers.normal.set = 40
+throttle.max_peers.normal.set = 52
+
+throttle.min_peers.seed.set = 10
+throttle.max_peers.seed.set = 52
+
+trackers.numwant.set = 80
+
+protocol.encryption.set = allow_incoming,try_outgoing,enable_retry
+
+### Global upload and download rate in KiB `0' for unlimited.
+throttle.global_down.max_rate.set_kb = 2000
+throttle.global_up.max_rate.set_kb   = 300
+
+### Maximum number of simultaneous downloads and uploads slots.
+# throttle.max_downloads.global.set = 15
+# throttle.max_uploads.global.set   = 15
+
+
+## Limits for file handle resources, this is optimized for
+## an `ulimit` of 1024 (a common default). You MUST leave
+## a ceiling of handles reserved for rTorrent's internal needs!
+network.http.max_open.set = 50
+network.max_open_files.set = 600
+network.max_open_sockets.set = 300
+
+## Memory resource usage (increase if you have a large number of items loaded,
+## and/or the available resources to spend)
+pieces.memory.max.set = 1800M
+network.xmlrpc.size_limit.set = 10M
+
+## Basic operational settings (no need to change these)
+session.path.set = (cfg.session)
+directory.default.set = (cfg.downloads_new)
+log.execute = (cat, (cfg.logs), "/execute.log")
+log.xmlrpc = (cat, (cfg.logs), "/xmlrpc.log")
+execute.nothrow = sh, -c, (cat, "echo >",\
+    (session.path), "rtorrent.pid", " ",(system.pid))
+
+## Other operational settings (check & adapt)
+encoding.add = utf8
+system.umask.set = 0027
+system.cwd.set = (directory.default)
+network.http.dns_cache_timeout.set = 25
+schedule2 = monitor_diskspace, 15, 60, ((close_low_diskspace, 1000M))
+
+
+# check hashes of completed files on startup.
+pieces.hash.on_completion.set = yes
+
+#view.sort_current = seeding, greater=d.ratio=
+#keys.layout.set = qwerty
+# network.http.capath.set = "/etc/ssl/certs"
+# network.http.ssl_verify_peer.set = 0
+# network.http.ssl_verify_host.set = 0
+
+
+# Some additional values and commands
+method.insert = system.startup_time, value|const, (system.time)
+method.insert = d.full_path, simple,\
+    "if=(d.is_multi_file),\
+        (cat, (d.directory), /),\
+      (cat, (d.directory), /, (d.name))"
+method.insert = d.session_file, simple, "cat=(session.path), (d.hash), .torrent"
+
+## get the directory name of the path at $0 to
+method.insert = fs.dirname, private|simple, \
+     "execute.capture = sh,-c,\"dirname \\\"\\$@\\\" | tr -d '\\\\n'\",dirname,$argument.0="
+method.insert = fs.basename, private|simple, \
+     "execute.capture = sh,-c,\"basename \\\"\\$@\\\" | tr -d '\\\\n'\",basename,$argument.0="
+
+## See [[https://rtorrent-docs.readthedocs.io/en/latest/cmd-ref.html#d-commands][here]] for a reference of the available commands.
+method.insert = d.dest_path, private|simple, \
+    "execute.capture = (cat,(cfg.scripts),\"/dest-path\"),\
+      (cfg.downloads),(cfg.downloads_done),(cfg.downloads_new),(cfg.watch),\
+      (cat,(cfg.watch),\"/\",(cfg.watch_start)),(d.hash),(d.directory),(d.name),\
+      (d.tied_to_file),(d.is_multi_file)"
+
+## move a completed torrent at $0 to the directory at $1
+### NOTE the find delete command is needed because d.directory.set moves the file
+### but doesn't seem to delete the old one (it just stays behind as an empty file).
+method.insert = fs.move_finished, simple,\
+    "execute = mkdir,-p,$argument.1=; \
+     d.directory.set = $argument.1=; \
+     execute.throw=mv,-u,$argument.0=,$argument.1=; \
+     execute.nothrow=find,$argument.0=,-depth,-empty,-delete; \
+     d.save_full_session="
+method.set_key = event.download.finished,move_complete,"fs.move_finished = $d.full_path=,$d.dest_path="
+
+# Daemon Support
+## Run the rTorrent process as a daemon in the background
+## (and control via XMLRPC sockets)
+#system.daemon.set = true
+#network.scgi.open_local = (cat,(session.path),rpc.socket)
+#execute.nothrow = chmod,770,(cat,(session.path),rpc.socket)
+scgi_port = 127.0.0.1:7866
+
+# ensure the nginx server for the xmlrpc rtorrent interface is running.
+## If it's running, do nothing, else spawn a new nginx instnace
+execute.throw.bg = sh,-c,(cat,"kill -0 \"\$(cat ~/.cache/nginx/nginx.rtorrent.pid)\" || nginx -c \"",(cfg.nginx_conf),"\" -p ~")
+
+## Logging:
+##   Levels = critical error warn notice info debug
+##   Groups = connection_* dht_* peer_* rpc_* storage_* thread_* tracker_* torrent_*
+print = (cat, "Logging to ", (cfg.logfile))
+log.open_file = "log", (cfg.logfile)
+log.add_output = "debug", "log"
+#log.add_output = "tracker_debug", "log"

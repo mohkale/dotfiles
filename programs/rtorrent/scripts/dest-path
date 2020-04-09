@@ -1,0 +1,94 @@
+#!/usr/bin/env python3
+"""Given a completed torrent, determine where to place it.
+
+This script takes a lot of meta variables related to a torrent
+and uses a few different rules to determine the appropriate
+destination for a torrent.
+
+- if a torrent has been downloaded to an unexpected directory (meaning
+  a directory other than the default incomplete downloads directory) then
+  it's left there.
+- if a torrent has been downloading using it's .torrent file to a directory
+  beneath the regular watch (and watch start) directories, then replicate
+  that same directory structure within our download root folder.
+- if a torrent has been downloaded to our incomplete downloads folder, but
+  not at it's root, then copy that directory structure.
+- put in our default destination folder.
+"""
+
+import os
+import argparse
+import pathlib as p
+
+def relative_p(path: p.Path, parent: p.Path):
+    return parent in path.parents
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description="""
+given the following data about a completed torrent, determine
+the directory to which the torrent should be moved.
+"""
+    )
+    parser.add_argument('downloads', metavar='DOWNLOADS', help='downloads root directory')
+    parser.add_argument('default', metavar='DEFAULT', help='default directory to put downloaded files')
+    parser.add_argument('incomplete', metavar='INCOMPLETE', help='directory where downloads are placed')
+    parser.add_argument('watch', metavar='WATCH', help='directory containing watched torrents')
+    parser.add_argument('watch_start', metavar='WATCH_START', help='directory for auto started watch torrents')
+    parser.add_argument('hash', metavar='HASH', help='torrent hash')
+    parser.add_argument('directory', metavar='DIR', help='torrents current parent directory')
+    parser.add_argument('basename', metavar='NAME', help='torrents current parent directory')
+    parser.add_argument('meta', metavar='META', help='path to torrent/meta file for current torrent')
+    parser.add_argument('dirp', metavar='DIRP', help='whether the current torrent is a single file, or multiple files in a directory')
+    args = parser.parse_args()
+    args.dirp = args.dirp == '1'
+
+    # with open('/home/mohkale/foo.finished', 'w') as fd:
+    #     print(str(args), file=fd)
+
+    downloads_root = p.Path(args.downloads)
+    default_dest = p.Path(args.default)
+    downloading_dir = p.Path(args.incomplete)
+    watch_dir = p.Path(args.watch)
+    watch_start_dir = p.Path(args.watch_start)
+
+    # calculate full download path
+    download = p.Path(args.directory)
+    if not args.dirp:
+        download = download / args.basename
+
+    if len(args.meta.strip()) != 0:
+        torrent_file = args.meta
+        if torrent_file.startswith('//'):
+            # weirdly, torrent file seems to start with two slashes on v0.9.6 :cry:.
+            torrent_file = torrent_file[1:]
+
+        torrent_file = p.Path(torrent_file)
+    else:
+        torrent_file = None
+
+    dest = str(default_dest)
+
+    # if torrent is a watch directory torrent, within a subdirectory of the watch directory
+    watched_torrent_p = lambda torrent, watch_dir: relative_p(torrent, watch_dir) and torrent.parent != watch_dir
+
+    if not relative_p(download, downloading_dir):
+        # download isn't in our default download directory, leave it where it is.
+        dest = str(download)
+    else:
+        # when torrent is spawned from a torrent file within the watch directory
+        # excluding the root of the watch (or watch_start) directory.
+        if torrent_file and relative_p(torrent_file, watch_start_dir):
+            if torrent_file.parent != watch_start_dir:
+                relative = torrent_file.parent.relative_to(watch_start_dir)
+                dest = str(downloads_root / relative)
+        elif torrent_file and relative_p(torrent_file, watch_dir):
+            if torrent_file.parent != watch_dir:
+                relative = torrent_file.parent.relative_to(watch_dir)
+                dest = str(downloads_root / relative)
+        # when torrent is downloaded to a subdirectory of our incomplete directory
+        elif download.parent != downloading_dir:
+            relative = download.parent.relative_to(downloading_dir)
+            dest = str(downloads_root / relative)
+
+    print(dest, end='')
