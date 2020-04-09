@@ -1,3 +1,6 @@
+- link:
+    ~/.config/pythonrc.py: pythonrc
+
 - packages:
     - apt:
         - python3
