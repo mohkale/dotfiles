@@ -4,4 +4,6 @@
     - path: login/ly
       env:  true
     - path: plasma
-      env:  true
+      env:
+        - plasma
+        - kde

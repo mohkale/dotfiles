@@ -1,9 +1,11 @@
 [ActivityManager]
 _k_friendly_name=Activity Manager
+switch-to-activity-7f312640-b765-4f55-915f-c562aad56307=none,none,Switch to activity "Default"
 switch-to-activity-fe6f3aa6-fe7e-4f16-87cb-65aa14970923=none,none,Switch to activity "Default"
 
 [KDE Keyboard Layout Switcher]
 Switch keyboard layout to English (UK, Macintosh)=none,none,Switch keyboard layout to English (UK\\, Macintosh)
+Switch keyboard layout to English (US)=none,none,Switch keyboard layout to English (US)
 Switch to Next Keyboard Layout=none,none,Switch to Next Keyboard Layout
 _k_friendly_name=KDE Daemon
 
@@ -23,14 +25,8 @@ _k_friendly_name=KDE Daemon
 display=Display\tMeta+P,Display\tMeta+P,Switch Display
 
 [khotkeys]
-_k_friendly_name=System Settings
-{22feadfd-6078-4e90-a642-1eb28febc973}=Meta+.,none,New Emacs
-{99ba33ca-20aa-4843-81db-cc74f209a5a9}=Meta+Shift+Return,none,Cycle Emacs Backwards
-{a19522af-8eaf-43ce-840d-8e1b645b0bc3}=Ctrl+',none,Toggle Yakuake
-{c9559b43-92e5-4e4d-8014-32a95f139c8d}=Meta+Y,none,screenshot
+_k_friendly_name=KDE Daemon
 {d03619b6-9b3c-48cc-9d9c-a2aadb485550}=,none,Search
-{f30fc2eb-1472-4c9b-982f-68467fc9fc20}=Ctrl+",none,Launch Konsole
-{f8dd916b-9cb6-4bec-897d-fe4a103c30c1}=Meta+Return,none,Cycle Emacs
 
 [kmix]
 _k_friendly_name=Audio Volume
@@ -52,7 +48,7 @@ Lock Session=Meta+L,Meta+L\tCtrl+Alt+L\tScreensaver,Lock Session
 Log Out=none,none,Log Out
 Log Out Without Confirmation=none,none,Log Out Without Confirmation
 Reboot Without Confirmation=Meta+R,none,Reboot Without Confirmation
-_k_friendly_name=System Settings
+_k_friendly_name=ksmserver
 
 [kwin]
 Activate Window Demanding Attention=Meta+Ctrl+A,Ctrl+Alt+A,Activate Window Demanding Attention
@@ -236,7 +232,7 @@ Turn Off Screen=none,none,Turn Off Screen
 _k_friendly_name=Power Management
 
 [plasmashell]
-_k_friendly_name=Activity switching
+_k_friendly_name=Plasma
 activate task manager entry 1=Meta+1,Meta+1,Activate Task Manager Entry 1
 activate task manager entry 10=Meta+0,Meta+0,Activate Task Manager Entry 10
 activate task manager entry 2=Meta+2,Meta+2,Activate Task Manager Entry 2
@@ -247,6 +243,7 @@ activate task manager entry 6=Meta+6,Meta+6,Activate Task Manager Entry 6
 activate task manager entry 7=Meta+7,Meta+7,Activate Task Manager Entry 7
 activate task manager entry 8=Meta+8,Meta+8,Activate Task Manager Entry 8
 activate task manager entry 9=Meta+9,Meta+9,Activate Task Manager Entry 9
+activate widget 3=Alt+F1,none,Activate Application Launcher Widget
 clear-history=none,none,Clear Clipboard History
 clipboard_action=Ctrl+Alt+X,Ctrl+Alt+X,Enable Clipboard Actions
 cycleNextAction=none,none,Next History Item
