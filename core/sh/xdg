@@ -35,6 +35,9 @@ export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
 ## MySQL
 export MYSQL_HISTFILE="$XDG_DATA_HOME"/mysql_history
 
+## Python
+export PYTHONSTARTUP="$XDG_CONFIG_HOME/pythonrc.py"
+
 # Path Management
 if [ "$platform" == "windows" ]; then
     # fix unconverted msys paths which crash some programs

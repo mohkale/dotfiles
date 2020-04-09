@@ -1,0 +1,88 @@
+# -*- mode: python -*- python startup file
+
+import os
+import sys
+from pathlib import Path
+
+histfile = Path('~').expanduser() / '.cache/python_history'
+
+try:
+    import atexit
+    import readline
+
+    if not histfile.parent.exists():
+        histfile.parent.mkdir()
+
+    if histfile.exists():
+        # see [[https://docs.python.org/3/library/readline.html#readline.set_auto_history][here]] for remaining readline methods.
+        readline.read_history_file(histfile)
+
+    readline.set_history_length(1000)
+    atexit.register(readline.write_history_file, histfile)
+except ImportError:
+    pass
+finally:
+    del histfile
+
+_COLORED_TERMS = (
+    'xterm', 'xterm-color', 'xterm-256color',
+    'screen', 'screen-color', 'screen-256color',
+    'st', 'st-color', 'st-256color',
+    'linux', 'screen-bce')
+
+def _generate_color(code):
+    if os.environ.get('TERM') in _COLORED_TERMS:
+        reset = '\001\033[0m\002'
+        code  = '\001\033[%sm\002' % code
+        def generate_color(*strings):
+            return code + ' '.join(strings) + reset
+        return generate_color
+    else:
+        return lambda strings: ' '.join(strings)
+
+class colors:
+    # use a psuedo namespace for colors
+    black       = _generate_color("0;30")
+    red         = _generate_color("0;31")
+    green       = _generate_color("0;32")
+    brown       = _generate_color("0;33")
+    blue        = _generate_color("0;34")
+    purple      = _generate_color("0;35")
+    cyan        = _generate_color("0;36")
+    lightgray   = _generate_color("0;37")
+    darkgray    = _generate_color("1;30")
+    lightred    = _generate_color("1;31")
+    lightgreen  = _generate_color("1;32")
+    yellow      = _generate_color("1;33")
+    lightblue   = _generate_color("1;34")
+    lightpurple = _generate_color("1;35")
+    lightcyan   = _generate_color("1;36")
+    white       = _generate_color("1;37")
+
+del _generate_color
+del _COLORED_TERMS
+
+# [[https://gist.github.com/vierno/977774][source]]: pretty print repr(value) values.
+def _pretty_print_display_hook(value):
+    if value is not None:
+        # assigned by the [[https://docs.python.org/3/library/sys.html#sys.displayhook][default display hook]].
+        try:
+            import __builtin__
+            __builtin__._ = value
+        except ImportError:
+            __builtins__._ = value
+
+        import pprint
+        pprint.pprint(value)
+        del pprint
+
+sys.displayhook = _pretty_print_display_hook
+
+sys.ps1 = colors.green('>>> ')
+sys.ps2 = colors.red('... ')
+
+# cleanup the python namespace
+del Path
+del os
+del sys
+del colors
