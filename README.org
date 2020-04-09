@@ -60,5 +60,7 @@
    - On windows, [[https://chocolatey.org/][chocolatey]] doesn't seem to like installation when stderr is the null
      device. The only workaround as of now is to run ~./install~ with the ~-v~ flag
      (or to configure chocolatey to always output).
-   - for those using windows, don't order linux package managers before windows ones.
-     msys uses the pacman package manager... and so does linux :(.
+   - for those using windows, make sure to order the msys package manager before pacman.
+     msys uses the pacman package manager... and so does arch; meaning if your pacman
+     packages come before your msys ones, the pacman packages will be installed even when
+     you're on windows.
