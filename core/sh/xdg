@@ -22,9 +22,6 @@ export LESSHISTFILE="$XDG_CACHE_HOME/less/history"
 ## Node
 export NODE_REPL_HISTORY="$XDG_DATA_HOME/node_repl_history"
 
-## Xorg
-export XAUTHORITY="$XDG_RUNTIME_DIR/Xauthority"
-
 ## Bash
 export HISTFILE="$XDG_DATA_HOME/bash/history"
 
