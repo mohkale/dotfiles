@@ -1,0 +1,25 @@
+# -*- shell-script -*-
+###########################
+# xbindkeys configuration #
+###########################
+#
+# Version: 1.8.6
+#
+
+#keystate_numlock = enable
+#keystate_capslock = enable
+#keystate_scrolllock= enable
+
+"emacs-cycle"
+  Mod4 + Return + Release
+
+"emacs-cycle-reverse"
+  Mod4 + Shift + Return + Release
+
+"emacs-make-frame"
+  Mod4 + period
+
+"st"
+  Control + Shift + apostrophe
+
+# NOTE: you can force reload of this config by running `killall -HUP xbindkeys`

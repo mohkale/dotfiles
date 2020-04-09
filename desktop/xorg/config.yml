@@ -1,10 +1,16 @@
 - link:
     ~/.Xresources:
+    ~/.config/xbindkeys/config:
+        path: xbindkeysrc
+        create: true
 
 - packages:
     pacman:
       - xorg
       - xorg-xinit
+      - xbindkeys
+      - wmctrl
+      - xdotool
 
 - shell:
     - description: Installing Graphics Drivers for Xorg
