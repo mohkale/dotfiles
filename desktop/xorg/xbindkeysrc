@@ -22,4 +22,7 @@
 "st"
   Control + Shift + apostrophe
 
+"spawn-term fzf-dmenu"
+  Mod4 + bracketleft + Release
+
 # NOTE: you can force reload of this config by running `killall -HUP xbindkeys`

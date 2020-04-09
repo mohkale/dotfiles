@@ -1,0 +1,12 @@
+- packages:
+    - pacman: fzf
+
+- bots:
+    - path: ../../langs/go
+      unsafe: true
+
+- packages:
+    go: github.com/oem/lnch
+
+- link:
+    ~/programming/scripts/fzf-dmenu:
