@@ -533,8 +533,18 @@ class AptPackageManager(DotbotPackageManager):
             return False
 
         self._log_installing(spec['package'])
-        return self._run_process(
-                ['sudo', self.executable, 'install', '--yes', spec['package']], spec) == 0
+
+        manual = spec['manual']
+        if manual:
+            # manual installation specified
+            if isinstance(manual, str):
+                manual = {'command': manual}
+
+            shell = os.environ.get('SHELL') or 'sh'
+            return run_process([shell, '-c', manual['command']], manual) == 0
+        else:
+            return self._run_process(
+                    ['sudo', self.executable, 'install', '--yes', spec['package']], spec) == 0
 
     def update(self):
         if not self.sudo_validate():
@@ -544,3 +554,7 @@ class AptPackageManager(DotbotPackageManager):
 
         return self._run_process(['sudo', self.executable, 'update'], {'interactive': True}) == 0
 
+    def populate_spec(self, spec, cwd, defaults):
+        spec = super().populate_spec(spec, cwd, defaults)
+        spec.setdefault('manual', None)
+        return spec
