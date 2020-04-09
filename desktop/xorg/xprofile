@@ -1,0 +1,2 @@
+# -*- mode: sh -*-
+xbindkeys -f "$XDG_CONFIG_HOME/xbindkeys/config"

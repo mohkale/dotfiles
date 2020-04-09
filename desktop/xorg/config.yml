@@ -1,5 +1,7 @@
 - link:
     ~/.Xresources:
+    ~/.xinitrc: xinitrc
+    ~/.xprofile: xprofile
     ~/.config/xbindkeys/config:
         path: xbindkeysrc
         create: true
