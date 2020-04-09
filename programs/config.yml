@@ -1,5 +1,7 @@
 - bots:
-    - path: git
+    - git
+    - path: dolphin
+      env:  true
     - path: st
       env:  true
     - path: konsole

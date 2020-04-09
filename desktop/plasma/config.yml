@@ -9,3 +9,7 @@
 - packages:
     pacman:
       - plasma-meta
+
+- bots:
+    - path: ../../programs/dolphin
+      unsafe: true
