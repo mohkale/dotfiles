@@ -151,7 +151,7 @@ class SubBotPlugin(LogMixin, dotbot.Plugin):
         if spec['cache']:
             self._cached_subbots.append(path)
 
-        self.info('invoking subbot %s (from %s)' % (name, path))
+        self.lowinfo('invoking subbot %s (from %s)' % (name, path))
 
         return self._invoke_subbot(spec, path, config)
 

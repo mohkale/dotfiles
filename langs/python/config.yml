@@ -17,6 +17,7 @@
     pip:
       - requests
       - youtube-dl
+      - beautifulsoup4
       - package: RequestMixin
         git: mohkale
       - package: DownloadQueue

@@ -11,13 +11,12 @@
 - create:
     - ~/downloads
     - ~/multifolder
-    - ~/multimedia
     - ~/multimedia/images
     - ~/multimedia/videos
     - ~/multimedia/music
-    - ~/programming
     - ~/programming/misc
     - ~/programming/repos
+    - ~/OS/desktop
     - ./setup/cache
     - ~/.local/share/man
     - ~/.local/share/info
