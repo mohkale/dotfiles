@@ -5,6 +5,7 @@
 - link:
     ~/programming/scripts/vipe: vipe
     ~/programming/scripts/image2ascii: image2ascii
+    ~/programming/scripts/fp: file-path
     ~/programming/scripts/private:
       path: private/*
       glob: true

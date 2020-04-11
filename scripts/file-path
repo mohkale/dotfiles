@@ -1,0 +1,82 @@
+#!/usr/bin/env python3
+# Allow cut like operations in bash
+#
+# This script takes a bunch of paths, makes them absolute, then
+# prints them back out in a way that's safe to insert into a
+# command line.
+#
+# eg.
+#
+#   $ cd ~/downloads/incomplete/
+#   $ ls
+#   file-a 'file b'
+#   $ file-path | clip # you can past the fp back out using Ctrl-Shift-V
+#   $ cd ~/
+#   $ mv ~/downloads/incomplete/file-a ~/downloads/incomplete/file\ b .
+#
+# by default this script just prints out all the files in the current
+# working directory, run `file-path -h` for a list of available options.
+#
+
+import os
+import sys
+import shlex
+
+if __name__ == '__main__':
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        add_help=False,
+        description='prints input paths shell escaped and in absolute form.')
+    parser.add_argument('-h', '--help', action='store_true', help='show this help message and exit.')
+    parser.add_argument('paths', metavar='PATH', nargs='*', help='paths to print back out.')
+    parser.add_argument('-c', '--cd', dest='cwd', metavar='DIR', help='set working directory to DIR.')
+    parser.add_argument('-o', '--output', metavar='DIR', help='set parent of all relative paths to DIR.')
+    parser.add_argument('-i', '--ignore-warnings', action='store_true',
+                        help="print input paths, even if they don't exist.")
+
+    file_type_group = parser.add_mutually_exclusive_group()
+    file_type_group.add_argument('-f', '--only-files', action='store_true', help='print only files.')
+    file_type_group.add_argument('-d', '--only-dirs', action='store_true', help='print only directories.')
+
+    args = parser.parse_args()
+    if args.help:
+        parser.print_help()
+        sys.exit(1)
+
+    if args.cwd:
+        if not os.path.exists(args.cwd) or not os.path.isdir(args.cwd):
+            parser.error('unable to locate directory: ' + args.cwd)
+        os.chdir(args.cwd)
+
+    if not args.output:
+        args.output = os.getcwd()
+
+    if len(args.paths) == 0:
+        args.paths = os.listdir(os.getcwd())
+
+    if args.only_files:
+        args.paths = [f for f in args.paths if os.path.isfile(f)]
+    if args.only_dirs:
+        args.paths = [f for f in args.paths if os.path.isdir(f)]
+
+    first = True
+    for path in args.paths:
+        if not os.path.exists(path):
+            print('warning, unable to locate input path: ' + path, file=sys.stderr)
+
+            if not args.ignore_warnings:
+                continue
+
+        if not os.path.isabs(path):
+            path = os.path.join(args.output, path)
+        path = os.path.realpath(path)
+
+        if not first: print(' ', end='')
+        print(shlex.quote(path), end='')
+        first = False
+
+    if sys.stdout.isatty():
+        # when run interactively, leave a trailing
+        # line break to make it easier to read.
+        print()
