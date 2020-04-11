@@ -14,6 +14,14 @@
       - wmctrl
       - xdotool
 
+- bots:
+    - path: ../../langs/go
+      unsafe: true
+    - scripts
+
+- packages:
+    go: github.com/oem/lnch
+
 - shell:
     - description: Installing Graphics Drivers for Xorg
       quiet: true
