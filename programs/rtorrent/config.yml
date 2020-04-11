@@ -1,0 +1,131 @@
+- link:
+    ~/.config/rtorrent/rtorrent.rc: rtorrent.rc
+    ~/.config/rtorrent/nginx.conf: nginx.conf
+    ~/.cache/flood/.secret:
+      path: secret
+      create: true
+      ignore-missing: true
+
+- create:
+    - ~/.config/nginx
+
+- bots:
+    - path: ../tmux
+      unsafe: true
+    - scripts
+
+- packages:
+    pip:
+      - inotify
+
+- packages:
+    - apt:
+        - nginx
+        - libxmlrpc-core-c3-dev
+        - libxmlrpc-c++8-dev
+        - libcurl4-openssl-dev
+        # Extensive Install List From [[https://github.com/rakshasa/rtorrent/issues/618][here]].
+        - libssl-dev
+        - zlib1g-dev
+        - libncurses-dev
+        # I really miss pacman :cry:.
+        - package: libtorrent-dev
+          manual: |-
+            [ -z "$(ldconfig -p | grep libtorrent)" ] || exit 0 # already installed
+            lt_url='https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/libtorrent/0.13.8-2build1/libtorrent_0.13.8.orig.tar.gz'
+            cd "$(mktemp -d)"
+            curl -L -o ./lt.tar.gz "$lt_url"
+            tar -xzvf ./lt.tar.gz
+            cd libtorrent-0.13.8
+            if ! ./autogen.sh; then
+              echo "failed to generate configure script" >&2
+              exit 1
+            fi
+
+            if ! ./configure --with-xmlrpc-c; then
+              echo "failed to configure makefile" >&2
+              exit 1
+            fi
+
+            if ! make; then
+              echo "failed to make libtorrent" >&2
+              exit 1
+            fi
+
+            sudo make install && sudo ldconfig
+        - package: rtorrent
+          manual: |-
+            [ -z "$(which rtorrent)" ] || exit 0 # already installed
+            cd "$(mktemp -d)"
+            if ! git clone 'https://github.com/rakshasa/rtorrent' .; then
+              echo 'failed to clone rtorrent repository' >&1
+              exit 1
+            fi
+
+            if ! ./autogen.sh; then
+              echo "failed to generate configure script" >&2
+              exit 1
+            fi
+
+            if ! ./configure --with-xmlrpc-c; then
+              echo "failed to configure makefile" >&2
+              exit 1
+            fi
+
+            if ! make; then
+              echo "failed to make libtorrent" >&2
+              exit 1
+            fi
+
+            sudo make install
+        - mediainfo
+
+- bots:
+    path: ../../langs/node
+    unsafe: true
+
+- shell:
+    - description: Installing the Flood rtorrent frontend
+      quiet: true
+      command: |-
+        dest=$HOME/.cache/flood
+
+        if [ -e "$dest/config.js" ]; then
+          exit 0 # flood has already been installed
+        fi
+
+        config=$(pwd)/floodrc
+        if ! [ -r floodrc ]; then
+          echo "config file not found: $config" >&2
+          exit 1
+        fi
+
+        # generate a new random secret, to replace the default
+        python3 -c '
+        import random, string
+        characters = string.ascii_letters + string.digits
+        SECRET_LENGTH = 256
+        print("".join(random.SystemRandom().choice(characters) for _ in range(SECRET_LENGTH)))
+        ' > secret
+
+        # change to the destination directory and install all dependencies.
+        if ! cd $dest; then
+          echo "failed to change to the destination directory: $dest" >&2
+          exit 1
+        fi
+
+        origin="https://github.com/Flood-UI/flood"
+        git init
+        git remote add origin "$origin"
+        git fetch
+        git checkout -t origin/master -f
+
+        if ! yarnpkg install --verbose --network-timeout 100000000; then
+          echo "failed to install node dependencies"
+          exit 1
+        fi
+
+        ln -s "$config" "config.js"
+        yarnpkg run build
+
+        # now you can start flood using `yarn run` in the current directory

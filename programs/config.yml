@@ -1,5 +1,13 @@
 - bots:
-    - path: git
+    - git
+    - path: dolphin
+      env:  true
+    - path: fzf
+      env:  true
+    - path: transmission
+      env:  true
+    # - path: rtorrent
+    #   env:  true
     - path: st
       env:  true
     - path: konsole

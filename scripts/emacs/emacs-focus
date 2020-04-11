@@ -5,35 +5,21 @@
 
 emacs_windows=$(emacs-frames) # all the open emacs frames
 
-# default settings
-create_frame_when_none_found=0
-filter_by_desktop=1 # when true, only frames in current dekstop are focused
-toggle_backwards=0 # go backwards in emacs window list instead of forwards
+print_usage() {
+    echo "$0 [-h] [-a] [-b] [-c]"
+}
 
-#region parse args
-if [ $# -gt 0 ]; then
-    for argument in "$@"; do
-        case "${argument}" in
-        "--all-desktops" | "-a")
-            filter_by_desktop=0
-            ;;
-        "--backwards" | "-b")
-            toggle_backwards=1
-            ;;
-        "--create" | "-c")
-            create_frame_when_none_found=1
-            ;;
-        "--help" | "-h")
-            echo "$0 [--all-desktops] [--backwards] [--create]" >&2
-            exit 1
-            ;;
-        *) # default
-            notify-send "toggle-emacs::unknown-flag() : ${argument}"
-            ;;
-        esac
-    done
-fi
-#endregion
+while getopts 'abch' OPTION; do
+    case "$OPTION" in
+        a) filter_by_desktop=0 ;;
+        b) toggle_backwards=1 ;;
+        c) create_frame=1 ;;
+        h) print_usage
+           exit 0 ;;
+        \?) print_usage >&2
+           exit 0 ;;
+    esac
+done
 
 get_next_emacs_frame() { #(active_window_wid)
     # retrieves the wmctrl row entry for the next emacs window
@@ -41,7 +27,7 @@ get_next_emacs_frame() { #(active_window_wid)
     # backwards and makes sure to wrap around to the first or
     # last known window when the end or beginning is reached.
 
-    if [ ${toggle_backwards} -eq 1 ]; then
+    if [ "${toggle_backwards:-0}" -eq 1 ]; then
         awk_script='{ print prev; exit }; { prev=$0 }' # print previous or empty
         wraparound_command="tail -n 1" # back to bottom when top of list reached
     else
@@ -54,13 +40,13 @@ get_next_emacs_frame() { #(active_window_wid)
 }
 
 if [ -z "$emacs_windows" ]; then
-    [ "$create_frame_when_none_found" -eq 1 ] && emacs-make-frame
+    [ "${create_frame:-0}" -eq 1 ] && emacs-make-frame
     # begin in current dekstop when there's no frame to toggle
 else
     active_desktop=$(wmctrl -d | grep -P '\*' | cut -d ' ' -f 1)
     in_current_desktop=$(<<< "$emacs_windows" awk -e '$2 == '${active_desktop})
 
-    if [ "$filter_by_desktop" -eq 1 -a ! -z "$in_current_desktop" ]; then
+    if [ "${filter_by_desktop:-1}" -eq 1 -a ! -z "$in_current_desktop" ]; then
         # only work on those in current desktop when a frame in this desktop exists & filter_by_desktop is true
         emacs_windows=$in_current_desktop
     fi

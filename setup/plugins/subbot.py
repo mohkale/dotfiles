@@ -96,6 +96,14 @@ class SubBotPlugin(LogMixin, dotbot.Plugin):
                     exit_status &= self._process(spec)
         return exit_status
 
+    def _name_from_spec(self, spec, path, config):
+        if spec['config'] == os.path.basename(config):
+            name = os.path.basename(path)
+        else:
+            path = os.path.dirname(config)
+            name = os.path.splitext(os.path.basename(config))[0]
+        return path, name
+
     def _process(self, spec: Dict[str, str]):
         """process a well formed subbot spec."""
         if 'path' not in spec:
@@ -114,17 +122,21 @@ class SubBotPlugin(LogMixin, dotbot.Plugin):
         if path in self._cached_subbots:
             return True
 
-        if spec['config'] == os.path.basename(config):
-            name = os.path.basename(path)
-        else:
-            path = os.path.dirname(config)
-            name = os.path.splitext(os.path.basename(config))[0]
+        path, name = self._name_from_spec(spec, path, config)
 
         if spec['env']:
-            if not isinstance(spec['env'], str):
-                spec['env'] = name
+            if not isinstance(spec['env'], list):
+                spec['env'] = [spec['env']]
 
-            if spec['env'] and not self.allowed_bot(spec['env']):
+            allowed = False
+            for env in spec['env']:
+                if not isinstance(env, str):
+                    env = name
+
+                if self.allowed_bot(env):
+                    allowed = True
+                    break
+            if not allowed:
                 self.warn('subbot %s skipped because of DOTBOTS' % name)
                 return True
 
@@ -139,7 +151,7 @@ class SubBotPlugin(LogMixin, dotbot.Plugin):
         if spec['cache']:
             self._cached_subbots.append(path)
 
-        self.info('invoking subbot %s (from %s)' % (name, path))
+        self.lowinfo('invoking subbot %s (from %s)' % (name, path))
 
         return self._invoke_subbot(spec, path, config)
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 shell_path=$(dirname $0)
-cycle_flags="--all-desktops --backwards"
+cycle_flags="-acb"
 
 if [ -z "${shell_path}" ]; then
     emacs-focus $cycle_flags

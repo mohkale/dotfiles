@@ -10,3 +10,5 @@
         cd "$(mktemp -d)" || exit 1
         git clone 'https://aur.archlinux.org/yay.git' .
         makepkg -i --syncdeps --rmdeps --noconfirm
+
+- bots: linux

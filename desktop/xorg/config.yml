@@ -1,10 +1,26 @@
 - link:
     ~/.Xresources:
+    ~/.xinitrc: xinitrc
+    ~/.xprofile: xprofile
+    ~/.config/xbindkeys/config:
+        path: xbindkeysrc
+        create: true
 
 - packages:
     pacman:
       - xorg
       - xorg-xinit
+      - xbindkeys
+      - wmctrl
+      - xdotool
+
+- bots:
+    - path: ../../langs/go
+      unsafe: true
+    - scripts
+
+- packages:
+    go: github.com/oem/lnch
 
 - shell:
     - description: Installing Graphics Drivers for Xorg

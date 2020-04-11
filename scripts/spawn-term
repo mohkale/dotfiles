@@ -1,0 +1,52 @@
+#!/usr/bin/sh
+# creates a new floating terminal for interactive program execution.
+
+# forked from: https://github.com/oem/dotfiles/blob/master/fuzzy/fuzzy_win
+if [ "$#" -eq 0 ]; then
+    echo "spawn-term: error requires an execution argument" >&2
+    exit 1
+fi
+
+print_usage() {
+    echo "$0 [-h|-?] [-r ROWS] [-c COLS] [-n NAME] CMD [...ARGS]"
+}
+
+rows=30
+cols=15
+window_name="URxvtFuzzy"
+
+while getopts 'hr:c:n:' OPTION; do
+    case "$OPTION" in
+        h) print_usage
+           exit 0 ;;
+        \?) print_usage >&2
+            exit 0 ;;
+        r) rows=$OPTARG
+           ;;
+        c) cols=$OPTARG
+           ;;
+        n) window_name=$OPTARG
+           ;;
+        *) print_usage >&2
+           exit 1
+           ;;
+    esac
+done
+
+geometry="${rows}x${cols}+400+1"
+
+urxvt_cmd() {
+    # spawn through the urxvtd daemon when active, or just urxvt
+    urxvtc -name "$window_name" -geometry "$geometry" -e "$@" ||
+    urxvt  -name "$window_name" -geometry "$geometry" -e "$@"
+}
+
+st_cmd() { st -n "$window_name" -g "$geometry" -e "$@"; }
+
+sh_command=st_cmd
+
+# search for running terminal, if so hide it
+xdotool search --onlyvisible --classname "$window_name" windowunmap \
+    || xdotool search --classname "$window_name" windowmap          \
+    || $sh_command "$@"
+

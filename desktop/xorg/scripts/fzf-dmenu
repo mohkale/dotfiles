@@ -1,0 +1,20 @@
+#!/usr/bin/sh
+# interactively select program to execute using fzf. [[https://github.com/oem/dotfiles/blob/master/launch/cmdlist][source]]
+
+print_usage() { echo "$0 [-h] [-p PATH]"; }
+
+while getopts 'hp'; do
+    case "$OPTION" in
+        h) print_usage
+           exit 0 ;;
+        p) PATH=$OPTARG
+           ;;
+        \?) print_usage >&2
+            exit 0 ;;
+    esac
+done
+
+echo -n "$PATH" |
+    xargs -d: -I'{}' -r -- \
+      find -L '{}' -maxdepth 1 -mindepth 1 -type f -executable -printf '%P\n' 2>/dev/null |
+    sort -u | fzf --reverse --border | xargs -r lnch

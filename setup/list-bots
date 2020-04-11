@@ -96,9 +96,14 @@ if __name__ == '__main__':
             return True
 
         def _invoke_subbot(self, spec, path, config):
-            if spec['env'] and not spec['env'] in self.discovered:
-                self.discovered.append(spec['env'])
-                print(spec['env'])
+            if spec['env']:
+                for env in spec['env']:
+                     if not isinstance(env, str):
+                        env = self._name_from_spec(spec, path, config)[1]
+
+                     if env not in self.discovered:
+                         self.discovered.append(env)
+                         print(env)
 
             cwd = self._context._base_directory
             try:

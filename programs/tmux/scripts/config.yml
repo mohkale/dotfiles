@@ -1,4 +1,5 @@
 - link:
-    ~/.tmux/scripts/:
-      path: "*.tsh"
-      glob: true
+    ~/.tmux/scripts/attach-session:
+    ~/.tmux/scripts/manage-windows:
+    ~/.tmux/scripts/run-binding:
+    ~/.tmux/scripts/run-command:

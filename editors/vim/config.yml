@@ -28,4 +28,4 @@
           curl -fLo "$autoload_path" --create-dirs "$autoload_url"
         fi
 
-        vim -c :PlugInstall -c ':qa!'
+        vim -n -e +PlugInstall +qall!

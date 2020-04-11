@@ -1,0 +1,8 @@
+- packages:
+    - pacman:
+        - ripgrep
+        - lsof
+        - adobe-source-code-pro-fonts
+        - noto-fonts
+        - bdf-unifont
+        - fzf
