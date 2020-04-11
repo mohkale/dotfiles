@@ -1,0 +1,104 @@
+#!/usr/bin/env bash
+# Tmux control center for the transmission bitorrent client.
+#
+# this script constructs a Tmux session with windows for the
+# transmission daemon (and other control utilities), and then
+# attaches the current tty to it.
+#
+# If a transmission daemon is already running, no new daemon
+# will be created.
+
+print_usage() {
+    echo "tortrans version: 0.0.1"
+    echo "control center for the transmission bittorrent client"
+    echo ""
+    echo "Usage: $(basename "$0") [-h]"
+    echo ""
+    echo "Options:"
+    echo " -h         display this help message and exit"
+    echo " -r         don't attach to Tmux session"
+}
+
+session_name='tortrans'
+
+while getopts 'hAt' OPTION; do
+    case "$OPTION" in
+        h) print_usage
+           exit 0 ;;
+        \?) print_usage >&2
+            exit 1 ;;
+        A) attach=0 ;;
+    esac
+done
+
+function session_exists() {
+    while read id name; do
+        if [ "$name" = "$session_name" ]; then
+            echo "$id"
+            return 0
+        fi
+    done < <(tmux ls -F '#{session_id} #S' 2>/dev/null)
+
+    return 1 # failed to find active tmux session with the desired name :sad:.
+}
+
+function create_session() {
+    if ! tmux new-session -d -s "$session_name"; then
+        echo 'failed to spawn new session for transmission' >&2
+        exit 1
+    fi
+
+    new_session_p=1
+}
+
+if ! session_exists >/dev/null && ! create_session; then exit 1; fi
+
+session_id="$(session_exists)"
+
+config_dir="$HOME/.config/transmission-daemon"
+cache_dir="$HOME/.cache/transmission"
+
+mkdir -p "$config_dir" "$cache_dir"
+
+if [ "$(tmux list-windows | wc -l)" -lt 2 ]; then
+    tmux new-window -t "$session_id" && tmux select-window -t "$session_id:1.1"
+fi
+
+function list-panes() { #(window_id)
+    tmux list-panes -t "$session_id:$1" -F '#{pane_index} #{pane_pid}'
+}
+
+function grep_pane_children() { # (window-id, pane-id, regexp)
+    while read pane_index pid; do
+        if pgrep --parent "$pid" "$3" >/dev/null; then
+            echo "$pane_index $pid"
+            return 0
+        fi
+    done < <(list-panes "$1" | grep "^$2 ")
+
+    return 1
+}
+
+if [ "$(wc -l < <(list-panes 2))" -lt 2 ]; then
+    if ! tmux split-window -p 20 -h -t "$session_id:2"; then
+        echo 'failed to split window 2 into two commands'
+    fi
+    window_1_panes=$(list-panes 1)
+fi
+
+if ! grep_pane_children 2 1 'transmission' >/dev/null; then
+    tmux send-keys -t "$session_name:2.1" -- 'stdbuf -oL transmission-daemon --foreground --log-error --log-info --log-debug | tee -a "'"$cache_dir/transmission.log"'"' Enter
+    tmux rename-window -t "$session_name:2.1" "daemon"
+fi
+
+if ! grep_pane_children 2 2 'watcher' >/dev/null; then
+    tmux send-keys -t "$session_name:2.2" -- 'stdbuf -oL "'"$config_dir"'/scripts/watcher" -lDEBUG "'"$config_dir"'/watcher.json" | tee -a "'"$cache_dir"'/watcher.log"' Enter
+    tmux rename-window -t "$session_name:2.2" "watcher"
+fi
+
+if ! grep_pane_children 1 1 'tremc' >/dev/null; then
+    tmux send-keys -t "$session_name:1.1" -- tremc Enter
+    tmux rename-window -t "$session_name:1.1" "interface"
+fi
+
+[ "${attach:-1}" -eq 1 ] && tmux attach-session -t "$session_id"
