@@ -1,0 +1,5 @@
+# -*- mode: python -*- pdb(1) config file
+
+# Execute non-pdb commands.
+import os
+exec(open(os.path.expanduser("~/.config/pdbrc.py"), 'r').read())

@@ -1,5 +1,7 @@
 - link:
     ~/.config/pythonrc.py: pythonrc
+    ~/.pdbrc:
+    ~/.config/pdbrc.py:
 
 - packages:
     - apt:
@@ -7,7 +9,9 @@
         - python3-pip
     - msys: python
     - chocolatey: python
-    - pacman: python3
+    - pacman:
+      - python3
+      - python-pip
 
 - packages:
     pip:
