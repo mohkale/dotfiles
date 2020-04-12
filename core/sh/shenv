@@ -165,6 +165,9 @@ if [ "$platform" = "windows" ]; then
     done
 
     export GEM_HOME=$(cygpath --mixed "$GEM_HOME")
+
+    # proper symlinks, not that wibbly wobbley copy paste
+    export MSYS=winsymlinks:nativestrict
 fi
 
 unset -f lines_to_path # thank you, good bye

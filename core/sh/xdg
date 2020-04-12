@@ -39,7 +39,7 @@ export MYSQL_HISTFILE="$XDG_DATA_HOME"/mysql_history
 export PYTHONSTARTUP="$XDG_CONFIG_HOME/pythonrc.py"
 
 # Path Management
-if [ "$platform" == "windows" ]; then
+if [ "$platform" = "windows" ]; then
     # fix unconverted msys paths which crash some programs
     for var in IRBRC SOLARGRAPH_CACHE BUNDLE_USER_CONFIG \
                BUNDLE_USER_CACHE BUNDLE_USER_PLUGIN; do
