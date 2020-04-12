@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 # vipe - edit pipe
 # reimplementation of moreutils vipe in shell script.
 # why? because I h8 perl :P.
@@ -58,7 +58,7 @@ while getopts 'h?f:iIt:e:skq' option; do
     esac
 done
 
-VIPE_TMPDIR="${VIPE_TMPDIR:-$TMPDIR}"
+VIPE_TMPDIR="${VIPE_TMPDIR:-${TMPDIR:-/tmp/}}"
 [ ! -d "$VIPE_TMPDIR" ] && mkdir -p "$VIPE_TMPDIR"
 
 editor="${VISUAL:-${EDITOR:-vi}}" # default is vi
