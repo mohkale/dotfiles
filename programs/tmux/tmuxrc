@@ -23,7 +23,7 @@ bind C-Space send-prefix
 bind Space command-prompt
 
 # reload my configuration
-bind r source ~/.tmux.conf \; display-message "Config reloaded..."
+bind r source "$TMUX_HOME/tmuxrc" \; display-message "Config reloaded..."
 
 # move between panes
 bind h   select-pane -L
@@ -129,11 +129,11 @@ set -g status-right-length 40
 set -g status-right-style default
 
 # script bindings
-bind C-a run "~/.tmux/scripts/attach-session.tsh"
-bind M-a run "~/.tmux/scripts/manage-windows.tsh -s"
-bind C-b run "~/.tmux/scripts/run-binding.tsh -rpv"
-bind C-c run "~/.tmux/scripts/run-command.tsh"
-bind M-x run "~/.tmux/scripts/manage-windows.tsh"
-bind C-x run "~/.tmux/scripts/manage-windows.tsh -i"
+bind C-a run "$TMUX_HOME/scripts/attach-session"
+bind M-a run "$TMUX_HOME/scripts/manage-windows -s"
+bind C-b run "$TMUX_HOME/scripts/run-binding -rpv"
+bind C-c run "$TMUX_HOME/scripts/run-command"
+bind M-x run "$TMUX_HOME/scripts/manage-windows"
+bind C-x run "$TMUX_HOME/scripts/manage-windows -i"
 
 bind Enter set-window-option mouse # for some reason, can only be bound at EOF

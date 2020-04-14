@@ -4,15 +4,11 @@
     - pacman: tmux
 
 - link:
-    ~/.tmux/tmuxrc: tmuxrc
+    ~/.config/tmux/tmuxrc: tmuxrc
+    ~/.tmux.conf: tmuxrc
+
+- create:
+    - ~/.cache/tmux
 
 - bots:
     - scripts
-
-- create:
-    - ~/.tmux/tmp
-
-- populate:
-    - path: ~/.tmux.conf
-      body: source-file ~/.tmux/tmuxrc
-      skip: True
