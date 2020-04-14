@@ -21,7 +21,19 @@
           exit 1
         fi
 
-        sed -i -e 's/db_home: cygwin desc/db_home windows/' "$conf_file"
+        sed -i -e 's/db_home: cygwin desc/db_home: windows/' "$conf_file"
+
+- shell:
+    - description: allowing windows PATH inheritance
+      quiet: true
+      command: |-
+        conf_file="c:/tools/msys64/msys2_shell.cmd"
+        if ! [ -f "$conf_file" ]; then
+          echo "failed to set PATH inheritance, conf file doesn't exist" >&2
+          exit 1
+        fi
+
+        sed -i -e 's/rem \(set MSYS2_PATH_TYPE=inherit\)/\1/' "$conf_file"
 
 - packages:
     msys:
@@ -39,7 +51,7 @@
       command: |-
         [ -e "c:/tools/msys64/usr/local/bin/winpty.exe" ] && exit 0
 
-        c:/tools/msys64/bin/bash << "EOF"
+        c:/tools/msys64/usr/bin/env bash << "EOF"
         cd $(mktemp -d)
         git clone https://github.com/rprichard/winpty winpty
         cd winpty

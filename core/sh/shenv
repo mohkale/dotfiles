@@ -168,6 +168,10 @@ if [ "$platform" = "windows" ]; then
 
     # proper symlinks, not that wibbly wobbley copy paste
     export MSYS=winsymlinks:nativestrict
+
+    # fix annoying issues with chocolatey mixing up windows
+    # temp variables and msys ones.
+    unset tmp temp
 fi
 
 unset -f lines_to_path # thank you, good bye
