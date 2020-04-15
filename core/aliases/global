@@ -42,7 +42,7 @@ cls    clear
 ee      emacsclient --no-wait --suppress-output # emacs dispatch
 ex      emacs
 sx      smacs
-et      bash -c 'cd ~/.emacs.d && ./bin/tangle -i'
+et      bash -c 'cd ~/.emacs.d && ./bin/tangle -i -d hydras.org'
 etsx    et && sx
 
 # TMUX
