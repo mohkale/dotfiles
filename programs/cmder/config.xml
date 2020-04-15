@@ -10,21 +10,21 @@
 			<value name="StartFarFolders" type="hex" data="00"/>
 			<value name="StartFarEditors" type="hex" data="00"/>
 			<value name="StartCreateDelay" type="ulong" data="100"/>
-			<value name="ColorTable00" type="dword" data="00222827"/>
-			<value name="ColorTable01" type="dword" data="009e5401"/>
-			<value name="ColorTable02" type="dword" data="0004aa74"/>
-			<value name="ColorTable03" type="dword" data="00a6831a"/>
-			<value name="ColorTable04" type="dword" data="003403a7"/>
-			<value name="ColorTable05" type="dword" data="009c5689"/>
-			<value name="ColorTable06" type="dword" data="0049b6b6"/>
-			<value name="ColorTable07" type="dword" data="00cacaca"/>
-			<value name="ColorTable08" type="dword" data="007c7c7c"/>
-			<value name="ColorTable09" type="dword" data="00f58303"/>
-			<value name="ColorTable10" type="dword" data="0006d08d"/>
-			<value name="ColorTable11" type="dword" data="00e5c258"/>
-			<value name="ColorTable12" type="dword" data="004b04f3"/>
-			<value name="ColorTable13" type="dword" data="00b87da8"/>
-			<value name="ColorTable14" type="dword" data="0081cccc"/>
+			<value name="ColorTable00" type="dword" data="001b1818"/>
+			<value name="ColorTable01" type="dword" data="00deac21"/>
+			<value name="ColorTable02" type="dword" data="0053c66c"/>
+			<value name="ColorTable03" type="dword" data="00c7e963"/>
+			<value name="ColorTable04" type="dword" data="003e22f1"/>
+			<value name="ColorTable05" type="dword" data="00b764ce"/>
+			<value name="ColorTable06" type="dword" data="002ccded"/>
+			<value name="ColorTable07" type="dword" data="00d2cdcb"/>
+			<value name="ColorTable08" type="dword" data="00786b68"/>
+			<value name="ColorTable09" type="dword" data="00d8aa4f"/>
+			<value name="ColorTable10" type="dword" data="0065bd78"/>
+			<value name="ColorTable11" type="dword" data="00c9e085"/>
+			<value name="ColorTable12" type="dword" data="00543deb"/>
+			<value name="ColorTable13" type="dword" data="00b16ec4"/>
+			<value name="ColorTable14" type="dword" data="002ccded"/>
 			<value name="ColorTable15" type="dword" data="00ffffff"/>
 			<value name="TextColorIdx" type="hex" data="10"/>
 			<value name="BackColorIdx" type="hex" data="10"/>
@@ -665,8 +665,31 @@
 			<key name="Apps" modified="2020-03-28 23:30:45" build="191012">
 				<value name="Count" type="long" data="0"/>
 			</key>
-			<key name="Colors" modified="2020-03-28 23:30:45" build="191012">
+			<key name="Colors" modified="2020-04-14 15:19:19" build="191012">
 				<value name="Count" type="long" data="1"/>
+				<key name="Palette1" modified="2020-03-28 23:30:45" build="191012">
+					<value name="Name" type="string" data="an-old-hope"/>
+					<value name="TextColorIdx" type="hex" data="10"/>
+					<value name="BackColorIdx" type="hex" data="10"/>
+					<value name="PopTextColorIdx" type="hex" data="10"/>
+					<value name="PopBackColorIdx" type="hex" data="10"/>
+					<value name="ColorTable00" type="dword" data="001b1818"/>
+					<value name="ColorTable01" type="dword" data="00deac21"/>
+					<value name="ColorTable02" type="dword" data="0053c66c"/>
+					<value name="ColorTable03" type="dword" data="00c7e963"/>
+					<value name="ColorTable04" type="dword" data="003e22f1"/>
+					<value name="ColorTable05" type="dword" data="00b764ce"/>
+					<value name="ColorTable06" type="dword" data="002ccded"/>
+					<value name="ColorTable07" type="dword" data="00d2cdcb"/>
+					<value name="ColorTable08" type="dword" data="00786b68"/>
+					<value name="ColorTable09" type="dword" data="00d8aa4f"/>
+					<value name="ColorTable10" type="dword" data="0065bd78"/>
+					<value name="ColorTable11" type="dword" data="00c9e085"/>
+					<value name="ColorTable12" type="dword" data="00543deb"/>
+					<value name="ColorTable13" type="dword" data="00b16ec4"/>
+					<value name="ColorTable14" type="dword" data="002ccded"/>
+					<value name="ColorTable15" type="dword" data="00ffffff"/>
+				</key>
 				<key name="Palette1" modified="2020-03-28 23:30:45" build="191012">
 					<value name="Name" type="string" data="Monokai"/>
 					<value name="TextColorIdx" type="hex" data="10"/>

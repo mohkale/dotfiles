@@ -3,8 +3,8 @@
 set -e
 
 case "$(uname -s)" in
-    CYGWIN*)
-        SHELL=$(cygpath -w "$SHELL")
+    CYGWIN*|MSYS*|MINGW*)
+        SHELL=$(cygpath -m "$SHELL")
         ;;
 esac
 

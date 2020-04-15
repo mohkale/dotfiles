@@ -1,4 +1,11 @@
 - packages:
+    - apt:
+        - software-properties-common 
+        - python-software-properties
+        - package: ripgrep
+          before: |-
+            sudo add-apt-repository ppa:x4121/ripgrep
+            sudo apt update
     - pacman:
         - ripgrep
         - lsof

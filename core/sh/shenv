@@ -48,7 +48,8 @@ export VISUAL="$EDITOR"
 export PAGER=less
 export LESS="-R"
 export DOTFILES_REPO_PATH=$HOME/.dotfiles
-export TMUX_TMPDIR=$HOME/.tmux/tmp/
+export TMUX_HOME=$XDG_CONFIG_HOME/tmux
+export TMUX_TMPDIR=$XDG_CACHE_HOME/tmux
 export EMACS_SERVER_FILE=$HOME/.emacs.d/var/server/server
 export LANG=en_GB.UTF-8 LC_MESSAGES="C"
 export MANPATH=$XDG_DATA_HOME/man:$MANPATH
@@ -168,6 +169,10 @@ if [ "$platform" = "windows" ]; then
 
     # proper symlinks, not that wibbly wobbley copy paste
     export MSYS=winsymlinks:nativestrict
+
+    # fix annoying issues with chocolatey mixing up windows
+    # temp variables and msys ones.
+    unset tmp temp
 fi
 
 unset -f lines_to_path # thank you, good bye

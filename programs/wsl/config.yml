@@ -1,9 +1,14 @@
-- packages:
-    chocolatey:
-      - wsl
-      - wsltty
-
 - link:
     ~/.config/mintty/config:
       path: wsltty.conf
       create: true
+    ~/.config/mintty/themes/an-old-hope:
+      path: an-old-hope
+      create: true
+    $APPDATA/mintty: ~/.config/mintty
+    $APPDATA/wsltty: ~/.config/mintty
+
+- packages:
+    chocolatey:
+      - wsl
+      - wsltty
