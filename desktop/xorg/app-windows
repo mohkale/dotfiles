@@ -1,7 +1,20 @@
 #!/usr/bin/sh
 # output the X-window spec for every currently open emacs frame.
 
-desired_application_name="Emacs"
+print_usage() { echo "$0 [-h] APP_NAME"; }
+
+while getopts 'h' OPTION; do
+    case "$OPTION" in
+        h) print_usage
+           exit 0 ;;
+        \?) print_usage >&2
+            exit 1 ;;
+    esac
+done
+
+shift "$((OPTIND-1))"
+desired_application_name="$1"
+
 
 wmctrl -lp | while read window_row; do
     window_id=$(cut -d ' ' -f1 <<< "$window_row")
