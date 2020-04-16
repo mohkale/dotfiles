@@ -97,7 +97,7 @@ if ! grep_pane_children 2 2 'watcher' >/dev/null; then
 fi
 
 if ! grep_pane_children 1 1 'tremc' >/dev/null; then
-    tmux send-keys -t "$session_name:1.1" -- tremc Enter
+    tmux send-keys -t "$session_name:1.1" -- 'tremc --skip-version-check' Enter
     tmux rename-window -t "$session_name:1.1" "interface"
 fi
 

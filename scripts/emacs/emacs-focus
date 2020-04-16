@@ -3,7 +3,7 @@
 # backwards between open frames when you're currently already in a
 # frame.
 
-emacs_windows=$(emacs-frames) # all the open emacs frames
+emacs_windows=$(app-windows "Emacs") # all the open emacs frames
 
 print_usage() {
     echo "$0 [-h] [-a] [-b] [-c]"

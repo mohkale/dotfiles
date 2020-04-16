@@ -9,9 +9,9 @@
 
 - packages:
     - yay:
-        - transmission-cli # daemon
-        - transmission-qt  # gui
-        - tremc-git        # curses
+        - transmission-cli-git # daemon
+        - transmission-qt      # gui
+        - tremc-git            # curses
     - apt:
         - package: transmission-cli
           before: |-

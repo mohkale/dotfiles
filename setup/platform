@@ -9,6 +9,6 @@ fi
 # okay, not a conventional OS, where am I?
 
 # maybe cygwin?
-is_cygwin=$(uname -s | tr '[:upper:]' '[:lower:]' | grep -Eo 'mingw|cygwin')
+is_cygwin=$(uname -s | tr '[:upper:]' '[:lower:]' | grep -Eo 'mingw|cygwin|msys')
 ! [ -z "$is_cygwin" ] && echo "windows" && exit 0
 
