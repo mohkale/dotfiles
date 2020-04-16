@@ -2,10 +2,24 @@
 # This config was forked from /etc/inputrc in ubuntu.
 # See readline(3readline) and `info rluserman' for more information.
 
+set editing-mode emacs
+
 # Be 8 bit clean.
 set input-meta on
 set output-meta on
 set bell-style none
+
+# Color files by types
+set colored-stats On
+
+# Color the common prefix
+set colored-completion-prefix On
+# Color the common prefix in menu-complete
+set menu-complete-display-prefix On
+
+# prevents readline overriding some of my bindings
+# See [[https://stackoverflow.com/questions/23349325/inputrc-override-controlw][here]].
+set bind-tty-special-chars Off
 
 # try to enable the application keypad when it is called.  Some systems
 # need this to enable the arrow keys.
@@ -17,27 +31,54 @@ set bell-style none
 # set bell-style none
 # set bell-style visible
 
+$if mode=vi
+set show-mode-in-prompt on
+set vi-cmd-mode-string "\1\e[2 q\2"
+set vi-ins-mode-string "\1\e[6 q\2"
+$endif
+
 # some defaults / modifications for the emacs mode
 $if mode=emacs
+"\C-h": backward-word
+"\C-l": forward-word
+"\C-j": next-history
+"\C-k": previous-history
 
-# allow the use of the Home/End keys
+"\M-j": history-search-forward
+"\M-k": history-search-backward
+
+"\C-u": universal-argument
+
+"\M-d": kill-line
+"\C-d": backward-kill-line
+"\M-w": unix-filename-rubout
+
+# "\M-s": character-search
+# "\M-r": character-search-backward
+
+"\M-e": edit-and-execute-command
+
+# move words, skip seperators (eg. /)
+"\M-h": vi-bWord
+"\M-l": vi-fWord
+## Meta-left and Meta-right
+"\e[1;3D": vi-bWord
+"\e[1;3C": vi-fWord
+
+# Macros
+"\M-xp": "\C-p\C-e | less"
+"\M-xs": "\C-p\C-asd "
+
+# Compatibility
+## allow the use of the Home/End keys
 "\e[1~": beginning-of-line
 "\e[4~": end-of-line
 
-# allow the use of the Delete/Insert keys
+## allow the use of the Delete/Insert keys
 "\e[3~": delete-char
 "\e[2~": quoted-insert
 
-# mappings for "page up" and "page down" to step to the beginning/end
-# of the history
-# "\e[5~": beginning-of-history
-# "\e[6~": end-of-history
-
-# alternate mappings for "page up" and "page down" to search the history
-# "\e[5~": history-search-backward
-# "\e[6~": history-search-forward
-
-# mappings for Ctrl-left-arrow and Ctrl-right-arrow for word moving
+## mappings for Ctrl-left-arrow and Ctrl-right-arrow for word moving
 "\e[1;5C": forward-word
 "\e[1;5D": backward-word
 "\e[5C": forward-word
@@ -51,13 +92,5 @@ $if term=rxvt
 "\eOc": forward-word
 "\eOd": backward-word
 $endif
-
-# for non RH/Debian xterm, can't hurt for RH/Debian xterm
-# "\eOH": beginning-of-line
-# "\eOF": end-of-line
-
-# for freebsd console
-# "\e[H": beginning-of-line
-# "\e[F": end-of-line
 
 $endif
