@@ -6,16 +6,14 @@
     - pacman: gvim
 
 - create:
-    - ~/.vim
+    - ~/.config/vim/autoload
+    - ~/.local/share/vim/undo
+    - ~/.local/share/vim/view
+    - ~/.local/share/vim/swap
+    - ~/.local/share/vim/backup
 
 - link:
-    ~/.vimrc:
-    ~/_vimrc:
-      path: ~/.vimrc
-      if: &windows-p "[ -e '../../setup/cache/dist/windows' ]"
-    ~/_vim:
-      path: ~/.vim
-      if: *windows-p
+    ~/.config/vim/vimrc:
 
 - shell:
     - description: Install Vim Plug
@@ -23,6 +21,8 @@
       quiet: true
       command: |-
         autoload_path=~/.vim/autoload/plug.vim
+        # For some dumb reason, you can't change where the autoload directory is.
+        autoload_path=~/.config/vim/autoload/plug.vim
         autoload_url='https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
         if ! [ -f "$autoload_path" ]; then
           curl -fLo "$autoload_path" --create-dirs "$autoload_url"

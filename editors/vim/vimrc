@@ -5,11 +5,21 @@
 "   \_/ |_|_| |_| |_|_|  \___|
 "
 
+" XDG compatibility stuff
+" sometimes $XDG_DATA_DIRECTORY is expanded, other
+" times it isn't. just get rid of the hassle and
+" hard code the XDG paths.
+set undodir=~/.local/share/vim/undo
+set directory=~/.local/share/vim/swap
+set backupdir=~/.local/share/vim/backup
+set viewdir=~/.local/share/vim/view
+set viminfo+=n~/.local/share/vim/viminfo
+set runtimepath=~/.config/vim,$VIMRUNTIME,~/.config/vim/after
 
 """"""""""""""""""""""""""""""""""""
 "              Plugins             "
 """"""""""""""""""""""""""""""""""""
-call plug#begin('~/.vim/plugged')
+call plug#begin('~/.config/vim/plugged')
 
 " close a buffer without closing window
 Plug 'rbgrouleff/bclose.vim'

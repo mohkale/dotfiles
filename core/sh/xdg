@@ -41,6 +41,8 @@ export MYSQL_HISTFILE="$XDG_DATA_HOME"/mysql_history
 ## Python
 export PYTHONSTARTUP="$XDG_CONFIG_HOME/pythonrc.py"
 
+## Vim
+export VIMINIT=":source $XDG_CONFIG_HOME/vim/vimrc"
 
 ## GTK
 export GTK_RC_FILES="$XDG_CONFIG_HOME/gtk-1.0/gtkrc"

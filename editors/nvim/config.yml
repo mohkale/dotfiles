@@ -1,3 +1,9 @@
+- create:
+    - ~/.config/vim
+
+- link:
+    ~/.config/nvim: ~/.config/vim
+
 - bots:
     - path: ../vim
       unsafe: true
@@ -5,6 +11,3 @@
 - packages:
     apt: neovim
     pacman: neovim
-
-- link:
-    ~/.config/nvim/init.vim:
