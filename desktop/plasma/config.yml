@@ -13,3 +13,5 @@
 - bots:
     - path: ../../programs/dolphin
       unsafe: true
+    - path: ../../programs/spectacle
+      unsafe: true

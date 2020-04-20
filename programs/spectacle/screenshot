@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+print_usage() {
+    echo "usage: $(basename "$0") [-h] [-o DIR] [-w|-r] [-s]"
+    echo ""
+    echo "optional arguments:"
+    echo "  -h         print this help message and exit"
+    echo "  -o DIR     dump screenshots to DIR"
+    echo "  -w         screenshot window, not desktop"
+    echo "  -r         screenshot rectangular region"
+    echo "  -s         don't notify the user of the screenshot"
+}
+
+dest="$HOME/multimedia/images/screenshots"
+args=""
+
+while getopts 'ho:wsr' OPTION; do
+    case "$OPTION" in
+        h) print_usage
+           exit 0 ;;
+        \?) print_usage >&2
+            exit 1 ;;
+        o) dest=$OPTARG
+           output_changed=1
+           ;;
+        w) args="$args --activewindow" ;;
+        r) args="$args --region" ;;
+        s) args="$args --nonotify" ;;
+    esac
+done
+
+output=$(date +"%Y%m%d-%M-%S.png")
+spectacle -b $args -o "$dest/$output"
