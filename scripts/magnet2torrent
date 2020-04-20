@@ -88,6 +88,7 @@ class Magnet2Torrent(object):
         handle = lt.add_magnet_uri(
             self.ses, magnet_url,
             self.get_params(magnet_url))
+        handle.resume()
 
         logging.info('waiting to recieve torrent data')
         try:
@@ -133,10 +134,11 @@ class Magnet2Torrent(object):
         return {
             'save_path': self.tempdir,
             'storage_mode': lt.storage_mode_t(2),
-            'paused': False,
-            'auto_managed': True,
+            'flags': lt.torrent_flags.auto_managed,
+            # 'paused': False,
+            # 'auto_managed': True,
             # TODO reconsider, maybe ensure magnet_url is uniq
-            'duplicate_is_error': True
+            # 'duplicate_is_error': True
         }
 
     def cleanup(self):
