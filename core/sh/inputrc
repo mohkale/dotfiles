@@ -5,8 +5,9 @@
 set editing-mode emacs
 
 # Be 8 bit clean.
-set input-meta on
+set input-meta  on
 set output-meta on
+set convert-meta on
 set bell-style none
 
 # Color files by types
@@ -66,8 +67,9 @@ $if mode=emacs
 "\e[1;3C": vi-fWord
 
 # Macros
-"\M-xp": "\C-p\C-e | less"
-"\M-xs": "\C-p\C-asd "
+"\M-xp": "\C-p\M-xl"
+"\M-xl": "\C-e | less"
+"\M-xs": "\C-p\C-asd \C-a"
 
 # Compatibility
 ## allow the use of the Home/End keys
