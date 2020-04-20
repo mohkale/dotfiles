@@ -24,6 +24,9 @@
 *aoh-purple:    #BA78AB
 *aoh-turquoise: #67E4C5
 
+Sxiv.background: #1C1D21
+Sxiv.foreground: #CBCDD2
+
 URxvt.saveLines:         100000
 URxvt.scrollBar:         false
 URxvt.secondaryScroll:   true

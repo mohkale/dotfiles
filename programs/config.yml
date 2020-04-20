@@ -2,6 +2,8 @@
     - git
     - path: dolphin
       env:  true
+    - path: sxiv
+      env:  true
     - path: transmission
       env:  true
     # - path: rtorrent

@@ -2,6 +2,7 @@
     - apt:
         - software-properties-common 
         - python-software-properties
+        - xclip
         - package: ripgrep
           before: |-
             sudo add-apt-repository ppa:x4121/ripgrep
@@ -13,3 +14,5 @@
         - noto-fonts
         - bdf-unifont
         - fzf
+        - xclip
+        - trash-cli
