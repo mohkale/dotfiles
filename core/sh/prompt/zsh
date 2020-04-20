@@ -11,5 +11,12 @@ if ! hash __git_ps1 1>/dev/null 2>&1; then
     fi
 fi
 
-PS1="%B%F{green}%n@%m%f %F{yellow}%~%f %F{white}λ%f%b "
-RPS1='%F{blue}%B$(__git_ps1)%b%f %F{magenta}%D{%H:%M:%S %d.%m.%Y}$f'
+# same as __git_ps1 except the leading space is moved to the right hand side of the output
+# because the git prompt appears on the LHS in my case
+git_prompt='__git_ps1 | awk '"'"'{ if (substr($0, 0, 1) == " ") printf("%s ", substr($0, 2)) }'"'"
+
+PS1='%F{blue}%B$('"$git_prompt"')%b%f%F{white}λ%f%b '
+RPS1='%B%F{green}%n@%m%f %F{yellow}%~%f'
+# %F{magenta}%D{%H:%M:%S %d.%m.%Y}$f
+
+unset git_prompt
