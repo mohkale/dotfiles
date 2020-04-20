@@ -1,9 +1,9 @@
-- packages:
-    - apt: vim
-    - msys: vim
-    - chocolatey: vim
-    # also provides clipboard support
-    - pacman: gvim
+# - packages:
+#     - apt: vim
+#     - msys: vim
+#     - chocolatey: vim
+#     # also provides clipboard support
+#     - pacman: gvim
 
 - create:
     - ~/.config/vim/autoload
@@ -20,7 +20,12 @@
       interactive: true
       quiet: true
       command: |-
-        autoload_path=~/.vim/autoload/plug.vim
+        if [ -n "$(which nvim)" ]; then
+          vim=nvim
+        else
+          vim=vim
+        fi
+
         # For some dumb reason, you can't change where the autoload directory is.
         autoload_path=~/.config/vim/autoload/plug.vim
         autoload_url='https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
@@ -28,4 +33,4 @@
           curl -fLo "$autoload_path" --create-dirs "$autoload_url"
         fi
 
-        vim -n -e +PlugInstall +qall!
+        $vim -n -e +PlugInstall +qall!
