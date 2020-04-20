@@ -22,6 +22,9 @@
 "st"
   Control + Shift + apostrophe
 
+"term-dwim"
+  Control + apostrophe
+
 "spawn-term fzf-dmenu"
   Mod4 + bracketleft + Release
 

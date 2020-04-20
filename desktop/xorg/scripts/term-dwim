@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# Select an open terminal smartly.
+#
+# If there aren't any open terminals, create a new one. If there's only
+# one select it, otherwise cycle through open terminal instances on each
+# invocation.
+#
+# For cycling, terminals are ordered firstly by their workspace; with the
+# current workspace having the highest priority and then going in order
+# through remaining workspaces (eventually wrapping back around to the
+# first workspace if necessary).
+#
+
+print_usage() {
+    echo "$0 [-h] [-t TERM]"
+}
+
+while getopts 'ht:' OPTION; do
+    case "$OPTION" in
+        h) print_usage
+           exit 0 ;;
+        \?) print_usage >&2
+            exit 1 ;;
+        t) term=$OPTARG
+           ;;
+    esac
+done
+
+windows=$(app-windows "${term:-st-256color}")
+
+if [ -z "$windows" ]; then
+    # no open terminals, let's make one :smile:.
+    lnch st
+elif [ $(<<< "$windows" wc -l) -eq 1  ]; then
+    # only one window, select it
+    active_window="$windows"
+else
+    # choose a row from the list of available windows
+
+    # sort windows based on workspace
+    windows=$(<<< "$windows" \
+              awk -v workspace=$(xdotool get_desktop) \
+                  -v workspace_count=$(xdotool get_num_desktops) \
+                  '{ printf("%d %s\n", ($2-workspace >= 0) ? $2-workspace : $2+workspace_count, $0) }' |
+                  sort -n | cut -d' ' -f 2-)
+
+    active_window_pid=$(xdotool getwindowfocus getwindowpid)
+    if <<< "$windows" cut -d ' ' -f4 | grep -- "$active_window_pid" >/dev/null 2>&1; then
+        # currently on a terminal, try to select the next terminal in the list.
+
+        active_window_wid=$(printf "%x" $(xdotool getwindowfocus))
+        # find the current row for the current terminal, then print the next row
+        active_window=$(<<< "$windows" awk -e '{ print $0 }' -e 'END { print "\n" }' \
+                            | awk -e '$1 ~ /(0x)?0*'$active_window_wid'/ { getline; print; exit }')
+
+        # when the next row is empty (I.E. we were on the last row), select the first one
+        [ -z "$active_window" ] && active_window=$(<<< "$windows" head -n1)
+    else
+        active_window=$(<<< "$windows" head -n1)
+    fi
+fi
+
+wmctrl -ia "$(cut -d ' ' -f 1 <<< $active_window)"
