@@ -23,56 +23,32 @@ call plug#begin('~/.config/vim/plugged')
 
 " close a buffer without closing window
 Plug 'rbgrouleff/bclose.vim'
-" myriad of ways to comment in vim
-Plug 'scrooloose/nerdcommenter'
 " emacs-which-key... for VIM!!! :)
 Plug 'liuchengxu/vim-which-key'
-" a nicer modeline
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
 " auto close pairs such as parens
 Plug 'Raimondi/delimitMate'
-" rename both buffer and buffer file
-Plug 'danro/rename.vim'
-" a file explorer... cool but not needed
-" Plug 'scrooloose/nerdtree'
 " change surrounding pairs
 Plug 'tpope/vim-surround'
+" fzf-vim
+Plug 'junegunn/fzf.vim'
 " like emacs avy-jump
 "" need to properly implement
 " Plug 'easymotion/vim-easymotion'
-Plug 'udalov/kotlin-vim'
-
-if has('python')
-    " vim on bash for windows isn't built
-    " with python support and so if you
-    " install YouCompleteMe you'll just
-    " keep getting startup error messages
-    Plug 'Valloric/YouCompleteMe'
-endif
-
-""""""""""""""""""""""""""""""""""""
-"              Themes              "
-""""""""""""""""""""""""""""""""""""
-" Plug 'drewtempelmeyer/palenight.vim'
-" Plug 'ayu-theme/ayu-vim'
-" Plug 'morhetz/gruvbox'
-" Plug 'romainl/Apprentice'
-Plug 'j-tom/vim-old-hope'
 
 call plug#end()
 
 """"""""""""""""""""""""""""""""""""
 " Configuration Options/Variables  "
 """"""""""""""""""""""""""""""""""""
-colorscheme old-hope
+" colorscheme old-hope
+" colorscheme elflord
 syntax on " enable syntax highlighting
 
 "let &background = "dark"
 set number         " enable line numbers
 set relativenumber " make them relative
 set noautoindent   " no auto indenting
-set ff=unix        " preffered file format
+set ff=unix        " preffered line endings
 set splitbelow     " split to below, not up
 set splitright     " split to right, not left
 set encoding=utf8
@@ -114,8 +90,9 @@ cnoremap <C-a>  <Home>
 cnoremap <C-e>  <End>
 imap     <C-y>  <C-o>p
 
-"
 nnoremap Y y$
+
+vmap s S " make s surround, not substitue
 
 """"""""""""""""""""""""""""""""""""
 "           leader keys            "
@@ -124,14 +101,17 @@ let mapleader       = ' '
 let maplocalleader  = '<leader>m'
 let g:which_key_map = {}
 
-nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
+nnoremap <silent><leader> :WhichKey '<Space>'<cr>
+nnoremap <leader>bk :Bclose<cr>
+nnoremap <leader>ss :Lines<cr>
+nnoremap <C-s>      :Lines<cr>
 
 " Manipulate This Configuration File
 nnoremap <leader>fec :tabedit ~/.vimrc<cr>
 nnoremap <leader>fer :source  ~/.vimrc<cr>
 
 " Select All with Ctrl+A
-nnoremap <C-a> ggVGo
+nnoremap <C-a> ggVG
 
 """"""""""""""""""""""""""""""""""""
 "         leader prefixes          "
