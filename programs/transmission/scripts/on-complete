@@ -9,6 +9,7 @@ import logging
 import filecmp
 import argparse
 import pathlib as p
+import subprocess as s
 
 from watch_config import WatchConfig
 from dest_path import get_dest_directory, relative_p
@@ -22,6 +23,16 @@ TORRENTS_DIR = CONFIG_DIR / 'torrents'
 CONFIG_FILE  = CONFIG_DIR / 'settings.json'
 WATCHER_FILE = CONFIG_DIR / 'watcher.json'
 del CONFIG_DIR
+
+def notify(msg, /, title=None, icon=None):
+    cmd = ['notify-send']
+    if icon:
+        cmd += ['-i', icon]
+    if title:
+        cmd.append(title)
+    cmd.append(msg)
+    if not s.call(cmd) == 0:
+        logging.error('failed to notify user, msg was: ' + msg)
 
 @retry(RETRY_COUNT)
 def _torrent_file(id: int, watch_config):
@@ -64,6 +75,15 @@ def _torrent_move(id, dest_dir):
 
     if resp['result'] != 'success':
         raise StatusException('encountered non-sucess status')
+
+@retry(RETRY_COUNT)
+def _torrent_name(id):
+    resp = args.connection.command('torrent-get', ids=id, fields=['name'])
+
+    if resp['result'] != 'success':
+        raise StatusException('encountered non-sucess status')
+
+    return resp['arguments']['torrents'][0]['name']
 
 def move_to_dest(args):
     if not args.location.exists():
@@ -134,11 +154,11 @@ if __name__ == '__main__':
     vargs = vars(args)
 
     logging.basicConfig(
-        level=vargs.pop('log_level'),
-        stream=vargs.pop('log_file')
+        # level=vargs.pop('log_level'),
+        # stream=vargs.pop('log_file')
         # transmission doesn't let you pass arguments, so do this manually :cry:.
-        # level=logging.DEBUG,
-        # stream=open(os.path.expanduser('~/.cache/transmission/on-complete-log'), 'a')
+        level=logging.DEBUG,
+        stream=open(os.path.expanduser('~/.cache/transmission/on-complete-log'), 'a')
     )
 
     if not args.watcher.exists():
@@ -169,4 +189,10 @@ if __name__ == '__main__':
     args.default_dest   = args.download_root / 'random'
 
     # logging.debug('started program with: ' + str(args))
+    try:
+        notify('completed torrent: ' + _torrent_name(args.id),
+            icon='torrents', title='transmission')
+    except:
+        logging.exception('failed to notify user')
+
     move_to_dest(args)

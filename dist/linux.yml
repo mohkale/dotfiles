@@ -16,3 +16,7 @@
         - fzf
         - xclip
         - trash-cli
+
+- packages:
+    pip:
+      - notify-send
