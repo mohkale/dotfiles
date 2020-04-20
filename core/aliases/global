@@ -39,10 +39,10 @@ cls    clear
 
 
 # Emacs
-ee      emacsclient --no-wait --suppress-output # emacs dispatch
+ee      ec --no-wait --suppress-output # emacs dispatch
 ex      emacs
 sx      smacs
-et      bash -c 'cd ~/.emacs.d && ./bin/tangle -i -d hydras.org'
+et      bash -c 'cd $EMACS_HOME && ./bin/tangle -i -d hydras.org'
 etsx    et && sx
 
 # TMUX

@@ -38,6 +38,11 @@ export MYSQL_HISTFILE="$XDG_DATA_HOME"/mysql_history
 ## Python
 export PYTHONSTARTUP="$XDG_CONFIG_HOME/pythonrc.py"
 
+
+## Emacs
+### not used by emacs, just used by me for config stuff.
+export EMACS_HOME="$XDG_CONFIG_HOME/emacs"
+
 # Path Management
 if [ "$platform" = "windows" ]; then
     # fix unconverted msys paths which crash some programs

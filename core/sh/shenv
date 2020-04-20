@@ -50,7 +50,7 @@ export LESS="-R"
 export DOTFILES_REPO_PATH=$HOME/.dotfiles
 export TMUX_HOME=$XDG_CONFIG_HOME/tmux
 export TMUX_TMPDIR=$XDG_CACHE_HOME/tmux
-export EMACS_SERVER_FILE=$HOME/.emacs.d/var/server/server
+export EMACS_SERVER_FILE=$EMACS_HOME/var/server/server
 export LANG=en_GB.UTF-8 LC_MESSAGES="C"
 export MANPATH=$XDG_DATA_HOME/man:$MANPATH
 export INFOPATH=$XDG_DATA_HOME/info:$INFOPATH

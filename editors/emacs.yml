@@ -8,7 +8,12 @@
 - packages:
     - apt: emacs
     - chocolatey: emacs
-    - pacman: emacs
+    - yay: emacs27-git
 
 - link:
-    ~/.emacs.d: emacs
+    ~/.config/emacs: emacs
+    ~/.emacs.d:
+      path: emacs
+      if: |-
+        # XDG_CONFIG_DIR has only been supported from emacs 27 forwards
+        [ "$(emacs --version | head -n1 | cut -d' ' -f3 | cut -d. -f1)" -le 26 ]
