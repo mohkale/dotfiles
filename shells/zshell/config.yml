@@ -3,6 +3,6 @@
     - pacman: zsh
 
 - link:
-    ~/.zprofile:
-    ~/.zshrc:
+    ~/.config/zshell/.zprofile:
+    ~/.config/zshell/.zshrc:
     ~/.zshenv:

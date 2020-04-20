@@ -1,5 +1,4 @@
 # -*- mode: sh -*-
-. ~/.profile
 
 # Shell Options
 ## shwordsplit      - allows $foo to expand to multiple space delimeted arguments, instead of
