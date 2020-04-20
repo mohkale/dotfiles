@@ -1,0 +1,79 @@
+# -*- mode: sh -*- config file for zshells ZLE
+
+# options
+zle_highlight=(  )
+zle_highlight+="isearch:bg=blue,fg=black"
+zle_highlight+="region:fg=black,bg=white"
+zle_highlight+="paste:fg=cyan"
+
+autoload -U select-word-style
+
+# some nostalgic bashisms from [[https://github.com/davidshepherd7/dotfiles/blob/master/zsh/.zsh/zsh-bindings.sh#L9][davidshepard7]].
+backward-bashword() {
+    select-word-style bash
+    zle backward-word
+    select-word-style default
+}
+zle -N backward-bashword
+
+forward-bashword() {
+    select-word-style bash
+    zle forward-word
+    select-word-style default
+}
+zle -N forward-bashword
+
+# a command to replicate unix-filename-rubout, see [[https://unix.stackexchange.com/questions/258656/how-can-i-delete-to-a-slash-or-a-word-in-zsh][here]].
+backward-kill-dir () {
+    WORDCHARS=${WORDCHARS/\/} zle backward-kill-word
+}
+zle -N backward-kill-dir
+
+# like bashes edit-and-execute-command, but doesn't autorun
+autoload -z edit-command-line
+zle -N edit-command-line
+
+# shells should be like emacs, not vim :P.
+bindkey -e
+
+# vi like movement commands on hjkl
+bindkey "^h" backward-bashword
+bindkey "^l" forward-bashword
+bindkey "^j" down-line-or-history
+bindkey "^k" up-line-or-history
+
+bindkey "^[[1;5C" forward-bashword  # <C-right>
+bindkey "^[[1;5D" backward-bashword # <C-left>
+
+bindkey "^[j" history-search-forward
+bindkey "^[k" history-search-backward
+
+bindkey "^u" universal-argument
+
+bindkey "^[u" undo
+bindkey "^[r" redo
+
+bindkey "^[d" kill-line
+bindkey "^d"  backward-kill-line
+
+bindkey '^w' backward-kill-word
+bindkey '^[w' backward-kill-dir
+
+# bindkey '^H' backward-kill-word # <C-backspace>
+# bindkey "^[?" kill-whole-line # <M-backspace>
+
+bindkey "^[y" yank
+
+bindkey "^[e" edit-command-line
+
+# same as C-h/C-l except skips over /
+bindkey "^[h" vi-backward-blank-word
+bindkey "^[l" vi-forward-blank-word
+
+# Bindings for Packages
+bindkey '^[xj' jq-complete
+
+# Macros
+bindkey -s '^[xp' "\C-p^[xl"
+bindkey -s '^[xl' "\C-e | less"
+bindkey -s '^[xs' "\C-p\C-asd \C-a"

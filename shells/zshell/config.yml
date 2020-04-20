@@ -6,6 +6,7 @@
     ~/.config/zshell/.zprofile:
     ~/.config/zshell/.zshrc:
     ~/.zshenv:
+    ~/.config/bindings/zshell: bindings
 
 - shell:
     - description: installing zplug

@@ -1,7 +1,4 @@
 # -*- mode: sh -*-
-echo "sourcing zsh"
-
-
 commands_dir="$XDG_CONFIG_HOME/shortcuts/commands"
 
 fpath+="$commands_dir"
