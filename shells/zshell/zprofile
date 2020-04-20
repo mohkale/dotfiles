@@ -1,4 +1,18 @@
 # -*- mode: sh -*-
+source "$ZPLUG_HOME/init.zsh"
+
+# Ctrl+Shift+(left|right) to cycle dirstack
+zplug 'michaelxmcbride/zsh-dircycle'
+
+# interactive jq
+zplug 'reegnz/jq-zsh-plugin'
+
+# complete ssh hostanmes
+zplug 'zpm-zsh/ssh'
+
+# install, then load, if required
+if ! zplug check; then zplug install; fi
+zplug load
 
 # Shell Options
 ## shwordsplit      - allows $foo to expand to multiple space delimeted arguments, instead of

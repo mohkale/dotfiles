@@ -6,3 +6,11 @@
     ~/.config/zshell/.zprofile:
     ~/.config/zshell/.zshrc:
     ~/.zshenv:
+
+- shell:
+    - description: installing zplug
+      quiet: true
+      command: |-
+        if ! [ -e "$HOME/.config/zshell/zplug" ]; then
+          curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh | zsh
+        fi

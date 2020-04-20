@@ -4,3 +4,4 @@ if [ -f "$HOME/.profile" ]; then
 fi
 
 export ZDOTDIR="$XDG_CONFIG_HOME/zshell"
+export ZPLUG_HOME="$ZDOTDIR/zplug"
