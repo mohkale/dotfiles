@@ -5,4 +5,4 @@
     - pacman: git
 
 - link:
-    ~/.config/git/.gitconfig:
+    ~/.config/git/config: gitconfig

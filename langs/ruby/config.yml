@@ -1,8 +1,7 @@
 - link:
     ~/.gemrc:
     ~/.config/irb/irbrc:
-    ~/.pryrc:
-    ~/.rvmrc:
+    ~/.config/pry/pryrc:
 
 - packages:
     - apt: ruby-full

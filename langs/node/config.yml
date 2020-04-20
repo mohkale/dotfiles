@@ -1,3 +1,7 @@
+- link:
+    ~/.npmrc:
+    ~/.config/yarn/yarnrc:
+
 - packages:
     - apt:
         - package: nodejs

@@ -7,5 +7,5 @@
     ~/.profile:
     ~/.config/shenv:
     ~/.config/xdg:
-    ~/.config/readline/inputrc:
+    ~/.config/bindings/readline: inputrc
     ~/programming/scripts/.ps1: prompt

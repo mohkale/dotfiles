@@ -1,7 +1,7 @@
 # -*- mode: sh -*- XDG compatibility for various programs, see [[https://wiki.archlinux.org/index.php/XDG_Base_Directory][here]].
 
 ## GNU Readline
-export INPUTRC="$XDG_CONFIG_HOME"/readline/inputrc
+export INPUTRC="$XDG_CONFIG_HOME"/bindings/readline
 
 ## Ruby Bundler
 export BUNDLE_USER_CONFIG="$XDG_CONFIG_HOME"/bundle
@@ -10,6 +10,9 @@ export BUNDLE_USER_PLUGIN="$XDG_DATA_HOME"/bundle
 
 ## Interactive Ruby (irb)
 export IRBRC="$XDG_CONFIG_HOME"/irb/irbrc
+
+## Ruby Gems
+export GEM_SPEC_CACHE="$XDG_CACHE_HOME/gem"
 
 ## Solargraph
 export SOLARGRAPH_CACHE="$XDG_CACHE_HOME"/solargraph
@@ -23,7 +26,7 @@ export LESSHISTFILE="$XDG_CACHE_HOME/less/history"
 export NODE_REPL_HISTORY="$XDG_DATA_HOME/node_repl_history"
 
 ## Bash
-export HISTFILE="$XDG_DATA_HOME/bash/history"
+export HISTFILE="$XDG_DATA_HOME/shell_history"
 
 ## XDG
 export GTK_RC_FILES="$XDG_CONFIG_HOME/gtk-1.0/gtkrc"
@@ -38,6 +41,20 @@ export MYSQL_HISTFILE="$XDG_DATA_HOME"/mysql_history
 ## Python
 export PYTHONSTARTUP="$XDG_CONFIG_HOME/pythonrc.py"
 
+
+## GTK
+export GTK_RC_FILES="$XDG_CONFIG_HOME/gtk-1.0/gtkrc"
+export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
+
+## GnuPG
+export GNUPGHOME="$XDG_DATA_HOME/gnupg"
+
+## KDE
+export KDEHOME="$XDG_CONFIG_HOME/kde"
+
+## terminfo
+export TERMINFO="$XDG_DATA_HOME/terminfo"
+export TERMINFO_DIRS="$XDG_DATA_HOME/terminfo:/usr/share/terminfo"
 
 ## Emacs
 ### not used by emacs, just used by me for config stuff.
