@@ -4,3 +4,4 @@ alert      notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo e
 enf        emacs-new-frame.sh
 pdf        zathura
 clip       xclip -i -selection clipboard
+open       xdg-open

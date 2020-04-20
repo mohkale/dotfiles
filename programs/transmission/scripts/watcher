@@ -140,7 +140,7 @@ if __name__ == '__main__':
         args.transmission_config['rpc-url'] + 'rpc')
 
     if not args.connection.check():
-        parser.error('unable to connect to transmission daemon at: ' + transmission.url)
+        parser.error('unable to connect to transmission daemon at: ' + args.connection.url)
 
     with concurrent.futures.ThreadPoolExecutor() as pool:
         for rule in args.config.rules:
