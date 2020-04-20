@@ -1,14 +1,14 @@
 - link:
-    ~/.tmux/scripts/attach-session:
-    ~/.tmux/scripts/manage-windows:
-    ~/.tmux/scripts/run-binding:
-    ~/.tmux/scripts/run-command:
+    ~/.config/tmux/scripts/attach-session:
+    ~/.config/tmux/scripts/manage-windows:
+    ~/.config/tmux/scripts/run-binding:
+    ~/.config/tmux/scripts/run-command:
     ~/programming/scripts/fzf-tmux:
         path: fzf-tmux
         force: true
         ignore-missing: true
 
-- shell: 
+- shell:
     - description: syncing fzf-tmux
       quiet: true
       command: |-
