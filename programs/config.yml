@@ -2,6 +2,8 @@
     - git
     - path: ranger
       env:  true
+    - path: wget
+      env:  true
     - path: dolphin
       env:  true
     - path: sxiv
