@@ -1,0 +1,7 @@
+- packages:
+    pacman: ranger
+
+- link:
+    ~/.config/ranger/rc.conf: rangerrc
+    ~/.config/ranger/commands.py:
+    ~/.config/shortcuts/commands/ranger: shortcuts/ranger

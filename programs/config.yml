@@ -1,5 +1,7 @@
 - bots:
     - git
+    - path: ranger
+      env:  true
     - path: dolphin
       env:  true
     - path: sxiv

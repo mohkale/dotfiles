@@ -1,0 +1,17 @@
+# -*- mode: sh -*- use ranger to change directories; source [[https://github.com/ranger/ranger/wiki/Integration-with-other-programs#changing-directories][here]].
+function ranger {
+    local IFS=$'\t\n'
+    local tempfile="$(mktemp -t tmp.XXXXXX)"
+    local ranger_cmd=(
+        command
+        ranger
+        --cmd="map Q chain shell echo %d > "$tempfile"; quitall"
+        --cmd="copymap Q <C-q>"
+    )
+
+    ${ranger_cmd[@]} "$@"
+    if [ -f "$tempfile" -a "$(cat -- "$tempfile")" != "$(echo -n "$(pwd)")" ]; then
+        cd -- "$(cat "$tempfile")" || return
+    fi
+    command rm -f -- "$tempfile" 2>/dev/null
+}
