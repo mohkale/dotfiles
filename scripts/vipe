@@ -31,12 +31,19 @@
 
 print_usage() { echo "usage $0 [-h/-?] [-f STDIN] [-i|-I] [-t TMPDIR] [-e EDITOR_CMD] [-s|-k] [-q]"; }
 
-while getopts 'h?f:iIt:e:skq' option; do
+while getopts 'h?f:iIt:e:skqdD' option; do
     case "$option" in
-        [h?]) print_usage
-              exit 0
-              ;;
+        h) print_usage
+           exit 0
+           ;;
+        \?) print_usage >&2
+            exit 1
+            ;;
         f) stdin_file="$OPTARG"
+           ;;
+        d) redirect_tty=1
+           ;;
+        D) redirect_tty=0
            ;;
         i) interactive=1
            ;;
@@ -72,7 +79,12 @@ temp_file=$(mktemp -p "$VIPE_TMPDIR")
 [ "$interactive" == 0 ] && cat $stdin_file > $temp_file
 
 # run editor on temp_file using shells stdin and stdout
-$editor "$temp_file" </dev/tty >/dev/tty; exit_code=$?
+if [ "${redirect_tty:-1}" -eq 1 ]; then
+    $editor "$temp_file" </dev/tty >/dev/tty
+else
+    $editor "$temp_file"
+fi
+exit_code=$?
 
 if [ "$exit_code" == 0 ]; then
     stdout_file="$(cat $temp_file)" # read into memory
