@@ -30,6 +30,7 @@ Plug 'Raimondi/delimitMate'
 " change surrounding pairs
 Plug 'tpope/vim-surround'
 " fzf-vim
+Plug 'junegunn/fzf' ", { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 " like emacs avy-jump
 "" need to properly implement
@@ -45,8 +46,8 @@ call plug#end()
 syntax on " enable syntax highlighting
 
 "let &background = "dark"
-set number         " enable line numbers
-set relativenumber " make them relative
+set relativenumber " enable relative line numbers
+set number         " current line is absolute
 set noautoindent   " no auto indenting
 set ff=unix        " preffered line endings
 set splitbelow     " split to below, not up
@@ -57,6 +58,12 @@ set backspace=indent,eol,start " allow backspace in insert mode
 set tabstop=8 softtabstop=0 expandtab shiftwidth=4 smarttab
 set nocompatible " disable early vim compatibility features
 set whichwrap+=<,>,h,l,[,] " move to previous or next line
+
+set autochdir
+
+" search like ivy
+:set ignorecase
+:set smartcase
 
 if $TERM != "cygwin"
     " doesn't play well with cygwin
@@ -91,8 +98,14 @@ cnoremap <C-e>  <End>
 imap     <C-y>  <C-o>p
 
 nnoremap Y y$
+" make $ not include eol
+nnoremap $ g_
+nnoremap g_ $
+vnoremap $ g_
+vnoremap g_ $
 
-vmap s S " make s surround, not substitue
+" make s surround, not substitue
+vmap s S
 
 """"""""""""""""""""""""""""""""""""
 "           leader keys            "
@@ -104,11 +117,15 @@ let g:which_key_map = {}
 nnoremap <silent><leader> :WhichKey '<Space>'<cr>
 nnoremap <leader>bk :Bclose<cr>
 nnoremap <leader>ss :Lines<cr>
+nnoremap <leader>tl :set wrap!<cr>
+nnoremap <leader>tn :set relativenumber!<cr>
+nnoremap <leader>sc :nohlsearch<cr>
+
 nnoremap <C-s>      :Lines<cr>
 
 " Manipulate This Configuration File
-nnoremap <leader>fec :tabedit ~/.vimrc<cr>
-nnoremap <leader>fer :source  ~/.vimrc<cr>
+nnoremap <leader>fec :tabedit ~/.config/vim/vimrc<cr>
+nnoremap <leader>fer :source  ~/.config/vim/vimrc<cr>
 
 " Select All with Ctrl+A
 nnoremap <C-a> ggVG
