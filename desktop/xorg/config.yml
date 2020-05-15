@@ -2,7 +2,6 @@
     ~/.Xresources:
     ~/.xinitrc:
     ~/.xprofile:
-    ~/programming/scripts/app-windows:
     ~/.config/xbindkeys/config:
         path: xbindkeysrc
         create: true
