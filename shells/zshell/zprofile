@@ -10,6 +10,17 @@ zplug 'reegnz/jq-zsh-plugin'
 # complete ssh hostanmes
 zplug 'zpm-zsh/ssh'
 
+# highlight keywords/commands as you write
+typeset -A ZSH_HIGHLIGHT_STYLES
+ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets cursor)
+ZSH_HIGHLIGHT_STYLES[unknown-token]='fg=red'
+# remove underlines
+ZSH_HIGHLIGHT_STYLES[suffix-alias]="fg=green"
+ZSH_HIGHLIGHT_STYLES[precommand]="fg=green"
+ZSH_HIGHLIGHT_STYLES[autodirectory]="fg=green"
+ZSH_HIGHLIGHT_STYLES[path]="fg=grey"
+zplug "zsh-users/zsh-syntax-highlighting", defer:2
+
 # install, then load, if required
 if ! zplug check; then zplug install; fi
 zplug load
