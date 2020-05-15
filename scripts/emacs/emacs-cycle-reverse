@@ -1,9 +1,0 @@
-#!/bin/bash
-shell_path=$(dirname $0)
-cycle_flags="-acb"
-
-if [ -z "${shell_path}" ]; then
-    emacs-focus $cycle_flags
-else
-    "$shell_path/emacs-focus" $cycle_flags
-fi

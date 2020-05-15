@@ -10,14 +10,14 @@
 #keystate_capslock = enable
 #keystate_scrolllock= enable
 
-"emacs-cycle"
-  Mod4 + Return + Release
+"emacs-focus -ac"
+  Mod4 + n
 
-"emacs-cycle-reverse"
-  Mod4 + Shift + Return + Release
+"emacs-focus -acb"
+  Mod4 + p
 
 "emacs-make-frame"
-  Mod4 + period
+  Mod4 + Return + Release
 
 "st"
   Control + Shift + apostrophe
