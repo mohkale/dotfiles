@@ -7,6 +7,10 @@ zle_highlight+="region:fg=black,bg=white"
 zle_highlight+="paste:fg=cyan"
 
 autoload -U select-word-style
+# for some reason, calling this now makes repeat
+# C-w invocations, append to the previous kill.
+# Just like bash :-)
+select-word-style default
 
 # some nostalgic bashisms from [[https://github.com/davidshepherd7/dotfiles/blob/master/zsh/.zsh/zsh-bindings.sh#L9][davidshepard7]].
 backward-bashword() {
@@ -23,9 +27,18 @@ forward-bashword() {
 }
 zle -N forward-bashword
 
+backward-kill-bashword() {
+    zle -f kill # append if last action was also a kill
+    WORDCHARS='`~!@#$%^&*()-_=+[{]}\|;:",<.>/?'"'" zle backward-kill-word
+}
+zle -N backward-kill-bashword
+
 # a command to replicate unix-filename-rubout, see [[https://unix.stackexchange.com/questions/258656/how-can-i-delete-to-a-slash-or-a-word-in-zsh][here]].
 backward-kill-dir () {
-    WORDCHARS=${WORDCHARS/\/} zle backward-kill-word
+    # note this should only kill upto a directory seperator
+    # such as / or :.
+    zle -f kill
+    WORDCHARS="${WORDCHARS/\/}@" zle backward-kill-word
 }
 zle -N backward-kill-dir
 
@@ -37,8 +50,11 @@ zle -N edit-command-line
 bindkey -e
 
 # vi like movement commands on hjkl
-bindkey "^h" backward-bashword
-bindkey "^l" forward-bashword
+bindkey "^b" backward-bashword
+bindkey "^f" forward-bashword
+
+bindkey "^h" backward-char
+bindkey "^l" forward-char
 bindkey "^j" down-line-or-history
 bindkey "^k" up-line-or-history
 
@@ -56,24 +72,35 @@ bindkey "^[r" redo
 bindkey "^[d" kill-line
 bindkey "^d"  backward-kill-line
 
-bindkey '^w' backward-kill-word
+bindkey '^w'  backward-kill-bashword
 bindkey '^[w' backward-kill-dir
 
-# bindkey '^H' backward-kill-word # <C-backspace>
-# bindkey "^[?" kill-whole-line # <M-backspace>
+bindkey "^[^?" kill-whole-line # <M-backspace>
 
 bindkey "^[y" yank
 
 bindkey "^[e" edit-command-line
 
+bindkey -s "^[i" "^[[Z" # <M-i> = <S-TAB>
+
 # same as C-h/C-l except skips over /
 bindkey "^[h" vi-backward-blank-word
 bindkey "^[l" vi-forward-blank-word
 
+# shifttab to autosuggest from history
+bindkey "^[[Z" autosuggest-fetch
+
 # Bindings for Packages
 bindkey '^[xj' jq-complete
+
+# XTerm compatibility
+bindkey -s "^[[32;2u" " " # <S-Space>
+bindkey '^[[127;5u' backward-kill-word # <C-backspace>
+bindkey -s '^[[105;5u' "	" # <C-i>
 
 # Macros
 bindkey -s '^[xp' "\C-p^[xl"
 bindkey -s '^[xl' "\C-e | less"
 bindkey -s '^[xs' "\C-p\C-asd \C-a"
+bindkey -s '^[x`' '\C-e`\C-a`\C-a'
+

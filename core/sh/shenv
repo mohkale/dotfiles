@@ -205,6 +205,12 @@ shortcuts_dir="$XDG_CONFIG_HOME/shortcuts"
 [ ! -z "$shell" -a -f "$shortcuts_dir/$shell" ] && . "$shortcuts_dir/$shell"
 unset shortcuts_script
 
+# reclaim C-s and C-q
+if [ "$SMART_TERM" -eq 1 ]; then
+    stty stop  undef
+    stty start undef
+fi
+
 # source aliases
 case "$-" in
     *i*)
