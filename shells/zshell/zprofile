@@ -31,7 +31,6 @@ zplug load
 ## globsubst        - allow glob substitutions to be expanded when done so inside of variables.
 ##                    eg. foo='*'; find $foo; will behave just as if you type `find *` directly.
 ## nonotify         - don't interrupt me to let me know a background jobs finished.
-## localoptions     - any setopt/unsetopt within a function are undone on exit.
 ## localtraps       - any and trap calls within a function are undone on exit.
 ## promptpercent    - allow % substitutions in zsh prompts.
 ## promptsubst      - allow ${} substitutions in zsh prompts.
@@ -45,12 +44,14 @@ zplug load
 ## autolist         - ambiguous completion candidate automatically shows options on tab
 ## automenu         - completion menu (tab to select and cycle) only happens on second tab press
 ## menucomplete     - prevent automatic insertion of first ambiguous completion target
-setopt shwordsplit globsubst nonotify localoptions localtraps promptpercent \
-       promptsubst appendhistory incappendhistory histfindnodups histignorespace \
-       histnofunctions nohistbeep autocd nobeep autolist automenu
+## autoremoveslash  - removes a trailing slash from completed directories
+## completeinword   - allows completions in the middle of a word/argument
+setopt shwordsplit globsubst notify localtraps promptpercent \
+       promptsubst appendhistory incappendhistory sharehistory histfindnodups \
+       histignorespace histnofunctions nohistbeep autocd nobeep autolist automenu \
+       noautoremoveslash completeinword
 
 unsetopt menucomplete
-
 # have completion candidates styled like ls
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 
