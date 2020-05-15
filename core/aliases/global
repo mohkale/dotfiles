@@ -49,8 +49,8 @@ emf     emacs-make-frame
 
 # TMUX
 t      tmux
-tx     $HOME/.tmux/scripts/command
-ta     $HOME/.tmux/scripts/attach-session
+tx     $TMUX_HOME/scripts/run-command
+ta     $TMUX_HOME/scripts/attach-session
 td     tmux detach
 t?     tmux show-options -g
 tm     tmux display-message

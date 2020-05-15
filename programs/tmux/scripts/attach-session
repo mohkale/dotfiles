@@ -86,7 +86,7 @@ if [ ! -z "$choice" ]; then
             tmux attach-session -t \$"$choice"
         else
             session_id=$(tmux display-message -p '#{session_id}' | cut -c 2-)
-            [ $session_id -ne $choice ] && tmux switch-client -t "\$$choice"
+            [ $session_id -e $choice ] || tmux switch-client -t "\$$choice"
         fi
     fi
 fi
