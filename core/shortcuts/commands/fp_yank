@@ -7,4 +7,3 @@ fp_yank() {
         echo "$paths"
     fi
 }
-alias y='fp_yank '

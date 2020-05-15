@@ -5,6 +5,6 @@ fpath+="$commands_dir"
 
 while read file; do
     autoload "$file"
-done < <(find "$commands_dir" -type f)
+done < <(find "$commands_dir" -type f -or -type l)
 
 unset commands_dir
