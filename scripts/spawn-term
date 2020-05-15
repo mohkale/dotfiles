@@ -8,7 +8,19 @@ if [ "$#" -eq 0 ]; then
 fi
 
 print_usage() {
-    echo "$0 [-h|-?] [-r ROWS] [-c COLS] [-n NAME] CMD [...ARGS]"
+    echo "Usage: $0 [-h] [-r ROWS] [-c COLS] [-n NAME] CMD [...ARGS]"
+    echo ""
+    echo "create a new floating terminal window."
+    echo ""
+    echo "Positional Arguments:"
+    echo "  CMD    execute command in new window"
+    echo "  ARGS   arguments passed to CMD"
+    echo ""
+    echo "Options:"
+    echo "  -h         print this help message and exit"
+    echo "  -r ROWS    number of rows in the new window"
+    echo "  -c COLS    number of columns in the new window"
+    echo "  -n NAME    name of new floating window"
 }
 
 rows=30

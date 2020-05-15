@@ -29,7 +29,22 @@
 #   with echo or first send C-z before being prompted with your editor.
 #   In truth, this option is the main reason I created this fork.
 
-print_usage() { echo "usage $0 [-h/-?] [-f STDIN] [-i|-I] [-t TMPDIR] [-e EDITOR_CMD] [-s|-k] [-q]"; }
+print_usage() {
+    echo "Usage: $0 [-h] [-d/-D] [-f FILE] [-i|-I] [-t TMPDIR] [-e CMD] [-s|-k] [-q]"
+    echo ""
+    echo "insert an editor into your shell pipeline."
+    echo ""
+    echo "Options:"
+    echo "  -h          print this help message and exit"
+    echo "  -q          suppress warnings"
+    echo "  -d/-D       redirect current TTY (/dev/tty) as stdin to EDITOR"
+    echo "  -i/-I       specify whether STDIN is an interactive terminal"
+    echo "  -f FILE     file to open with EDITOR, defaults to STDIN"
+    echo "  -t TMPDIR   save temporary pipe file to TMPDIR"
+    echo "  -e CMD      use CMD as EDITOR instead of VISUAL/EDITOR/vi"
+    echo "  -s shred    temporary files before unlinking them"
+    echo "  -k keep     temporary files after finishing EDITOR"
+}
 
 while getopts 'h?f:iIt:e:skqdD' option; do
     case "$option" in

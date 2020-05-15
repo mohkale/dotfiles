@@ -4,12 +4,27 @@ ignore=0
 prettify=0
 editor=${EDITOR:-vi}
 
+print_usage() {
+    echo 'Usage: eval "$(build_shortcuts.sh [-1] [-i] [-P] [-e EDITOR] FILE [FILE...])"'
+    echo ""
+    echo "Required Arguments:"
+    echo "  FILE       file from which to read alias declarations from"
+    echo "             each line should be an alias with the first word"
+    echo "             being the alias name and the rest the alias cmd"
+    echo ""
+    echo "Optional Arguments:"
+    echo "  -1         output all aliases in a single line"
+    echo "  -i         don't cancel program if one of FILEs doesn't exist"
+    echo "  -p/-P      prettify outputed aliases; this'll probably break"
+    echo "  -e EDITOR  set the editor used for file aliases"
+}
+
 while getopts "hi1e:Pp" option; do
     case "$option" in
-        [h?])
-            echo 'Usage: eval "$(build_shortcuts.sh [-1] [-i] [-P] [-e EDITOR] FILE [FILE...])"'
-            exit 0
-            ;;
+        h) print_usage
+           exit 0 ;;
+        \?) print_usage >&2
+            exit 1 ;;
         1) inline=1
            ;;
         i) ignore=1

@@ -6,7 +6,13 @@
 emacs_windows=$(app-windows "Emacs") # all the open emacs frames
 
 print_usage() {
-    echo "$0 [-h] [-a] [-b] [-c]"
+    echo "Usage: $0 [-h] [-a] [-b] [-c]"
+    echo ""
+    echo "Options":
+    echo "  -h    print this help message and exit"
+    echo "  -a    only work on frames in this desktop"
+    echo "  -b    go backwards through the frame list"
+    echo "  -c    create a new frame if one doesn't exist"
 }
 
 while getopts 'abch' OPTION; do
