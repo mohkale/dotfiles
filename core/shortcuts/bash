@@ -5,5 +5,5 @@
 commands_dir="$XDG_CONFIG_HOME/shortcuts/commands"
 while read file; do
     source "$file"
-done < <(find "$commands_dir" -type f)
+done < <(find "$commands_dir" -type f -or -type l)
 unset commands_dir

@@ -227,9 +227,16 @@ case "$-" in
         else
             aliases_root="$XDG_CONFIG_HOME/aliases"
 
+            # WARN non-posix-shell compliant section!
+            alias_files=( "$aliases_root/global"    "$aliases_root/global.private" \
+                          "$aliases_root/$platform" "$aliases_root/$platform.private")
+            if [ "$INSIDE_EMACS" = 'vterm' ]; then
+                alias_files+="$aliases_root/vterm"
+                alias_files+="$aliases_root/vterm.private"
+            fi
+
             # nicest way to check whether the files exist or not, and then build aliases
-            eval "$(find $aliases_root/global    $aliases_root/global.private    \
-                         $aliases_root/$platform $aliases_root/$platform.private \
+            eval "$(find "${alias_files[@]}" \
                          -exec "$build_aliases_script" -i1 '{}' + 2>/dev/null)"
 
             unset aliases_root

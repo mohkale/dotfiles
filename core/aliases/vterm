@@ -1,0 +1,14 @@
+# -*- mode: conf-space -*-
+#   ___ _ __ ___   __ _  ___ ___
+#  / _ \ '_ ` _ \ / _` |/ __/ __|
+# |  __/ | | | | | (_| | (__\__ \
+#  \___|_| |_| |_|\__,_|\___|___/
+
+vt         vterm_cmd
+ff         vt find-file
+ffo        vt find-file-other-window
+cb         vt switch-to-buffer
+lb         vt list-buffers
+lsb        lb
+mktempb    create-new-empty-buffer
+scratch    switch-to-scratch-buffer

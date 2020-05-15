@@ -57,3 +57,7 @@ fpath=("$SCRIPTS_DIR/zsh" "$fpath[@]")
 autoload -U compinit && compinit
 
 [ "${SMART_TERM:-0}" -eq 1 ] && . "$SCRIPTS_DIR/.ps1/zsh"
+
+if [ "$INSIDE_EMACS" = 'vterm' ]; then
+    PROMPT=$PROMPT'%{$(vterm_prompt_end)%}'
+fi
