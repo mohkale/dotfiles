@@ -1,22 +1,20 @@
+# -*- mode: sh -*-
+
 with_emacs() {
     # run a command with editor set to emacsclient.
-    local usage="with-emacs [-h] COMMAND [ARGS...]" cmd=$(ec_cmd)
+    local usage="with-emacs [-h] COMMAND [ARGS...]"
+    local cmd="emacsclient"
+
+    [ -z "$EMACS_FLAGS" ] || cmd="$cmd $EMACS_FLAGS"
 
     if [ "$#" -eq 0 ]; then
-        echo -e "EDITOR=${cmd@Q}\nVISUAL=${cmd@Q}"
+        local cmd=$(printf %q "$cmd")
+        echo -e "EDITOR=${cmd}\nVISUAL=${cmd}"
     else
-        local OPTIND OPTION
-        while getopts 'h?' OPTION; do
-            case "$OPTION" in
-                h) echo "$usage"
-                   return 0
-                   ;;
-                *) echo "$usage" >&2
-                   return 1
-                   ;;
-            esac
-        done
-        shift $((OPTIND-1))
+        if [ "$1" = "-h" -o "$2" = "--help" ]; then
+            echo "$usage"
+            shift 1
+        fi
 
         EDITOR="$cmd" VISUAL="$cmd" "$@"
     fi

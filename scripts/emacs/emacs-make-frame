@@ -31,9 +31,7 @@ fi
 
 if [ ! "$ignore_client" -eq 0 ]; then
     if server_running; then
-        emacsclient --socket-name "$EMACS_SERVER_FILE" \
-                    --server-file "$EMACS_SERVER_FILE" \
-                    --create-frame --no-wait --suppress-output --eval '(kill-all-windows-and-return-to-home)'
+        emacsclient --create-frame --no-wait --suppress-output --eval '(kill-all-windows-and-return-to-home)'
     else
         if emacs_running; then notify-send "emacs open but server isn't"; fi
         emacs & disown # open a new emacs process in its own individual emacs frame
