@@ -1,4 +1,4 @@
-# -*- shell-script -*-
+# -*- mode: sh -*-
 ###########################
 # xbindkeys configuration #
 ###########################
@@ -27,5 +27,8 @@
 
 "spawn-term fzf-dmenu"
   Mod4 + bracketleft + Release
+
+"spawn-term fzf-dmenu -a"
+  Mod4 + bracketright + Release
 
 # NOTE: you can force reload of this config by running `killall -HUP xbindkeys`
