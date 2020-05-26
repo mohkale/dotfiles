@@ -45,7 +45,7 @@ else
                   sort -n | cut -d' ' -f 2-)
 
     active_window_pid=$(xdotool getwindowfocus getwindowpid)
-    if <<< "$windows" cut -d ' ' -f4 | grep -- "$active_window_pid" >/dev/null 2>&1; then
+    if <<< "$windows" cut -d ' ' -f3 | grep -- "$active_window_pid" >/dev/null 2>&1; then
         # currently on a terminal, try to select the next terminal in the list.
 
         active_window_wid=$(printf "%x" $(xdotool getwindowfocus))

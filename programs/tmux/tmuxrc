@@ -13,6 +13,9 @@ set -g detach-on-destroy on
 set -g renumber-windows on
 # no bells
 set -g visual-activity on
+# update the title of my terminal
+set -g set-titles on
+set -g set-titles-string 'tmux@#H [#S:#I] #W'
 
 # windows and panes start from 1
 set -g base-index 1

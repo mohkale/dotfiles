@@ -3,7 +3,10 @@
 # backwards between open frames when you're currently already in a
 # frame.
 
-emacs_windows=$(app-windows "Emacs") # all the open emacs frames
+HOST=$(hostname)
+
+# all the open emacs frames or tmux clients showing an emacs frame in the current pane.
+emacs_windows=$(app-windows -t 'emacs@'"$HOST"'|tmux@'"$HOST"' \\[.+:[[:digit:]]+\\] emacs')
 
 print_usage() {
     echo "Usage: $0 [-h] [-a] [-b] [-c]"
