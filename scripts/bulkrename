@@ -1,0 +1,223 @@
+#!/usr/bin/env bash
+# a script to automate the bulkrenaming of files/dirs inspired by
+# [[https://github.com/ranger/ranger][ranger]] and [[https://github.com/alexherbo2/batch][batch]].
+#
+# See also [[https://github.com/gokcehan/lf/issues/149][lf#149]].
+
+set -e # stop execution when something fails
+
+function print_usage {
+    echo "Usage: bulrename [-h] [-e EDITOR] [-p|-P] [-v|-V] [-s FILE]"
+    echo "                 [-y] [-c DIR] [-f FILE] [-] FILE [...FILE]"
+}
+
+function print_help {
+    print_usage
+    echo ""
+    echo "file-lists:"
+    echo "  -           read file paths from STDIN"
+    echo "  -f FILE, --file FILE"
+    echo "              read file paths from FILE"
+    echo "  -e EDITOR, --editor EDITOR"
+    echo "              set the editor used for modifying existing file paths"
+    echo ""
+    echo "optional arguments:"
+    echo "  -h, --help  show this help message and exit"
+    echo "  -s FILE, --select FILE"
+    echo "              preselect FILE in EDITOR when possible."
+    echo "  -c DIR, --cd DIR"
+    echo "              change to DIR before processing."
+    echo "  -p/-P, --[no]-prettify"
+    echo "              prettify files before processing them. prettifying involves"
+    echo "              converting absolute paths to paths relative to the CWD"
+    echo "              (enabled by default)."
+    echo "  -v/-V, --[no-]verify"
+    echo "              verify any bulkrename files exist before processing them."
+    echo "              any non-existant files will be removed from the change list."
+    echo "              (enabled by default)."
+    echo "  -y, --no-confirm"
+    echo "              don't confirm operations before executing them."
+}
+
+function cleanup {
+    [ -n "$index" ]      && rm "$index"
+    [ -n "$index_edit" ] && rm "$index_edit"
+    [ -n "$scratch" ]    && rm "$scratch"
+}
+trap cleanup EXIT
+
+function get_temp {
+    # create a temporary file for bulkrenames use.
+    mktemp /tmp/bulkrename-"${1:-misc}".XXXXXXXXXX
+}
+
+editor="${VISUAL:-$EDITOR:-vi}" # a sane choice
+index=$(get_temp index)
+
+[ "$#" -eq 0 ] && set -- -h
+
+while [ "$#" -gt 0 ]; do
+    key="$1"
+    shift
+
+    case "$key" in
+        -h) print_usage
+            exit 0 ;;
+        --help) print_help
+                exit 0 ;;
+        # options
+        -e|--editor) editor="$1"
+                     shift
+                     ;;
+        -p|--prettify)    prettify=1 ;;
+        -P|--no-prettify) prettify=0 ;;
+
+        -v|--verify)    verify=1 ;;
+        -V|--no-verify) verify=0 ;;
+
+        -s|--select) select="$1"
+                     shift ;;
+        -c|--cd) cd "$1"
+                 shift ;;
+        -y|--no-confirm) confirm=0 ;;
+        # file lists
+        -) cat >> "$index"
+           ;;
+        -f) cat "$1" >> "$index"
+            shift
+            ;;
+        -*) echo "bulkrename: error: unrecognised argument: $key" >&2
+            exit 1 ;;
+        *) echo "$key" >> "$index"
+           ;;
+    esac
+done
+
+function line_count {
+    cat "$1" | wc -l
+}
+
+function file_hash {
+    sha256sum "$1" | cut -d' ' -f1
+}
+
+function quote {
+    printf "%q" "$1"
+}
+
+[ $(line_count "$index") -eq 0 ] && exit 0
+
+if [ "${verify:-1}" -eq 1 ]; then
+    # write to a temporary sponge to prevent
+    # index being truncated prematurely.
+    sponge=$(get_temp sponge)
+    # filters out any files that don't exist
+    xargs -d '\n' -a "$index" -r ls -d -- > "$sponge" || true
+
+    # do some cleanup.
+    cat "$sponge" > "$index"; rm "$sponge"
+
+    if [ -n "$select" ] && ! [ -e "$select" ]; then
+        # can't preselect a non-existant file.
+        unset select
+    fi
+fi
+
+# make absolute paths relative
+if [ "${prettify:-1}" -eq 1 ]; then
+    awk_pattern='
+{
+    # when line has cwd as a substring at start of string.
+    if (index($0, cwd) == 1) {
+         print substr($0, length(cwd)+1)
+    } else if ($0 ~ /^.\//) {
+         print substr($0, 3)
+    } else {
+         print $0
+    }
+}'
+
+    awk --assign cwd="$(pwd)/" -i inplace -e "$awk_pattern" "$index"
+
+    if [ -n "$select" ]; then
+        select=$(awk --assign cwd="$(pwd)/" -e "$awk_pattern" <<< "$select")
+    fi
+
+    unset awk_pattern
+fi
+
+index_edit=$(get_temp edit)
+cat "$index" > "$index_edit"
+
+editor_flags=""
+if [ -n "$select" ]; then
+    line=$(grep -m 1 -x -F "$select" -n "$index" | cut -d':' -f1)
+    if [ "${line:-1}" -ne 1 ]; then
+        case "$editor" in
+            vi*|nvim*|emacs*)
+                editor_flags="+$line"
+                ;;
+        esac
+    fi
+fi
+
+if ! $editor $editor_flags "$index_edit"; then
+    echo "bulkrename: error: editor exited with $?" >&2
+    exit 1
+fi
+
+function scratch_template {
+    echo "# This file will be executed when you close the editor."
+    echo "# Please double check everything, clear the file to abort."
+    echo ""
+    echo 'function trash { condemn -- "$1"; }'
+    echo 'function rename { mv -vi -- "$1" "$2"; }'
+    echo ""
+}
+
+# magic comments to make certain editors recognise file
+# syntaxes.
+function editor_magic {
+    echo ""
+    # emacs
+    echo "# Local Variables:"
+    echo "# mode: sh"
+    echo "# End:"
+    # vim
+    echo "# vim:syntax=sh filetype=sh"
+}
+
+if [ "$(line_count "$index")" -ne "$(line_count "$index_edit")" ]; then
+    echo "line number mismatch." >&2
+else
+    scratch=$(get_temp scratch)
+
+    scratch_template >> "$scratch"
+    scratch_hash=$(file_hash "$scratch")
+
+    # delimit src from dest using backspace character.
+    # I highly doubt I'll ever have a file with this
+    # character in it... and paste doesn't let you use
+    # the null character (\0) as a delimeter.
+    paste -d '' "$index" "$index_edit" |
+      while IFS='' read -r src dest; do
+          if [ "$src" = "$dest" ]; then
+              :
+          elif [ "$dest" = "" ]; then
+              echo "trash $(quote "$src")" >> "$scratch"
+          elif [ -e "$dest" ]; then
+              echo "File exists: $dest" >&2
+          else
+              echo "rename $(quote "$src") $(quote "$dest")" >> "$scratch"
+          fi
+      done
+
+    # let user inspect script and then run it.
+    # only runs when at least one file is to be acted on.
+    if [ "$(file_hash "$scratch")" != "$scratch_hash" ]; then
+        editor_magic >> "$scratch"
+        if [ "${confirm:-1}" -eq 0 ] || $editor "$scratch"; then
+            sh "$scratch"
+        fi
+    fi
+fi
