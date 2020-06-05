@@ -4,6 +4,8 @@
       env:  true
     - path: wget
       env:  true
+    - path: wine
+      env:  true
     - path: dolphin
       env:  true
     - path: sxiv
