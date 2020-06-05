@@ -1,0 +1,415 @@
+# -*- mode: conf-space; eval: (display-line-numbers-mode +1) -*-
+
+## Configuration Options
+# interpreter for shell commands (needs to be POSIX compatible)
+set shell sh
+
+# These options are used to have safer shell commands. Option '-e' is used to
+# exit on error and option '-u' is used to give error for unset variables.
+# Option '-f' disables pathname expansion which can be useful when $f, $fs, and
+# $fx variables contain names with '*' or '?' characters. However, this option
+# is used selectively within individual commands as it can be limiting at
+# times.
+set shellopts '-eu'
+
+# set internal field separator (IFS) to "\n" for shell commands
+# This is useful to automatically split file names in $fs and $fx properly
+# since default file separator used in these variables (i.e. 'filesep' option)
+# is newline. You need to consider the values of these options and create your
+# commands accordingly.
+set ifs "\n"
+
+set relativenumber
+
+# leave some space at the top and the bottom of the screen
+set scrolloff 3
+
+## Bindings
+map zl set relativenumber!
+
+# use enter for shell commands
+map <enter> shell
+map <c-s>   :push /
+
+# execute current file (must be executable)
+map x $$f
+map X !$f
+
+# reclaim , as a custom prefix
+map ,
+map g; find-prev
+
+# make lf more like ranger
+map c
+map cc clear
+map cd push :cd<space>
+
+map d
+map dd cut
+map dD delete
+map D  delete
+
+map w
+map S $$SHELL
+
+map p
+map pp paste
+
+cmd toggle-inplace :toggle;up
+cmd toggle-backwards :up;toggle-inplace
+map <bs>  toggle-backwards
+map <bs2> toggle-backwards
+
+map zP nopreview
+map zp showpreview
+
+# inspect folder sizes
+cmd du        !du --max-depth=1 -h --apparent-size
+cmd du_sorted !du --max-depth=1 -h --apparent-size | sort -rh
+map du du
+map dU du_sorted
+
+# replicate my shell config in command line mode.
+cmap <c-g>  cmd-escape
+cmap <up>   cmd-history-prev
+cmap <down> cmd-history-next
+# replicate my zsh like word movements
+cmap <c-b> cmd-word-back
+cmap <c-f> cmd-word
+cmap <a-b> cmd-left
+cmap <a-f> cmd-right
+
+# quick jump
+map gd
+map gc
+map gd goto-downloads
+map gc goto-config
+map gi goto-images
+map gm goto-music
+map gu goto-documents
+map g. goto-dotfiles
+map gt cd /tmp/
+map g/ cd /
+map ct cdmktemp
+
+map dT trash
+
+map gf fzf
+map gl fzf_cd
+
+map cw    bulkrename
+map <a-e> bulkrename
+
+map cr bulkrename_all
+
+
+# open file at point in various ways
+map o
+map oo open
+map op $$PAGER  "$f"
+map gr reload
+map oe evi
+map ox execute
+map oX execute-async
+map os shell-in-directory
+map oa open-all
+map oi open-images
+
+# custom leaders
+map ,m mkdir
+map ,n mkcd
+
+# configuration
+map ,r source ~/.config/lf/lfrc
+map ,e edit-config
+map ,E evi-config
+
+map ,g push :glob-select<space>
+map ,u push :glob-unselect<space>
+map <c-z> $kill -STOP $PPID
+map <c-o> bottom
+map <a-o> top
+map <enter> open
+
+# macros
+# echo "$fz" | tr '\n' '\0' | xargs -r0 -I% 
+map ,x push !echo<space>$fx<space>|<space>tr<space>'\n'<space>'\0'<space>|<space>xargs<space>-r0<space>-I%<space>
+map ,X push &echo<space>$fx<space>|<space>tr<space>'\n'<space>'\0'<space>|<space>xargs<space>-r0<space>-I%<space>
+
+# for it in "$fx"; do ; done
+map ,f push !for<space>it<space>in<space>$fx;<space>do<space>;<space>done<left><left><left><left><left><left>
+map ,F push &for<space>it<space>in<space>$fx;<space>do<space>;<space>done<left><left><left><left><left><left>
+
+# printf "%s\n" "$fx" | 
+map ,p push !printf<space>"%s\n"<space>$fx<space>|<space>
+map ,P push &printf<space>"%s\n"<space>$fx<space>|<space>
+
+### commands
+## special commands
+# show git information in lf's prompt
+#cmd on-cd &{{
+#    # display git repository status in your prompt
+#    source ~/programming/scripts/.ps1/git-prompt.sh
+#    git=$(__git_ps1 " (%s)") || true
+#    fmt="\033[32;1m%u@%h\033[0m:\033[34;1m%w/\033[0m\033[1m%f$git\033[0m"
+#    lf -remote "send $id set promptfmt \"$fmt\""
+#}}
+
+# This command is called when current file is not a directory. You may want to
+# use either file extensions and/or mime types here. Below uses an editor for
+# text files and a file opener for the rest.
+cmd open ${{
+    case $(file --mime-type $f -b) in
+        text/*) $EDITOR $f ;;
+        *) $OPENER $f > /dev/null 2> /dev/null & ;;
+    esac
+}}
+
+## Open Commands
+cmd open-all ${{
+    case $(file --mime-type $f -b) in
+        text/*) $EDITOR $fx;;
+        *) for f in $fx; do setsid $OPENER $f > /dev/null 2> /dev/null & done;;
+    esac
+}}
+
+# run an executable.
+cmd execute !{{
+    if [ -x "$f" ]; then
+        # see [[https://askubuntu.com/questions/850384/is-there-a-command-for-running-a-script-according-to-its-shebang-line][running through a shebang]].
+        if [ -n "$(sed --silent -e '/^#!/p;2q' "$f")" ]; then
+            perl "$f"; else $SHELL "$f"; fi
+    else
+        echo "file not executable: $f"
+    fi
+}}
+
+cmd execute-async &{{
+    if [ -x "$f" ]; then
+        if [ -n "$(sed --silent -e '/^#!/p;2q' "$f")" ]; then
+            perl "$f"; else $SHELL "$f"; fi
+    else
+        echo "file not executable: $f"
+    fi
+}}
+
+# open all marked images or images in the cwd.
+cmd open-images &{{
+    if [ -z "$fs" ]; then
+        fs=$(find -L "$(pwd)" -mindepth 1 -maxdepth 1 -type f)
+    fi
+
+    # strip out all files that aren't images
+    fs=$(tr '\n' '\0' <<< "$fs" |
+          xargs -r0 file -L --mime-type |
+          awk -F : '{
+if ($2 ~ /image/)
+    print $1
+else
+    printf "file not image: %s\n", $1 > "/dev/stderr"
+}')
+
+    # when current file is an image, and is in the list of opened images
+    # make sure SXIV selects that image first.
+    flags=""
+    if [ -n "$f" ]; then
+        line=$(echo "$fs" | grep -m 1 -x -F -w "$f" -n | cut -d':' -f1)
+        [ -n "$line" ] && flags='-n '"$line"
+    fi
+
+    echo "$fs" | sxiv -i $flags
+}}
+
+## chdir commands
+cmd goto-downloads ${{
+    . "$HOME/.config/user-dirs.dirs"
+    dir="${XDG_DOWNLOAD_DIR:-~/Downloads}"
+    lf -remote "send $id cd \"$dir\""
+}}
+
+cmd goto-config ${{
+    . "$HOME/.config/user-dirs.dirs"
+    dir="${XDG_CONFIG_HOME:-~/.config}"
+    lf -remote "send $id cd \"$dir\""
+}}
+
+cmd goto-images ${{
+    . "$HOME/.config/user-dirs.dirs"
+    dir="${XDG_PICTURES_DIR:-~/Pictures}"
+    lf -remote "send $id cd \"$dir\""
+}}
+
+cmd goto-music ${{
+    . "$HOME/.config/user-dirs.dirs"
+    dir="${XDG_MUSIC_DIR:-~/Music}"
+    lf -remote "send $id cd \"$dir\""
+}}
+
+cmd goto-documents ${{
+    . "$HOME/.config/user-dirs.dirs"
+    dir="${XDG_DOCUMENTS_DIR:-~/Documents}"
+    lf -remote "send $id cd \"$dir\""
+}}
+
+cmd goto-dotfiles ${{
+    dir="${DOTFILES_REPO_PATH:-~/.dotfiles}"
+    lf -remote "send $id cd \"$dir\""
+}}
+
+## Archive Control
+# extract the current file with the right command
+# (xkcd link: https://xkcd.com/1168/)
+cmd extract ${{
+    set -f
+    case $f in
+        *.tar.bz|*.tar.bz2|*.tbz|*.tbz2) tar xjvf $f;;
+        *.tar.gz|*.tgz) tar xzvf $f;;
+        *.tar.xz|*.txz) tar xJvf $f;;
+        *.zip) unzip $f;;
+        *.rar) unrar x $f;;
+        *.7z) 7z x $f;;
+    esac
+}}
+
+# compress current file or selected files with tar and gunzip
+cmd tar ${{
+    set -f
+    mkdir $1
+    cp -r $fx $1
+    tar czf $1.tar.gz $1
+    rm -rf $1
+}}
+
+# compress current file or selected files with zip
+cmd zip ${{
+    set -f
+    mkdir $1
+    cp -r $fx $1
+    zip -r $1.zip $1
+    rm -rf $1
+}}
+
+## fzf
+# change lf directories using fzf
+cmd fzf_cd ${{
+    res="$(find . -mindepth 1 \( -type d -o \( -type l -a -exec [ -d {} ] ';' \) \) -print 2>/dev/null |
+             fzf --no-multi)"
+    [ -n "$res" ] && lf -remote "send $id select $res"
+}}
+
+# open a file or cd using fzf.
+cmd fzf ${{
+    res="$(find . -mindepth 1 2>/dev/null | fzf --no-multi)"
+
+    if [ -f "$res" ]; then
+      lf -remote "send $id select \"$res\"" &&
+        true # lf -remote "send $id open"
+    elif [ -d "$res" ]; then
+      lf -remote "send $id cd \"$res\""
+    fi
+}}
+
+## Control
+# bulkrename a bunch of files, see [[https://github.com/gokcehan/lf/issues/149#issuecomment-470960434][here]].
+cmd bulkrename !{{
+    dir=$(dirname "$f")
+    if [ "$fs" = "" ]; then
+        # when no marked files exist, use all files in the current
+        # directory.
+        fs=$(ls -1 --group-directories-first --quoting-style=literal -- "$dir")
+    fi
+
+    bulkrename -s "$f" -c "$dir" - <<< "$fs"
+}}
+
+# recursively bulkrename all files
+cmd bulkrename_all !{{
+    find "$(dirname "$f")" -type f | bulkrename -s "$f" -c "$(dirname "$f")" -
+}}
+
+## Misc
+# make a temp directory and then change to it.
+cmd cdmktemp ${{
+    dest=$(mktemp -d)
+    lf -remote "send $id cd $dest"
+}}
+
+# make a directory
+cmd mkdir %{{
+    printf "directory: "
+    read -e dir
+    mkdir -p "$dir"
+}}
+
+# make a directory and then change to it.
+cmd mkcd %{{
+    printf "directory: "
+    read -e dir
+    mkdir -p "$dir"
+    lf -remote "send $id cd \"$dir\""
+}}
+
+cmd trash ${{
+    condemn $fx
+}}
+
+### Editor
+# link lf to emacsclient through evi
+cmd evi ${{
+    . $HOME/.config/shortcuts/commands/evi
+    evi "$f"
+}}
+
+cmd edit-config ${{
+    if $EDITOR ~/.config/lf/lfrc; then
+        lf -remote "send $id source ~/.config/lf/lfrc"
+    fi
+}}
+
+cmd evi-config ${{
+    . $HOME/.config/shortcuts/commands/evi
+    if evi ~/.config/lf/lfrc; then
+        lf -remote "send $id source ~/.config/lf/lfrc"
+    fi
+}}
+
+## Misc
+# open shell in current directory or the directory
+# at point if the file at point is a directroy.
+cmd shell-in-directory ${{
+    if [ -d "$(readlink -f "$f")" ]; then
+        cd "$f"; $SHELL
+    else
+        $SHELL
+    fi
+}}
+
+## preview control
+cmd nopreview &{{
+	lf -remote "send $id set nopreview"
+	lf -remote "send $id set ratios 1:3"
+}}
+
+cmd showpreview &{{
+	lf -remote "send $id set preview"
+	lf -remote "send $id set ratios 1:2:3"
+}}
+
+# ranger like preview control
+cmd nopreview &{{
+	lf -remote "send $id set nopreview"
+	lf -remote "send $id set ratios 1:3"
+}}
+
+cmd showpreview &{{
+	lf -remote "send $id set preview"
+	lf -remote "send $id set ratios 1:2:3"
+}}
+
+## TODOs
+# define a custom 'rename' command without prompt for overwrite
+# cmd rename %[ -e $1 ] && printf "file exists" || mv $f $1
+# map r push :rename<space>
+
+# TODO map x to chmod
+# TODO consistent trashing

@@ -21,8 +21,8 @@ img     feh
 netcat  ncat
 chksum  cksum
 unmount umount
-r       rake
-rl      rake -T
+R       rake
+Rl      rake -T
 T       thor
 Tl      thor list
 Th      thor help
@@ -31,6 +31,8 @@ ctemp   cd    $(mktemp -d)
 qtemp   pushd $(mktemp -d)
 b       buku --suggest
 ttr     tortrans
+r       ranger
+c       lfcd
 
 # vim stuff
 :q      exit

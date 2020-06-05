@@ -6,6 +6,8 @@
       env:  true
     - path: wine
       env:  true
+    - path: lf
+      env:  true
     - path: dolphin
       env:  true
     - path: sxiv
