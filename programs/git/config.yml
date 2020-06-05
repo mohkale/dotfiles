@@ -1,8 +1,0 @@
-- packages:
-    - apt: git
-    - msys: git
-    - chocolatey: git
-    - pacman: git
-
-- link:
-    ~/.config/git/config: gitconfig

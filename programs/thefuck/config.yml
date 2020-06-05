@@ -1,5 +1,0 @@
-- packages:
-    - pacman: thefuck
-
-- link:
-    ~/.config/thefuck/settings.py:

@@ -1,8 +1,0 @@
-- create:
-    - ~/.local/share/wine/prefixes/default
-
-- packages:
-  - yay:
-    - wine
-    - wine-mono
-    - wine-gecko

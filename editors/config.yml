@@ -1,7 +1,0 @@
-- bots:
-    - path: vim
-      env:  true
-    - path: nvim
-      env:  true
-    - path: emacs
-      env:  true

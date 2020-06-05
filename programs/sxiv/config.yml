@@ -1,5 +1,0 @@
-- packages:
-    pacman: sxiv
-
-- link:
-    ~/.config/sxiv/exec/key-handler:

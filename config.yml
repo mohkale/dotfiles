@@ -1,10 +1,11 @@
 # dotbot configuration file
+
 - defaults:
     link:
       relink: true
       create: true
     bots:
-      config: config.yml
+      config: .config
 
 - clean: ['~']
 

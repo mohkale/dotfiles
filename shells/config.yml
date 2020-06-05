@@ -1,4 +1,0 @@
-- bots:
-    - bash
-    - path: zshell
-      env:  true

@@ -197,6 +197,7 @@ class SubBotPlugin(LogMixin, dotbot.Plugin):
         configs = [
             os.path.realpath(os.path.join(path, spec['config'])),
             os.path.realpath(path.rstrip('/') + '.yml'),
+            os.path.realpath(path.rstrip('/')),
             os.path.realpath(os.path.join(path, os.path.basename(path.rstrip('/')) + '.yml')),
         ]
         for p in configs:
