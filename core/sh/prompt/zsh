@@ -1,6 +1,6 @@
 # -*- mode: sh -*-
 
-git_prompt_path="$SCRIPTS_DIR/.ps1/git-prompt.sh"
+git_prompt_path="$(dirname "$0")/bin/git-prompt"
 
 if ! hash __git_ps1 1>/dev/null 2>&1; then
     if [ -f "$git_prompt_path" ]; then

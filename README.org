@@ -50,7 +50,7 @@
    | langs    | setup multiple programming languages & environments.       |
    | programs | sets up various programs, eg. zathura or konsole.          |
    | dist     | configurations for specific distros or environments.       |
-   | scripts  | standalone shell scripts, use for lots of things :smile:.       |
+   | bin      | scripts, executables, commands. you get the idea :sunglasses:.       |
    | shells   | bash, zsh, etc. each have their own setup requirements.    |
    | setup    | dotbot, plugins for dotbot, dotfile introspection scripts. |
 

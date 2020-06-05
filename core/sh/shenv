@@ -84,9 +84,6 @@ if [ -x /usr/bin/dircolors ] && [ -r "$HOME/.config/dircolors" ]; then
 fi
 
 # Custom Configuration Paths
-export PROGRAM_DIR=$HOME/programming
-export SCRIPTS_DIR="$PROGRAM_DIR"/scripts
-
 export PYTHONIOENCODING="utf-8" # prevents error msg
 
 HISTSIZE=1000 HISTFILESIZE=2000
@@ -122,12 +119,10 @@ lines_to_path() { #(PATH [...PATH])
 }
 
 export PATH=`lines_to_path $PATH <<EOF
-~/programming/scripts/public
 ~/.local/bin/
-$SCRIPTS_DIR
-$PROGRAM_DIR/bin
-$PROGRAM_DIR/.modules/ruby/bin
-$PROGRAM_DIR/.modules/go/bin
+~/programming/scripts
+~/programming/.modules/ruby/bin
+~/programming/.modules/go/bin
 $XDG_DATA_HOME/npm/bin
 ~/.rvm/bin
 EOF`
@@ -140,17 +135,17 @@ export CLASSPATH=`lines_to_path "$CLASSPATH" <<EOF
 # WARN for some dumb reason... java & javac just
 #      completely ignore this environment variable
 #      when you pass the -cp argument.
-$PROGRAM_DIR/.modules/java/
-$PROGRAM_DIR/.modules/java/*
+~/programming/.modules/java/
+~/programming/.modules/java/*
 EOF`
 
 export PYTHONPATH=`lines_to_path "$PYTHONPATH" <<EOF
-$PROGRAM_DIR/.modules/python
+~/programming/.modules/python
 EOF`
 
-export GEM_HOME=$PROGRAM_DIR/.modules/ruby
+export GEM_HOME=$HOME/programming/.modules/ruby
 export GEM_PATH=`lines_to_path "$GEM_PATH" <<EOF
-$PROGRAM_DIR/.modules/ruby
+$GEM_HOME
 EOF`
 
 export GOPATH=`lines_to_path $GOPATH <<EOF
@@ -232,31 +227,25 @@ case "$-" in
             unset alias # remove a basically uselass environment variable from the shell
         fi
 
-        build_aliases_script="$SCRIPTS_DIR/private/build_aliases.sh"
-        if [ ! -x "$build_aliases_script" ]; then
-            printf "bash_aliases(error) : failed to find build aliases script: %s\n" "$1" >&2
-        else
-            aliases_root="$XDG_CONFIG_HOME/aliases"
+        aliases_root="$XDG_CONFIG_HOME/aliases"
 
-            # WARN non-posix-shell compliant section!
-            alias_files=( "$aliases_root/global"    "$aliases_root/global.private" \
-                          "$aliases_root/$platform" "$aliases_root/$platform.private")
-            if [ "$INSIDE_EMACS" = 'vterm' ]; then
-                alias_files+="$aliases_root/vterm"
-                alias_files+="$aliases_root/vterm.private"
-            fi
-
-            # nicest way to check whether the files exist or not, and then build aliases
-            eval "$(find "${alias_files[@]}" \
-                         -exec "$build_aliases_script" -i1 '{}' + 2>/dev/null)"
-
-            unset aliases_root
+        # WARN non-posix-shell compliant section!
+        alias_files=( "$aliases_root/global"    "$aliases_root/global.private" \
+                        "$aliases_root/$platform" "$aliases_root/$platform.private")
+        if [ "$INSIDE_EMACS" = 'vterm' ]; then
+            alias_files+="$aliases_root/vterm"
+            alias_files+="$aliases_root/vterm.private"
         fi
 
-        unset build_aliases_script shell
+        # nicest way to check whether the files exist or not, and then build aliases
+        eval "$(find "${alias_files[@]}" \
+                        -exec "build-aliases" -i1 '{}' + 2>/dev/null)"
+
+        unset aliases_root
 
         alias sd='sudo '
         ;;
 esac
 
+unset shell
 SOURCED_SHENV=1

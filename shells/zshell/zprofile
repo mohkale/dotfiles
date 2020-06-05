@@ -64,11 +64,11 @@ zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 source $XDG_CONFIG_HOME/bindings/zshell
 
 # where to look for autoloads
-fpath=("$SCRIPTS_DIR/zsh" "$fpath[@]")
+fpath=("$fpath[@]")
 
 autoload -U compinit && compinit
 
-[ "${SMART_TERM:-0}" -eq 1 ] && . "$SCRIPTS_DIR/.ps1/zsh"
+[ "${SMART_TERM:-0}" -eq 1 ] && . "$XDG_CONFIG_HOME/prompt/zsh"
 
 if [ "$INSIDE_EMACS" = 'vterm' ]; then
     PROMPT=$PROMPT'%{$(vterm_prompt_end)%}'

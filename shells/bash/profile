@@ -40,7 +40,7 @@ for plugin in "${optional_plugins[@]}"; do
     [ -x "$plugin" ] && . "$plugin"
 done
 
-[ "${SMART_TERM:-0}" -eq 1 ] && . "$SCRIPTS_DIR/.ps1/bash"
+[ "${SMART_TERM:-0}" -eq 1 ] && . "$XDG_CONFIG_HOME/prompt/bash"
 
 if [ "$INSIDE_EMACS" = 'vterm' ]; then
     PS1=$PS1'\[$(vterm_prompt_end)\]'

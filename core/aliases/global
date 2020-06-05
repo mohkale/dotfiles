@@ -168,9 +168,7 @@ cd20@dir    ../../../../../../../../../../../../../../../../../../../../
 h@dirx            ~
 dl@dirx           ~/downloads
 em@dirx           "$EMACS_HOME"
-pj@dirx           ~/programming/projects
 rp@dirx           ~/programming/repos
-sc@dirx           ~/programming/scripts
 st@dirx           ~/.shortcuts
 dtop@dirx         ~/desktop
 music@dirx        ~/multimedia/music

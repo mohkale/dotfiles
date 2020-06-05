@@ -61,7 +61,7 @@
     - editors
     - langs
     - programs
-    - scripts
+    - bin
     - shells
 
 - shell:
