@@ -32,6 +32,8 @@
       env:  true
     - path: media/itunes
       env:  true
+    - path: media/lollypop
+      env:  true
     - path: browsers/firefox
       env:  true
     - path: browsers/brave
