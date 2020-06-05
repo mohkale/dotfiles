@@ -7,7 +7,7 @@
         create: true
 
 - packages:
-    pacman:
+    yay:
       - xorg
       - xorg-xinit
       - xbindkeys

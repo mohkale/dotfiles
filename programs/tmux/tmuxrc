@@ -135,8 +135,8 @@ bind 9 select-window -t 9
 
 ## visual mode. selection, yanking and pasting
 bind                 p   paste-buffer
-bind                 v   copy-mode \; send-keys -X begin-selection
-bind                 V   copy-mode
+bind                 V   copy-mode \; send-keys -X begin-selection
+bind                 v   copy-mode
 bind                 u   copy-mode \; send-keys -X halfpage-up
 bind                 C-u copy-mode \; send-keys -X halfpage-up
 bind -T copy-mode-vi C-g send-keys -X cancel

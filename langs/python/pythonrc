@@ -38,7 +38,7 @@ def _generate_color(code):
             return code + ' '.join(strings) + reset
         return generate_color
     else:
-        return lambda strings: ' '.join(strings)
+        return lambda *strings: ' '.join(strings)
 
 class colors:
     # use a psuedo namespace for colors

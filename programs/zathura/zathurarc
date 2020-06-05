@@ -1,5 +1,8 @@
 # -*- mode: sh -*-
 
+set synctex true
+# set synctex-editor-command "gvim +%{line} %{input}"
+
 set selection-clipboard clipboard
 set font "noto-sans 12"
 

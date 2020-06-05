@@ -1,3 +1,6 @@
+[$Version]
+update_info=filepicker.upd:filepicker-remove-old-previews-entry,fonts_global.upd:Fonts_Global,fonts_global_toolbar.upd:Fonts_Global_Toolbar,icons_remove_effects.upd:IconsRemoveEffects,kwin.upd:animation-speed
+
 [ColorEffects:Disabled]
 ChangeSelectionColor=
 Color=56,56,56
@@ -104,15 +107,22 @@ ForegroundNormal=239,240,241
 ForegroundPositive=39,174,96
 ForegroundVisited=127,140,141
 
+[DesktopIcons]
+Size=22
+
+[DirSelect Dialog]
+DirSelectDialog Size=835,596
+History Items[$e]=file:$HOME/multimedia/images
+
 [General]
-BrowserApplication[$e]=brave-browser.desktop
+BrowserApplication=brave-browser.desktop
 ColorScheme=BreezeDark
-Name=Breeze
+Name=Breeze Dark
 Name[en_GB]=Breeze Dark
 TerminalApplication=st
 UseSystemBell=true
-XftHintStyle=
-XftSubPixel=
+XftHintStyle=hintslight
+XftSubPixel=rgb
 dbfile=/home/mohkale/.mozilla/firefox/trhxj9fg.default/places.sqlite
 fixed=Hack,11,-1,5,50,0,0,0,0,0,Regular
 font=Noto Sans,10,-1,5,50,0,0,0,0,0,Regular
@@ -128,6 +138,7 @@ Theme=breeze-dark
 [KDE]
 ColorScheme=Breeze
 LookAndFeelPackage=org.kde.breezedark.desktop
+ShowDeleteCommand=false
 ShowIconsInMenuItems=true
 ShowIconsOnPushButtons=true
 SingleClick=false
@@ -138,19 +149,30 @@ widgetStyle=Breeze
 Allow Expansion=false
 Automatically select filename extension=true
 Breadcrumb Navigation=true
-Decoration position=2
+Decoration position=0
 LocationCombo Completionmode=5
 PathCombo Completionmode=5
 Show Bookmarks=false
 Show Full Path=false
 Show Inline Previews=true
+Show Preview=false
 Show Speedbar=true
-Show hidden files=false
+Show hidden files=true
 Sort by=Name
 Sort directories first=true
 Sort reversed=false
 Speedbar Width=152
-View Style=DetailTree
+View Style=Simple
+
+[KScreen]
+ScaleFactor=1
+ScreenScaleFactors=DP-1=1;DP-2=1;DP-3=1;
+
+[KShortcutsDialog Settings]
+Dialog Size=600,480
+
+[PreviewSettings]
+MaximumRemoteSize=0
 
 [Toolbar style]
 ToolButtonStyle=TextBesideIcon
@@ -159,6 +181,7 @@ ToolButtonStyleOtherToolbars=TextBesideIcon
 [WM]
 activeBackground=49,54,59
 activeBlend=255,255,255
+activeFont=Noto Sans,9,-1,5,50,0,0,0,0,0
 activeForeground=239,240,241
 inactiveBackground=49,54,59
 inactiveBlend=75,71,67

@@ -15,5 +15,5 @@ if [ ! -z "$platform" ]; then
 fi
 
 alias with-emacs='with_emacs ' # alias expanding version
-alias with-emacs-nw='EMACS_FLAGS=-nw with_emacs '
+alias with-evi='EMACS_FLAGS=-nw with_emacs '
 alias y='fp_yank'

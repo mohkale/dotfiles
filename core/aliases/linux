@@ -5,3 +5,4 @@ enf        emacs-new-frame.sh
 pdf        zathura
 clip       xclip -i -selection clipboard
 open       xdg-open
+ywd        pwd | tee /dev/tty | tr -d '\n' | clip

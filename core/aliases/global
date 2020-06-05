@@ -32,6 +32,10 @@ qtemp   pushd $(mktemp -d)
 b       buku --suggest
 ttr     tortrans
 
+# vim stuff
+:q      exit
+:wq     exit
+
 
 # Windows Compatibility
 cls    clear

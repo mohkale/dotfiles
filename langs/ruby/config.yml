@@ -20,3 +20,5 @@
     - gem:
         - colorize
         - rake
+        - pry
+        - pry-doc

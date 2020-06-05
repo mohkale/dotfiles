@@ -1,5 +1,6 @@
+# -*- mode: ruby -*-
 if ENV["INSIDE_EMACS"]
-    Pry.config.pager = false 
+    Pry.config.pager = false
 
     class Emacsable
        def self.readline(prompt)

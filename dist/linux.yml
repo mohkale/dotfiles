@@ -7,10 +7,11 @@
           before: |-
             sudo add-apt-repository ppa:x4121/ripgrep
             sudo apt update
-    - pacman:
+    - yay:
         - ripgrep
         - lsof
         - adobe-source-code-pro-fonts
+        - ttf-symbola
         - noto-fonts
         - bdf-unifont
         - fzf

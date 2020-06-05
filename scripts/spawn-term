@@ -23,8 +23,8 @@ print_usage() {
     echo "  -n NAME    name of new floating window"
 }
 
-rows=30
-cols=15
+rows=15
+cols=30
 window_name="URxvtFuzzy"
 
 while getopts 'hr:c:n:' OPTION; do
@@ -45,7 +45,8 @@ while getopts 'hr:c:n:' OPTION; do
     esac
 done
 
-geometry="${rows}x${cols}+400+1"
+shift "$((OPTIND-1))"
+geometry="${cols}x${rows}+400+1"
 
 urxvt_cmd() {
     # spawn through the urxvtd daemon when active, or just urxvt

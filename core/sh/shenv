@@ -11,6 +11,7 @@
 [ -z "$SOURCED_SHENV" ] || return
 
 [ -f "$HOME/.config/user-dirs.dirs" ] && . "$HOME/.config/user-dirs.dirs"
+export XDG_CONFIG_HOME XDG_DATA_HOME XDG_CACHE_HOME
 
 # platform dependent config
 case "$OSTYPE" in
@@ -49,13 +50,15 @@ fi
 
 export VISUAL="$EDITOR"
 export PAGER=less
-export LESS="-R"
+export LESS="-R -i --save-marks"
 export DOTFILES_REPO_PATH=$HOME/.dotfiles
 export TMUX_HOME=$XDG_CONFIG_HOME/tmux
 export TMUX_TMPDIR=$XDG_CACHE_HOME/tmux
 export LANG=en_GB.UTF-8 LC_MESSAGES="C"
 export MANPATH=$XDG_DATA_HOME/man:$MANPATH
 export INFOPATH=$XDG_DATA_HOME/info:$INFOPATH
+# shell used by emacs for various shell like purposes
+export ESHELL="$(which bash 2>/dev/null || echo /bin/sh)"
 
 if [ "$platform" = "windows" ]; then
     # assume it's the only platform using the TCP file.
@@ -123,9 +126,9 @@ export PATH=`lines_to_path $PATH <<EOF
 ~/.local/bin/
 $SCRIPTS_DIR
 $PROGRAM_DIR/bin
-$PROGRAM_DIR/.modules/node
 $PROGRAM_DIR/.modules/ruby/bin
 $PROGRAM_DIR/.modules/go/bin
+$XDG_DATA_HOME/npm/bin
 ~/.rvm/bin
 EOF`
 
@@ -189,8 +192,10 @@ export FZF_DEFAULT_OPTS="
     --bind ctrl-d:page-down
     --bind alt-h:backward-word
     --bind alt-l:forward-char
-    --bind alt-g:jump-accept
-    --bind alt-j:jump-accept
+    --bind ctrl-q:jump-accept
+    --bind alt-k:accept-non-empty
+    --bind alt-j:accept
+    --bind alt-bspace:clear-query
     --bind shift-left:backward-word
     --bind shift-right:forward-word
     --bind ctrl-space:toggle+down

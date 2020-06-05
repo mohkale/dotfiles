@@ -1,13 +1,15 @@
 [ActivityManager]
 _k_friendly_name=Activity Manager
+switch-to-activity-4036ca79-f3ca-4905-804a-1ad3d3461bfa=none,none,Switch to activity "Default"
 switch-to-activity-7f312640-b765-4f55-915f-c562aad56307=none,none,Switch to activity "Default"
 switch-to-activity-fe6f3aa6-fe7e-4f16-87cb-65aa14970923=none,none,Switch to activity "Default"
 
 [KDE Keyboard Layout Switcher]
 Switch keyboard layout to English (UK, Macintosh)=none,none,Switch keyboard layout to English (UK\\, Macintosh)
+Switch keyboard layout to English (UK, intl., Macintosh)=none,none,Switch keyboard layout to English (UK\\, intl.\\, Macintosh)
 Switch keyboard layout to English (US)=none,none,Switch keyboard layout to English (US)
 Switch to Next Keyboard Layout=none,none,Switch to Next Keyboard Layout
-_k_friendly_name=KDE Daemon
+_k_friendly_name=System Settings
 
 [kaccess]
 Toggle Screen Reader On and Off=none,Meta+Alt+S,Toggle Screen Reader On and Off
@@ -22,11 +24,14 @@ _k_friendly_name=KDE Daemon
 [kded5]
 Show System Activity=Ctrl+Alt+Esc,Ctrl+Esc,Show System Activity
 _k_friendly_name=KDE Daemon
-display=Display\tMeta+P,Display\tMeta+P,Switch Display
+display=Display\t,Display\tMeta+P,Switch Display
 
 [khotkeys]
 _k_friendly_name=KDE Daemon
+{2d694dc0-c77c-4f5d-a27d-472888307739}=Meta+Shift+S,none,screenshot-region
+{4e4d4f9f-1bc7-4c44-9e0e-bb48f5f6eaa6}=Ctrl+Alt+T,none,Launch Konsole
 {d03619b6-9b3c-48cc-9d9c-a2aadb485550}=,none,Search
+{fe7e774c-8982-4e8e-891e-aaf9d9347328}=Meta+S,none,screenshot-window
 
 [kmix]
 _k_friendly_name=Audio Volume
@@ -40,7 +45,7 @@ mute=Volume Mute,Volume Mute,Mute
 [krunner.desktop]
 RunClipboard=Alt+Shift+F2,Alt+Shift+F2,Run command on clipboard contents
 _k_friendly_name=KRunner
-_launch=Meta+X\tAlt+F2\tSearch,none,KRunner
+_launch=Meta+X\tMeta+Space\tSearch,none,KRunner
 
 [ksmserver]
 Halt Without Confirmation=Meta+Ctrl+Shift+S,none,Halt Without Confirmation
@@ -60,7 +65,7 @@ Increase Opacity=none,none,Increase Opacity of Active Window by 5 %
 Invert=none,Meta+Ctrl+I,Toggle Invert Effect
 Invert Screen Colors=none,none,Invert Screen Colors
 InvertWindow=none,Meta+Ctrl+U,Toggle Invert Effect on Window
-Kill Window=Ctrl+Alt+Backspace,Ctrl+Alt+Esc,Kill Window
+Kill Window=Meta+Ctrl+Backspace,Ctrl+Alt+Esc,Kill Window
 MoveMouseToCenter=Meta+F6,Meta+F6,Move Mouse to Center
 MoveMouseToFocus=Meta+F5,Meta+F5,Move Mouse to Focus
 MoveZoomDown=none,none,Move Zoomed Area Downwards
@@ -131,14 +136,14 @@ Walk Through Windows of Current Application Alternative=none,none,Walk Through W
 Walk Through Windows of Current Application Alternative (Reverse)=none,none,Walk Through Windows of Current Application Alternative (Reverse)
 Window Above Other Windows=none,none,Keep Window Above Others
 Window Below Other Windows=none,none,Keep Window Below Others
-Window Close=Meta+Ctrl+Backspace,Alt+F4,Close Window
+Window Close=Meta+Backspace,Alt+F4,Close Window
 Window Fullscreen=Meta+M,none,Make Window Fullscreen
-Window Grow Horizontal=Meta+Ctrl+>,none,Pack Grow Window Horizontally
+Window Grow Horizontal=Meta+Ctrl+>\tMeta+>,none,Pack Grow Window Horizontally
 Window Grow Vertical=Meta+Ctrl++\tMeta+Ctrl+=,none,Pack Grow Window Vertically
 Window Lower=none,none,Lower Window
 Window Maximize=Meta+PgUp,Meta+PgUp,Maximize Window
-Window Maximize Horizontal=Meta+{,none,Maximize Window Horizontally
-Window Maximize Vertical=Meta+},none,Maximize Window Vertically
+Window Maximize Horizontal=Meta+},none,Maximize Window Horizontally
+Window Maximize Vertical=Meta+{,none,Maximize Window Vertically
 Window Minimize=Meta+PgDown,Meta+PgDown,Minimize Window
 Window Move=none,none,Move Window
 Window No Border=none,none,Hide Window Border
@@ -161,9 +166,9 @@ Window Quick Tile Top=Meta+Up,Meta+Up,Quick Tile Window to the Top
 Window Quick Tile Top Left=none,none,Quick Tile Window to the Top Left
 Window Quick Tile Top Right=none,none,Quick Tile Window to the Top Right
 Window Raise=none,none,Raise Window
-Window Resize=,none,Resize Window
+Window Resize=none,none,Resize Window
 Window Shade=none,none,Shade Window
-Window Shrink Horizontal=Meta+Ctrl+<,none,Pack Shrink Window Horizontally
+Window Shrink Horizontal=Meta+Ctrl+<\tMeta+<,none,Pack Shrink Window Horizontally
 Window Shrink Vertical=Meta+Ctrl+-,none,Pack Shrink Window Vertically
 Window to Desktop 1=none,none,Window to Desktop 1
 Window to Desktop 10=none,none,Window to Desktop 10
@@ -197,6 +202,7 @@ Window to Screen 4=none,none,Window to Screen 4
 Window to Screen 5=none,none,Window to Screen 5
 Window to Screen 6=none,none,Window to Screen 6
 Window to Screen 7=none,none,Window to Screen 7
+WindowGeometry=Ctrl+Shift+F11,Ctrl+Shift+F11,Toggle window geometry display (effect only)
 _k_friendly_name=KWin
 view_actual_size=,Meta+0,Actual Size
 view_zoom_in=Meta+=,Meta+=,Zoom In
@@ -218,6 +224,14 @@ _launch=Meta+E,Meta+E,Dolphin
 [org.kde.plasma.emojier.desktop]
 _k_friendly_name=Emoji Selector
 _launch=,Meta+.,Emoji Selector
+
+[org.kde.spectacle.desktop]
+ActiveWindowScreenShot=Meta+Print,Meta+Print,Capture Active Window
+CurrentMonitorScreenShot=,none,Capture Current Monitor
+FullScreenScreenShot=Shift+Print,Shift+Print,Capture Entire Desktop
+RectangularRegionScreenShot=Meta+Shift+Print,Meta+Shift+Print,Capture Rectangular Region
+_k_friendly_name=Spectacle
+_launch=Print,Print,Launch Spectacle
 
 [org_kde_powerdevil]
 Decrease Keyboard Brightness=Keyboard Brightness Down,Keyboard Brightness Down,Decrease Keyboard Brightness
@@ -244,6 +258,7 @@ activate task manager entry 7=Meta+7,Meta+7,Activate Task Manager Entry 7
 activate task manager entry 8=Meta+8,Meta+8,Activate Task Manager Entry 8
 activate task manager entry 9=Meta+9,Meta+9,Activate Task Manager Entry 9
 activate widget 3=Alt+F1,none,Activate Application Launcher Widget
+activate widget 5=none,none,Activate Task Manager Widget
 clear-history=none,none,Clear Clipboard History
 clipboard_action=Ctrl+Alt+X,Ctrl+Alt+X,Enable Clipboard Actions
 cycleNextAction=none,none,Next History Item
@@ -254,12 +269,23 @@ next activity=Meta+Tab,Meta+Tab,Walk through activities
 previous activity=Meta+Shift+Tab,Meta+Shift+Tab,Walk through activities (Reverse)
 repeat_action=Ctrl+Alt+R,Ctrl+Alt+R,Manually Invoke Action on Current Clipboard
 show dashboard=Ctrl+F12,Ctrl+F12,Show Desktop
-show-barcode=none,none,Show Barcode...
+show-barcode=,none,Show Barcode...
 show-on-mouse-pos=none,none,Open Klipper at Mouse Position
-stop current activity=Meta+S,Meta+S,Stop Current Activity
+stop current activity=,Meta+S,Stop Current Activity
 switch to next activity=none,none,Switch to Next Activity
 switch to previous activity=none,none,Switch to Previous Activity
 toggle do not disturb=none,none,Toggle do not disturb
+
+[plasmawindowed]
+_k_friendly_name=plasmawindowed
+clear-history=none,none,Clear Clipboard History
+clipboard_action=,Ctrl+Alt+X,Enable Clipboard Actions
+cycleNextAction=none,none,Next History Item
+cyclePrevAction=none,none,Previous History Item
+edit_clipboard=none,none,Edit Contents...
+repeat_action=,Ctrl+Alt+R,Manually Invoke Action on Current Clipboard
+show-barcode=none,none,Show Barcode...
+show-on-mouse-pos=none,none,Open Klipper at Mouse Position
 
 [yakuake]
 _k_friendly_name=Yakuake
