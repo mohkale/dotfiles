@@ -1,0 +1,10 @@
+.cache/
+.dropbox/
+.DRopbox-dist/
+.gnome/
+.mozilla/
+.pki/
+.steam/
+.wine/
+__pycache__/
+.local/share/gradle/caches
