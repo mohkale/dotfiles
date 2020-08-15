@@ -10,6 +10,9 @@ zplug 'reegnz/jq-zsh-plugin'
 # complete ssh hostanmes
 zplug 'zpm-zsh/ssh'
 
+# asynchronous actions (for prompt), see [[https://github.com/mafredri/zsh-async/issues/42][#42]] for why v1.7.2
+zplug 'mafredri/zsh-async', from:github, use:async.zsh, at:v1.7.2
+
 # highlight keywords/commands as you write
 typeset -A ZSH_HIGHLIGHT_STYLES
 ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets cursor)
