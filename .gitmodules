@@ -15,3 +15,4 @@
 [submodule "programs/st/st"]
 	path = programs/st/st
 	url = https://github.com/mohkale/st
+	ignore = dirty
