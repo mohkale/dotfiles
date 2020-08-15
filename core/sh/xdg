@@ -64,6 +64,9 @@ export WGETRC="$XDG_CONFIG_HOME/wgetrc"
 ## Wine
 export WINEPREFIX="$XDG_DATA_HOME"/wine/prefixes/default
 
+## pass
+export PASSWORD_STORE_DIR="$XDG_DATA_HOME"/pass
+
 ## Emacs
 ### not used by emacs, just used by me for config stuff.
 export EMACS_HOME="$XDG_CONFIG_HOME/emacs"

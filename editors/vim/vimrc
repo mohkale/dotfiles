@@ -53,13 +53,16 @@ set ff=unix        " preffered line endings
 set splitbelow     " split to below, not up
 set splitright     " split to right, not left
 set encoding=utf8
+set hidden         " change buffers even when current one is modified
 set nostartofline  " prevent column changing on scroll
+set wildmenu " jump through completion candidates with tab/shift-tab
 
 set backspace=indent,eol,start " allow backspace in insert mode
 set tabstop=8 softtabstop=0 expandtab shiftwidth=4 smarttab
 set nocompatible " disable early vim compatibility features
 set whichwrap+=<,>,h,l,[,] " move to previous or next line
 set nowrap " disable lines being wrapped by default
+set inccommand=nosplit
 
 set autochdir
 

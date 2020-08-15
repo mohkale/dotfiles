@@ -141,8 +141,11 @@ if [ -n "$filelist" ]; then cat "$filelist"; else printf '%s\n' "${files[@]}"; f
     if can_use 'kde' && command -v kioclient5 >/dev/null 2>&1; then
         # kioclient doesn't support specifying the move
         # target before the src files so we'll have to
-        # run the command once for each argument.
-        xargs -d '\n' -rti kioclient5 mv -- {} trash:/
+        # pass all args in a subshell.
+        xargs -d '\n' -r sh -c '
+kioclient5 --interactive mv -- "$@" trash:/
+printf "trashed: %s\n" "$@"
+' 'trash'
     elif can_use 'trash-cli' && command -v trash-put >/dev/null 2>&1; then
         xargs -d '\n' -r trash-put -v --
     elif [ "${remove:-0}" -eq 1 ]; then

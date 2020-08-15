@@ -7,8 +7,8 @@
 set -e # stop execution when something fails
 
 function print_usage {
-    echo "Usage: bulrename [-h] [-e EDITOR] [-p|-P] [-v|-V] [-s FILE]"
-    echo "                 [-y] [-c DIR] [-f FILE] [-] FILE [...FILE]"
+    echo "Usage: bulkrename [-h] [-e EDITOR] [-p|-P] [-v|-V] [-s FILE]"
+    echo "                  [-y] [-c DIR] [-f FILE] [-] FILE [...FILE]"
 }
 
 function print_help {
@@ -54,7 +54,10 @@ function get_temp {
 editor="${VISUAL:-$EDITOR:-vi}" # a sane choice
 index=$(get_temp index)
 
-[ "$#" -eq 0 ] && set -- -h
+if [ "$#" -eq 0 ]; then
+    print_help
+    exit 0
+fi
 
 while [ "$#" -gt 0 ]; do
     key="$1"
