@@ -9,7 +9,7 @@ Switch keyboard layout to English (UK, Macintosh)=none,none,Switch keyboard layo
 Switch keyboard layout to English (UK, intl., Macintosh)=none,none,Switch keyboard layout to English (UK\\, intl.\\, Macintosh)
 Switch keyboard layout to English (US)=none,none,Switch keyboard layout to English (US)
 Switch to Next Keyboard Layout=none,none,Switch to Next Keyboard Layout
-_k_friendly_name=System Settings
+_k_friendly_name=Keyboard Layout Switcher
 
 [kaccess]
 Toggle Screen Reader On and Off=none,Meta+Alt+S,Toggle Screen Reader On and Off
@@ -19,7 +19,7 @@ _k_friendly_name=Accessibility
 Disable Touchpad=none,Touchpad Off,Disable Touchpad
 Enable Touchpad=none,Touchpad On,Enable Touchpad
 Toggle Touchpad=Touchpad Toggle,Touchpad Toggle,Toggle Touchpad
-_k_friendly_name=KDE Daemon
+_k_friendly_name=Touchpad
 
 [kded5]
 Show System Activity=Ctrl+Alt+Esc,Ctrl+Esc,Show System Activity
@@ -53,10 +53,10 @@ Lock Session=Meta+L,Meta+L\tCtrl+Alt+L\tScreensaver,Lock Session
 Log Out=none,none,Log Out
 Log Out Without Confirmation=none,none,Log Out Without Confirmation
 Reboot Without Confirmation=Meta+R,none,Reboot Without Confirmation
-_k_friendly_name=ksmserver
+_k_friendly_name=Session Management
 
 [kwin]
-Activate Window Demanding Attention=Meta+Ctrl+A,Ctrl+Alt+A,Activate Window Demanding Attention
+Activate Window Demanding Attention=Meta+A,Ctrl+Alt+A,Activate Window Demanding Attention
 Decrease Opacity=none,none,Decrease Opacity of Active Window by 5 %
 Expose=Ctrl+F9,Ctrl+F9,Toggle Present Windows (Current desktop)
 ExposeAll=Ctrl+F10\tLaunch (C),Ctrl+F10\tLaunch (C),Toggle Present Windows (All desktops)
@@ -117,8 +117,10 @@ Switch to Screen 4=none,none,Switch to Screen 4
 Switch to Screen 5=none,none,Switch to Screen 5
 Switch to Screen 6=none,none,Switch to Screen 6
 Switch to Screen 7=none,none,Switch to Screen 7
+Toggle=none,none,Toggle Show Paint
 Toggle Night Color=none,none,Toggle Night Color
 Toggle Window Raise/Lower=none,none,Toggle Window Raise/Lower
+ToggleCurrentThumbnail=Meta+Ctrl+T,Meta+Ctrl+T,Toggle Thumbnail for Current Window
 ToggleMouseClick=none,Meta+*,Toggle Mouse Click Effect
 Walk Through Desktop List=none,none,Walk Through Desktop List
 Walk Through Desktop List (Reverse)=none,none,Walk Through Desktop List (Reverse)
@@ -144,7 +146,7 @@ Window Lower=none,none,Lower Window
 Window Maximize=Meta+PgUp,Meta+PgUp,Maximize Window
 Window Maximize Horizontal=Meta+},none,Maximize Window Horizontally
 Window Maximize Vertical=Meta+{,none,Maximize Window Vertically
-Window Minimize=Meta+PgDown,Meta+PgDown,Minimize Window
+Window Minimize=Alt+Esc\tMeta+PgDown,Meta+PgDown,Minimize Window
 Window Move=none,none,Move Window
 Window No Border=none,none,Hide Window Border
 Window On All Desktops=,none,Keep Window on All Desktops
@@ -239,6 +241,7 @@ Decrease Screen Brightness=Monitor Brightness Down,Monitor Brightness Down,Decre
 Hibernate=Hibernate,Hibernate,Hibernate
 Increase Keyboard Brightness=Keyboard Brightness Up,Keyboard Brightness Up,Increase Keyboard Brightness
 Increase Screen Brightness=Monitor Brightness Up,Monitor Brightness Up,Increase Screen Brightness
+PowerDown=Power Down,Power Down,Power Down
 PowerOff=Power Off,Power Off,Power Off
 Sleep=Sleep,Sleep,Suspend
 Toggle Keyboard Backlight=Keyboard Light On/Off,Keyboard Light On/Off,Toggle Keyboard Backlight
@@ -257,6 +260,7 @@ activate task manager entry 6=Meta+6,Meta+6,Activate Task Manager Entry 6
 activate task manager entry 7=Meta+7,Meta+7,Activate Task Manager Entry 7
 activate task manager entry 8=Meta+8,Meta+8,Activate Task Manager Entry 8
 activate task manager entry 9=Meta+9,Meta+9,Activate Task Manager Entry 9
+activate widget 27=none,none,Activate Hard Disk Activity Widget
 activate widget 3=Alt+F1,none,Activate Application Launcher Widget
 activate widget 5=none,none,Activate Task Manager Widget
 clear-history=none,none,Clear Clipboard History
@@ -286,6 +290,10 @@ edit_clipboard=none,none,Edit Contents...
 repeat_action=,Ctrl+Alt+R,Manually Invoke Action on Current Clipboard
 show-barcode=none,none,Show Barcode...
 show-on-mouse-pos=none,none,Open Klipper at Mouse Position
+
+[systemsettings.desktop]
+_k_friendly_name=System Settings
+_launch=Tools,Tools,System Settings
 
 [yakuake]
 _k_friendly_name=Yakuake
