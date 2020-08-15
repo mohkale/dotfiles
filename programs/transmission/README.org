@@ -5,12 +5,6 @@
    transmission, designed to make smart torrent management easy :smile:.
 
 ** Workflow
-*** tortrans
-    [[file:scripts/tortrans][tortrans]] is a script which attaches to a TMUX session containing [[https://github.com/tremc/tremc][tremc]] and two
-    panes for the logs of the transmission server and my personal watcher script.
-
-    This is the preffered way to spawn transmission.
-
 *** watcher
     [[file:scripts/watcher][watcher]] is a script to watch a directory for new torrents, automatically adding
     them to transmission as their found. The watcher config also operates as a

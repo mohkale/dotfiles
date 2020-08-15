@@ -55,6 +55,7 @@ emf     emacs-make-frame
 
 # TMUX
 t      tmux
+tt     tmuxinator
 tx     $TMUX_HOME/scripts/run-command
 ta     $TMUX_HOME/scripts/attach-session
 td     tmux detach

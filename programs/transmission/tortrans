@@ -1,0 +1,16 @@
+# -*- mode: yaml -*- Tmuxinator Config File for transmission
+name: tortrans
+root: ~/.config/transmission-daemon
+
+windows:
+  - interface:
+      # need to sleep or tremc will crash because daemon isn't recieving
+      # yet.
+      panes: sleep 1 && cd ~/ && tremc --skip-version-check
+  - watcher:
+      # vertically split with left hand side wider than right.
+      layout: 47f0,228x23,0,0{137x23,0,0,1,90x23,138,0,2}
+      panes:
+        # start the daemon and directory watcher, while logging output and not buffering.
+        - stdbuf -oL transmission-daemon --foreground --log-error --log-info --log-debug | tee -a transmission.log
+        - stdbuf -oL ./scripts/watcher -lDEBUG ./watcher.json | tee -a <%= @settings["cache-dir"] || "~/.cache/transmission" %>/watcher.log
