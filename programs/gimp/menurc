@@ -1,0 +1,5 @@
+; gimp-2.10 GtkAccelMap rc-file         -*- scheme -*-
+; this file is an automated accelerator map dump
+
+(gtk_accel_path "<Actions>/image/image-crop-to-selection" "<Alt>x")
+(gtk_accel_path "<Actions>/plug-in/file-print-gtk" "<Primary>p")
