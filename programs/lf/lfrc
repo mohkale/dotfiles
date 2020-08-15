@@ -24,6 +24,16 @@ set relativenumber
 # leave some space at the top and the bottom of the screen
 set scrolloff 3
 
+set previewer preview
+cmd restore-default-previewer $lf -remote "send $id set previewer"$'\n'"send $id map zP remove-default-previewer"
+cmd remove-default-previewer  $lf -remote "send $id set previewer preview"$'\n'"send $id map zP restore-default-previewer"
+map zP restore-default-previewer
+
+map i $preview $f | ${PAGER:-less} -R
+map I !true
+
+set info size
+
 ## Bindings
 map zl set relativenumber!
 
@@ -46,22 +56,32 @@ map cd push :cd<space>
 
 map d
 map dd cut
+
+map da cut-add
+map dr cut-remove
 map dD delete
-map D  delete
+map D  trash
+
+map y
+map yy copy
+map ya copy-add
+map yr copy-remove
+map yp yank-path
+map yd yank-dirname
+map yb yank-basename
+map y. yank-basename-without-extension
 
 map w
 map S $$SHELL
 
 map p
 map pp paste
+map pl paste-links
 
 cmd toggle-inplace :toggle;up
 cmd toggle-backwards :up;toggle-inplace
 map <bs>  toggle-backwards
 map <bs2> toggle-backwards
-
-map zP nopreview
-map zp showpreview
 
 # inspect folder sizes
 cmd du        !du --max-depth=1 -h --apparent-size
@@ -80,22 +100,27 @@ cmap <a-b> cmd-left
 cmap <a-f> cmd-right
 
 # quick jump
-map gd
 map gc
-map gd goto-downloads
+map gl goto-downloads
 map gc goto-config
 map gi goto-images
 map gm goto-music
 map gu goto-documents
 map g. goto-dotfiles
+map gp goto-project-root
+map gj goto-link-dest
 map gt cd /tmp/
 map g/ cd /
 map ct cdmktemp
 
+map dt trash
 map dT trash
 
+map gd
 map gf fzf
-map gl fzf_cd
+map gd fzf_cd
+map gF fzf_all
+map gD fzf_cd_all
 
 map cw    bulkrename
 map <a-e> bulkrename
@@ -107,7 +132,7 @@ map cr bulkrename_all
 map o
 map oo open
 map op $$PAGER  "$f"
-map gr reload
+map gr :reload; sync
 map oe evi
 map ox execute
 map oX execute-async
@@ -116,8 +141,9 @@ map oa open-all
 map oi open-images
 
 # custom leaders
-map ,m mkdir
-map ,n mkcd
+map ,m :push :mkdir<space>
+map ,n :push :mkcd<space>
+map ,t :push :touch<space>
 
 # configuration
 map ,r source ~/.config/lf/lfrc
@@ -132,13 +158,13 @@ map <a-o> top
 map <enter> open
 
 # macros
-# echo "$fz" | tr '\n' '\0' | xargs -r0 -I% 
-map ,x push !echo<space>$fx<space>|<space>tr<space>'\n'<space>'\0'<space>|<space>xargs<space>-r0<space>-I%<space>
-map ,X push &echo<space>$fx<space>|<space>tr<space>'\n'<space>'\0'<space>|<space>xargs<space>-r0<space>-I%<space>
+# echo "$fz" | xargs -r0 -I% 
+map ,x push !echo<space>"$fx"<space>|<space>xargs<space>-r<space>-d<space>'\n'<space>-I%<space>
+map ,X push &echo<space>"$fx"<space>|<space>xargs<space>-r<space>-d<space>'\n'<space>-I%<space>
 
-# for it in "$fx"; do ; done
-map ,f push !for<space>it<space>in<space>$fx;<space>do<space>;<space>done<left><left><left><left><left><left>
-map ,F push &for<space>it<space>in<space>$fx;<space>do<space>;<space>done<left><left><left><left><left><left>
+# echo "$fx" | while read -r it; do ; done
+map ,f push !echo<space>"$fx"<space>|<space>while<space>read<space>-r<space>it;<space>do<space>;<space>done<left><left><left><left><left><left>
+map ,F push &echo<space>"$fx"<space>|<space>while<space>read<space>-r<space>it;<space>do<space>;<space>done<left><left><left><left><left><left>
 
 # printf "%s\n" "$fx" | 
 map ,p push !printf<space>"%s\n"<space>$fx<space>|<space>
@@ -159,7 +185,7 @@ map ,P push &printf<space>"%s\n"<space>$fx<space>|<space>
 # use either file extensions and/or mime types here. Below uses an editor for
 # text files and a file opener for the rest.
 cmd open ${{
-    case $(file --mime-type $f -b) in
+    case $(file -L --mime-type "$f" -b) in
         text/*) $EDITOR $f ;;
         *) $OPENER $f > /dev/null 2> /dev/null & ;;
     esac
@@ -196,13 +222,12 @@ cmd execute-async &{{
 # open all marked images or images in the cwd.
 cmd open-images &{{
     if [ -z "$fs" ]; then
-        fs=$(find -L "$(pwd)" -mindepth 1 -maxdepth 1 -type f)
+        fs=$(find -L "$(pwd)" -mindepth 1 -maxdepth 1 -type f | sort -V)
     fi
 
     # strip out all files that aren't images
-    fs=$(tr '\n' '\0' <<< "$fs" |
-          xargs -r0 file -L --mime-type |
-          awk -F : '{
+    fs=$(xargs -r -d '\n' file -L --mime-type <<< "$fs" |
+         awk -F : '{
 if ($2 ~ /image/)
     print $1
 else
@@ -213,7 +238,7 @@ else
     # make sure SXIV selects that image first.
     flags=""
     if [ -n "$f" ]; then
-        line=$(echo "$fs" | grep -m 1 -x -F -w "$f" -n | cut -d':' -f1)
+        line=$(echo "$fs" | grep --max-count=1 -nxwF -- "$(readlink -m "$f")" | cut -d':' -f1)
         [ -n "$line" ] && flags='-n '"$line"
     fi
 
@@ -256,6 +281,29 @@ cmd goto-dotfiles ${{
     lf -remote "send $id cd \"$dir\""
 }}
 
+cmd goto-project-root ${{
+    function finish {
+        if [ -n "$1" ]; then
+            lf -remote "send $id cd \"$1\""
+            exit 0
+        fi
+    }
+    finish "$(git rev-parse --show-toplevel 2>/dev/null)"
+    lf -remote "send $id echoerr failed to find a project root"
+}}
+
+cmd goto-link-dest ${{
+    if [ -L "$f" ]; then
+        dest=$(readlink -e -- "$f")
+
+        if [ -z "$dest" ]; then
+            lf -remote "send $id echoerr \"failed to find destination for link: $f\""
+        else
+            lf -remote "send $id select \"$dest\""
+        fi
+    fi
+}}
+
 ## Archive Control
 # extract the current file with the right command
 # (xkcd link: https://xkcd.com/1168/)
@@ -292,14 +340,30 @@ cmd zip ${{
 ## fzf
 # change lf directories using fzf
 cmd fzf_cd ${{
-    res="$(find . -mindepth 1 \( -type d -o \( -type l -a -exec [ -d {} ] ';' \) \) -print 2>/dev/null |
-             fzf --no-multi)"
-    [ -n "$res" ] && lf -remote "send $id select $res"
+    res=$(ls-project -d | fzf --no-multi --preview 'preview {}')
+    [ -n "$res" ] && lf -remote "send $id cd \"$res\""
+}}
+
+cmd fzf_cd_all ${{
+    res=$(find -L . -type d | fzf --no-multi --preview 'preview {}')
+    [ -n "$res" ] && lf -remote "send $id cd \"$res\""
 }}
 
 # open a file or cd using fzf.
 cmd fzf ${{
-    res="$(find . -mindepth 1 2>/dev/null | fzf --no-multi)"
+    res=$(ls-project | fzf --no-multi --preview 'preview {}')
+
+    if [ -f "$res" ]; then
+      lf -remote "send $id select \"$res\"" &&
+        true # lf -remote "send $id open"
+    elif [ -d "$res" ]; then
+      lf -remote "send $id cd \"$res\""
+    fi
+}}
+
+cmd fzf_all ${{
+    # foo bar
+    res=$(find . | fzf --no-multi --preview 'preview {}')
 
     if [ -f "$res" ]; then
       lf -remote "send $id select \"$res\"" &&
@@ -310,21 +374,50 @@ cmd fzf ${{
 }}
 
 ## Control
+cmd paste-links &{{
+    # all non-empty files in the marked file list
+    files=$(lf -remote load | sed --quiet -e '/^$/d' -e p)
+
+    read -r operation <<< "$files"
+    files=$(tail -n +2 <<< "$files")
+
+    if [ -z "$files" ]; then
+        lf -remote "send $id echoerr \"no files in cut list\""
+        exit 1
+    fi
+
+    if [ "$operation" = "move" ]; then
+        link_type=-s
+    elif [ "$operation" = "copy" ]; then
+        link_type=-P
+    else
+        lf -remote "send $id echoerr \"unknown operation: $operation\""
+        exit 1
+    fi
+
+    xargs -d '\n' -r ln "$link_type" -vt "$(dirname "$f")" <<< "$files"
+    lf -remote "send $id :clear"$'\n'"send $id :load"
+}}
+
 # bulkrename a bunch of files, see [[https://github.com/gokcehan/lf/issues/149#issuecomment-470960434][here]].
-cmd bulkrename !{{
+cmd bulkrename ${{
     dir=$(dirname "$f")
     if [ "$fs" = "" ]; then
         # when no marked files exist, use all files in the current
         # directory.
-        fs=$(ls -1 --group-directories-first --quoting-style=literal -- "$dir")
+        fs=$(ls -1Lv --group-directories-first --quoting-style=literal -- "$dir")
     fi
 
-    bulkrename -s "$f" -c "$dir" - <<< "$fs"
+    bulkrename -V -s "$f" -c "$dir" - <<< "$fs"
 }}
 
 # recursively bulkrename all files
-cmd bulkrename_all !{{
-    find "$(dirname "$f")" -type f | bulkrename -s "$f" -c "$(dirname "$f")" -
+cmd bulkrename_all ${{
+    if [ -z "$fs" ]; then
+        find -L "$(dirname "$f")" -type f
+    else
+        echo "$fs" | xargs -d '\n' -ri find {} -type f
+    fi | bulkrename -s "$f" -c "$(dirname "$f")" -
 }}
 
 ## Misc
@@ -336,21 +429,30 @@ cmd cdmktemp ${{
 
 # make a directory
 cmd mkdir %{{
-    printf "directory: "
-    read -e dir
-    mkdir -p "$dir"
+    mkdir -p "$@"
+    lf -remote "send $id load"$'\n'"send $id select \"$@\""
 }}
 
 # make a directory and then change to it.
 cmd mkcd %{{
-    printf "directory: "
-    read -e dir
-    mkdir -p "$dir"
-    lf -remote "send $id cd \"$dir\""
+    mkdir -p "$@"
+    lf -remote "send $id cd \"$@\""
 }}
 
-cmd trash ${{
+cmd touch %{{
+    file="$@"
+
+    if [ -n "$file" ]; then
+        directory=$(dirname "$file")
+        mkdir -p "$directory"
+        touch "$file"
+        lf -remote "send $id load"$'\n'"send $id select \"$file\""
+    fi
+}}
+
+cmd trash &{{
     condemn $fx
+    lf -remote "send $id load"
 }}
 
 ### Editor
@@ -361,15 +463,15 @@ cmd evi ${{
 }}
 
 cmd edit-config ${{
-    if $EDITOR ~/.config/lf/lfrc; then
-        lf -remote "send $id source ~/.config/lf/lfrc"
+    if $EDITOR $XDG_CONFIG_HOME/lf/lfrc; then
+        lf -remote "send $id source $XDG_CONFIG_HOME/lf/lfrc"
     fi
 }}
 
 cmd evi-config ${{
     . $HOME/.config/shortcuts/commands/evi
-    if evi ~/.config/lf/lfrc; then
-        lf -remote "send $id source ~/.config/lf/lfrc"
+    if evi $XDG_CONFIG_HOME/lf/lfrc; then
+        lf -remote "send $id source $XDG_CONFIG_HOME/lf/lfrc"
     fi
 }}
 
@@ -385,25 +487,118 @@ cmd shell-in-directory ${{
 }}
 
 ## preview control
-cmd nopreview &{{
-	lf -remote "send $id set nopreview"
-	lf -remote "send $id set ratios 1:3"
-}}
-
 cmd showpreview &{{
-	lf -remote "send $id set preview"
-	lf -remote "send $id set ratios 1:2:3"
+    lf -remote "send $id set preview"$'\n'"send $id set ratios 1:2:3"$'\n'"send $id map zp nopreview"
 }}
 
-# ranger like preview control
 cmd nopreview &{{
-	lf -remote "send $id set nopreview"
-	lf -remote "send $id set ratios 1:3"
+    lf -remote "send $id set nopreview"$'\n'"send $id set ratios 1:3"$'\n'"send $id map zp showpreview"
+}}
+map zp nopreview
+
+## cut/copy modifiers
+cmd cut-add %{{
+    files=$(lf -remote load | tail -n +2)
+    newline=$'\n'
+
+    # remove empty lines from the file list, because they keep messing
+    # up the selection.
+    new_files=$(echo "$files${newline}$fx" | sort | uniq | sed --quiet -e '/^$/d' -e 'p')
+
+    lf -remote "save${newline}move${newline}${new_files}${newline}"
+    lf -remote "send $id unselect${newline}send $id sync"
 }}
 
-cmd showpreview &{{
-	lf -remote "send $id set preview"
-	lf -remote "send $id set ratios 1:2:3"
+cmd cut-remove %{{
+    files=$(lf -remote load)
+    operation=$(echo "$files" | head -n1)
+
+    if [ "$operation" != "move" ]; then
+        lf -remote "send $id echoerr no files in cut list."
+        exit 1
+    fi
+
+    files=$(echo "$files" | tail -n +2)
+    newline=$'\n'
+
+    # here we want all files in $files that aren't in $fs, making sure
+    # that none of the entries in $fs are included, even when they aren't
+    # in $files. To do this we concatenate $files and $fs (twice), printing
+    # only the unique lines.
+    new_files=$(echo "$files${newline}$fs${newline}$fx" | sort | uniq -u |
+                  sed --quiet -e '/^$/d' -e 'p')
+
+    lf -remote "save${newline}move${newline}${new_files}${newline}"
+    lf -remote "send $id unselect${newline}send $id sync"
+}}
+
+# variants for copy
+cmd copy-add %{{
+    files=$(lf -remote load | tail -n +2)
+    newline=$'\n'
+
+    new_files=$(echo "$files${newline}$fx" | sort | uniq | sed --quiet -e '/^$/d' -e 'p')
+
+    lf -remote "save${newline}copy${newline}${new_files}${newline}"
+    lf -remote "send $id unselect${newline}send $id sync"
+}}
+
+cmd copy-remove %{{
+    files=$(lf -remote load)
+    operation=$(echo "$files" | head -n1)
+
+    if [ "$operation" != "copy" ]; then
+        lf -remote "send $id echoerr no files in copy list."
+        exit 1
+    fi
+
+    files=$(echo "$files" | tail -n +2)
+    newline=$'\n'
+
+    new_files=$(echo "$files${newline}$fs${newline}$fx" | sort | uniq -u |
+                  sed --quiet -e '/^$/d' -e 'p')
+
+    lf -remote "save${newline}copy${newline}${new_files}${newline}"
+    lf -remote "send $id unselect${newline}send $id sync"
+}}
+
+## yank
+# yank the current working directory
+cmd yank-dirname &{{
+    dirname -- "$f" | tr -d '\n' | xclip -i -selection clipboard
+}}
+
+cmd yank-path &{{
+    if [ -n "$fs" ]; then echo "$fs"; else echo "$f" | tr -d '\n'; fi |
+      xclip -i -selection clipboard
+}}
+
+cmd yank-basename &{{
+    if [ -n "$fs" ]; then
+      echo "$fs" | xargs -r -d '\n' basename -a --
+    else
+      basename -- "$f" | tr -d '\n'
+    fi | xclip -i -selection clipboard
+}}
+
+cmd yank-basename-without-extension &{{
+    echo "$fx" |
+      xargs -r -d '\n' basename -a |
+      awk -e '{
+        for (i=length($0); i > 0; i--) {
+          if (substr($0, i, 1) == ".") {
+            if (i == 1) print $0
+            else print substr($0, 0, i-1)
+
+            break
+          }
+        }
+
+        if (i == 0)
+          print $0
+      }' |
+      if [ -n "$fs" ]; then cat; else tr -d '\n'; fi |
+      xclip -i -selection clipboard
 }}
 
 ## TODOs

@@ -1,0 +1,11 @@
+# -*- mode: conf-unix -*-
+[Desktop Entry]
+Type=Service
+X-KDE-ServiceTypes=KonqPopupMenu/Plugin
+MimeType=inode/directory
+Actions=runLf
+
+[Desktop Action runLf]
+Name=Open lf Here
+Icon=utilities-terminal
+Exec=spawn-term -r 25 -c 100 lf %u
