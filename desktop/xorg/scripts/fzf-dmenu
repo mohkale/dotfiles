@@ -1,74 +1,41 @@
-#!/usr/bin/env bash
+#!/usr/bin/sh
 # interactively select program to execute using fzf. [[https://github.com/oem/dotfiles/blob/master/launch/cmdlist][source]].
 # Requires:
-#   - bash >=4
-#   - pcregrep
 #   - python >= 3.5
 
 print_usage() {
-    echo "Usage: $0 [-h] [-a]"
-    echo ""
-    echo "interactively select and execute (multiple) programs with fzf"
-    echo ""
-    echo "Options:"
-    echo " -h    print this help message and exit"
-    echo " -a    offer to complete all executables in PATH"
-    echo "       not just those with know .desktop entries"
+  echo "Usage: $0 [-h] [-a] [-d]"
+  echo ""
+  echo "interactively select and execute (multiple) programs with fzf"
+  echo ""
+  echo "Options:"
+  echo " -h    print this help message and exit"
+  echo " -a    offer to complete all executables in PATH"
+  echo "       not just those with know .desktop entries"
+  echo " -d    run in debug mode, produces extra output"
 }
 
-while getopts 'hpa' OPTION; do
-    case "$OPTION" in
-        h) print_usage
-           exit 0 ;;
-        a) all=1
-           ;;
-        \?) print_usage >&2
-            exit 0 ;;
-    esac
+all=0
+debug=0
+while getopts 'had' OPTION; do
+  case "$OPTION" in
+    h) print_usage
+       exit 0 ;;
+    a) all=1
+       ;;
+    d) debug=1
+       ;;
+    \?) print_usage >&2
+        exit 0 ;;
+  esac
 done
 
-function _fzf_command {
-    sort -u | fzf --reverse --border
+fzf_command() {
+  sort -u | fzf --reverse --border --multi "$@"
 }
 
-function list_all {
-    <<< "$PATH" \
-    xargs -d: -I'{}' -r -- \
-      find -L '{}' -maxdepth 1 -mindepth 1 -type f -executable -printf '%P\n' 2>/dev/null
-}
-
-function list_desktop {
-    find "${XDG_DATA_HOME:-$HOME/.local/share}/applications" \
-         "/usr/share/applications" \
-         "/usr/local/share/applications" \
-         -iname '*.desktop' \
-         -exec grep -l 'Type=Application' '{}' + 2>/dev/null |
-      tr '\n' '\0' | xargs -r0 pcregrep -M -o1 '^Name=(.+)$'
-}
-
-if [ "${all:-0}" -eq 1 ]; then
-    list_all | _fzf_command | xargs -r lnch
-else
-    declare -A entries # hash table mapping program names to desktop entries
-
-    desktop_entries=$(list_desktop)
-
-    # populate our hash table.
-    while IFS=':' read desktop name; do
-        entries["$name"]="$desktop"
-    done <<< "$desktop_entries"
-
-    # choose and run desired command/s.
-    cut -d: -f 2- <<< "$desktop_entries" | _fzf_command |
-        while read name; do
-            desktop_file=${entries["$name"]}
-            if [ -z "$desktop_file" ]; then
-                echo "fzf-dmenu: unable to find desktop entry for program: $name" >&2
-                continue
-            fi
-
-            echo "$desktop_file"
-        done | tr '\n' '\0' | xargs -r0 pcregrep -o1 -M '^Exec=(.+)$' | python3 -c '
+# python script to format .desktop entry command lines.
+FORMAT_SCRIPT=$(cat <<-EOF
 # the format spec for .desktop files states that the exec arg can
 # contain special format specifiers. See [[https://specifications.freedesktop.org/desktop-entry-spec/latest/ar01s07.html][here]]. We need to account
 # for them or else the program will probably crash.
@@ -77,18 +44,55 @@ import sys
 import shlex
 
 for line in map(lambda x: x.rstrip(), sys.stdin.readlines()):
-    parsed = shlex.split(line)
-    new_cmd = []
+  parsed = shlex.split(line)
+  new_cmd = []
 
-    for arg in parsed:
-        if arg in ["%f", "%F", "%u", "%U", "%k"]:
-            # these can be safely erased with no issue.
-            continue
-        elif arg == "%c":
-            new_cmd.append(parsed[0])
-        else:
-            new_cmd.append(arg)
+  for arg in parsed:
+    if arg in ["%f", "%F", "%u", "%U", "%k"]:
+      # these can be safely erased with no issue.
+      continue
+    elif arg == "%c":
+      new_cmd.append(parsed[0])
+    else:
+      new_cmd.append(arg)
 
-    print(shlex.join(new_cmd))
-' | xargs -r lnch
+  print(shlex.join(new_cmd))
+EOF
+)
+
+# format a command line to be run asynchronously and not be interrupted
+# when it's parent process group exits. Like [[https://github.com/oem/lnch/blob/master/main.go][lnch]] except written in pure
+# shell and with no external dependencies..
+lnch() {
+  awk '{ printf("nohup %s >/dev/null 2>&1 & disown\n", $0) }' |
+    if [ "$debug" -eq 1 ]; then tee /dev/tty; else cat; fi    |
+    xargs -d '\n' -r -n1 sh -c
+}
+
+list_all() {
+  echo "$PATH" | 2>/dev/null \
+    xargs -d: -I {} -r -- \
+      find -L {} -maxdepth 1 -mindepth 1 -type f -executable -printf '%P\n'
+}
+
+# list all desktop files and the program names associated with them.
+# in a PATH like format (: delimeted).
+list_desktop_entries() {
+  # shellcheck disable=SC2038
+  find "${XDG_DATA_HOME:-$HOME/.local/share}/applications"       \
+       "/usr/share/applications" "/usr/local/share/applications" \
+       -iname '*.desktop' -exec grep -l 'Type=Application' {} + -print 2>/dev/null |
+    xargs -r -d '\n' grep -m1 -io '^name=\(.\+\)$' | sed 's/:Name=/:/'
+}
+
+if [ "$all" -eq 1 ]; then
+  list_all | fzf_command | lnch
+else
+  list_desktop_entries |
+    fzf_command -d : --with-nth 2 |
+    cut -d: -f1 |
+    xargs -d '\n' -r grep -h -m1 -o '^Exec=\(.\+\)$' |
+    sed 's/^Exec=//' |
+    python3 -c "$FORMAT_SCRIPT" |
+    lnch
 fi
