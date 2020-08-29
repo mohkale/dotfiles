@@ -1,0 +1,163 @@
+#!/usr/bin/env python3
+import os
+import io
+import sys
+import logging
+from PIL import Image, ImageFile
+
+ImageFile.LOAD_TRUNCATED_IMAGES = True
+
+DEFAULT_RESOLUTION = 100.0
+
+def _load_image_rgb(fd):
+    img = Image.open(fd)
+    img.load()
+    if img.mode != 'RGB':
+        rgb_img = Image.new('RGB', img.size, (255, 255, 255))
+        rgb_img.paste(img)
+        img.close()
+        return rgb_img
+    return img
+
+def create_pdf(files, output_path, append, title,
+               author, subject, keywords, creator,
+               producer, warn, silent, resolution=None,
+               **kwargs):
+    assert len(files) != 0
+
+    metadata = {
+        'title':      title,
+        'author':     author,
+        'subject':    subject,
+        'keywords':   keywords,
+        'creator':    creator,
+        'producer':   producer,
+    }
+
+    dest_exists = os.path.exists(output_path)
+    if not append and dest_exists:
+        logging.warning('destination path already exists: %s', output_path)
+    elif append and not dest_exists:
+        append = False  # can't append to a non existant file
+
+    logging.info('%s pdf with %d files', 'appending to' if append else 'creating', len(files))
+    if title:      logging.info('pdf title set to: %s', title)
+    if author:     logging.info('pdf author set to: %s', author)
+    if subject:    logging.info('pdf subject set to: %s', subject)
+    if keywords:   logging.info('pdf keywords set to: %s', keywords)
+    if creator:    logging.info('pdf creator set to: %s', creator)
+    if producer:   logging.info('pdf producer set to: %s', producer)
+    if resolution:
+        logging.info('pdf resolution set to: %f', resolution)
+        metadata['resolution'] = resolution
+
+    try:
+        first = True
+        for fd in files:
+            logging.debug('writing file: %s', fd)
+
+            if warn and (not os.path.exists(fd) or not os.path.isfile(fd)):
+                logging.warning('unable to open file: %s', fd)
+                continue
+
+            img = _load_image_rgb(fd)
+
+            if first and not append:
+                # overwrite existing file.
+                img.save(output_path, 'PDF', **metadata)
+                first = False
+            else:
+                img.save(output_path, 'PDF', append=True, **metadata)
+
+            if not silent: print(fd)
+            img.close()
+        logging.info('dumped to file: %s', output_path)
+    except (Exception, KeyboardInterrupt) as error:
+        logging.exception('failed to construct PDF from images')
+        if not dest_exists and os.path.exists(output_path):
+            # remove when created during program execution
+            os.remove(output_path)
+        sys.exit(1)
+
+if __name__ == '__main__':
+    import argparse
+
+    def parse_args():
+        """parse command line arguments."""
+        parser = argparse.ArgumentParser(
+            description='collect multiple images into a single PDF.')
+
+        parser.add_argument('-w', '--warn', action='store_true',
+                            help='warn on error, instead of cancelling.')
+
+        input_group = parser.add_argument_group('input')
+        input_group.add_argument('-', action='store_true', dest='read_stdin',
+                                 help='read file paths from stdin.')
+        input_group.add_argument('-f', '--file', dest='read_files', action='append',
+                                 help='read file paths from FILE.')
+        input_group.add_argument('file', metavar='FILE', nargs='*',
+                                 help='files to convert to pdf.')
+
+        logging_group = parser.add_argument_group('logging')
+        logging_group.add_argument('-l', '--log-level',
+                                   metavar='LEVEL',
+                                   type=lambda X: getattr(logging, X.upper()),
+                                   default=logging.INFO, help='level of logging output.')
+        logging_group.add_argument('-L', '--log-file', metavar='FILE',
+                                   default=sys.stderr, help='file to write log to. default to stderr.')
+
+        output_group = parser.add_argument_group('output')
+        output_group.add_argument('-o', '--output', metavar='FILE', default='output.pdf', help='write pdf to FILE.')
+        output_group.add_argument('-a', '--append', action='store_true', help='append to existing PDF.')
+        output_group.add_argument('-s', '--silent', action='store_true', help="don't output anything to STDOUT.")
+        output_group.add_argument('--title', help='PDF title.')
+        output_group.add_argument('--author', help='PDF author.')
+        output_group.add_argument('--subject', help='PDF subject.')
+        output_group.add_argument('--keywords', help='PDF keywords.')
+        output_group.add_argument('--creator', help='PDF creator.')
+        output_group.add_argument('--producer', help='PDF producer')
+        output_group.add_argument('-r', '--resolution', default=DEFAULT_RESOLUTION,
+                                  help='PDF image resolution. defaults to 100, set to "" to use image default.')
+
+        args  = parser.parse_args()
+        vargs = vars(args)
+
+        args.paths = []
+        if vargs.pop('read_stdin'):
+            args.paths.extend(X.strip('\n') for X in sys.stdin.readlines())
+        for fd in vargs.pop('read_files') or []:
+            if os.path.exists(fd):
+                with open(fd, 'r', encoding='utf8') as file:
+                    args.paths.extend(X.strip('\n') for X in sys.stdin.readlines())
+            else:
+                parser.error('unable to locate input file: ' + fd)
+        args.paths.extend(vargs.pop('files', []))
+
+        logging.getLogger('PIL').setLevel(logging.ERROR)
+        logging_args = {
+            'level': vargs.pop('log_level'),
+            'format': '%(levelname)8s:%(asctime)-15s:%(filename)s: %(message)s'
+        }
+        if isinstance(args.log_file, io.TextIOWrapper):
+            logging_args['stream'] = vargs.pop('log_file')
+        else:
+            logging_args['handlers'] = [logging.FileHandler(vargs.pop('log_file'), 'a', 'utf-8')]
+        logging.basicConfig(**logging_args)
+
+        if not args.paths:
+            parser.print_help()
+            sys.exit(0)
+
+        if not args.output.endswith('.pdf'):
+            args.output += '.pdf'
+
+        if isinstance(args.resolution, str):
+            if len(args.resolution.strip()) == 0:
+                vargs.pop('resolution')
+            else:
+                args.resolution = float(args.resolution)
+
+        return args, vargs, parser
+
+    args, vargs, parser = parse_args()
+    create_pdf(args.paths, args.output, **vargs)
