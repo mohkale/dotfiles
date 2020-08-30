@@ -31,4 +31,10 @@
 "spawn-term fzf-dmenu -a"
   Mod4 + bracketright + Release
 
+"moji -n -d ' '"
+  Mod4 + k
+
+"moji -i -n -d ' '"
+  Mod4 + Shift + k
+
 # NOTE: you can force reload of this config by running `killall -HUP xbindkeys`
