@@ -30,13 +30,11 @@ set icons
 # leave some space at the top and the bottom of the screen
 set scrolloff 3
 
-set previewer preview
-cmd restore-default-previewer $lf -remote "send $id set previewer"$'\n'"send $id map zP remove-default-previewer"
-cmd remove-default-previewer  $lf -remote "send $id set previewer preview"$'\n'"send $id map zP restore-default-previewer"
-map zP restore-default-previewer
 # show number of files in directory, not size of directory inode.
 set dircounts
 
+map zp toggle-preview
+map zP toggle-default-previewer
 map zi :set icons!
 
 map i $preview $f | ${PAGER:-less} -R
@@ -88,8 +86,7 @@ map p
 map pp paste
 map pl paste-links
 
-cmd toggle-inplace :toggle;up
-cmd toggle-backwards :up;toggle-inplace
+cmd toggle-backwards :up;toggle
 map <bs>  toggle-backwards
 map <bs2> toggle-backwards
 
@@ -154,6 +151,7 @@ map oi open-images
 map ,m :push :mkdir<space>
 map ,n :push :mkcd<space>
 map ,t :push :touch<space>
+map ,o :show-opts
 
 # configuration
 map ,r source ~/.config/lf/lfrc
@@ -168,7 +166,7 @@ map <a-o> top
 map <enter> open
 
 # macros
-# echo "$fz" | xargs -r0 -I% 
+# echo "$fx" | xargs -r -d '\n' -I%
 map ,x push !echo<space>"$fx"<space>|<space>xargs<space>-r<space>-d<space>'\n'<space>-I%<space>
 map ,X push &echo<space>"$fx"<space>|<space>xargs<space>-r<space>-d<space>'\n'<space>-I%<space>
 
@@ -176,7 +174,7 @@ map ,X push &echo<space>"$fx"<space>|<space>xargs<space>-r<space>-d<space>'\n'<s
 map ,f push !echo<space>"$fx"<space>|<space>while<space>read<space>-r<space>it;<space>do<space>;<space>done<left><left><left><left><left><left>
 map ,F push &echo<space>"$fx"<space>|<space>while<space>read<space>-r<space>it;<space>do<space>;<space>done<left><left><left><left><left><left>
 
-# printf "%s\n" "$fx" | 
+# printf "%s\n" "$fx" |
 map ,p push !printf<space>"%s\n"<space>$fx<space>|<space>
 map ,P push &printf<space>"%s\n"<space>$fx<space>|<space>
 
@@ -478,6 +476,10 @@ cmd trash &{{
     lf -remote "send $id load"
 }}
 
+cmd show-opts !{{
+    printenv | grep -i '^lf' | sort -V | "$PAGER"
+}}
+
 ### Editor
 # link lf to emacsclient through evi
 cmd evi ${{
@@ -510,14 +512,23 @@ cmd shell-in-directory ${{
 }}
 
 ## preview control
-cmd showpreview &{{
-    lf -remote "send $id set preview"$'\n'"send $id set ratios 1:2:3"$'\n'"send $id map zp nopreview"
+cmd toggle-preview &{{
+    if [ "$lf_preview" = "true" ]; then
+        lf -remote "send $id set nopreview"$'\n'"send $id set ratios 1:3"
+    else
+        lf -remote "send $id set preview"$'\n'"send $id set ratios 1:2:3"
+    fi
 }}
 
-cmd nopreview &{{
-    lf -remote "send $id set nopreview"$'\n'"send $id set ratios 1:3"$'\n'"send $id map zp showpreview"
+set previewer preview
+cmd toggle-default-previewer &{{
+    if [ "$lf_previewer" = "preview" ]; then
+        lf -remote "send $id set previewer"
+    else
+        lf -remote "send $id set previewer preview"
+    fi
 }}
-map zp nopreview
+
 
 ## cut/copy modifiers
 cmd cut-add %{{
@@ -555,7 +566,7 @@ cmd cut-remove %{{
     lf -remote "send $id unselect${newline}send $id sync"
 }}
 
-# variants for copy
+### variants for copy
 cmd copy-add %{{
     files=$(lf -remote load | tail -n +2)
     newline=$'\n'
@@ -592,7 +603,7 @@ cmd yank-dirname &{{
 }}
 
 cmd yank-path &{{
-    if [ -n "$fs" ]; then echo "$fs"; else echo "$f" | tr -d '\n'; fi |
+    echo "$fx" | tr -d '\n'; fi |
       xclip -i -selection clipboard
 }}
 
@@ -625,9 +636,4 @@ cmd yank-basename-without-extension &{{
 }}
 
 ## TODOs
-# define a custom 'rename' command without prompt for overwrite
-# cmd rename %[ -e $1 ] && printf "file exists" || mv $f $1
-# map r push :rename<space>
-
 # TODO map x to chmod
-# TODO consistent trashing
