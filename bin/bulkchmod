@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+#
+# command to open selected files in a bulkrename session alongside both
+# hex and human readable file permissions. You can modify the permissions
+# in the session and then the associated files will recieve updated
+# permissions.
+#
+# NOTE Numerical permissions take precedence over human readable ones,
+# changes to filenames don't do anything.
+#
+# NOTE trashing a file name resets it's file permissions to the system
+# defaults.
+
+print_usage() {
+  echo "Usage: $(basename "$0") [-h] [-s PRESELECT]"
+}
+
+print_help() {
+  print_usage
+  echo ""
+  echo "open all files passed via STDIN in a bulkrename session with"
+  echo "file permissions in both octal and human readable form."
+  echo ""
+  echo "on exit, modified permissions in the index are synced with the"
+  echo "filesystem. By convention, octal changes take precedence over"
+  echo "human readable ones."
+  echo ""
+  echo "Options"
+  echo "  -h    show this help message and exit"
+  echo "  -s PRESELECT"
+  echo "     preselect PRESELECT in the session"
+}
+
+while getopts 'hs:' option; do
+  case "$option" in
+    h) print_help
+       exit 0 ;;
+    \?) print_help >&2
+        exit 1 ;;
+    s) preselect="$OPTARG" ;;
+  esac
+done
+
+move_script=$(cat <<- 'EOF'
+	IFS=':' read perms_dec1 perms1 file <<< "$1"
+	IFS=':' read perms_dec2 perms2 _    <<< "$2"
+
+	[ "$perms1" = "perms2" ] && [ "$perms_dec1" = "perms_dec2" ] && return
+
+	if [ "$perms_dec1" != "$perms_dec2" ]; then
+	    final_perms="$perms_dec2"
+	else
+	    final_perms=$(echo "$perms2" |
+	        # Adapted from [[https://unix.stackexchange.com/questions/76521/how-can-i-display-octal-notation-of-permissions-with-ls-and-can-octal-represen][here]].
+	        awk '$1 ~ /^[-dsbclp]([-r][-w][-x]){3}[.+]?$/ {
+	            for(i=0; i<3; i++) {
+	                symbol = substr($0, 2+i*3, 3); sum = 0;
+	                if (substr(symbol,1,1) == "r") sum += 4;
+	                if (substr(symbol,2,1) == "w") sum += 2;
+	                if (substr(symbol,3,1) == "x") sum += 1;
+	                printf "%d", sum;
+	            }
+	        }')
+	fi
+
+	[ -n "$final_perms" ] && chmod -c "$final_perms" "$file"
+EOF
+)
+
+trash_script=$(cat <<- 'EOF'
+	IFS=':' read _ filename <<< "$1"
+	# WARN hardcoded system default file permissions
+	if [ -x "$filename" ]; then
+	    # default_perms=$(printf "%03d\n" "$((0777 - $(umask)))")
+	    default_perms="755"
+	else
+	    # default_perms=$(printf "%03d\n" "$((0666 - $(umask)))")
+	    default_perms="644"
+	fi
+	chmod "$default_perms" "$filename"
+EOF
+)
+
+stat_format='%a:%A:%n\n'
+[ -n "$preselect" ] &&  preselect=$(stat --printf "$stat_format" "$preselect" 2>/dev/null)
+xargs -r -d '\n' stat --printf "$stat_format" |
+  bulkrename -P -V -s "$preselect" -m "$move_script" -t "$trash_script" -

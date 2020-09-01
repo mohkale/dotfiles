@@ -51,8 +51,8 @@ map <enter> shell
 map <c-s>   :push /
 
 # execute current file (must be executable)
-map x $$f
-map X !$f
+# map x $$f
+# map X !$f
 
 # reclaim , as a custom prefix
 map ,
@@ -125,6 +125,9 @@ map ct cdmktemp
 
 map dt trash
 map dT trash
+
+map x :push :chmod<space>
+map cx :bulkchmod
 
 map gd
 map gf fzf
@@ -535,6 +538,23 @@ cmd show-opts !{{
     printenv | grep -i '^lf' | sort -V | "$PAGER"
 }}
 
+cmd chmod ${{
+    [ -z "$1" ] && exit 1
+    echo "$fx" | xargs -d '\n' chmod "$1"
+    lf -remote "send $id reload"
+}}
+
+cmd bulkchmod ${{
+    dir=$(readlink -e -- "$(pwd)")
+    if [ -n "$fs" ]; then echo "$fs"; else
+        find -L "$dir" -type f |
+            if [ "$lf_hidden" = "false" ]; then filter-globs -v -p "$lf_hiddenfiles"; else cat; fi
+    fi |
+        bulkchmod -s "$f"
+
+    lf -remote "send $id reload"
+}}
+
 ### Editor
 # link lf to emacsclient through evi
 cmd evi ${{
@@ -698,6 +718,3 @@ cmd yank-basename-without-extension &{{
       if [ -n "$fs" ]; then cat; else tr -d '\n'; fi |
       xclip -i -selection clipboard
 }}
-
-## TODOs
-# TODO map x to chmod

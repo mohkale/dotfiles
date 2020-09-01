@@ -8,7 +8,8 @@ set -e # stop execution when something fails
 
 function print_usage {
     echo "Usage: bulkrename [-h] [-e EDITOR] [-p|-P] [-v|-V] [-s FILE]"
-    echo "                  [-y] [-c DIR] [-f FILE] [-] FILE [...FILE]"
+    echo "                  [-m SCRIPT] [-t SCRIPT] [-y] [-c DIR]"
+    echo "                  [-f FILE] [-] FILE [...FILE]"
 }
 
 function print_help {
@@ -18,11 +19,11 @@ function print_help {
     echo "  -           read file paths from STDIN"
     echo "  -f FILE, --file FILE"
     echo "              read file paths from FILE"
-    echo "  -e EDITOR, --editor EDITOR"
-    echo "              set the editor used for modifying existing file paths"
     echo ""
     echo "optional arguments:"
     echo "  -h, --help  show this help message and exit"
+    echo "  -e EDITOR, --editor EDITOR"
+    echo "              set the editor used for modifying existing file paths"
     echo "  -s FILE, --select FILE"
     echo "              preselect FILE in EDITOR when possible."
     echo "  -c DIR, --cd DIR"
@@ -37,6 +38,10 @@ function print_help {
     echo "              (enabled by default)."
     echo "  -y, --no-confirm"
     echo "              don't confirm operations before executing them."
+    echo "  -m SCRIPT, --move-script SCRIPT"
+    echo "              override the default rename command with this bash script"
+    echo "  -t SCRIPT, --trash-script SCRIPT"
+    echo "              override the default trash command with this bash script"
 }
 
 function cleanup {
@@ -53,6 +58,8 @@ function get_temp {
 
 editor="${VISUAL:-$EDITOR:-vi}" # a sane choice
 index=$(get_temp index)
+move_script=''
+trash_script=''
 
 if [ "$#" -eq 0 ]; then
     print_help
@@ -83,6 +90,13 @@ while [ "$#" -gt 0 ]; do
         -c|--cd) cd "$1"
                  shift ;;
         -y|--no-confirm) confirm=0 ;;
+        # scripts
+        -m|--move-script)
+            move_script="$1"
+            shift ;;
+        -t|--trash-script)
+            trash_script="$1"
+            shift ;;
         # file lists
         -) cat >> "$index"
            ;;
@@ -154,7 +168,7 @@ cat "$index" > "$index_edit"
 
 editor_flags=""
 if [ -n "$select" ]; then
-    line=$(grep -m 1 -x -F "$select" -n "$index" | cut -d':' -f1)
+    line=$(grep -m 1 -x -n "$index" -F -e "$select" | cut -d':' -f1)
     if [ "${line:-1}" -ne 1 ]; then
         case "$editor" in
             vi*|nvim*|emacs*)
@@ -173,8 +187,22 @@ function scratch_template {
     echo "# This file will be executed when you close the editor."
     echo "# Please double check everything, clear the file to abort."
     echo ""
-    echo 'function trash { condemn -- "$1"; }'
-    echo 'function rename { mv -vi -- "$1" "$2"; }'
+    if [ -n "$trash_script" ]; then
+        echo 'function trash {'
+        echo "$trash_script" | awk '{ printf("  %s\n", $0) }'
+        echo '}'
+        echo ""
+    else
+        echo 'function trash { condemn -- "$1"; }'
+    fi
+
+    if [ -n "$move_script" ]; then
+        echo 'function rename {'
+        echo "$move_script" | awk '{ printf("  %s\n", $0) }'
+        echo '}'
+    else
+        echo 'function rename { mv -vi -- "$1" "$2"; }'
+    fi
     echo ""
 }
 
