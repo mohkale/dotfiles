@@ -158,6 +158,8 @@ map ,m :push :mkdir<space>
 map ,n :push :mkcd<space>
 map ,t :push :touch<space>
 map ,o :show-opts
+map ,vf :select-files
+map ,vd :select-dirs
 
 # configuration
 map ,r source ~/.config/lf/lfrc
@@ -573,6 +575,23 @@ cmd evi-config ${{
     if evi $XDG_CONFIG_HOME/lf/lfrc; then
         lf -remote "send $id source $XDG_CONFIG_HOME/lf/lfrc"
     fi
+}}
+
+## select files or directories
+cmd select-files ${{
+    { echo "$fs"; find -L "$(pwd)" -mindepth 1 -maxdepth 1 -type f; } |
+        if [ "$lf_hidden" = "false" ]; then filter-globs -vb -p "$lf_hiddenfiles"; else cat; fi |
+        sed '/^$/d' | sort | uniq -u |
+        xargs -d '\n' -r -I{} lf -remote "send $id toggle \"{}\""
+    lf -remote "send $id sync"
+}}
+
+cmd select-dirs &{{
+    { echo "$fs"; find -L "$(pwd)" -mindepth 1 -maxdepth 1 -type d; } |
+        if [ "$lf_hidden" = "false" ]; then filter-globs -vb -p "$lf_hiddenfiles"; else cat; fi |
+        sed '/^$/d' | sort | uniq -u |
+        xargs -d '\n' -r -I{} lf -remote "send $id toggle \"{}\""
+    lf -remote "send $id sync"
 }}
 
 ## Misc
