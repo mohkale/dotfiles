@@ -120,6 +120,7 @@ map gp goto-project-root
 map gj goto-link-dest
 map gt cd /tmp/
 map g/ cd /
+map gs push :grep-to-file<space>
 map ct cdmktemp
 
 map dt trash
@@ -583,6 +584,15 @@ cmd toggle-default-previewer &{{
     fi
 }}
 
+## grep to files
+cmd grep-to-file ${{
+  match=$(rg "$@" --color=always --colors path:none --smart-case |
+     sed 's/:[[:blank:]]\+/:/' |
+     fzf --ansi -d : --preview 'preview {1}' --with-nth 2 --reverse)
+  [ "$?" -eq 0 -o -z "$match" ] || exit 1
+  file=$(echo "$match" | cut -d ':' -f1)
+  lf -remote "send $id select \"$file\""
+}}
 
 ## cut/copy modifiers
 cmd cut-add %{{
