@@ -26,6 +26,7 @@ set ifs "\n"
 set relativenumber
 set color256
 set icons
+set hiddenfiles .*:__pycache__:*.pyc:*.o:node_modules
 
 # leave some space at the top and the bottom of the screen
 set scrolloff 3
@@ -423,22 +424,24 @@ cmd paste-links &{{
 # bulkrename a bunch of files, see [[https://github.com/gokcehan/lf/issues/149#issuecomment-470960434][here]].
 cmd bulkrename ${{
     dir=$(dirname "$f")
-    if [ "$fs" = "" ]; then
-        # when no marked files exist, use all files in the current
-        # directory.
-        fs=$(ls -1Lv --group-directories-first --quoting-style=literal -- "$dir")
-    fi
-
-    bulkrename -V -s "$f" -c "$dir" - <<< "$fs"
+    if [ -z "$fs" ]; then
+        # when no marked files exist, use all files in the current directory.
+        ls -1LAv --group-directories-first --quoting-style=literal -- "$dir" 2>/dev/null |
+            if [ "$lf_hidden" = "false" ]; then filter-globs -vb -p "$lf_hiddenfiles"; else cat; fi
+    else
+        echo "$fs"
+    fi | bulkrename -V -s "$f" -c "$dir" -
 }}
 
 # recursively bulkrename all files
 cmd bulkrename_all ${{
-    if [ -z "$fs" ]; then
-        find -L "$(dirname "$f")" -type f
+    dir=$(dirname "$f")
+    if [ -n "$fs" ]; then
+        echo "$fs" | xargs -d '\n' -ri find -L {} -type f
     else
-        echo "$fs" | xargs -d '\n' -ri find {} -type f
-    fi | bulkrename -s "$f" -c "$(dirname "$f")" -
+        # TODO make this work with hidden files
+        find -L "$dir" -type f
+    fi | bulkrename -s "$f" -c "$dir" -
 }}
 
 ## Misc
