@@ -1,0 +1,6 @@
+[General]
+DefaultWebShortcut=
+EnableWebShortcuts=true
+KeywordDelimiter=\s
+PreferredWebShortcuts=github,duckduckgo,archwiki,wikipedia,msdn,gitlab,mdn,wikit,google,amazon,youtube,archpkg
+UsePreferredWebShortcutsOnly=true

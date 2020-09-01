@@ -1,4 +1,3 @@
-core/aliases/**/*.private
 setup/plugins/__pycache__/
 README.html
 setup/cache/

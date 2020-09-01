@@ -57,12 +57,8 @@
         [ -f ./setup/cache/dist/ubuntu ]
 
     # subbot directories
-    - desktop
-    - editors
-    - langs
-    - programs
+    - prog
     - bin
-    - shells
 
 - shell:
     - description: Updating Bots File

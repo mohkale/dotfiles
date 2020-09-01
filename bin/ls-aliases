@@ -1,0 +1,40 @@
+#!/usr/bin/sh
+# list alias files related to the current user environment.
+
+platform=$(ls-platform)
+root="$XDG_CONFIG_HOME/aliases"
+
+print_usage() {
+  echo "Usage: $0 [-h] [-r ROOT] [-p PLATFORM]"
+}
+
+print_help() {
+  print_usage
+  echo ""
+  echo "Options"
+  echo "  -r ROOT"
+  echo "      root directory where aliases can be found."
+  echo "      (defaults to: $root)."
+  echo "  -p PLATFORM"
+  echo "      current computer platform. (defaults to $platform)."
+}
+
+while getopts 'hr:p:' option; do
+  case "$option" in
+    h) print_help
+       exit 0 ;;
+    \?) print_help >&2
+        exit 1 ;;
+    r) root="$OPTARG" ;;
+    p) platform="$OPTARG" ;;
+  esac
+done
+
+print_alias_file() {
+  [ -r "$1" ]         && echo "$1"
+  [ -r "$1.private" ] && echo "$1.private"
+}
+
+print_alias_file "$root/global"
+[ -n "$platform" ]            && print_alias_file "$root/$platform"
+[ "$INSIDE_EMACS" = 'vterm' ] && print_alias_file "$root/vterm"

@@ -1,4 +1,14 @@
 #!/bin/bash
+# source [[https://stackoverflow.com/questions/2683279/how-to-detect-if-a-script-is-being-sourced][here]].
+if [ -n "$ZSH_EVAL_CONTEXT" ]; then
+    case $ZSH_EVAL_CONTEXT in *:file) sourced=1;; esac
+elif [ -n "$BASH_VERSION" ]; then
+    (return 0 2>/dev/null) && sourced=1
+else # All other shells: examine $0 for known shell binary filenames
+    # Detects `sh` and `dash`; add additional shell filenames as needed.
+    case ${0##*/} in sh|dash) sourced=1;; esac
+fi
+
 inline=0
 ignore=0
 prettify=0
@@ -86,21 +96,25 @@ _inline_alias_calls() {
         | awk -e 'BEGIN { printf "alias " }' -e '{ printf("%s", $0) }' -e 'END { printf "\n" }'
 }
 
-failed=0
+main() {
+    failed=0
 
-for file in $@; do
-    if [ ! -e "$file" ]; then
-        echo "build_shortcuts(error) : shortcut path '$file' not found" >&2
-        failed=1
-    elif [ ! -f "$file" ]; then
-        echo "build_shortcuts(error) : shortcut path '$file' is not a file" >&2
-        failed=1
-    elif [ ! -r "${file}" ]; then
-        echo "build_shortcuts(error) : shortcut file '$file' is not readable" >&2
-        failed=1
-    fi
-done
+    for file in "$@"; do
+        if [ ! -e "$file" ]; then
+            echo "build_shortcuts(error) : shortcut path '$file' not found" >&2
+            failed=1
+        elif [ ! -f "$file" ]; then
+            echo "build_shortcuts(error) : shortcut path '$file' is not a file" >&2
+            failed=1
+        elif [ ! -r "${file}" ]; then
+            echo "build_shortcuts(error) : shortcut file '$file' is not readable" >&2
+            failed=1
+        fi
+    done
 
-[ "$failed" -eq 1 -a "$ignore" -eq 0 ] && exit 1
+    [ "$failed" -eq 1 -a "$ignore" -eq 0 ] && exit 1
 
-create_aliases "$@" | if [ "$inline" -eq 1 ]; then _inline_alias_calls; else cat; fi
+    create_aliases "$@" | if [ "$inline" -eq 1 ]; then _inline_alias_calls; else cat; fi
+}
+
+[ "${sourced:-0}" -eq 0 ] && main "$@"

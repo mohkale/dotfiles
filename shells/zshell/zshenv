@@ -1,7 +1,0 @@
-# -*- mode: sh -*-
-if [ -f "$HOME/.profile" ]; then
-    . "$HOME/.profile"
-fi
-
-export ZDOTDIR="$XDG_CONFIG_HOME/zshell"
-export ZPLUG_HOME="$ZDOTDIR/zplug"

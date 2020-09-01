@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+# recursively find files in the current project directory.
+
+set -e # auto exit on a failed command
+
+function print_usage {
+    echo "Usage: ls-project [-h] [-d|-D] DIR"
+}
+
+function print_help {
+    print_usage
+    echo ""
+    echo "Recursively list all the files in a project."
+    echo "Listing all files if the CWD isn't a project."
+    echo ""
+    echo "optional arguments:"
+    echo "  -h      show this help message and exit"
+    echo "  -d/-f   only list directories, or files"
+}
+
+directories_only=0
+files_only=0
+while getopts 'hdf' OPTION; do
+    case "$OPTION" in
+        h) print_help
+           exit 0
+           ;;
+        \?) print_usage >&2
+            exit 1
+            ;;
+        d) directories_only=1 ;;
+        f) files_only=0 ;;
+    esac
+done
+
+shift "$((OPTIND-1))"
+[ -n "$*" ] && cd "$*"
+
+function files_to_dir {
+    # strip out filename components, removing the cwd from the file list.
+    xargs -d '\n' -r dirname {} + | sort | uniq | sed --quiet -e '/^\.$/d' -e 'p'
+}
+
+function files_to_files_and_dir {
+    # for each file in STDIN, read the directory component and echo
+    # it out seperately. each directory is only outputted once.
+    awk -e '
+{
+  if (match($0, /(.+)\/[^\/]+$/, group)) {
+    dir = group[1]
+    if (!dirs[dir]) {
+      dirs[dir] = 1
+      print dir
+    }
+
+    print $0
+  } else {
+    print $0
+  }
+}'
+}
+
+function file_filter {
+    if [ "$directories_only" -eq 1 ]; then
+        files_to_dir
+    elif [ "$files_only" -eq 1 ]; then
+        cat
+    else
+        files_to_files_and_dir
+    fi
+}
+
+if command -v fd >/dev/null; then
+    if [ "$directories_only" -eq 1 ]; then
+        fd -H --type d --color never
+    elif [ "$files_only" -eq 1 ]; then
+        fd -H --type f --color never
+    else
+        fd -H --color never
+    fi
+elif command -v rg >/dev/null; then
+    rg --files | file_filter
+elif [ -d .git ] || git git rev-parse --git-dir >/dev/null; then
+    git ls-files | file_filter
+else
+    if [ "$directories_only" -eq 1 ]; then
+        # list only directories, or symlinks which symlink to directories.
+        find -L . -mindepth 1 -type d -print
+    elif [ "$files_only" -eq 1 ]; then
+        find -L . -mindepth 1 -type f
+    else
+        find -L .
+    fi
+fi 2>/dev/null

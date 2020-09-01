@@ -168,12 +168,16 @@ cd20@dir    ../../../../../../../../../../../../../../../../../../../../
 # Directories Shortcuts
 h@dirx            ~
 dl@dirx           ~/downloads
-em@dirx           "$EMACS_HOME"
+em@dirx           $EMACS_HOME
 rp@dirx           ~/programming/repos
-st@dirx           ~/.shortcuts
-dtop@dirx         ~/desktop
+st@dirx           ~/.config/shortcuts
+sc@dirx           ~/programming/scripts
+bin@dirx          ~/.local/bin
+dtop@dirx         ~/OS/desktop
 music@dirx        ~/multimedia/music
 dbox@dirx         ~/Dropbox
+images@dirx       ~/multimedia/images
+docs@dirx         ~/user/
 
 # File Shortcuts
 profile@file     ~/.profile
