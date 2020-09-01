@@ -86,6 +86,7 @@ map S $$SHELL
 map p
 map pp paste
 map pl paste-links
+map pL paste-links-reverse
 
 cmd toggle-backwards :up;toggle
 map <bs>  toggle-backwards
@@ -419,6 +420,56 @@ cmd paste-links &{{
 
     xargs -d '\n' -r ln "$link_type" -vt "$(dirname "$f")" <<< "$files"
     lf -remote "send $id :clear"$'\n'"send $id :load"
+}}
+
+# move cut/copied files to current directory first and then paste links
+# to the new files in their previous directory.
+#
+# WARN any files that failed to be moved are kept in the cut list in case
+# you'd like to modify them further.
+cmd paste-links-reverse ${{
+    files=$(lf -remote load | sed --quiet -e '/^$/d' -e p)
+
+    read -r operation <<< "$files"
+    files=$(tail -n +2 <<< "$files")
+
+    if [ -z "$files" ]; then
+        lf -remote "send $id echoerr \"no files in cut list\""
+        exit 1
+    fi
+
+    if [ "$operation" = "move" ]; then
+        link_type=-s
+    elif [ "$operation" = "copy" ]; then
+        link_type=-P
+    else
+        lf -remote "send $id echoerr \"unknown operation: $operation\""
+        exit 1
+    fi
+
+    failed_index=$(mktemp)
+    cleanup() { [ -e "$failed_index" ] && rm "$failed_index"; }
+    trap cleanup EXIT
+
+    on_failed() {
+        lf -remote "send $id echoerr \"destination already exists: $*\""
+        echo "$*" > "$failed_index"
+    }
+
+    dir=$(readlink -e -- "$(pwd)")
+    while read -r fpath; do
+        base="$(basename "$fpath")"
+        if [ -e "$dir/$base" ] || ! {
+            mv -n -t "$dir" "$fpath" &&
+            ln "$link_type" -vt "$(dirname "$fpath")" "$dir/$base"
+        }; then
+            on_failed "$fpath"
+        fi
+    done <<< "$files"
+
+    newline=$'\n'
+    lf -remote "save${newline}$operation${newline}$(cat "$failed_index")${newline}"
+    lf -remote "send $id sync"
 }}
 
 # bulkrename a bunch of files, see [[https://github.com/gokcehan/lf/issues/149#issuecomment-470960434][here]].
