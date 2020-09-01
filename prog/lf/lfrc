@@ -1,5 +1,9 @@
 # -*- mode: conf-space; eval: (display-line-numbers-mode +1) -*-
 
+# Local Variables:
+# electric-pair-preserve-balance: t
+# End:
+
 ## Configuration Options
 # interpreter for shell commands (needs to be POSIX compatible)
 set shell sh
@@ -20,6 +24,8 @@ set shellopts '-eu'
 set ifs "\n"
 
 set relativenumber
+set color256
+set icons
 
 # leave some space at the top and the bottom of the screen
 set scrolloff 3
@@ -28,6 +34,10 @@ set previewer preview
 cmd restore-default-previewer $lf -remote "send $id set previewer"$'\n'"send $id map zP remove-default-previewer"
 cmd remove-default-previewer  $lf -remote "send $id set previewer preview"$'\n'"send $id map zP restore-default-previewer"
 map zP restore-default-previewer
+# show number of files in directory, not size of directory inode.
+set dircounts
+
+map zi :set icons!
 
 map i $preview $f | ${PAGER:-less} -R
 map I !true
