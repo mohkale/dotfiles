@@ -106,7 +106,7 @@ map gc goto-config
 map gi goto-images
 map gm goto-music
 map gu goto-documents
-map g. goto-dotfiles
+map ga goto-fsmap
 map gp goto-project-root
 map gj goto-link-dest
 map gt cd /tmp/
@@ -276,9 +276,22 @@ cmd goto-documents ${{
     lf -remote "send $id cd \"$dir\""
 }}
 
-cmd goto-dotfiles ${{
-    dir="${DOTFILES_REPO_PATH:-~/.dotfiles}"
-    lf -remote "send $id cd \"$dir\""
+# goto a directory I have an associated file system alias for.
+cmd goto-fsmap ${{
+    target=$(ls-fsdirmaps -re |
+        if hash column 2>/dev/null; then
+            # when available, try to tabulate the available paths.
+            column -s : -t
+        else
+            # otherwise, just replace the seperator with tab
+            tr ':' '\t'
+        fi |
+        fzf |
+        cut -d ' ' -f 2- | sed 's/^ *//')
+
+    if [ -n "$target" ]; then
+        lf -remote "send $id cd \"$target\""
+    fi
 }}
 
 cmd goto-project-root ${{
