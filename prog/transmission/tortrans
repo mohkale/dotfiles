@@ -14,3 +14,7 @@ windows:
         # start the daemon and directory watcher, while logging output and not buffering.
         - stdbuf -oL transmission-daemon --foreground --log-error --log-info --log-debug | tee -a transmission.log
         - stdbuf -oL ./scripts/watcher -lDEBUG ./watcher.json | tee -a <%= @settings["cache-dir"] || "~/.cache/transmission" %>/watcher.log
+  - puddle:
+      panes: |-
+        cd -q $XDG_DATA_HOME/puddle || exit 0
+        npm run serve:production
