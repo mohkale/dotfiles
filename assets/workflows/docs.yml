@@ -15,8 +15,8 @@ jobs:
         version: 27.1
     - run: |-
           set -e
-          mv .github github
-          sed -i -e 's/\.github/github/g' ./README.org
+          mv .github assets
+          sed -i -e 's/\.\/\.github/.\/assets/g' ./README.org
           script=$(cat <<- 'EOF'
             (progn
               (require 'package)
