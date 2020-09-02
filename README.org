@@ -1,6 +1,8 @@
 #+STARTUP: showall
 #+TITLE: dotfiles
 
+#+HTML_HEAD: <link rel=icon href=https://mohkale.gitlab.io/favicon.ico type=image/x-icon>
+
 # sets HTML export theme to readthedocs like theme.
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/styles/readtheorg/css/htmlize.css"/>
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/styles/readtheorg/css/readtheorg.css"/>
