@@ -1,0 +1,55 @@
+! hsl(228, 7%, 81%)
+! hsl(228, 7%, 55%)
+! hsl(228, 7%, 44%)
+! hsl(228, 7%, 29%)
+! hsl(228, 7%, 12%)
+*aoh-very-light-grey: #CBCDD2
+*aoh-light-grey:      #848794
+*aoh-grey:            #686B78
+*aoh-dark-grey:       #45474F
+*aoh-very-dark-grey:  #1C1D21
+
+! hsl(352, 81%, 58%)
+! hsl(25,  86%, 55%)
+! hsl(50,  74%, 61%)
+! hsl(107, 40%, 57%)
+! hsl(196, 64%, 58%)
+! hsl(313, 32%, 60%)
+! hsl(165, 70%, 65%)
+*aoh-red:       #EB3D54
+*aoh-orange:    #EF7C2A
+*aoh-yellow:    #E5CD52
+*aoh-green:     #78BD65
+*aoh-blue:      #4FB4D8
+*aoh-purple:    #BA78AB
+*aoh-turquoise: #67E4C5
+
+Sxiv.background: #1C1D21
+Sxiv.foreground: #CBCDD2
+
+URxvt.saveLines:         100000
+URxvt.scrollBar:         false
+URxvt.secondaryScroll:   true
+URxvt.font:              xft:Noto Sans Mono:medium:size=10
+URxvt.visualBell:        false
+URxvt*secondaryScreen:   false
+! URxvt*termName:          rxvt-xterm-256color
+URxvt*scrollTtyOutput:   false
+URxvt*scrollWithBuffer:  true
+URxvt*scrollTtyKeypress: true
+URxvt.cursorBlink:       1
+URxvt.cursorUnderline:   1
+URxvt.fading:            30
+URxvtQuake*internalBorder: 30
+URxvtFuzzy*internalBorder: 30
+! hide cursor when not using the mouse
+URxvt*pointerBlank: true
+URxvt*pointerBlankDelay: 1
+
+URxvt.fadeColor:   #1c1c1c
+URxvt.foreground:  #ABB2BF
+URxvt.background:  #1C1C1C
+URxvt.cursorColor: #ABB2BF
+*color20:          #202020
+
+URxvt*internalBorder: 30

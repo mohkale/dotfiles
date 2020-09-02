@@ -1,0 +1,2 @@
+# -*- mode: yaml -*-
+install: --no-user-install

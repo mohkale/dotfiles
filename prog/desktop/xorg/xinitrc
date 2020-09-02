@@ -1,0 +1,8 @@
+# -*- mode: sh -*-
+# see [[https://wiki.archlinux.org/index.php/Xprofile][here]], xprofile is sourced by some windows managers, xinit sources this file
+# instead.
+#
+# It makes more sense to simply put all window manager configs in xprofile and source
+# it from here.
+
+[ -r "$HOME/.xprofile" ] && . "$HOME/.xprofile"

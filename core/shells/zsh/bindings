@@ -1,0 +1,129 @@
+# -*- mode: sh -*- config file for zshells ZLE
+
+# options
+zle_highlight=(  )
+zle_highlight+="isearch:bg=blue,fg=black"
+zle_highlight+="region:fg=black,bg=white"
+zle_highlight+="paste:fg=cyan"
+
+# offers interactive completion selection
+zmodload -i zsh/complist
+# only activated when more than <NUM> candidates
+# zstyle ':completion:*' menu select=10
+setopt listrowsfirst
+
+autoload -U select-word-style
+# for some reason, calling this now makes repeat
+# C-w invocations, append to the previous kill.
+# Just like bash :-)
+select-word-style default
+
+# some nostalgic bashisms from [[https://github.com/davidshepherd7/dotfiles/blob/master/zsh/.zsh/zsh-bindings.sh#L9][davidshepard7]].
+BASH_WORDCHARS='`~!@#$%^&*()-_=+[{]}\|;:",<.>/?'"'"
+backward-bashword() {
+    WORDCHARS=$BASH_WORDCHARS zle backward-word
+}
+zle -N backward-bashword
+
+forward-bashword() {
+    select-word-style bash
+    WORDCHARS=$BASH_WORDCHARS zle forward-word
+    select-word-style default
+}
+zle -N forward-bashword
+
+backward-kill-bashword() {
+    zle -f kill # append if last action was also a kill
+    WORDCHARS=$BASH_WORDCHARS zle backward-kill-word
+}
+zle -N backward-kill-bashword
+
+# a command to replicate unix-filename-rubout, see [[https://unix.stackexchange.com/questions/258656/how-can-i-delete-to-a-slash-or-a-word-in-zsh][here]].
+backward-kill-dir () {
+    # note this should only kill upto a directory seperator
+    # such as / or :.
+    zle -f kill
+    WORDCHARS="${WORDCHARS/\/}@" zle backward-kill-word
+}
+zle -N backward-kill-dir
+
+# like bashes edit-and-execute-command, but doesn't autorun
+autoload -z edit-command-line
+zle -N edit-command-line
+
+# shells should be like emacs, not vim :P.
+bindkey -e
+
+# vi like movement commands on hjkl
+bindkey "^b" backward-bashword
+bindkey "^f" forward-bashword
+
+bindkey "^h" backward-char
+bindkey "^l" forward-char
+bindkey "^j" down-line-or-history
+bindkey "^k" up-line-or-history
+
+bindkey "^[[1;5C" forward-bashword  # <C-right>
+bindkey "^[[1;5D" backward-bashword # <C-left>
+
+bindkey "^[j" history-search-forward
+bindkey "^[k" history-search-backward
+
+bindkey "^u" universal-argument
+
+bindkey "^[u" undo
+bindkey "^[r" redo
+
+bindkey "^[d" kill-line
+bindkey "^d"  backward-kill-line
+
+bindkey '^w'  backward-kill-bashword
+bindkey '^[w' backward-kill-dir
+
+bindkey "^[^?" kill-whole-line # <M-backspace>
+
+bindkey "^[y" yank
+
+bindkey "^[e" edit-command-line
+
+bindkey -s "^[i" "^[[Z" # <M-i> = <S-TAB>
+
+# same as C-h/C-l except skips over /
+bindkey "^[h" vi-backward-blank-word
+bindkey "^[l" vi-forward-blank-word
+
+# shifttab to autosuggest from history
+bindkey "^[[Z" autosuggest-fetch
+
+# Bindings for Packages
+bindkey '^[xj' jq-complete
+
+# XTerm compatibility
+bindkey -s "^[[32;2u" " " # <S-Space>
+bindkey '^[[127;5u' backward-kill-word # <C-backspace>
+bindkey -s '^[[105;5u' "	" # <C-i>
+bindkey -s "^[[109;5u" "^M"
+
+# Macros
+bindkey -s '^[xp' "\C-p^[xl"
+bindkey -s '^[xl' "\C-e | less"
+bindkey -s '^[xs' "\C-p\C-asd \C-a"
+bindkey -s '^[x`' '\C-e`\C-a`\C-a'
+bindkey -s '^[xe' 'emacsclient -nw'
+
+# menuselect
+bindkey -M menuselect "^p" backward-char
+bindkey -M menuselect "^n" forward-char
+
+# bindkey -M menuselect "h" backward-char
+# bindkey -M menuselect "j" down-line-or-history
+# bindkey -M menuselect "k" up-line-or-history
+# bindkey -M menuselect "l" forward-char
+
+bindkey -M menuselect "^h" backward-char
+bindkey -M menuselect "^j" down-line-or-history
+bindkey -M menuselect "^k" up-line-or-history
+bindkey -M menuselect "^l" forward-char
+
+# bindkey -M menuselect "^l" accept-line
+bindkey -M menuselect "^o" accept-and-infer-next-history

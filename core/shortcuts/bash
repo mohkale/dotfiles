@@ -1,0 +1,9 @@
+# -*- mode: sh -*-
+# bash doesn't have the concept of autoloads, so
+# you're going to have to instead load everything.
+
+commands_dir="$XDG_CONFIG_HOME/shortcuts/commands"
+while read file; do
+    source "$file"
+done < <(find "$commands_dir" -type f -or -type l)
+unset commands_dir

@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+
+print_usage() { echo "$0 [-h|-?] [-d]"; }
+
+while getopts 'h?d' option; do
+    case $option in
+        [h?]) print_usage >&2
+              exit 0
+              ;;
+        d) dummy=1
+           ;;
+        *) print_usage >&2
+           exit 1
+           ;;
+    esac
+done
+
+sessions=$(tmux ls -F '#S:#{session_id}:#{session_created}:#{session_windows}')
+
+if [ -z "$sessions" ]; then
+    tmux new-session
+    exit
+fi
+
+name_width=$(echo "$sessions" | cut -d: -f1-2 | wc -L)
+
+sessions=$(echo "$sessions" | awk -F':'         \
+           -e 'BEGIN { begin = '$(date +%s)' }' \
+           -e '{
+    age = begin - $3;
+    session_id = substr($2,2)
+
+    if ($1 == session_id) {
+        printf("%s:", $1)
+        session_width = length($1)
+    } else {
+        printf("%s@%s:", $1, session_id)
+        session_width = length($1) + length(session_id) + 1
+    }
+    for (c=0; c < '$name_width' - session_width; c++) printf " "
+
+    if ($4 > 1) {
+        printf(" %d windows (made ", $4)
+    } else {
+        printf(" %d window (made ", $4)
+    }
+
+    Y = int(age / 60 / 60 / 24 / 7 / 4 / 12)
+    M = int(age / 60 / 60 / 24 / 7 / 4)
+    W = int(age / 60 / 60 / 24 / 7)
+    D = int(age / 60 / 60 / 24)
+    H = int(age / 60 / 60 % 24)
+    m = int(age / 60 % 60)
+    S = int(age % 60)
+
+    if      (Y == 1) { printf("1 Year") }
+    else if (Y >  1) { printf("%d Years", M) }
+    else if (M == 1) { printf("1 Month") }
+    else if (M >  1) { printf("%d Months", M) }
+    else if (W == 1) { printf("1 Week") }
+    else if (W >  1) { printf("%d Weeks", W) }
+    else if (D == 1) { printf("1 Day") }
+    else if (D >  1) { printf("%d Days", D) }
+    else if (H == 1) { printf("1 Hour") }
+    else if (H >  1) { printf("%d Hours", H) }
+    else if (m == 1) { printf("1 Minute") }
+    else if (m >  1) { printf("%d Minutes", m) }
+    else             { printf("%d Seconds", S) }
+
+    printf(" ago)\n")
+}')
+
+choice=$(fzf-tmux -1 --exact --prompt="${PROMPT:-choose a session: }" <<< "$sessions")
+
+if [ ! -z "$choice" ]; then
+    # extract the session id from choice name
+    choice=$(echo "$choice" | cut -d: -f1)
+    if __=$(echo "$choice" | grep -oP '@\d+$'); then
+        choice=${__:1} # strip surrounding parens
+    fi
+
+    if [ "${dummy:-0}" -eq 1 ]; then
+        echo "$choice"
+    else
+        if [ -z "$TMUX" ]; then
+            tmux attach-session -t \$"$choice"
+        else
+            session_id=$(tmux display-message -p '#{session_id}' | cut -c 2-)
+            [ $session_id -e $choice ] || tmux switch-client -t "\$$choice"
+        fi
+    fi
+fi

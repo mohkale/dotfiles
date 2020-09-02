@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# custom key handler for sxiv.
+
+case "$1" in
+    "C-c") xclip -d '\n' -i -selection clipboard ;;
+    "C-d") xargs -d '\n' -r condemn -- ;;
+    "C-e") xargs -d '\n' -r gimp ;;
+    *) notify-send "unknown keybinding: $1" ;;
+esac

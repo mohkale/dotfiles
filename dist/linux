@@ -1,0 +1,23 @@
+- packages:
+    - apt:
+        - software-properties-common 
+        - python-software-properties
+        - xclip
+        - package: ripgrep
+          before: |-
+            sudo add-apt-repository ppa:x4121/ripgrep
+            sudo apt update
+    - yay:
+        - ripgrep
+        - lsof
+        - adobe-source-code-pro-fonts
+        - ttf-symbola
+        - noto-fonts
+        - bdf-unifont
+        - fzf
+        - xclip
+        - trash-cli
+
+- packages:
+    pip:
+      - notify-send

@@ -1,0 +1,59 @@
+# -*- mode: conf-space; eval: (display-line-numbers-mode +1) -*-
+
+# set show_hidden true
+set line_numbers relative
+set one_indexed true
+set save_backtick_bookmark true
+set show_hidden_bookmarks true
+set show_selection_in_titlebar true
+set unicode_ellipsis true
+set vcs_aware true
+set wrap_scroll false
+set scroll_offset 3
+
+# swap the v and V keys
+# map v  toggle_visual_mode
+# map V  mark_files all=True toggle=True
+# map uv toggle_visual_mode reverse=True
+# map uV mark_files all=True val=False
+
+map zf toggle_flat
+map <A-m> console mkcd%space
+
+map <A-q> quitall
+copymap Q <C-q>
+
+map J scroll_preview 1
+map K scroll_preview -1
+
+# custom binding prefix
+map <C-a> move to=0
+map <C-e> move to=-1
+map <A-e> bulkrename
+map <C-t> tab_new
+
+# open tab at given number
+map g<TAB><any> tab_open %any
+# toggle hidden files
+map g. set show_hidden!
+map g/ console filter%space
+
+# backspace unmarks backwards
+map <C-h> chain move up=1; mark_files val=False movedown=False
+copymap <C-h> <backspace>
+copymap <backspace> <backspace2>
+
+map gf fzf
+map gc fzf_cd
+
+# some cool bindings, curtesy of the [[https://github.com/ranger/ranger/wiki/Keybindings][wiki]].
+map cw eval fm.execute_console("bulkrename") if fm.thisdir.marked_items else fm.open_console("rename ")
+map f console scout -ftsea%space
+copymap f <C-s>
+
+# custom leader bindings
+map ,m console mkdir%space
+map ,x console shell -w printf "%%%%s\0" %%s | xargs -r0 -I!%space
+map ,f console shell -w for it in %%s; do
+map ,p console shell -w printf "%%%%s\n" %%s |%space
+

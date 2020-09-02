@@ -1,0 +1,198 @@
+#!/usr/bin/env python3
+"""A script invoked by transmission once a download completes, see [[https://github.com/transmission/transmission/wiki/Scripts][here]]."""
+
+import os
+import sys
+import json
+import time
+import logging
+import filecmp
+import argparse
+import pathlib as p
+import subprocess as s
+
+from watch_config import WatchConfig
+from dest_path import get_dest_directory, relative_p
+from transmission import Transmission, retry, StatusException
+
+# hardcoded config defaults
+RETRY_COUNT  = 5
+
+CONFIG_DIR   = p.Path('~/.config/transmission-daemon').expanduser()
+TORRENTS_DIR = CONFIG_DIR / 'torrents'
+CONFIG_FILE  = CONFIG_DIR / 'settings.json'
+WATCHER_FILE = CONFIG_DIR / 'watcher.json'
+del CONFIG_DIR
+
+def notify(msg, /, title=None, icon=None):
+    cmd = ['notify-send']
+    if icon:
+        cmd += ['-i', icon]
+    if title:
+        cmd.append(title)
+    cmd.append(msg)
+    if not s.call(cmd) == 0:
+        logging.error('failed to notify user, msg was: ' + msg)
+
+@retry(RETRY_COUNT)
+def _torrent_file(id: int, watch_config):
+    """convert a transmission torrent id to it's associated torrent file."""
+    resp = args.connection.command('torrent-get', ids=id, fields=['torrentFile'])
+
+    if resp['result'] != 'success':
+        raise StatusException('encountered non-sucess status')
+
+    torrent_file = p.Path(resp['arguments']['torrents'][0]['torrentFile'])
+    logging.debug('torrent found at: ' + str(torrent_file))
+
+    if relative_p(torrent_file, TORRENTS_DIR):
+        # okay, looks like transmission doesn't keep a reference to the original
+        # torrent file from which a new torrent is created. It instead copies it
+        # to a torrents directory. See issue [[https://github.com/transmission/transmission/issues/1169][1169]].
+        #
+        # This complicates things, now we have to iterate through a users watched
+        # directories just in case a matching torrent file exists somewhere in them.
+        #
+        logging.info('recursively traversing watch directories to find original torrent')
+
+        for watch_dir in (watch_config.added / x['directory'] for x in watch_config.rules):
+            for watched_file in watch_dir.glob('**/*.torrent'):
+                if filecmp.cmp(str(watched_file), torrent_file):
+                    logging.debug('torrent found at: ' + str(watched_file))
+                    torrent_file = watched_file
+                    try:
+                        logging.debug('removing redundant watched file')
+                        watched_file.unlink()
+                    except: logging.exception('failed to remove file')
+                    break
+
+    return torrent_file
+
+@retry(RETRY_COUNT)
+def _torrent_move(id, dest_dir):
+    resp = args.connection.command('torrent-set-location',
+        ids = id, move = True, location = dest_dir)
+
+    if resp['result'] != 'success':
+        raise StatusException('encountered non-sucess status')
+
+@retry(RETRY_COUNT)
+def _torrent_name(id):
+    resp = args.connection.command('torrent-get', ids=id, fields=['name'])
+
+    if resp['result'] != 'success':
+        raise StatusException('encountered non-sucess status')
+
+    return resp['arguments']['torrents'][0]['name']
+
+def move_to_dest(args):
+    if not args.location.exists():
+        logging.error("unable to move completed torrent, source doesn't exist: %s" % args.location)
+        return False
+
+    # construct a new argument namespace for the get_dest_directory command
+    dest_args = argparse.Namespace()
+
+    logging.info('determining torrent file for torrent with id: ' + str(args.id))
+    try:
+        dest_args.torrent = _torrent_file(args.id, args.watch_config)
+    except:
+        logging.exception('failed to find source file for torrent with id: ' + str(args.id))
+        dest_args.torrent = None
+
+    dest_args.id         = args.id
+    dest_args.location   = args.location
+    dest_args.downloads  = args.download_root
+    dest_args.default    = args.default_dest
+    dest_args.incomplete = args.incomplete_dir
+    dest_args.watch      = args.watch_config
+
+    dest = get_dest_directory(dest_args)
+    if dest:
+        logging.info('moving torrent with id %d to %s' % (args.id, dest))
+        try:
+            _torrent_move(args.id, str(dest))
+            args.location = dest / args.location.name
+        except:
+            logging.exception('failed to move torrent to new location')
+            return False
+    return True
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('-c', '--config', metavar='FILE',
+                        default=CONFIG_FILE, type=p.Path,
+                        help='transmission watcher configuration file')
+
+    parser.add_argument('-w', '--watcher', metavar='FILE',
+                        default=WATCHER_FILE, type=p.Path,
+                        help='transmission daemon configuration file')
+
+    log_group = parser.add_argument_group('logging')
+    log_group.add_argument('-l', '--log-level', type=lambda x: getattr(logging, x.upper()),
+                           metavar='LEVEL', default=logging.INFO,
+                           help='verbosity of logging output')
+    log_group.add_argument('-L', '--log-file', metavar='FILE', default=sys.stderr,
+                           type=argparse.FileType('a', encoding='utf8'),
+                           help='file to write logging output to')
+
+    env_group = parser.add_argument_group('Environment Overrides')
+    env_group.add_argument('-H', '--hash', default=os.getenv('TR_TORRENT_HASH'),
+                           help='hash for the completed torrent')
+    env_group.add_argument('-t', '--transmission-version', default=os.getenv('TR_APP_VERSION'),
+                           metavar='VERSION', help='version of the transmission server running')
+    DEFAULT_TORRENT_ID = os.getenv('TR_TORRENT_ID')
+    env_group.add_argument('-i', '--id', default=int(DEFAULT_TORRENT_ID) if DEFAULT_TORRENT_ID else None,
+                           type=int, metavar='ID', help='id for the completed torrent')
+    env_group.add_argument('-b', '--basename', default=os.getenv('TR_TORRENT_NAME'),
+                           metavar='NAME', help='name of file/directory where torrent is located')
+    env_group.add_argument('-d', '--directory', default=os.getenv('TR_TORRENT_DIR'),
+                           metavar='DIR', help='the absolute path to the directory containing NAME')
+
+    args  = parser.parse_args()
+    vargs = vars(args)
+
+    logging.basicConfig(
+        # level=vargs.pop('log_level'),
+        # stream=vargs.pop('log_file')
+        # transmission doesn't let you pass arguments, so do this manually :cry:.
+        level=logging.DEBUG,
+        stream=open(os.path.expanduser('~/.cache/transmission/on-complete-log'), 'a')
+    )
+
+    if not args.watcher.exists():
+        parser.error("watcher config file doesn't exist: " + str(args.watcher))
+    if not args.config.exists():
+        parser.error("config file doesn't exist: " + str(args.config))
+
+    args.config = json.loads(args.config.open().read())
+    args.watch_config = WatchConfig(json.loads(args.watcher.open().read()))
+
+    args.location = p.Path(
+        vargs.pop('directory'),
+        vargs.pop('basename'))
+
+    args.connection = Transmission(
+        args.config['rpc-bind-address'],
+        args.config['rpc-port'],
+        args.config['rpc-url'] + 'rpc')
+
+    if not args.connection.check():
+        parser.error('unable to connect to transmission daemon at: ' + transmission.url)
+
+    if not args.location.exists():
+        parser.error("location doesn't exist: %s" % args.location)
+
+    args.incomplete_dir = p.Path(args.config['download-dir'])
+    args.download_root  = args.incomplete_dir.parent
+    args.default_dest   = args.download_root / 'random'
+
+    # logging.debug('started program with: ' + str(args))
+    try:
+        notify('completed torrent: ' + _torrent_name(args.id),
+            icon='torrents', title='transmission')
+    except:
+        logging.exception('failed to notify user')
+
+    move_to_dest(args)

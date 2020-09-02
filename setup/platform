@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+# the nice way, as agreed upon by most distros.
+if [ -f /etc/os-release ]; then
+    sed --quiet -E 's/^NAME="(.+)"$/\1/p' /etc/os-release |
+        tr '[:upper:]' '[:lower:]' | sed 's/ *linux$//'
+    exit 0
+fi
+
+# okay, not a conventional OS, where am I?
+
+# maybe cygwin?
+is_cygwin=$(uname -s | tr '[:upper:]' '[:lower:]' | grep -Eo 'mingw|cygwin|msys')
+! [ -z "$is_cygwin" ] && echo "windows" && exit 0
+

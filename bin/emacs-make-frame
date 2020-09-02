@@ -1,0 +1,41 @@
+#!/bin/bash
+
+server_running() {
+    [ -n "$(lsof -c emacs | grep server | tr -s " " | cut -d ' ' -f8)" ]
+}
+
+emacs_running() {
+    [ ! -z "$(app-windows Emacs)" ]
+}
+
+ignore_client=1
+
+#region parse args
+if [ $# -gt 0 ]; then
+    for argument in "$@"; do
+        case "${argument}" in
+        "--ignore-client" | "-a")
+            ignore_client=0
+            ;;
+        "--help" | "-h")
+            echo "$0 [--ignore-client]" >&2
+            exit 1
+            ;;
+        *) # default
+            notify-send "toggle-emacs::unknown-flag() : ${argument}"
+            ;;
+        esac
+    done
+fi
+#endregion
+
+if [ ! "$ignore_client" -eq 0 ]; then
+    if server_running; then
+        emacsclient --create-frame --no-wait --suppress-output --eval '(kill-all-windows-and-return-to-home)'
+    else
+        if emacs_running; then notify-send "emacs open but server isn't"; fi
+        emacs & disown # open a new emacs process in its own individual emacs frame
+    fi
+else
+    emacs & disown # first process, give it a frame
+fi

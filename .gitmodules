@@ -1,0 +1,18 @@
+[submodule "dotbot"]
+	path = setup/.dotbot
+	url = https://github.com/anishathalye/dotbot
+	ignore = dirty
+[submodule "editors/emacs"]
+	path = prog/editors/emacs
+	url = https://github.com/mohkale/.emacs.d
+	ignore = dirty
+[submodule "programs/konsole/themes/an-old-hope"]
+	path = prog/konsole/themes/an-old-hope
+	url = https://github.com/mohkale/an-old-hope-konsole
+[submodule "programs/yakuake/themes/an-old-hope"]
+	path = prog/yakuake/themes/an-old-hope
+	url = https://github.com/mohkale/an-old-hope-yakuake
+[submodule "programs/st/st"]
+	path = prog/st/st
+	url = https://github.com/mohkale/st
+	ignore = dirty

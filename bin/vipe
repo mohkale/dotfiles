@@ -1,0 +1,118 @@
+#!/usr/bin/env bash
+# vipe - edit pipe
+# reimplementation of moreutils vipe in shell script.
+# why? because I h8 perl :P.
+#
+# see: https://joeyh.name/code/moreutils/
+
+# usage: command1 | vipe | command2
+#
+# Environment Variables
+#  * VISUAL - determine editor to use
+#  * EDITOR - determine editor to use
+#  * VIPE_TMPDIR - temporary directory to keep intermittent
+#                  output in. defaults to the a vipe subdirectory
+#                  within your temp directory.
+#
+# vipe allows you to run your editor in the middle of a unix pipeline and edit
+# the data that is being piped between programs. Your editor will have the full
+# data being piped from command1 loaded into it, and when you close it, that
+# data will be piped into command2.
+
+# changes from upstream version
+# * proper command line options and parsing.
+# * detects when input is a terminal and runs editor directly
+#   instead of reading input. Can be forced with -i/-I.
+#
+#   why? if you start vipe directly, you're saying you want to write
+#   some text and pipe it out, why would you have to prepend vipe
+#   with echo or first send C-z before being prompted with your editor.
+#   In truth, this option is the main reason I created this fork.
+
+print_usage() {
+    echo "Usage: $0 [-h] [-d/-D] [-f FILE] [-i|-I] [-t TMPDIR] [-e CMD] [-s|-k] [-q]"
+    echo ""
+    echo "insert an editor into your shell pipeline."
+    echo ""
+    echo "Options:"
+    echo "  -h          print this help message and exit"
+    echo "  -q          suppress warnings"
+    echo "  -d/-D       redirect current TTY (/dev/tty) as stdin to EDITOR"
+    echo "  -i/-I       specify whether STDIN is an interactive terminal"
+    echo "  -f FILE     file to open with EDITOR, defaults to STDIN"
+    echo "  -t TMPDIR   save temporary pipe file to TMPDIR"
+    echo "  -e CMD      use CMD as EDITOR instead of VISUAL/EDITOR/vi"
+    echo "  -s shred    temporary files before unlinking them"
+    echo "  -k keep     temporary files after finishing EDITOR"
+}
+
+while getopts 'h?f:iIt:e:skqdD' option; do
+    case "$option" in
+        h) print_usage
+           exit 0
+           ;;
+        \?) print_usage >&2
+            exit 1
+            ;;
+        f) stdin_file="$OPTARG"
+           ;;
+        d) redirect_tty=1
+           ;;
+        D) redirect_tty=0
+           ;;
+        i) interactive=1
+           ;;
+        I) interactive=0
+           ;;
+        e) VISUAL="$OPTARG"
+           ;;
+        t) VIPE_TMPDIR="$OPTARG"
+           ;;
+        s) secure=1 # shred tmpfiles before removing
+           ;;
+        k) keep_tmp_files=1
+           ;;
+        q) quiet=1 # suppress warnings
+           ;;
+        *) print_usage >&2
+           exit 1
+           ;;
+    esac
+done
+
+VIPE_TMPDIR="${VIPE_TMPDIR:-${TMPDIR:-/tmp/}}"
+[ ! -d "$VIPE_TMPDIR" ] && mkdir -p "$VIPE_TMPDIR"
+
+editor="${VISUAL:-${EDITOR:-vi}}" # default is vi
+
+# determine whether stdin is interactive or not
+if [ -z "$interactive" ]; then
+   [ -t 0 ] && interactive=1 || interactive=0
+fi
+
+temp_file=$(mktemp -p "$VIPE_TMPDIR")
+[ "$interactive" == 0 ] && cat $stdin_file > $temp_file
+
+# run editor on temp_file using shells stdin and stdout
+if [ "${redirect_tty:-1}" -eq 1 ]; then
+    $editor "$temp_file" </dev/tty >/dev/tty
+else
+    $editor "$temp_file"
+fi
+exit_code=$?
+
+if [ "$exit_code" == 0 ]; then
+    stdout_file="$(cat $temp_file)" # read into memory
+else
+    echo "vipe: $editor exited with non 0 exit code $exit_code, aborting." >&2
+fi
+
+if [ "${keep_tmp_files:-0}" == 1 ]; then
+    [ "${quiet:-0}" == 1 ] || echo "vipe: warning the -k flag is unsafe, proceed at your own risk." >&2
+else
+    [ "${secure:-0}" == 1 ] && shred -fz "$temp_file" # >/dev/tty 2>&1
+    unlink "$temp_file" # delete temporary storage file, no longer needed.
+fi
+
+[ "$exit_code" == 0 ] && cat <<< "$stdout_file"
+exit $exit_code

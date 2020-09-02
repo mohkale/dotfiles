@@ -1,0 +1,77 @@
+# dotbot configuration file
+
+- defaults:
+    link:
+      relink: true
+      create: true
+    bots:
+      config: .config
+
+- clean: ['~']
+
+- create:
+    - ~/downloads
+    - ~/multifolder
+    - ~/multimedia/images
+    - ~/multimedia/videos
+    - ~/multimedia/music
+    - ~/programming/repos
+    - ~/OS/desktop
+    - ./setup/cache
+    - ~/.local/share/man
+    - ~/.local/share/info
+
+- shell:
+    # determine the platform dotfiles are being
+    # installed into. works by dumping a file with
+    # the same name as the platform to ./setup/dist.
+    - description: Discovering Current Platform
+      quiet: true
+      command: |-
+        dest_dir=./setup/cache/dist/
+        rm -rf "$dest_dir"
+        mkdir -p "$dest_dir"
+
+        platform=$(./setup/platform)
+        if [ ! -z "$platform" ]; then
+          touch "$dest_dir/$platform"
+        fi
+
+- bots:
+    - core
+
+    # platform specific setups.
+    - path: dist/arch
+      when: |-
+        [ ! -z "$install" ] &&
+        [ -f ./setup/cache/dist/arch ]
+
+    - path: dist/msys
+      when: |-
+        [ ! -z "$install" ] &&
+        [ -f ./setup/cache/dist/windows ]
+
+    - path: dist/ubuntu
+      when: |-
+        [ ! -z "$install" ] &&
+        [ -f ./setup/cache/dist/ubuntu ]
+
+    # subbot directories
+    - prog
+    - bin
+
+- shell:
+    - description: Updating Bots File
+      quiet: true
+      command: |-
+        bots_file=./setup/cache/bots
+
+        if ! [ -f "$bots_file" ]; then
+          printf "$DOTBOTS" > "$bots_file"
+          exit 0
+        fi
+
+        new_bots=$(awk -e 'FNR==1 { print("") }1' <(tr ',' '\n' < "$bots_file") \
+                                                  <(tr ',' '\n' <<< "$DOTBOTS") |
+                           sort | uniq | tr '\n' ',' | sed -e 's/^,*//' -e 's/,*$//')
+        printf "$new_bots" > "$bots_file"

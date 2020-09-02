@@ -1,0 +1,5 @@
+# -*- mode: sh -*-
+evi() {
+    # run emacs like vim, using emacsclient
+    emacsclient -nw -a= -c "$@"
+}

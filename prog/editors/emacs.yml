@@ -1,0 +1,19 @@
+- shell:
+   - description: Sync Emacs Dotfiles
+     quiet: true
+     command: |-
+       git -C emacs submodule sync --quiet --recursive
+       git submodule update --init --recursive emacs
+
+- packages:
+    - apt: emacs
+    - chocolatey: emacs
+    - yay: emacs27-git
+
+- link:
+    ~/.config/emacs: emacs
+    ~/.emacs.d:
+      path: emacs
+      if: |-
+        # XDG_CONFIG_DIR has only been supported from emacs 27 forwards
+        [ "$(emacs --version | head -n1 | cut -d' ' -f3 | cut -d. -f1)" -le 26 ]

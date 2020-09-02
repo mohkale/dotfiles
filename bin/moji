@@ -1,0 +1,98 @@
+#!/usr/bin/env bash
+set -e
+set -o pipefail
+
+PROGNAME="$(basename "$0")"
+MOJI_DB="${XDG_CONFIG_HOME:-$HOME/.config}/mojis"
+SPAWN_TERM_ARGS='-c 35 -n moji'
+FZF_OPTS="--preview-window=\"up:1\" --reverse --info=hidden"
+
+print_usage() {
+  echo "Usage: $PROGNAME [-h] [-c|-i] [-n|-N] [-d SEP] [-r MSEC]"
+}
+
+print_help() {
+  print_usage
+  echo ""
+  echo "Options:"
+  echo "  -h       print this help message and exit"
+  echo "  -c       copy selected kaomojis to the clipboard"
+  echo "  -i       insert selected kaomojis to active application"
+  echo ""
+  echo "  -n/-N    spawn a new terminal for prompting the user"
+  echo "  -d SEP   delimeter when working with multiple emojis"
+  echo "  -r MSEC  input rate"
+}
+
+operation='copy'
+delimiter=$'\n'
+insert_rate=0
+while getopts 'hcinNd:r:' option; do
+  case "$option" in
+    h) print_help
+       exit 0 ;;
+    \?) print_usage >&2
+        exit 1 ;;
+    c) ;;
+    i) operation='insert' ;;
+    n) new_term=1 ;;
+    N) new_term=0 ;;
+    d) delimiter="$OPTARG" ;;
+    r) insert_rate="$OPTARG" ;;
+  esac
+done
+
+cleanup() {
+  [ -n "$index" ] && rm "$index"
+}
+
+error() {
+  echo "$PROGNAME: error: $*" >&2
+}
+
+if ! [ -r "$MOJI_DB" ]; then
+  error "moji db not found $MOJI_DB" >&2
+  exit 1
+fi
+
+index=$(mktemp)
+trap cleanup EXIT
+
+moji_script=$(cat <<EOF
+sed "$MOJI_DB" -e '/^#/d' |
+  fzf -d '\t' --with-nth 2 --preview 'echo {1}' --multi $FZF_OPTS > "$index"
+EOF
+)
+
+if [ "${new_term:-0}" -eq 1 ]; then
+  spawn-term $SPAWN_TERM_ARGS "${SHELL:-bash}" -c "$moji_script"
+else
+  eval "$moji_script"
+fi
+
+if ! [ -r "$index" ]; then
+  error "failed to find index file: $index"
+  exit 1
+fi
+
+index_count="$(wc -l "$index" | cut -d ' ' -f 1)"
+if [ "${index_count}" -eq 0 ]; then
+  error "failed to populate index file: $index"
+  exit 1
+fi
+
+cat "$index" |
+  cut -d $'\t' -f -1 |
+  if [ "$index_count" -eq 1 ]; then
+    tr -d '\n'
+  else
+    tr '\n' "$delimiter"
+  fi |
+  case "$operation" in
+    copy) xclip -i -selection clipboard ;;
+    insert)
+      xdotool sleep 0.2 type --delay "$insert_rate" --file -
+      ;;
+    *) error "unknown operation: $operation"
+       exit 1 ;;
+  esac

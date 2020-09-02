@@ -1,0 +1,145 @@
+"        _
+" __   _(_)_ __ ___  _ __ ___
+" \ \ / | | '_ ` _ \| '__/ __|
+"  \ V /| | | | | | | | | (__
+"   \_/ |_|_| |_| |_|_|  \___|
+"
+
+" XDG compatibility stuff
+" sometimes $XDG_DATA_DIRECTORY is expanded, other
+" times it isn't. just get rid of the hassle and
+" hard code the XDG paths.
+set undodir=~/.local/share/vim/undo
+set directory=~/.local/share/vim/swap
+set backupdir=~/.local/share/vim/backup
+set viewdir=~/.local/share/vim/view
+set viminfo+=n~/.local/share/vim/viminfo
+set runtimepath=~/.config/vim,$VIMRUNTIME,~/.config/vim/after
+
+""""""""""""""""""""""""""""""""""""
+"              Plugins             "
+""""""""""""""""""""""""""""""""""""
+call plug#begin('~/.config/vim/plugged')
+
+" close a buffer without closing window
+Plug 'rbgrouleff/bclose.vim'
+" emacs-which-key... for VIM!!! :)
+Plug 'liuchengxu/vim-which-key'
+" auto close pairs such as parens
+Plug 'Raimondi/delimitMate'
+" change surrounding pairs
+Plug 'tpope/vim-surround'
+" fzf-vim
+Plug 'junegunn/fzf' ", { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
+" like emacs avy-jump
+"" need to properly implement
+" Plug 'easymotion/vim-easymotion'
+
+call plug#end()
+
+""""""""""""""""""""""""""""""""""""
+" Configuration Options/Variables  "
+""""""""""""""""""""""""""""""""""""
+" colorscheme old-hope
+" colorscheme elflord
+syntax on " enable syntax highlighting
+
+"let &background = "dark"
+set relativenumber " enable relative line numbers
+set number         " current line is absolute
+set noautoindent   " no auto indenting
+set ff=unix        " preffered line endings
+set splitbelow     " split to below, not up
+set splitright     " split to right, not left
+set encoding=utf8
+set hidden         " change buffers even when current one is modified
+set nostartofline  " prevent column changing on scroll
+set wildmenu " jump through completion candidates with tab/shift-tab
+
+set backspace=indent,eol,start " allow backspace in insert mode
+set tabstop=8 softtabstop=0 expandtab shiftwidth=4 smarttab
+set nocompatible " disable early vim compatibility features
+set whichwrap+=<,>,h,l,[,] " move to previous or next line
+set nowrap " disable lines being wrapped by default
+set inccommand=nosplit
+
+set autochdir
+
+" search like ivy
+:set ignorecase
+:set smartcase
+
+if $TERM != "cygwin"
+    " doesn't play well with cygwin
+    set termguicolors
+else
+    " use a block cursor
+    let &t_ti.="\e[1 q"
+    let &t_SI.="\e[5 q"
+    let &t_EI.="\e[1 q"
+    let &t_te.="\e[0 q"
+endif
+
+""""""""""""""""""""""""""""""""""""
+"         custom bindings          "
+""""""""""""""""""""""""""""""""""""
+
+" use C-g as an alias for escape
+"" doesn't work for insert mode
+cnoremap <C-g> <Esc>
+nnoremap <C-g> <Esc>
+vnoremap <C-g> <Esc>gV
+onoremap <C-g> <Esc>
+cnoremap <C-g> <C-C><Esc>
+" inoremap <C-g> <Esc>`^
+let g:which_key_exit = [27, 7]
+
+" some nostalgic emacs like bindings
+inoremap <C-a>  <C-o>0
+inoremap <C-e>  <C-o>$
+cnoremap <C-a>  <Home>
+cnoremap <C-e>  <End>
+imap     <C-y>  <C-o>p
+
+nnoremap Y y$
+" make $ not include eol
+nnoremap $ g_
+nnoremap g_ $
+vnoremap $ g_
+vnoremap g_ $
+
+" make s surround, not substitue
+vmap s S
+
+""""""""""""""""""""""""""""""""""""
+"           leader keys            "
+""""""""""""""""""""""""""""""""""""
+let mapleader       = ' '
+let maplocalleader  = '<leader>m'
+let g:which_key_map = {}
+
+nnoremap <silent><leader> :WhichKey '<Space>'<cr>
+nnoremap <leader>bk :Bclose<cr>
+nnoremap <leader>ss :Lines<cr>
+nnoremap <leader>tl :set wrap!<cr>
+nnoremap <leader>tn :set relativenumber!<cr>
+nnoremap <leader>sc :nohlsearch<cr>
+
+nnoremap <C-s>      :Lines<cr>
+
+" Manipulate This Configuration File
+nnoremap <leader>fec :tabedit ~/.config/vim/vimrc<cr>
+nnoremap <leader>fer :source  ~/.config/vim/vimrc<cr>
+
+""""""""""""""""""""""""""""""""""""
+"         leader prefixes          "
+""""""""""""""""""""""""""""""""""""
+let g:which_key_map.f   = { 'name' : '+files' }
+" don't ask... emacs has made me used to fe
+let g:which_key_map.f.e = { 'name' : '+vim' }
+
+let g:which_key_map.c = { 'name' : '+compile/comments' }
+let g:which_key_map.b = { 'name' : '+buffers' }
+
+call which_key#register('<Space>', 'g:which_key_map')

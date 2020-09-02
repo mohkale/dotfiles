@@ -1,0 +1,90 @@
+# -*- mode: sh -*- XDG compatibility for various programs, see [[https://wiki.archlinux.org/index.php/XDG_Base_Directory][here]].
+
+## GNU Readline
+export INPUTRC="$XDG_CONFIG_HOME"/bindings/readline
+
+## Ruby Bundler
+export BUNDLE_USER_CONFIG="$XDG_CONFIG_HOME"/bundle
+export BUNDLE_USER_CACHE="$XDG_CACHE_HOME"/bundle
+export BUNDLE_USER_PLUGIN="$XDG_DATA_HOME"/bundle
+
+## Interactive Ruby (irb)
+export IRBRC="$XDG_CONFIG_HOME"/irb/irbrc
+
+## Ruby Gems
+export GEM_SPEC_CACHE="$XDG_CACHE_HOME/gem"
+
+## Solargraph
+export SOLARGRAPH_CACHE="$XDG_CACHE_HOME"/solargraph
+
+## Less is More
+[ -e "$XDG_CACHE_HOME/less" ] || mkdir -p "$XDG_CACHE_HOME/less"
+export LESSKEY="$XDG_CONFIG_HOME/less/lesskey"
+export LESSHISTFILE="$XDG_CACHE_HOME/less/history"
+
+## Node
+export NODE_REPL_HISTORY="$XDG_DATA_HOME/node_repl_history"
+
+## Bash/zsh
+if [ -n "$ZSH_VERSION" ]; then
+  # using extended zshell history, which isn't
+  # compatible with bash :/
+  export HISTFILE="$XDG_DATA_HOME/zshell_history"
+else
+  export HISTFILE="$XDG_DATA_HOME/shell_history"
+fi
+
+## XDG
+export GTK_RC_FILES="$XDG_CONFIG_HOME/gtk-1.0/gtkrc"
+export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
+
+## gradle
+export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
+
+## MySQL
+export MYSQL_HISTFILE="$XDG_DATA_HOME"/mysql_history
+
+## Python
+export PYTHONSTARTUP="$XDG_CONFIG_HOME/pythonrc.py"
+
+## Vim
+export VIMINIT=":source $XDG_CONFIG_HOME/vim/vimrc"
+
+## GTK
+export GTK_RC_FILES="$XDG_CONFIG_HOME/gtk-1.0/gtkrc"
+export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
+
+## GnuPG
+export GNUPGHOME="$XDG_DATA_HOME/gnupg"
+
+## KDE
+export KDEHOME="$XDG_CONFIG_HOME/kde"
+
+## terminfo
+export TERMINFO="$XDG_DATA_HOME/terminfo"
+export TERMINFO_DIRS="$XDG_DATA_HOME/terminfo:/usr/share/terminfo"
+
+## wget
+export WGETRC="$XDG_CONFIG_HOME/wgetrc"
+
+## Wine
+export WINEPREFIX="$XDG_DATA_HOME"/wine/prefixes/default
+
+## pass
+export PASSWORD_STORE_DIR="$XDG_DATA_HOME"/pass
+
+## Emacs
+### not used by emacs, just used by me for config stuff.
+export EMACS_HOME="$XDG_CONFIG_HOME/emacs"
+
+## poetry
+export POETRY_HOME=$XDG_CONFIG_HOME/poetry
+
+# Path Management
+if [ "$platform" = "windows" ]; then
+    # fix unconverted msys paths which crash some programs
+    for var in IRBRC SOLARGRAPH_CACHE BUNDLE_USER_CONFIG \
+               BUNDLE_USER_CACHE BUNDLE_USER_PLUGIN; do
+        export $var=$(cygpath --mixed "${!var}")
+    done
+fi

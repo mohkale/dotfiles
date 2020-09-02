@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2020-09-02 Wed 02:45 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>dotfiles</title>
+<meta name="generator" content="Org mode" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+  /*]]>*/-->
+</style>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/styles/readtheorg/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/styles/readtheorg/css/readtheorg.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/lib/js/jquery.stickytableheaders.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/readtheorg/js/readtheorg.js"></script>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2020 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">dotfiles</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgb58767d">1. Requirements</a></li>
+<li><a href="#org271514f">2. Installation Instructions</a></li>
+<li><a href="#orge629e05">3. Supported Platforms</a></li>
+<li><a href="#org55ef090">4. Directory Layout</a></li>
+<li><a href="#orga8973b5">5. Notes</a></li>
+</ul>
+</div>
+</div>
+<div align="right" style="display: flex; justify-content: flex-end">
+<a href="https://github.com/mohkale/.dotfiles" style="margin-left: 4px;"><img src="https://github.com/mohkale/puddle/workflows/build/badge.svg" /></a>
+<a href="https://github.com/mohkale/.dotfiles" style="margin-left: 4px;"><img src="https://github.com/mohkale/puddle/workflows/tests/badge.svg" /></a>
+<a href="https://github.com/mohkale/.dotfiles" style="margin-left: 4px;"><img src="https://img.shields.io/website?down_message=down&label=docs&up_message=up&url=https%3A%2F%2Fmohkale.github.io%2Fpuddle%2F" /></a>
+</div>
+
+<p>
+My dotfile repository, happily brought to you by <a href="https://github.com/anishathalye/dotbot">dotbot</a> :book:.
+</p>
+
+
+<div class="figure">
+<p><img src=".github/main.png" alt="main.png" />
+</p>
+<p><span class="figure-number">Figure 1: </span>an-old-hope</p>
+</div>
+
+<div id="outline-container-orgb58767d" class="outline-2">
+<h2 id="orgb58767d"><span class="section-number-2">1</span> Requirements</h2>
+<div class="outline-text-2" id="text-1">
+<ul class="org-ul">
+<li>python &gt;= 3.7</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org271514f" class="outline-2">
+<h2 id="org271514f"><span class="section-number-2">2</span> Installation Instructions</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+<code>git clone /uri/of/this/repo ~/.dotfiles &amp;&amp; cd ~/.dotfiles &amp;&amp; ./install</code> will install
+a basic dotfile configuration for you.
+</p>
+
+<p>
+However you'll more likely want to setup a bunch of different things, and to that end
+you can do so by passing the <code>DOTBOTS</code> environment variable to install. <code>DOTBOTS</code>
+should be a <a href="https://en.wikipedia.org/wiki/Comma-separated_values">CSV</a> list of features you want installed, for a list of available features
+you can run:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh" id="org33c613e">./setup/list-opts
+</pre>
+</div>
+
+<p>
+WARN: to run the above command, you must have loaded any required submodules.
+you can do so non-destructively by running <code>./install --help</code>.
+</p>
+
+<p>
+I recommend using the dotbots specified by <code>./setup/suggested -awe --nvim</code>. I.E.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh"><span style="font-weight: bold; font-style: italic;">DOTBOTS</span>=$(./setup/suggested -awe --nvim | tr <span style="font-style: italic;">'\n'</span> <span style="font-style: italic;">','</span>) ./install
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orge629e05" class="outline-2">
+<h2 id="orge629e05"><span class="section-number-2">3</span> Supported Platforms</h2>
+<div class="outline-text-2" id="text-3">
+<ul class="org-ul">
+<li><a href="https://gitforwindows.org/">git-bash-for-windows</a>@2.25.1</li>
+<li><a href="http://www.mingw.org/wiki/MSYS">msys</a>@2019.05.24</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org55ef090" class="outline-2">
+<h2 id="org55ef090"><span class="section-number-2">4</span> Directory Layout</h2>
+<div class="outline-text-2" id="text-4">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">path</th>
+<th scope="col" class="org-left">purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">core</td>
+<td class="org-left">core files which're installed regardless of environment.</td>
+</tr>
+
+<tr>
+<td class="org-left">desktop</td>
+<td class="org-left">configs for desktop environments, window managers, etc.</td>
+</tr>
+
+<tr>
+<td class="org-left">editors</td>
+<td class="org-left">vim, emacs&#x2026; what more do you need.</td>
+</tr>
+
+<tr>
+<td class="org-left">langs</td>
+<td class="org-left">setup multiple programming languages &amp; environments.</td>
+</tr>
+
+<tr>
+<td class="org-left">programs</td>
+<td class="org-left">sets up various programs, eg. zathura or konsole.</td>
+</tr>
+
+<tr>
+<td class="org-left">dist</td>
+<td class="org-left">configurations for specific distros or environments.</td>
+</tr>
+
+<tr>
+<td class="org-left">bin</td>
+<td class="org-left">scripts, executables, commands. you get the idea :sunglasses:.</td>
+</tr>
+
+<tr>
+<td class="org-left">shells</td>
+<td class="org-left">bash, zsh, etc. each have their own setup requirements.</td>
+</tr>
+
+<tr>
+<td class="org-left">setup</td>
+<td class="org-left">dotbot, plugins for dotbot, dotfile introspection scripts.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-orga8973b5" class="outline-2">
+<h2 id="orga8973b5"><span class="section-number-2">5</span> Notes</h2>
+<div class="outline-text-2" id="text-5">
+<ul class="org-ul">
+<li>On windows, you must run install from an elevated shell. This is because windows
+doesn't allow users with regular privilages to create symbolic links.</li>
+<li>On windows, <a href="https://chocolatey.org/">chocolatey</a> doesn't seem to like installation when stderr is the null
+device. The only workaround as of now is to run <code>./install</code> with the <code>-v</code> flag
+(or to configure chocolatey to always output).</li>
+<li>for those using windows, make sure to order the msys package manager before pacman.
+msys uses the pacman package manager&#x2026; and so does arch; meaning if your pacman
+packages come before your msys ones, the pacman packages will be installed even when
+you're on windows.</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Created: 2020-09-02 Wed 02:45</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

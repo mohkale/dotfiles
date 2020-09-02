@@ -1,0 +1,156 @@
+#!/usr/bin/env bash
+# condemn files to Davy Jones's locker :skull_crossbones:.
+
+function print_usage {
+    echo "Usage: condemn [-h] [-!] [-b] [-i {kde,trash-cli}]"
+    echo "               [-f FILE] [-] -- FILE [FILE...]"
+}
+
+function print_help {
+    print_usage
+    echo ""
+    echo "  trash files using platform specific tools when available."
+    echo ""
+    echo "file-lists:"
+    echo "  -           read file paths from STDIN"
+    echo "  -f FILE, --file FILE"
+    echo "              read file paths from FILE"
+    echo ""
+    echo "optional arguments:"
+    echo "  -h, --help  show this help message and exit"
+    echo "  -b, --bulk  specify that you intend to supply a lot of"
+    echo "              files. condemn will store file paths in a"
+    echo "              file instead of keeping them in memory."
+    echo "  -!, --[no-]rm"
+    echo "              remove files when no trash command exists"
+    echo "  -i, --ignore {kde,trash-cli}"
+    echo "              only allow trashcans not in this comma"
+    echo "              seperated argument list."
+}
+
+function error {
+    echo "condemn: error: $*" >&2
+}
+
+function cleanup {
+    [ -n "$filelist" ] && rm "$filelist"
+}
+trap cleanup EXIT
+
+# by default we maintain an in memory buffer
+# of the files that're to be trashed. If the
+# user specifies that their going to supply
+# a lot of files, we instead populate a file
+# with them @ $filelist
+filelist=''
+files=( )
+
+# after this many files have been added to $files,
+# automatically switch to using $filelist instead.
+# this is for performance reasons.
+SWITCH_TO_FILE_THRESHOLD=300
+
+function _make_filelist {
+    if [ -z "$filelist" ]; then
+        filelist=$(mktemp /tmp/condemn.XXXXXXXXXX)
+        printf '%s\n' "${files[@]}" > "$filelist"
+        unset files
+    fi
+}
+
+function _add_file_action {
+    # adds the first argument as a file to be trashed.
+    if [ -n "$filelist" ]; then
+        echo "$1" > "$filelist"
+    else
+        files+=( "$1" )
+        if [ "${#files[@]}" -ge "$SWITCH_TO_FILE_THRESHOLD" ]; then
+            _make_filelist
+        fi
+    fi
+}
+
+function _add_stream_action {
+    # pipe a stream of file paths into here.
+    if [ -n "$filelist" ]; then
+        cat >> "$filelist"
+    else
+        while read -r file; do
+            files+=( "$file" )
+        done
+        if [ "${#files[@]}" -ge "$SWITCH_TO_FILE_THRESHOLD" ]; then
+            _make_filelist
+        fi
+    fi
+}
+
+_ignore_flags=0
+while [ "$#" -gt 0 ]; do
+    key="$1"
+    shift
+
+    if [ "$_ignore_flags" -eq 1 ]; then
+        if [ "$key" = '--' ]; then
+            _ignore_flags=0
+        else
+            _add_file_action "$key"
+        fi
+    else
+        case "$key" in
+            -h) print_usage
+                exit 0 ;;
+            --help) print_help
+                    exit 0 ;;
+            --) _ignore_flags=1 ;;
+            # options
+            -b|--bulk) _make_filelist ;;
+            -!|--rm) remove=1 ;;
+            --no-rm) remove=0 ;;
+            # file lists
+            -) _add_stream_action < <(cat)
+               ;;
+            -f|--file) _add_stream_action < "$1"
+                       shift
+                       ;;
+            -i|--ignore) ignored_trashcans="$1"
+                         shift
+                         ;;
+            -*) print_usage >&2
+                error "unrecognised argument: $key"
+                exit 1 ;;
+            *) _add_file_action "$key"
+               ;;
+        esac
+    fi
+done
+
+if [ -z "$filelist" ] && [ "${#files[@]}" -eq 0 ]; then
+    print_help
+    exit 0
+fi
+
+function can_use {
+    if [ -z "$ignored_trashcans" ]; then
+        return 0
+    else
+        ! grep -q "$1" <<< "$ignored_trashcans"
+    fi
+}
+
+if [ -n "$filelist" ]; then cat "$filelist"; else printf '%s\n' "${files[@]}"; fi |
+    if can_use 'kde' && command -v kioclient5 >/dev/null 2>&1; then
+        # kioclient doesn't support specifying the move
+        # target before the src files so we'll have to
+        # pass all args in a subshell.
+        xargs -d '\n' -r sh -c '
+kioclient5 --interactive mv -- "$@" trash:/
+printf "trashed: %s\n" "$@"
+' 'trash'
+    elif can_use 'trash-cli' && command -v trash-put >/dev/null 2>&1; then
+        xargs -d '\n' -r trash-put -v --
+    elif [ "${remove:-0}" -eq 1 ]; then
+        xargs -d '\n' -r rm -rv --
+    else
+        error "unable to find a trash command"
+        exit 1
+    fi

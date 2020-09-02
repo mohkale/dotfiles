@@ -1,0 +1,194 @@
+# -*- mode: conf-space -*-
+#        .__                   __                 __
+#   _____|  |__   ____________/  |_  ____  __ ___/  |_  ______
+#  /  ___/  |  \ /  _ \_  __ \   __\/ ___\|  |  \   __\/  ___/
+#  \___ \|   Y  (  <_> )  | \/|  | \  \___|  |  /|  |  \___ \
+# /____  >___|  /\____/|__|   |__|  \___  >____/ |__| /____  >
+#      \/     \/                        \/                 \/
+
+# Global shortcuts file, these shortcuts will be sourced regardless
+# of which platform, shell or OS is invoked.
+
+# Programs
+wai     whoami
+edit    sh --norc -c '$EDITOR "$@"' edit
+e       edit
+nv      nvim
+ccat    highlight --out-format=ansi
+mcd     makecd
+mkcd    makecd
+img     feh
+netcat  ncat
+chksum  cksum
+unmount umount
+R       rake
+Rl      rake -T
+T       thor
+Tl      thor list
+Th      thor help
+istat   stat -c "%A %08s %n"  # inline stat
+ctemp   cd    $(mktemp -d)
+qtemp   pushd $(mktemp -d)
+b       buku --suggest
+ttr     tortrans
+r       ranger
+c       lfcd
+
+# vim stuff
+:q      exit
+:wq     exit
+
+
+# Windows Compatibility
+cls    clear
+
+
+# Emacs
+evipe   vipe -D -e 'emacsclient -nw' # emacs edit pipe
+ec      emacsclient
+ee      ec --no-wait --suppress-output # emacs dispatch
+ex      emacs
+sx      smacs
+et      bash -c 'cd $EMACS_HOME && ./bin/tangle -i -d hydras.org -d etc/snippets.org'
+etsx    et && sx
+emf     emacs-make-frame
+
+# TMUX
+t      tmux
+tt     tmuxinator
+tx     $TMUX_HOME/scripts/run-command
+ta     $TMUX_HOME/scripts/attach-session
+td     tmux detach
+t?     tmux show-options -g
+tm     tmux display-message
+tmvw   tmux move-window
+tls    tmux ls
+trn    tmux rename-session
+trnw   tmux rename-window
+
+
+# Python Shortcuts
+python python3
+py     python
+pip    py -m pip
+
+
+# ls Variants
+ls     ls --color=auto --group-directories-first
+l      ls -CF
+ll     ls -l
+lal    ls -al
+la     ls -A
+
+
+# Colors Colors Colors
+grep   grep  --color=auto
+fgrep  fgrep --color=auto
+egrep  egrep --color=auto
+
+
+# Git - Version Control
+g       git
+ga      g add
+gb      g branch
+gc      g commit
+gC      g clone
+gd      g diff
+# gf      g fetch
+gl      g log
+gs      g status
+gm      g mv
+gr      g rm
+gv      g checkout
+gp      g pull
+gP      g push
+gq      g rebase
+
+
+# Configure Dotfiles
+dot@dirx $DOTFILES_REPO_PATH
+
+d       g --git-dir=$DOTFILES_REPO_PATH/.git --work-tree=$DOTFILES_REPO_PATH
+da      d add
+db      d branch
+dc      d commit
+dd      d diff
+# df      d fetch
+dl      d log
+ds      d status
+dm      d mv
+dr      d rm
+dv      d checkout
+dp      d pull
+dP      d push
+dq      d rebase
+# istats every file within my dotfiles repository.
+distat  d ls-tree --full-tree --full-name -r --name-only HEAD   \
+        | awk -v home="$DOTFILES_REPO_PATH" '{ printf("%s/%s\0", home, $1) }' \
+        | xargs -r0 stat -c "%A %08s %n"
+
+
+# Change Directory
+qa      pushd
+qd      popd
+qs      dirs -v
+q1      pushd +1
+q2      pushd +2
+q3      pushd +3
+q4      pushd +4
+q5      pushd +5
+q6      pushd +6
+q7      pushd +7
+q8      pushd +8
+q9      pushd +9
+
+cdd@dir     -
+cd1@dir     ../
+cd2@dir     ../../
+cd3@dir     ../../../
+cd4@dir     ../../../../
+cd5@dir     ../../../../../
+cd6@dir     ../../../../../../
+cd7@dir     ../../../../../../../
+cd8@dir     ../../../../../../../../
+cd9@dir     ../../../../../../../../../
+cd10@dir    ../../../../../../../../../../
+# why would I ever need any more of these :P
+cd11@dir    ../../../../../../../../../../../
+cd12@dir    ../../../../../../../../../../../../
+cd13@dir    ../../../../../../../../../../../../../
+cd14@dir    ../../../../../../../../../../../../../../
+cd15@dir    ../../../../../../../../../../../../../../../
+cd16@dir    ../../../../../../../../../../../../../../../../
+cd17@dir    ../../../../../../../../../../../../../../../../../
+cd18@dir    ../../../../../../../../../../../../../../../../../../
+cd19@dir    ../../../../../../../../../../../../../../../../../../../
+cd20@dir    ../../../../../../../../../../../../../../../../../../../../
+
+# Directories Shortcuts
+h@dirx            ~
+dl@dirx           ~/downloads
+em@dirx           $EMACS_HOME
+rp@dirx           ~/programming/repos
+st@dirx           ~/.config/shortcuts
+sc@dirx           ~/programming/scripts
+bin@dirx          ~/.local/bin
+dtop@dirx         ~/OS/desktop
+music@dirx        ~/multimedia/music
+dbox@dirx         ~/Dropbox
+images@dirx       ~/multimedia/images
+docs@dirx         ~/user/
+
+# File Shortcuts
+profile@file     ~/.profile
+stg@file         $XDG_CONFIG_HOME/shortcuts/shortcuts
+ste@file         $XDG_CONFIG_HOME/shortcuts/eshell
+stw@file         $XDG_CONFIG_HOME/shortcuts/windows
+stl@file         $XDG_CONFIG_HOME/shortcuts/linux
+stm@file         $XDG_CONFIG_HOME/shortcuts/macos
+
+# Temp FS
+etemp@file   $(mktemp)
+
+# standalone-commands
+bash-startup-files      echo exit | strace bash -li | grep 'open(' | less

@@ -1,0 +1,8 @@
+; gimp-2.10 GtkAccelMap rc-file         -*- scheme -*-
+; this file is an automated accelerator map dump
+
+(gtk_accel_path "<Actions>/image/image-crop-to-selection" "<Alt>x")
+(gtk_accel_path "<Actions>/file/file-overwrite" "<Primary><Alt>s")
+(gtk_accel_path "<Actions>/plug-in/file-print-gtk" "<Primary>p")
+(gtk_accel_path "<Actions>/windows/windows-show-display-previous" "<Primary><Alt>p")
+(gtk_accel_path "<Actions>/windows/windows-show-display-next" "<Primary><Alt>n")

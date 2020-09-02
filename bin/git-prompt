@@ -1,0 +1,54 @@
+# -*- mode: sh -*- bash/zsh git prompt support
+# adapted from [[https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh][git-promp]] to be usable as a standalone script.
+# git-prompt has a tonne of cool features, but I really only
+# need branch/rebase info so this is a skimmed down version.
+
+__git_eread() {
+  test -r "$1" && IFS=$'\r\n' read "$2" <"$1"
+}
+
+__git_prompt() {
+  local r="" b=$(git rev-parse --abbrev-ref HEAD)
+  if [ -d '.git/rebase-merge' ]; then
+    __git_eread ".git/rebase-merge/head-name" b
+    __git_eread ".git/rebase-merge/msgnum" step
+    __git_eread ".git/rebase-merge/end" total
+    if [ -f ".git/rebase-merge/interactive" ]; then
+      r='|REBASE-i'
+    else
+      r='|REBASE-m'
+    fi
+  else
+    if [ -d ".git/rebase-apply" ]; then
+      if [ -f ".git/rebase-apply/rebasing" ]; then
+        __git_eread ".git/rebase-apply/head-name" b
+        r="|REBASE"
+      elif [ -f ".git/rebase-apply/applying" ]; then
+        r="|AM"
+      else
+        r="|AM/REBASE"
+      fi
+
+      local  step="" total=""
+      __git_eread ".git/rebase-apply/next" step
+      __git_eread ".git/rebase-apply/last" total
+    elif [ -f ".git/MERGE_HEAD" ]; then
+      r="|MERGING"
+    elif [ -f ".git/CHERRY_PICK_HEAD" ]; then
+      r="|CHERRY-PICKING"
+    elif [ -f ".git/REVERT_HEAD" ]; then
+      r="|REVERTING"
+    elif [ -f ".git/BISECT_LOG" ]; then
+      r="|BISECTING"
+    fi
+  fi
+
+  if [ -n "$r" ] && [ -n "$step" ] && [ -n "$total" ]; then
+    r="$r $step/$total"
+  fi
+	b=${b##refs/heads/}
+
+  printf "%s" "$b$r"
+}
+
+if [ -z "$ENTRY_POINT" ]; then __git_ps1; fi

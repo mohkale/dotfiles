@@ -1,0 +1,8 @@
+[Desktop Entry]
+Charset=
+Hidden=false
+Keys=mdn
+Name=Mozilla Developer Docs - MDN
+Query=https://developer.mozilla.org/en-US/search?q=\\{@}
+Type=Service
+X-KDE-ServiceTypes=SearchProvider

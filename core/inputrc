@@ -1,0 +1,102 @@
+# -*- mode: conf-space -*-
+# This config was forked from /etc/inputrc in ubuntu.
+# See readline(3readline) and `info rluserman' for more information.
+
+set editing-mode emacs
+
+# Be 8 bit clean.
+set input-meta  on
+set output-meta on
+set convert-meta on
+set bell-style none
+
+# Color files by types
+set colored-stats On
+
+# Color the common prefix
+set colored-completion-prefix On
+# Color the common prefix in menu-complete
+set menu-complete-display-prefix On
+
+# prevents readline overriding some of my bindings
+# See [[https://stackoverflow.com/questions/23349325/inputrc-override-controlw][here]].
+set bind-tty-special-chars Off
+
+# try to enable the application keypad when it is called.  Some systems
+# need this to enable the arrow keys.
+# set enable-keypad on
+
+# see /usr/share/doc/bash/inputrc.arrows for other codes of arrow keys
+
+# do not bell on tab-completion
+# set bell-style none
+# set bell-style visible
+
+$if mode=vi
+set show-mode-in-prompt on
+set vi-cmd-mode-string "\1\e[2 q\2"
+set vi-ins-mode-string "\1\e[6 q\2"
+$endif
+
+# some defaults / modifications for the emacs mode
+$if term!=dumb
+$if mode=emacs
+"\C-h": backward-word
+"\C-l": forward-word
+"\C-j": next-history
+"\C-k": previous-history
+
+"\M-j": history-search-forward
+"\M-k": history-search-backward
+
+"\C-u": universal-argument
+
+"\M-d": kill-line
+"\C-d": backward-kill-line
+"\M-w": unix-filename-rubout
+
+# "\M-s": character-search
+# "\M-r": character-search-backward
+
+"\M-e": edit-and-execute-command
+
+# move words, skip seperators (eg. /)
+"\M-h": vi-bWord
+"\M-l": vi-fWord
+## Meta-left and Meta-right
+"\e[1;3D": vi-bWord
+"\e[1;3C": vi-fWord
+
+# Macros
+"\M-xp": "\C-p\M-xl"
+"\M-xl": "\C-e | less"
+"\M-xs": "\C-p\C-asd \C-a"
+"\M-x`": "\C-e`\C-a`"
+
+# Compatibility
+## allow the use of the Home/End keys
+"\e[1~": beginning-of-line
+"\e[4~": end-of-line
+
+## allow the use of the Delete/Insert keys
+"\e[3~": delete-char
+"\e[2~": quoted-insert
+
+## mappings for Ctrl-left-arrow and Ctrl-right-arrow for word moving
+"\e[1;5C": forward-word
+"\e[1;5D": backward-word
+"\e[5C": forward-word
+"\e[5D": backward-word
+"\e\e[C": forward-word
+"\e\e[D": backward-word
+
+$if term=rxvt
+"\e[7~": beginning-of-line
+"\e[8~": end-of-line
+"\eOc": forward-word
+"\eOd": backward-word
+$endif # term=rxvt
+
+$endif # mode=emacs
+
+$endif # term!=dumb

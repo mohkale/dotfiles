@@ -1,0 +1,5 @@
+# -*- mode: sh -*-
+alert() {
+    # no configuration, simply notify the user of a message under the title of the last command
+    notifu -w -t $([ $? -eq 0 ] && echo "info" || echo "error") -p "$(get_last_command)" -m "$*"
+}

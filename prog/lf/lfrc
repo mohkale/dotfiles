@@ -1,0 +1,747 @@
+# -*- mode: conf-space; eval: (display-line-numbers-mode +1) -*-
+
+## Configuration Options
+# interpreter for shell commands (needs to be POSIX compatible)
+set shell sh
+
+# These options are used to have safer shell commands. Option '-e' is used to
+# exit on error and option '-u' is used to give error for unset variables.
+# Option '-f' disables pathname expansion which can be useful when $f, $fs, and
+# $fx variables contain names with '*' or '?' characters. However, this option
+# is used selectively within individual commands as it can be limiting at
+# times.
+set shellopts '-eu'
+
+# set internal field separator (IFS) to "\n" for shell commands
+# This is useful to automatically split file names in $fs and $fx properly
+# since default file separator used in these variables (i.e. 'filesep' option)
+# is newline. You need to consider the values of these options and create your
+# commands accordingly.
+set ifs "\n"
+
+set relativenumber
+set color256
+set icons
+set hiddenfiles .*:__pycache__:*.pyc:*.o:node_modules
+
+# show number of files in directory, not size of directory inode.
+set dircounts
+
+map zd :set info time
+map zp toggle-preview
+map zP toggle-default-previewer
+map zi :set icons!
+
+map i $preview $f | ${PAGER:-less} -R
+map I !true
+
+set info size
+
+## Bindings
+map zl set relativenumber!
+
+# use enter for shell commands
+map <enter> shell
+map <c-s>   :push /
+
+# execute current file (must be executable)
+# map x $$f
+# map X !$f
+
+# reclaim , as a custom prefix
+map ,
+map g; find-prev
+
+# make lf more like ranger
+map c
+map cc clear
+map cd push :cd<space>
+
+map d
+map dd cut
+
+map da cut-add
+map dr cut-remove
+map dD delete
+map D  trash
+
+map y
+map yy copy
+map ya copy-add
+map yr copy-remove
+map yp yank-path
+map yd yank-dirname
+map yb yank-basename
+map y. yank-basename-without-extension
+
+map w
+map S $$SHELL
+
+map p
+map pp paste
+map pl paste-links
+map pL paste-links-reverse
+
+cmd toggle-backwards :up;toggle
+map <bs>  toggle-backwards
+map <bs2> toggle-backwards
+
+# inspect folder sizes
+cmd du        !du --max-depth=1 -h --apparent-size
+cmd du_sorted !du --max-depth=1 -h --apparent-size | sort -rh
+map du du
+map dU du_sorted
+
+# replicate my shell config in command line mode.
+cmap <c-g>  cmd-escape
+cmap <up>   cmd-history-prev
+cmap <down> cmd-history-next
+# replicate my zsh like word movements
+cmap <c-b> cmd-word-back
+cmap <c-f> cmd-word
+cmap <a-b> cmd-left
+cmap <a-f> cmd-right
+
+# quick jump
+map gc
+map gl goto-downloads
+map gc goto-config
+map gi goto-images
+map gm goto-music
+map gu goto-documents
+map ga goto-fsmap
+map gp goto-project-root
+map gj goto-link-dest
+map gt cd /tmp/
+map g/ cd /
+map gs push :grep-to-file<space>
+map ct cdmktemp
+
+map dt trash
+map dT trash
+
+map x :push :chmod<space>
+map cx :bulkchmod
+
+map gd
+map gf fzf
+map gd fzf_cd
+map gF fzf_all
+map gD fzf_cd_all
+
+map cw    bulkrename
+map <a-e> bulkrename
+
+map cr bulkrename_all
+
+
+# open file at point in various ways
+map o
+map oo open
+map op $$PAGER  "$f"
+map gr :reload; sync
+map oe evi
+map ox execute
+map oX execute-async
+map os shell-in-directory
+map oa open-all
+map oi open-images
+
+# custom leaders
+map +  :push :mkdir<space>
+map -  :push :touch<space>
+map ,m :push :mkdir<space>
+map ,n :push :mkcd<space>
+map ,t :push :touch<space>
+map ,o :show-opts
+map ,vf :select-files
+map ,vd :select-dirs
+
+# configuration
+map ,r source ~/.config/lf/lfrc
+map ,e edit-config
+map ,E evi-config
+
+map ,g push :glob-select<space>
+map ,u push :glob-unselect<space>
+map <c-z> $kill -STOP $PPID
+map <c-o> bottom
+map <a-o> top
+map <enter> open
+
+# macros
+# echo "$fx" | xargs -r -d '\n' -I%
+map ,x push !echo<space>"$fx"<space>|<space>xargs<space>-r<space>-d<space>'\n'<space>-I%<space>
+map ,X push &echo<space>"$fx"<space>|<space>xargs<space>-r<space>-d<space>'\n'<space>-I%<space>
+
+# echo "$fx" | while read -r it; do ; done
+map ,f push !echo<space>"$fx"<space>|<space>while<space>read<space>-r<space>it;<space>do<space>;<space>done<left><left><left><left><left><left>
+map ,F push &echo<space>"$fx"<space>|<space>while<space>read<space>-r<space>it;<space>do<space>;<space>done<left><left><left><left><left><left>
+
+# printf "%s\n" "$fx" |
+map ,p push !printf<space>"%s\n"<space>$fx<space>|<space>
+map ,P push &printf<space>"%s\n"<space>$fx<space>|<space>
+
+### commands
+## special commands
+# show git information in lf's prompt
+#cmd on-cd &{{
+#    # display git repository status in your prompt
+#    source ~/programming/scripts/.ps1/git-prompt.sh
+#    git=$(__git_ps1 " (%s)") || true
+#    fmt="\033[32;1m%u@%h\033[0m:\033[34;1m%w/\033[0m\033[1m%f$git\033[0m"
+#    lf -remote "send $id set promptfmt \"$fmt\""
+#}}
+
+# This command is called when current file is not a directory. You may want to
+# use either file extensions and/or mime types here. Below uses an editor for
+# text files and a file opener for the rest.
+cmd open ${{
+    case $(file -L --mime-type "$f" -b) in
+        text/*) $EDITOR $f ;;
+        *) $OPENER $f > /dev/null 2> /dev/null & ;;
+    esac
+}}
+
+## Open Commands
+cmd open-all ${{
+    case $(file --mime-type $f -b) in
+        text/*) $EDITOR $fx;;
+        *) for f in $fx; do setsid $OPENER $f > /dev/null 2> /dev/null & done;;
+    esac
+}}
+
+# run an executable.
+cmd execute !{{
+    if [ -x "$f" ]; then
+        # see [[https://askubuntu.com/questions/850384/is-there-a-command-for-running-a-script-according-to-its-shebang-line][running through a shebang]].
+        if [ -n "$(sed --silent -e '/^#!/p;2q' "$f")" ]; then
+            perl "$f"; else $SHELL "$f"; fi
+    else
+        echo "file not executable: $f"
+    fi
+}}
+
+cmd execute-async &{{
+    if [ -x "$f" ]; then
+        if [ -n "$(sed --silent -e '/^#!/p;2q' "$f")" ]; then
+            perl "$f"; else $SHELL "$f"; fi
+    else
+        echo "file not executable: $f"
+    fi
+}}
+
+# open all marked images or images in the cwd.
+cmd open-images &{{
+    if [ -z "$fs" ]; then
+        fs=$(find -L "$(pwd)" -mindepth 1 -maxdepth 1 -type f | sort -V)
+    fi
+
+    # strip out all files that aren't images
+    fs=$(xargs -r -d '\n' file -L --mime-type <<< "$fs" |
+         awk -F : '{
+if ($2 ~ /image/)
+    print $1
+else
+    printf "file not image: %s\n", $1 > "/dev/stderr"
+}')
+
+    # when current file is an image, and is in the list of opened images
+    # make sure SXIV selects that image first.
+    flags=""
+    if [ -n "$f" ]; then
+        line=$(echo "$fs" | grep --max-count=1 -nxwF -- "$(readlink -m "$f")" | cut -d':' -f1)
+        [ -n "$line" ] && flags='-n '"$line"
+    fi
+
+    echo "$fs" | sxiv -i $flags
+}}
+
+## chdir commands
+cmd goto-downloads ${{
+    . "$HOME/.config/user-dirs.dirs"
+    dir="${XDG_DOWNLOAD_DIR:-~/Downloads}"
+    lf -remote "send $id cd \"$dir\""
+}}
+
+cmd goto-config ${{
+    . "$HOME/.config/user-dirs.dirs"
+    dir="${XDG_CONFIG_HOME:-~/.config}"
+    lf -remote "send $id cd \"$dir\""
+}}
+
+cmd goto-images ${{
+    . "$HOME/.config/user-dirs.dirs"
+    dir="${XDG_PICTURES_DIR:-~/Pictures}"
+    lf -remote "send $id cd \"$dir\""
+}}
+
+cmd goto-music ${{
+    . "$HOME/.config/user-dirs.dirs"
+    dir="${XDG_MUSIC_DIR:-~/Music}"
+    lf -remote "send $id cd \"$dir\""
+}}
+
+cmd goto-documents ${{
+    . "$HOME/.config/user-dirs.dirs"
+    dir="${XDG_DOCUMENTS_DIR:-~/Documents}"
+    lf -remote "send $id cd \"$dir\""
+}}
+
+# goto a directory I have an associated file system alias for.
+cmd goto-fsmap ${{
+    target=$(ls-fsdirmaps -re |
+        if hash column 2>/dev/null; then
+            # when available, try to tabulate the available paths.
+            column -s : -t
+        else
+            # otherwise, just replace the seperator with tab
+            tr ':' '\t'
+        fi |
+        fzf |
+        cut -d ' ' -f 2- | sed 's/^ *//')
+
+    if [ -n "$target" ]; then
+        lf -remote "send $id cd \"$target\""
+    fi
+}}
+
+cmd goto-project-root ${{
+    function finish {
+        if [ -n "$1" ]; then
+            lf -remote "send $id cd \"$1\""
+            exit 0
+        fi
+    }
+    finish "$(git rev-parse --show-toplevel 2>/dev/null)"
+    lf -remote "send $id echoerr failed to find a project root"
+}}
+
+cmd goto-link-dest ${{
+    if [ -L "$f" ]; then
+        dest=$(readlink -e -- "$f")
+
+        if [ -z "$dest" ]; then
+            lf -remote "send $id echoerr \"failed to find destination for link: $f\""
+        else
+            lf -remote "send $id select \"$dest\""
+        fi
+    fi
+}}
+
+## Archive Control
+# extract the current file with the right command
+# (xkcd link: https://xkcd.com/1168/)
+cmd extract ${{
+    set -f
+    case $f in
+        *.tar.bz|*.tar.bz2|*.tbz|*.tbz2) tar xjvf $f;;
+        *.tar.gz|*.tgz) tar xzvf $f;;
+        *.tar.xz|*.txz) tar xJvf $f;;
+        *.zip) unzip $f;;
+        *.rar) unrar x $f;;
+        *.7z) 7z x $f;;
+    esac
+}}
+
+# compress current file or selected files with tar and gunzip
+cmd tar ${{
+    set -f
+    mkdir $1
+    cp -r $fx $1
+    tar czf $1.tar.gz $1
+    rm -rf $1
+}}
+
+# compress current file or selected files with zip
+cmd zip ${{
+    set -f
+    mkdir $1
+    cp -r $fx $1
+    zip -r $1.zip $1
+    rm -rf $1
+}}
+
+## fzf
+# change lf directories using fzf
+cmd fzf_cd ${{
+    res=$(ls-project -d | fzf --no-multi --preview 'preview {}')
+    [ -n "$res" ] && lf -remote "send $id cd \"$res\""
+}}
+
+cmd fzf_cd_all ${{
+    res=$(find -L . -type d | fzf --no-multi --preview 'preview {}')
+    [ -n "$res" ] && lf -remote "send $id cd \"$res\""
+}}
+
+# open a file or cd using fzf.
+cmd fzf ${{
+    res=$(ls-project | fzf --no-multi --preview 'preview {}')
+
+    if [ -f "$res" ]; then
+      lf -remote "send $id select \"$res\"" &&
+        true # lf -remote "send $id open"
+    elif [ -d "$res" ]; then
+      lf -remote "send $id cd \"$res\""
+    fi
+}}
+
+cmd fzf_all ${{
+    # foo bar
+    res=$(find . | fzf --no-multi --preview 'preview {}')
+
+    if [ -f "$res" ]; then
+      lf -remote "send $id select \"$res\"" &&
+        true # lf -remote "send $id open"
+    elif [ -d "$res" ]; then
+      lf -remote "send $id cd \"$res\""
+    fi
+}}
+
+## Control
+cmd paste-links &{{
+    # all non-empty files in the marked file list
+    files=$(lf -remote load | sed --quiet -e '/^$/d' -e p)
+
+    read -r operation <<< "$files"
+    files=$(tail -n +2 <<< "$files")
+
+    if [ -z "$files" ]; then
+        lf -remote "send $id echoerr \"no files in cut list\""
+        exit 1
+    fi
+
+    if [ "$operation" = "move" ]; then
+        link_type=-s
+    elif [ "$operation" = "copy" ]; then
+        link_type=-P
+    else
+        lf -remote "send $id echoerr \"unknown operation: $operation\""
+        exit 1
+    fi
+
+    xargs -d '\n' -r ln "$link_type" -vt "$(dirname "$f")" <<< "$files"
+    lf -remote "send $id :clear"$'\n'"send $id :load"
+}}
+
+# move cut/copied files to current directory first and then paste links
+# to the new files in their previous directory.
+#
+# WARN any files that failed to be moved are kept in the cut list in case
+# you'd like to modify them further.
+cmd paste-links-reverse ${{
+    files=$(lf -remote load | sed --quiet -e '/^$/d' -e p)
+
+    read -r operation <<< "$files"
+    files=$(tail -n +2 <<< "$files")
+
+    if [ -z "$files" ]; then
+        lf -remote "send $id echoerr \"no files in cut list\""
+        exit 1
+    fi
+
+    if [ "$operation" = "move" ]; then
+        link_type=-s
+    elif [ "$operation" = "copy" ]; then
+        link_type=-P
+    else
+        lf -remote "send $id echoerr \"unknown operation: $operation\""
+        exit 1
+    fi
+
+    failed_index=$(mktemp)
+    cleanup() { [ -e "$failed_index" ] && rm "$failed_index"; }
+    trap cleanup EXIT
+
+    on_failed() {
+        lf -remote "send $id echoerr \"destination already exists: $*\""
+        echo "$*" > "$failed_index"
+    }
+
+    dir=$(readlink -e -- "$(pwd)")
+    while read -r fpath; do
+        base="$(basename "$fpath")"
+        if [ -e "$dir/$base" ] || ! {
+            mv -n -t "$dir" "$fpath" &&
+            ln "$link_type" -vt "$(dirname "$fpath")" "$dir/$base"
+        }; then
+            on_failed "$fpath"
+        fi
+    done <<< "$files"
+
+    newline=$'\n'
+    lf -remote "save${newline}$operation${newline}$(cat "$failed_index")${newline}"
+    lf -remote "send $id sync"
+}}
+
+# bulkrename a bunch of files, see [[https://github.com/gokcehan/lf/issues/149#issuecomment-470960434][here]].
+cmd bulkrename ${{
+    dir=$(dirname "$f")
+    if [ -z "$fs" ]; then
+        # when no marked files exist, use all files in the current directory.
+        ls -1LAv --group-directories-first --quoting-style=literal -- "$dir" 2>/dev/null |
+            if [ "$lf_hidden" = "false" ]; then filter-globs -vb -p "$lf_hiddenfiles"; else cat; fi
+    else
+        echo "$fs"
+    fi | bulkrename -V -s "$f" -c "$dir" -
+}}
+
+# recursively bulkrename all files
+cmd bulkrename_all ${{
+    dir=$(dirname "$f")
+    if [ -n "$fs" ]; then
+        echo "$fs" | xargs -d '\n' -ri find -L {} -type f
+    else
+        # TODO make this work with hidden files
+        find -L "$dir" -type f
+    fi | bulkrename -s "$f" -c "$dir" -
+}}
+
+## Misc
+# make a temp directory and then change to it.
+cmd cdmktemp ${{
+    dest=$(mktemp -d)
+    lf -remote "send $id cd $dest"
+}}
+
+# make a directory
+cmd mkdir %{{
+    mkdir -p "$@"
+    lf -remote "send $id load"$'\n'"send $id select \"$@\""
+}}
+
+# make a directory and then change to it.
+cmd mkcd %{{
+    mkdir -p "$@"
+    lf -remote "send $id cd \"$@\""
+}}
+
+cmd touch %{{
+    file="$@"
+
+    if [ -n "$file" ]; then
+        directory=$(dirname "$file")
+        mkdir -p "$directory"
+        touch "$file"
+        lf -remote "send $id load"$'\n'"send $id select \"$file\""
+    fi
+}}
+
+cmd trash &{{
+    condemn $fx
+    lf -remote "send $id load"
+}}
+
+cmd show-opts !{{
+    printenv | grep -i '^lf' | sort -V | "$PAGER"
+}}
+
+cmd chmod ${{
+    [ -z "$1" ] && exit 1
+    echo "$fx" | xargs -d '\n' chmod "$1"
+    lf -remote "send $id reload"
+}}
+
+cmd bulkchmod ${{
+    dir=$(readlink -e -- "$(pwd)")
+    if [ -n "$fs" ]; then echo "$fs"; else
+        find -L "$dir" -type f |
+            if [ "$lf_hidden" = "false" ]; then filter-globs -v -p "$lf_hiddenfiles"; else cat; fi
+    fi |
+        bulkchmod -s "$f"
+
+    lf -remote "send $id reload"
+}}
+
+### Editor
+# link lf to emacsclient through evi
+cmd evi ${{
+    . $HOME/.config/shortcuts/commands/evi
+    evi "$f"
+}}
+
+cmd edit-config ${{
+    if $EDITOR $XDG_CONFIG_HOME/lf/lfrc; then
+        lf -remote "send $id source $XDG_CONFIG_HOME/lf/lfrc"
+    fi
+}}
+
+cmd evi-config ${{
+    . $HOME/.config/shortcuts/commands/evi
+    if evi $XDG_CONFIG_HOME/lf/lfrc; then
+        lf -remote "send $id source $XDG_CONFIG_HOME/lf/lfrc"
+    fi
+}}
+
+## select files or directories
+cmd select-files ${{
+    { echo "$fs"; find -L "$(pwd)" -mindepth 1 -maxdepth 1 -type f; } |
+        if [ "$lf_hidden" = "false" ]; then filter-globs -vb -p "$lf_hiddenfiles"; else cat; fi |
+        sed '/^$/d' | sort | uniq -u |
+        xargs -d '\n' -r -I{} lf -remote "send $id toggle \"{}\""
+    lf -remote "send $id sync"
+}}
+
+cmd select-dirs &{{
+    { echo "$fs"; find -L "$(pwd)" -mindepth 1 -maxdepth 1 -type d; } |
+        if [ "$lf_hidden" = "false" ]; then filter-globs -vb -p "$lf_hiddenfiles"; else cat; fi |
+        sed '/^$/d' | sort | uniq -u |
+        xargs -d '\n' -r -I{} lf -remote "send $id toggle \"{}\""
+    lf -remote "send $id sync"
+}}
+
+## Misc
+# open shell in current directory or the directory
+# at point if the file at point is a directroy.
+cmd shell-in-directory ${{
+    if [ -d "$(readlink -f "$f")" ]; then
+        cd "$f"; $SHELL
+    else
+        $SHELL
+    fi
+}}
+
+# leave some space at the top and the bottom of the screen
+set scrolloff 3
+map zo toggle-scroll-offset
+cmd toggle-scroll-offset ${{
+    if [ "$lf_scrolloff" -eq "0" ]; then offset=3; else offset=0; fi
+    lf -remote "send $id set scrolloff $offset"
+}}
+
+## preview control
+cmd toggle-preview &{{
+    if [ "$lf_preview" = "true" ]; then
+        lf -remote "send $id set nopreview"$'\n'"send $id set ratios 1:3"
+    else
+        lf -remote "send $id set preview"$'\n'"send $id set ratios 1:2:3"
+    fi
+}}
+
+set previewer preview
+cmd toggle-default-previewer &{{
+    if [ "$lf_previewer" = "preview" ]; then
+        lf -remote "send $id set previewer"
+    else
+        lf -remote "send $id set previewer preview"
+    fi
+}}
+
+## grep to files
+cmd grep-to-file ${{
+  match=$(rg "$@" --color=always --colors path:none --smart-case |
+     sed 's/:[[:blank:]]\+/:/' |
+     fzf --ansi -d : --preview 'preview {1}' --with-nth 2 --reverse)
+  [ "$?" -eq 0 -o -z "$match" ] || exit 1
+  file=$(echo "$match" | cut -d ':' -f1)
+  lf -remote "send $id select \"$file\""
+}}
+
+## cut/copy modifiers
+cmd cut-add %{{
+    files=$(lf -remote load | tail -n +2)
+    newline=$'\n'
+
+    # remove empty lines from the file list, because they keep messing
+    # up the selection.
+    new_files=$(echo "$files${newline}$fx" | sort | uniq | sed --quiet -e '/^$/d' -e 'p')
+
+    lf -remote "save${newline}move${newline}${new_files}${newline}"
+    lf -remote "send $id unselect${newline}send $id sync"
+}}
+
+cmd cut-remove %{{
+    files=$(lf -remote load)
+    operation=$(echo "$files" | head -n1)
+
+    if [ "$operation" != "move" ]; then
+        lf -remote "send $id echoerr no files in cut list."
+        exit 1
+    fi
+
+    files=$(echo "$files" | tail -n +2)
+    newline=$'\n'
+
+    # here we want all files in $files that aren't in $fs, making sure
+    # that none of the entries in $fs are included, even when they aren't
+    # in $files. To do this we concatenate $files and $fs (twice), printing
+    # only the unique lines.
+    new_files=$(echo "$files${newline}$fs${newline}$fx" | sort | uniq -u |
+                  sed --quiet -e '/^$/d' -e 'p')
+
+    lf -remote "save${newline}move${newline}${new_files}${newline}"
+    lf -remote "send $id unselect${newline}send $id sync"
+}}
+
+### variants for copy
+cmd copy-add %{{
+    files=$(lf -remote load | tail -n +2)
+    newline=$'\n'
+
+    new_files=$(echo "$files${newline}$fx" | sort | uniq | sed --quiet -e '/^$/d' -e 'p')
+
+    lf -remote "save${newline}copy${newline}${new_files}${newline}"
+    lf -remote "send $id unselect${newline}send $id sync"
+}}
+
+cmd copy-remove %{{
+    files=$(lf -remote load)
+    operation=$(echo "$files" | head -n1)
+
+    if [ "$operation" != "copy" ]; then
+        lf -remote "send $id echoerr no files in copy list."
+        exit 1
+    fi
+
+    files=$(echo "$files" | tail -n +2)
+    newline=$'\n'
+
+    new_files=$(echo "$files${newline}$fs${newline}$fx" | sort | uniq -u |
+                  sed --quiet -e '/^$/d' -e 'p')
+
+    lf -remote "save${newline}copy${newline}${new_files}${newline}"
+    lf -remote "send $id unselect${newline}send $id sync"
+}}
+
+## yank
+# yank the current working directory
+cmd yank-dirname &{{
+    dirname -- "$f" | tr -d '\n' | xclip -i -selection clipboard
+}}
+
+cmd yank-path &{{
+    echo "$fx" | tr -d '\n'; fi |
+      xclip -i -selection clipboard
+}}
+
+cmd yank-basename &{{
+    if [ -n "$fs" ]; then
+      echo "$fs" | xargs -r -d '\n' basename -a --
+    else
+      basename -- "$f" | tr -d '\n'
+    fi | xclip -i -selection clipboard
+}}
+
+cmd yank-basename-without-extension &{{
+    echo "$fx" |
+      xargs -r -d '\n' basename -a |
+      awk -e '{
+        for (i=length($0); i > 0; i--) {
+          if (substr($0, i, 1) == ".") {
+            if (i == 1) print $0
+            else print substr($0, 0, i-1)
+
+            break
+          }
+        }
+
+        if (i == 0)
+          print $0
+      }' |
+      if [ -n "$fs" ]; then cat; else tr -d '\n'; fi |
+      xclip -i -selection clipboard
+}}
+
+# Local Variables:
+# electric-pair-preserve-balance: t
+# End:

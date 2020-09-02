@@ -1,0 +1,6 @@
+#!/usr/bin/sh
+case "$OSTYPE" in
+    cygwin*|msys*|win32*) echo "windows" ;;
+    darwin*)              echo "macos"   ;;
+    linux-gnu*)           echo "linux"   ;;
+esac

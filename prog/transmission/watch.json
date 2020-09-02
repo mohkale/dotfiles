@@ -1,0 +1,15 @@
+{
+    "torrents-dir": "~/downloads/torrents",
+    "added-subdir": "@added",
+    "rules": [
+        {
+            "directory": "@start",
+            "start": true
+        },
+        {
+            "directory": ".",
+            "ignore": "^@(added|start)/",
+            "start": false
+        }
+    ]
+}

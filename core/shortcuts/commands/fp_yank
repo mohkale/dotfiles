@@ -1,0 +1,9 @@
+# -*- mode: sh -*- run fp, then if it succeeds pipe it to the clipboard.
+fp_yank() {
+    local paths=$(fp "$@")
+    if [ "$?" -eq 0 ]; then
+        echo -n "$paths" | clip
+    else
+        echo "$paths"
+    fi
+}

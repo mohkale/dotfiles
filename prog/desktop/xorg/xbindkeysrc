@@ -1,0 +1,40 @@
+# -*- mode: sh -*-
+###########################
+# xbindkeys configuration #
+###########################
+#
+# Version: 1.8.6
+#
+
+#keystate_numlock = enable
+#keystate_capslock = enable
+#keystate_scrolllock= enable
+
+"emacs-focus -ac"
+  Mod4 + n
+
+"emacs-focus -acb"
+  Mod4 + p
+
+"emacs-make-frame"
+  Mod4 + Return + Release
+
+"st"
+  Control + Shift + apostrophe
+
+"term-dwim"
+  Control + apostrophe
+
+"spawn-term fzf-dmenu"
+  Mod4 + bracketleft + Release
+
+"spawn-term fzf-dmenu -a"
+  Mod4 + bracketright + Release
+
+"moji -n -d ' '"
+  Mod4 + k
+
+"moji -i -n -d ' '"
+  Mod4 + Shift + k
+
+# NOTE: you can force reload of this config by running `killall -HUP xbindkeys`

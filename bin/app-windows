@@ -1,0 +1,54 @@
+#!/usr/bin/sh
+# output the X-window spec for every currently open emacs frame.
+
+print_usage() {
+    echo "Usage: $0 [-h] [-t TITLE] [COMMAND]"
+    echo ""
+    echo "list open x-windows running COMMAND with."
+    echo ""
+    echo "Options:"
+    echo " -t TITLE    only select windows whose x-title matches TITLE."
+}
+
+while getopts 'ht:' OPTION; do
+    case "$OPTION" in
+        h) print_usage
+           exit 0 ;;
+        \?) print_usage >&2
+            exit 1 ;;
+        t) title_regexp=$OPTARG ;;
+    esac
+done
+
+shift "$((OPTIND-1))"
+command="$1"
+
+wmctrl -lp |
+  if [ -n "$title_regexp" ]; then
+      awk -v rx="$title_regexp" -e '{
+  res=$5
+  for (i=6; i <= NF; i++) {
+      res = res " " $i
+  }
+  if (match(res, rx)) { print $0 }
+}'
+  else
+      cat
+  fi |
+  while read id workspace pid host row; do
+      print=0
+
+      if [ -n "$command" ]; then
+          xprop_out=$(xprop -id $id _NET_WM_WINDOW_TYPE WM_CLASS |
+                        sed --quiet -e '1d' \
+                                    -e 's/^WM_CLASS(STRING) = //g' \
+                                    -e 's/"\([^"]*\)"/\1/g' \
+                                    -e 's/, /\n/gp')
+
+          grep -xF -m1 --quiet "$command" <<< "$xprop_out" && print=1
+      else
+          print=1
+      fi
+
+      [ "$print" -eq 1 ] && echo "$id $workspace $pid $host $row"
+  done
