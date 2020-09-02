@@ -1,0 +1,41 @@
+name: docs
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: purcell/setup-emacs@master
+      with:
+        version: 27.1
+    - run: |-
+          set -e
+          mv .github github
+          sed -i -e 's/\.github/github/g' ./README.org
+          script=$(cat <<- 'EOF'
+            (progn
+              (require 'package)
+              (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+              (package-initialize)
+              (unless (package-installed-p 'htmlize)
+                (package-refresh-contents)
+                (package-install 'htmlize))
+              (find-file "./README.org")
+              (org-html-export-to-html))
+          EOF
+          )
+          emacs --batch --eval "$script"
+          mv ./README.html index.html
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.DOTFILES_PAGES_KEY }}
+        publish_dir: .
+        publish_branch: gh-pages
+        commit_message: "deploy: ${{ github.event.head_commit.message }}"
+        exclude_assets: ''
