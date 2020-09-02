@@ -1,9 +1,5 @@
 # -*- mode: conf-space; eval: (display-line-numbers-mode +1) -*-
 
-# Local Variables:
-# electric-pair-preserve-balance: t
-# End:
-
 ## Configuration Options
 # interpreter for shell commands (needs to be POSIX compatible)
 set shell sh
@@ -28,12 +24,10 @@ set color256
 set icons
 set hiddenfiles .*:__pycache__:*.pyc:*.o:node_modules
 
-# leave some space at the top and the bottom of the screen
-set scrolloff 3
-
 # show number of files in directory, not size of directory inode.
 set dircounts
 
+map zd :set info time
 map zp toggle-preview
 map zP toggle-default-previewer
 map zi :set icons!
@@ -154,6 +148,8 @@ map oa open-all
 map oi open-images
 
 # custom leaders
+map +  :push :mkdir<space>
+map -  :push :touch<space>
 map ,m :push :mkdir<space>
 map ,n :push :mkcd<space>
 map ,t :push :touch<space>
@@ -605,6 +601,14 @@ cmd shell-in-directory ${{
     fi
 }}
 
+# leave some space at the top and the bottom of the screen
+set scrolloff 3
+map zo toggle-scroll-offset
+cmd toggle-scroll-offset ${{
+    if [ "$lf_scrolloff" -eq "0" ]; then offset=3; else offset=0; fi
+    lf -remote "send $id set scrolloff $offset"
+}}
+
 ## preview control
 cmd toggle-preview &{{
     if [ "$lf_preview" = "true" ]; then
@@ -737,3 +741,7 @@ cmd yank-basename-without-extension &{{
       if [ -n "$fs" ]; then cat; else tr -d '\n'; fi |
       xclip -i -selection clipboard
 }}
+
+# Local Variables:
+# electric-pair-preserve-balance: t
+# End:
