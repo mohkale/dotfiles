@@ -4,7 +4,7 @@
 	ignore = dirty
 [submodule "editors/emacs"]
 	path = prog/editors/emacs
-	url = https://github.com/mohkale/.emacs.d
+	url = https://github.com/mohkale/emacs
 	ignore = dirty
 [submodule "programs/konsole/themes/an-old-hope"]
 	path = prog/konsole/themes/an-old-hope
