@@ -11,10 +11,30 @@ def exists(iter):
     except StopIteration:
         return False
 
+def basename_iter(path):
+    """iterate over path basenames from basename to root."""
+    dirn, base = os.path.split(path)
+    if base != '':
+        yield base
+    if dirn != '':
+        yield from basename_iter(dirn)
+
 def glob_filter(args):
     globber = fnmatch.fnmatchcase if args.case_sensitive else fnmatch.fnmatch
+    def matches(line):
+        """line matches some glob in the glob list"""
+        return exists(filter(lambda glob: globber(line, glob), args.globs))
+
+    if args.basename_all:
+        def do_filter_all(line):
+            for base in basename_iter(line):
+                if matches(base):
+                    return not(args.invert)
+            return args.invert
+        return do_filter_all
+
     def do_filter(line):
-        return exists(filter(lambda glob: globber(line, glob), args.globs)) != args.invert
+        return matches(line) != args.invert
     if args.basename:
         return lambda line: do_filter(os.path.basename(line))
     return do_filter
@@ -32,6 +52,8 @@ if __name__ == '__main__':
                         help='DELIMITER used with PATH')
     globs_group.add_argument('-b', '--basename', action='store_true',
                              help='only match against basenames')
+    globs_group.add_argument('-a', '--basename-all', action='store_true',
+                             help='only match if at least one basename in the entire path matches a glob. This implies -b. WARN this has massive performance costs :/, so use sparingly if you can.')
 
     parser.add_argument('-v', '--invert', action='store_true',
                         help="only show a line that doesn't match a GLOB")

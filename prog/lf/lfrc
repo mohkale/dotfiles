@@ -492,8 +492,23 @@ cmd bulkrename_all ${{
     if [ -n "$fs" ]; then
         echo "$fs" | xargs -d '\n' -ri find -L {} -type f
     else
-        # TODO make this work with hidden files
-        find -L "$dir" -type f
+        find -L "$dir" -type f |
+          if [ "$lf_hidden" = "false" ]; then
+            # not efficient but it works :shrug_tone4:
+            # we strip out the base directory, then recurse through all
+            # directories removing any that match a pattern in our hidden
+            # files globs. We then re-prepend the base directory and pass
+            # through to bulkrename.
+            #
+            # NOTE removing the base directory is done to make sure a path
+            # earlier in our cwd isn't hidden... because if it was then all
+            # files below it would've been ignored.
+            awk -v cwd="$dir" '{ print(substr($0, length(cwd)+2)) }' |
+              filter-globs -v -p "$lf_hiddenfiles" -ba |
+              awk -v cwd="$dir" '{ printf("%s/%s\n", cwd, $0) }'
+          else
+            cat
+          fi
     fi | bulkrename -s "$f" -c "$dir" -
 }}
 
