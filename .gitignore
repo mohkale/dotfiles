@@ -1,5 +1,5 @@
-setup/plugins/__pycache__/
 README.html
 setup/cache/
-setup/.dotbot/
+setup/dotty
+setup/dotty.exe
 .ccls-cache/

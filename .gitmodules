@@ -1,7 +1,3 @@
-[submodule "dotbot"]
-	path = setup/.dotbot
-	url = https://github.com/anishathalye/dotbot
-	ignore = dirty
 [submodule "editors/emacs"]
 	path = prog/editors/emacs
 	url = https://github.com/mohkale/emacs

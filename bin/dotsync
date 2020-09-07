@@ -1,0 +1,34 @@
+#!/usr/bin/sh
+print_usage() {
+  echo "Usage: $(basename "$0") [-h] [-l LEVEL] -- ARG [...ARGS]"
+}
+
+print_help() {
+  print_usage
+  echo ""
+  echo "  Sync configured dotfiles, while skipping any"
+  echo "  package installation, or overly costly steps."
+  echo ""
+  echo "Positional Arguments:"
+  echo "  ARG/ARGS"
+  echo "    These are passed directly to dotty"
+  echo "Options:"
+  echo "  -h    print this help message and exit."
+  echo "  -l LEVEL"
+  echo "     set this as the logging level for dotty"
+}
+
+set -e
+
+while getopts 'hl:-' option; do
+  case "$option" in
+    h)  print_help; exit 0 ;;
+    \?) print_usage >&2; exit 1 ;;
+    l) logging="$OPTARG" ;;
+    -) break ;;
+  esac
+done
+shift $(("$OPTIND" - 1))
+
+cd "$DOTFILES_REPO_PATH"
+./manage -l "${logging:-info}" install -b "$(cat ./setup/cache/dotty.bots || true)" --except package,packages "$@"

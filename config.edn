@@ -1,0 +1,36 @@
+;; [[https://github.com/mohkale/dotty][dotty]] configuration file
+(
+ (:clean "~")
+
+ (:mkdirs
+  "~/downloads"
+  ("~/multimedia"
+   ("images" "videos" "music"))
+  "~/programming/repos"
+  ("~/.local/share"
+   ("man" "info")))
+
+ (:import "core")
+
+ ;; try to determine the current platform
+ (:mkdir "./setup/cache/dist")
+ (:shell "dest_dir=./setup/cache/dist
+          rm -rvf $dest_dir/*
+
+          platform=$(./setup/platform)
+          if [ ! -z \"$platform\" ]; then
+            touch \"$dest_dir/$platform\"
+          fi")
+
+ (:when "test -e ./setup/cache/dist/arch"
+   (:import "dist/arch"))
+
+ (:when "test -e ./setup/cache/dist/ubuntu"
+   (:import "dist/ubuntu"))
+
+ #dot/if-windows (:import "dist/windows")
+ #dot/if-linux   (:import "dist/linux")
+
+ ;; install any scripts and desired programs
+ (:import "bin" "prog")
+)

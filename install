@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-
-BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
-
-install=${install:-1} sync_dotbot=${sync_dotbot:-1} \
-       $BASEDIR/setup/dotbot -d "$BASEDIR" "$@"

@@ -1,14 +1,13 @@
-#!/usr/bin/env sh
+#!/usr/bin/sh
+# output the current platform, this could be a linux distribution,
+# an operating system, etc.
+
 # the nice way, as agreed upon by most distros.
 if [ -f /etc/os-release ]; then
-    sed --quiet -E 's/^NAME="(.+)"$/\1/p' /etc/os-release |
-        tr '[:upper:]' '[:lower:]' | sed 's/ *linux$//'
-    exit 0
+  sed --quiet -E 's/^NAME="(.+)"$/\1/p' /etc/os-release |
+    tr '[:upper:]' '[:lower:]' | sed 's/ *linux$//'
+  exit 0
 fi
 
-# okay, not a conventional OS, where am I?
-
-# maybe cygwin?
-is_cygwin=$(uname -s | tr '[:upper:]' '[:lower:]' | grep -Eo 'mingw|cygwin|msys')
-! [ -z "$is_cygwin" ] && echo "windows" && exit 0
-
+# I give up, just output the kernel
+"$(dirname "$0")"/kernel
