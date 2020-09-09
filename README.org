@@ -1,6 +1,6 @@
 #+STARTUP: showall
-#+TITLE: dotfiles
-
+#+TITLE: Dotfiles
+#+OPTIONS: title:nil
 #+HTML_HEAD: <link rel=icon href=https://mohkale.gitlab.io/favicon.ico type=image/x-icon>
 
 # sets HTML export theme to readthedocs like theme.
@@ -11,67 +11,40 @@
 #+HTML_HEAD: <script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/lib/js/jquery.stickytableheaders.min.js"></script>
 #+HTML_HEAD: <script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/readtheorg/js/readtheorg.js"></script>
 
-#+HTML:<div align="right" style="display: flex; justify-content: flex-end">
-#+HTML:<a href="https://github.com/mohkale/.dotfiles" style="margin-left: 4px;"><img src="https://github.com/mohkale/puddle/workflows/build/badge.svg" /></a>
-#+HTML:<a href="https://github.com/mohkale/.dotfiles" style="margin-left: 4px;"><img src="https://github.com/mohkale/puddle/workflows/tests/badge.svg" /></a>
-#+HTML:<a href="https://github.com/mohkale/.dotfiles" style="margin-left: 4px;"><img src="https://img.shields.io/website?down_message=down&label=docs&up_message=up&url=https%3A%2F%2Fmohkale.github.io%2Fpuddle%2F" /></a>
-#+HTML:</div>
+#+HTML: <div>
+#+HTML:   <a href="https://github.com/mohkale/dotfiles"><img src="./assets/header.jpg" alt="header"/></a>
+#+HTML: </div>
+#+HTML: <div align="right" style="display: flex; justify-content: flex-end">
+#+HTML:   <a style="margin-left: 4px;" href="https://www.msys2.org/"><img src="https://img.shields.io/badge/msys-2019.05.24-blue?logo=microsoft"/></a>
+#+HTML:   <a style="margin-left: 4px;" href="https://www.archlinux.org/"><img src="https://img.shields.io/badge/Arch-BTW-blue?logo=arch%20linux"/></a>
+#+HTML:   <a style="margin-left: 4px;" href="https://ubuntu.com/"><img src="https://img.shields.io/badge/Ubuntu-20.04-orange?logo=ubuntu"></a>
+# #+HTML:   <a style="margin-left: 4px;" href="https://mohkale.github.io/dotfiles/"><img src="https://img.shields.io/website?down_message=down&label=docs&up_message=up&url=https%3A%2F%2Fmohkale.github.io%2Fpuddle%2F"/></a>
+#+HTML: </div>
+#+HTML: <p></p>
 
-My dotfile repository, happily brought to you by [[https://github.com/anishathalye/dotbot][dotbot]] :book:.
+My dotfile repository, happily brought to you by [[https://github.com/mohkale/dotty][dotty]] :book:.
 
-#+caption: an-old-hope
 [[file:./assets/main.png]]
 
-* Requirements
-  - python >= 3.7
+* Installation
+  =git clone https://github.com/mohkale/dotfiles ~/.dotfiles && cd ~/.dotfiles && ./manage install=.
 
-* Installation Instructions
-  =git clone /uri/of/this/repo ~/.dotfiles && cd ~/.dotfiles && ./install= will install
-  a basic dotfile configuration for you.
-
-  However you'll more likely want to setup a bunch of different things, and to that end
-  you can do so by passing the ~DOTBOTS~ environment variable to install. ~DOTBOTS~
-  should be a [[https://en.wikipedia.org/wiki/Comma-separated_values][CSV]] list of features you want installed, for a list of available features
-  you can run:
-
-  #+NAME: config-options
-  #+BEGIN_SRC sh :results value list :exports code
-  ./setup/list-opts
-  #+END_SRC
-
-  WARN: to run the above command, you must have loaded any required submodules.
-  you can do so non-destructively by running ~./install --help~.
-
-  I recommend using the dotbots specified by ~./setup/suggested -awe --nvim~. I.E.
-
-  #+BEGIN_SRC sh :results value :exports code
-  DOTBOTS=$(./setup/suggested -awe --nvim | tr '\n' ',') ./install
-  #+END_SRC
-
-* Supported Platforms
-  * [[https://gitforwindows.org/][git-bash-for-windows]]@2.25.1
-  * [[http://www.mingw.org/wiki/MSYS][msys]]@2019.05.24
+  For a list of available subconfigurations that can be instaled, run =./manage list-bots=. Install
+  a config by running =./manage install -b prog1,prog2,...=.
 
 * Directory Layout
-  | path     | purpose                                                    |
-  |----------+------------------------------------------------------------|
-  | core     | core files which're installed regardless of environment.   |
-  | desktop  | configs for desktop environments, window managers, etc.    |
-  | editors  | vim, emacs... what more do you need.                       |
-  | langs    | setup multiple programming languages & environments.       |
-  | programs | sets up various programs, eg. zathura or konsole.          |
-  | dist     | configurations for specific distros or environments.       |
-  | bin      | scripts, executables, commands. you get the idea :sunglasses:.       |
-  | shells   | bash, zsh, etc. each have their own setup requirements.    |
-  | setup    | dotbot, plugins for dotbot, dotfile introspection scripts. |
+  | path         | purpose                                                  |
+  |--------------+----------------------------------------------------------|
+  | core         | core files which're installed regardless of environment. |
+  | bin          | scripts, executables, commands. you get the idea :sunglasses:.     |
+  | dist         | configurations for specific distros or environments.     |
+  | prog         | sets up various programs, eg. zathura or konsole.        |
+  | prog/desktop | configs for desktop environments, window managers, etc.  |
+  | prog/editors | vim, emacs... what more do you need.                     |
+  | prog/langs   | setup multiple programming languages & environments.     |
+  | setup        | scripts and binaries related to managing dotfiles.       |
 
 * Notes
-  - On windows, you must run install from an elevated shell. This is because windows
-    doesn't allow users with regular privilages to create symbolic links.
-  - On windows, [[https://chocolatey.org/][chocolatey]] doesn't seem to like installation when stderr is the null
-    device. The only workaround as of now is to run ~./install~ with the ~-v~ flag
-    (or to configure chocolatey to always output).
-  - for those using windows, make sure to order the msys package manager before pacman.
-    msys uses the pacman package manager... and so does arch; meaning if your pacman
-    packages come before your msys ones, the pacman packages will be installed even when
-    you're on windows.
+** Windows
+  - Requires [[https://security.stackexchange.com/questions/10194/why-do-you-have-to-be-an-admin-to-create-a-symlink-in-windows#:~:text=By%20default%2C%20only%20administrators%20can,%5CUser%20Rights%20Assignment%5C%20granted.][admin privilages]] to create symlinks.
+  - [[https://chocolatey.org/][chocolatey]] fails when stderr is the null device.

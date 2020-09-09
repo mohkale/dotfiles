@@ -3,10 +3,10 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-09-06 Sun 21:51 -->
+<!-- 2020-09-09 Wed 15:34 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>dotfiles</title>
+<title>Dotfiles</title>
 <meta name="generator" content="Org mode" />
 <style type="text/css">
  <!--/*--><![CDATA[/*><!--*/
@@ -248,94 +248,58 @@ for the JavaScript code in this tag.
 </head>
 <body>
 <div id="content">
-<h1 class="title">dotfiles</h1>
 <div id="table-of-contents">
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orga9a93ff">1. Requirements</a></li>
-<li><a href="#orgab08f31">2. Installation Instructions</a></li>
-<li><a href="#org196b382">3. Supported Platforms</a></li>
-<li><a href="#orgbc55cd3">4. Directory Layout</a></li>
-<li><a href="#org38e50d1">5. Notes</a></li>
+<li><a href="#org85ee1fd">1. Installation</a></li>
+<li><a href="#org1465e83">2. Directory Layout</a></li>
+<li><a href="#orgc6a66a3">3. Notes</a>
+<ul>
+<li><a href="#org6d48fa1">3.1. Windows</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
-<div align="right" style="display: flex; justify-content: flex-end">
-<a href="https://github.com/mohkale/.dotfiles" style="margin-left: 4px;"><img src="https://github.com/mohkale/puddle/workflows/build/badge.svg" /></a>
-<a href="https://github.com/mohkale/.dotfiles" style="margin-left: 4px;"><img src="https://github.com/mohkale/puddle/workflows/tests/badge.svg" /></a>
-<a href="https://github.com/mohkale/.dotfiles" style="margin-left: 4px;"><img src="https://img.shields.io/website?down_message=down&label=docs&up_message=up&url=https%3A%2F%2Fmohkale.github.io%2Fpuddle%2F" /></a>
+<div>
+<a href="https://github.com/mohkale/dotfiles"><img src="./assets/header.jpg" alt="header"/></a>
 </div>
+<div align="right" style="display: flex; justify-content: flex-end">
+<a style="margin-left: 4px;" href="https://www.msys2.org/"><img src="https://img.shields.io/badge/msys-2019.05.24-blue?logo=microsoft"/></a>
+<a style="margin-left: 4px;" href="https://www.archlinux.org/"><img src="https://img.shields.io/badge/Arch-BTW-blue?logo=arch%20linux"/></a>
+<a style="margin-left: 4px;" href="https://ubuntu.com/"><img src="https://img.shields.io/badge/Ubuntu-20.04-orange?logo=ubuntu"></a>
+
+</div>
+<p></p>
 
 <p>
-My dotfile repository, happily brought to you by <a href="https://github.com/anishathalye/dotbot">dotbot</a> :book:.
+My dotfile repository, happily brought to you by <a href="https://github.com/mohkale/dotty">dotty</a> :book:.
 </p>
 
 
 <div class="figure">
 <p><img src="./assets/main.png" alt="main.png" />
 </p>
-<p><span class="figure-number">Figure 1: </span>an-old-hope</p>
 </div>
 
-<div id="outline-container-orga9a93ff" class="outline-2">
-<h2 id="orga9a93ff"><span class="section-number-2">1</span> Requirements</h2>
+<div id="outline-container-org85ee1fd" class="outline-2">
+<h2 id="org85ee1fd"><span class="section-number-2">1</span> Installation</h2>
 <div class="outline-text-2" id="text-1">
-<ul class="org-ul">
-<li>python &gt;= 3.7</li>
-</ul>
+<p>
+<code>git clone https://github.com/mohkale/dotfiles ~/.dotfiles &amp;&amp; cd ~/.dotfiles &amp;&amp; ./manage install</code>.
+</p>
+
+<p>
+For a list of available subconfigurations that can be instaled, run <code>./manage list-bots</code>. Install
+a config by running <code>./manage install -b prog1,prog2,...</code>.
+</p>
 </div>
 </div>
 
-<div id="outline-container-orgab08f31" class="outline-2">
-<h2 id="orgab08f31"><span class="section-number-2">2</span> Installation Instructions</h2>
+<div id="outline-container-org1465e83" class="outline-2">
+<h2 id="org1465e83"><span class="section-number-2">2</span> Directory Layout</h2>
 <div class="outline-text-2" id="text-2">
-<p>
-<code>git clone /uri/of/this/repo ~/.dotfiles &amp;&amp; cd ~/.dotfiles &amp;&amp; ./install</code> will install
-a basic dotfile configuration for you.
-</p>
-
-<p>
-However you'll more likely want to setup a bunch of different things, and to that end
-you can do so by passing the <code>DOTBOTS</code> environment variable to install. <code>DOTBOTS</code>
-should be a <a href="https://en.wikipedia.org/wiki/Comma-separated_values">CSV</a> list of features you want installed, for a list of available features
-you can run:
-</p>
-
-<div class="org-src-container">
-<pre class="src src-sh" id="orgb57c8b0">./setup/list-opts
-</pre>
-</div>
-
-<p>
-WARN: to run the above command, you must have loaded any required submodules.
-you can do so non-destructively by running <code>./install --help</code>.
-</p>
-
-<p>
-I recommend using the dotbots specified by <code>./setup/suggested -awe --nvim</code>. I.E.
-</p>
-
-<div class="org-src-container">
-<pre class="src src-sh"><span style="font-weight: bold; font-style: italic;">DOTBOTS</span>=$(./setup/suggested -awe --nvim | tr <span style="font-style: italic;">'\n'</span> <span style="font-style: italic;">','</span>) ./install
-</pre>
-</div>
-</div>
-</div>
-
-<div id="outline-container-org196b382" class="outline-2">
-<h2 id="org196b382"><span class="section-number-2">3</span> Supported Platforms</h2>
-<div class="outline-text-2" id="text-3">
-<ul class="org-ul">
-<li><a href="https://gitforwindows.org/">git-bash-for-windows</a>@2.25.1</li>
-<li><a href="http://www.mingw.org/wiki/MSYS">msys</a>@2019.05.24</li>
-</ul>
-</div>
-</div>
-
-<div id="outline-container-orgbc55cd3" class="outline-2">
-<h2 id="orgbc55cd3"><span class="section-number-2">4</span> Directory Layout</h2>
-<div class="outline-text-2" id="text-4">
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
@@ -357,23 +321,8 @@ I recommend using the dotbots specified by <code>./setup/suggested -awe --nvim</
 </tr>
 
 <tr>
-<td class="org-left">desktop</td>
-<td class="org-left">configs for desktop environments, window managers, etc.</td>
-</tr>
-
-<tr>
-<td class="org-left">editors</td>
-<td class="org-left">vim, emacs&#x2026; what more do you need.</td>
-</tr>
-
-<tr>
-<td class="org-left">langs</td>
-<td class="org-left">setup multiple programming languages &amp; environments.</td>
-</tr>
-
-<tr>
-<td class="org-left">programs</td>
-<td class="org-left">sets up various programs, eg. zathura or konsole.</td>
+<td class="org-left">bin</td>
+<td class="org-left">scripts, executables, commands. you get the idea :sunglasses:.</td>
 </tr>
 
 <tr>
@@ -382,43 +331,51 @@ I recommend using the dotbots specified by <code>./setup/suggested -awe --nvim</
 </tr>
 
 <tr>
-<td class="org-left">bin</td>
-<td class="org-left">scripts, executables, commands. you get the idea :sunglasses:.</td>
+<td class="org-left">prog</td>
+<td class="org-left">sets up various programs, eg. zathura or konsole.</td>
 </tr>
 
 <tr>
-<td class="org-left">shells</td>
-<td class="org-left">bash, zsh, etc. each have their own setup requirements.</td>
+<td class="org-left">prog/desktop</td>
+<td class="org-left">configs for desktop environments, window managers, etc.</td>
+</tr>
+
+<tr>
+<td class="org-left">prog/editors</td>
+<td class="org-left">vim, emacs&#x2026; what more do you need.</td>
+</tr>
+
+<tr>
+<td class="org-left">prog/langs</td>
+<td class="org-left">setup multiple programming languages &amp; environments.</td>
 </tr>
 
 <tr>
 <td class="org-left">setup</td>
-<td class="org-left">dotbot, plugins for dotbot, dotfile introspection scripts.</td>
+<td class="org-left">scripts and binaries related to managing dotfiles.</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
 
-<div id="outline-container-org38e50d1" class="outline-2">
-<h2 id="org38e50d1"><span class="section-number-2">5</span> Notes</h2>
-<div class="outline-text-2" id="text-5">
+<div id="outline-container-orgc6a66a3" class="outline-2">
+<h2 id="orgc6a66a3"><span class="section-number-2">3</span> Notes</h2>
+<div class="outline-text-2" id="text-3">
+</div>
+<div id="outline-container-org6d48fa1" class="outline-3">
+<h3 id="org6d48fa1"><span class="section-number-3">3.1</span> Windows</h3>
+<div class="outline-text-3" id="text-3-1">
 <ul class="org-ul">
-<li>On windows, you must run install from an elevated shell. This is because windows
-doesn't allow users with regular privilages to create symbolic links.</li>
-<li>On windows, <a href="https://chocolatey.org/">chocolatey</a> doesn't seem to like installation when stderr is the null
-device. The only workaround as of now is to run <code>./install</code> with the <code>-v</code> flag
-(or to configure chocolatey to always output).</li>
-<li>for those using windows, make sure to order the msys package manager before pacman.
-msys uses the pacman package manager&#x2026; and so does arch; meaning if your pacman
-packages come before your msys ones, the pacman packages will be installed even when
-you're on windows.</li>
+<li>Requires <a href="https://security.stackexchange.com/questions/10194/why-do-you-have-to-be-an-admin-to-create-a-symlink-in-windows#:~:text=By%20default%2C%20only%20administrators%20can,%5CUser%20Rights%20Assignment%5C%20granted.">admin privilages</a> to create symlinks.</li>
+<li><a href="https://chocolatey.org/">chocolatey</a> fails when stderr is the null device.</li>
 </ul>
 </div>
 </div>
 </div>
+</div>
 <div id="postamble" class="status">
-<p class="date">Created: 2020-09-06 Sun 21:51</p>
+<p class="date">Created: 2020-09-09 Wed 15:34</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
