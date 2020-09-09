@@ -1,6 +1,4 @@
-- packages:
-    - apt:
-        # installs add-apt-repository
-        - software-properties-common
-
-- bots: linux
+(
+ ;; installs add-apt-repository
+ (:packages (:apt "software-properties-common"))
+)

@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Output the current kernel, this is effectively the value of [[https://gist.github.com/asukakenji/f15ba7e588ac42795f421b48b8aede63#go-golang-goos-and-goarch][GOOS]].
+
+# maybe cygwin?
+if uname -s | tr '[:upper:]' '[:lower:]' | grep -qEo 'mingw|cygwin|msys'; then
+    echo 'windows'
+    exit 0
+fi
+
+if [ -n "$OSTYPE" ]; then
+  case "$OSTYPE" in
+    linux*)   echo "linux";   exit 0 ;;
+    freebsd*) echo "freebsd"; exit 0 ;;
+    darwin*)  echo "macos";   exit 0 ;;
+    win32*|msys*|cygwin*)
+      echo "windows"
+      exit 0 ;;
+  esac
+fi
+
+exit 1
