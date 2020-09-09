@@ -12,3 +12,6 @@
 	path = prog/st/st
 	url = https://github.com/mohkale/st
 	ignore = dirty
+[submodule "prog/bat/an-old-hope"]
+	path = prog/bat/an-old-hope
+	url = https://github.com/mohkale/an-old-hope-sublime
