@@ -80,3 +80,5 @@ autoload -U compinit && compinit
 if [ "$INSIDE_EMACS" = 'vterm' ]; then
     PROMPT=$PROMPT'%{$(vterm_prompt_end)%}'
 fi
+
+SOURCED_ZPROFILE=true

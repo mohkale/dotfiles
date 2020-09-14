@@ -46,6 +46,8 @@ export MYSQL_HISTFILE="$XDG_DATA_HOME"/mysql_history
 
 ## Python
 export PYTHONSTARTUP="$XDG_CONFIG_HOME/pythonrc.py"
+export PYENV_ROOT="$XDG_DATA_HOME/pyenv"
+export PYLINTHOME="$XDG_CACHE_HOME/pylint"
 
 ## Vim
 export VIMINIT=":source $XDG_CONFIG_HOME/vim/vimrc"
@@ -79,6 +81,20 @@ export EMACS_HOME="$XDG_CONFIG_HOME/emacs"
 
 ## poetry
 export POETRY_HOME=$XDG_CONFIG_HOME/poetry
+
+## wakatime
+export WAKATIME_HOME="$XDG_CONFIG_HOME/wakatime"
+
+## rust
+export CARGO_HOME="$XDG_DATA_HOME/cargo"
+export TUSTUP_HOME="$XDG_DATA_HOME/rustup"
+
+## Vagrant
+export VAGRANT_HOME="$XDG_DATA_HOME"/vagrant
+export VAGRANT_ALIAS_FILE="$XDG_DATA_HOME"/vagrant/aliases
+
+## sqlite
+export SQLITE_HISTORY="$XDG_DATA_HOME/sqlite_history"
 
 # Path Management
 if [ "$platform" = "windows" ]; then

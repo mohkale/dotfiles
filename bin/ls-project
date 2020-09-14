@@ -70,7 +70,11 @@ function file_filter {
     fi
 }
 
-if command -v fd >/dev/null; then
+if hash rg >/dev/null; then
+    rg --files | file_filter
+elif [ -d .git ] || git git rev-parse --git-dir >/dev/null; then
+    git ls-files | file_filter
+elif hash fd >/dev/null; then
     if [ "$directories_only" -eq 1 ]; then
         fd -H --type d --color never
     elif [ "$files_only" -eq 1 ]; then
@@ -78,10 +82,6 @@ if command -v fd >/dev/null; then
     else
         fd -H --color never
     fi
-elif command -v rg >/dev/null; then
-    rg --files | file_filter
-elif [ -d .git ] || git git rev-parse --git-dir >/dev/null; then
-    git ls-files | file_filter
 else
     if [ "$directories_only" -eq 1 ]; then
         # list only directories, or symlinks which symlink to directories.

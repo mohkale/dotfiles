@@ -65,9 +65,8 @@ EOF
 # when it's parent process group exits. Like [[https://github.com/oem/lnch/blob/master/main.go][lnch]] except written in pure
 # shell and with no external dependencies..
 lnch() {
-  awk '{ printf("nohup %s >/dev/null 2>&1 & disown\n", $0) }' |
-    if [ "$debug" -eq 1 ]; then tee /dev/tty; else cat; fi    |
-    xargs -d '\n' -r -n1 sh -c
+  if [ "$debug" -eq 1 ]; then tee /dev/tty; else cat; fi |
+    xargs -d '\n' -r -n1 nohup sh -c >/dev/null 2>&1 & disown
 }
 
 list_all() {
@@ -96,4 +95,9 @@ else
     sed 's/^Exec=//' |
     python3 -c "$FORMAT_SCRIPT" |
     lnch
+fi
+
+if [ "$debug" -eq 1 -o "$?" -ne 0 ]; then
+  printf "%s" "fzf-dmenu: exited with non 0 exit code, press enter to continue:"
+  read
 fi

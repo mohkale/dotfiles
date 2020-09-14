@@ -39,7 +39,7 @@ fi
 
 export VISUAL="$EDITOR"
 export PAGER=less
-export LESS="-R -i --save-marks"
+export LESS="-R -i --save-marks -x4"
 export DOTFILES_REPO_PATH=$HOME/.dotfiles
 export TMUX_HOME=$XDG_CONFIG_HOME/tmux
 export TMUX_TMPDIR=$XDG_CACHE_HOME/tmux
@@ -92,6 +92,7 @@ ex=:\
 *.scss=:\
 *.el=:\
 *.clj=:\
+*.config=:\
 *.edn=:\
 *.pdf=:\
 *.py=:\
