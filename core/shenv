@@ -13,9 +13,6 @@
 [ -f "$HOME/.config/user-dirs.dirs" ] && . "$HOME/.config/user-dirs.dirs"
 export XDG_CONFIG_HOME XDG_DATA_HOME XDG_CACHE_HOME XDG_DOCUMENTS_DIR
 
-platform="$(ls-platform)"
-[ -z "$platform" ] && echo "bash_aliases(warning) : unknown os type: $OSTYPE" >&2
-
 case "$TERM" in
     dumb)
         PS1="> " # dumb terminal used by emacs tramp
@@ -52,11 +49,6 @@ export MANPAGER='less -s -M +Gg'
 export INFOPATH=$XDG_DATA_HOME/info:$INFOPATH
 # shell used by emacs for various shell like purposes
 export ESHELL="$(which bash 2>/dev/null || echo /bin/sh)"
-
-if [ "$platform" = "windows" ]; then
-    # assume it's the only platform using the TCP file.
-    export EMACS_SERVER_FILE="$EMACS_HOME/var/server/server"
-fi
 
 # make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
@@ -330,6 +322,14 @@ export NODE_PATH=`lines_to_path $NODE_PATH <<EOF
 /usr/lib/nodejs
 /usr/share/nodejs
 EOF`
+
+platform="$(ls-platform)"
+[ -z "$platform" ] && echo "shenv(warning) : unknown os type: $OSTYPE" >&2
+
+if [ "$platform" = "windows" ]; then
+    # assume it's the only platform using the TCP file.
+    export EMACS_SERVER_FILE="$EMACS_HOME/var/server/server"
+fi
 
 if [ "$platform" = "windows" ]; then
     for path_var in CLASSPATH PYTHONPATH; do
