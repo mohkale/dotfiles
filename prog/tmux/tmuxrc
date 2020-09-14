@@ -99,10 +99,22 @@ bind M-> command-prompt -p "count" "resize-pane -R '%%'"
 bind M-+ command-prompt -p "count" "resize-pane -U '%%'"
 bind M-- command-prompt -p "count" "resize-pane -D '%%'"
 
-## move to next or previous window
-bind -r Tab   next-window
-bind -r C-Tab previous-window
-bind    S-Tab last-pane
+## move between windows or sessions
+bind -r ) switch-client -n
+bind -r ( switch-client -p
+### toggle between this and the last active session
+bind Tab switch-client -l
+### move or link between windows
+bind £ move-window -a -s '{marked}' -r
+bind $ link-window -a -s '{marked}'
+### toggle between the current window and the marked window
+### sadly only works for windows in the same session. :cry:.
+bind -r \' select-window -T -t '{marked}'
+bind % swap-pane
+
+### cycle the current window backwards or forwards
+bind -r [ swap-window -d -t -1
+bind -r ] swap-window -d -t +1
 
 # bind    n   next-window
 # bind    p   previous-window
@@ -112,10 +124,17 @@ bind -r M-n switch-client -p
 bind -r M-p switch-client -n
 
 bind C-w kill-pane
-bind M-w kill-window
+# bind M-w kill-window
+# safer alternative to kill-window, keeps the window
+# alive in any other sessions if it exists there.
+# Otherwise kills window.
+bind M-w unlink-window -k
 
 bind B choose-tree -Zw
 bind b choose-tree -Zs
+
+bind -r C-o rotate-window -ZU
+bind -r M-o rotate-window -ZD
 
 ## move marked pane into it's own tab
 bind ! break-pane
@@ -192,6 +211,12 @@ set -g status-justify left
 set -g status-position bottom
 set -g window-status-current-style fg=$status_bg,bg=$status_fg
 set -g status-style fg=$status_fg,bg=$status_bg
+
+# reverse enginner the default window flags so that you can modify indicators and add
+# a linked-window indicator.
+window_flags='#{?window_linked,L,}#{?window_activity_flag,##,}#{?window_bell_flag,!,}#{?window_silence_flag,~,}#{?window_marked_flag,M,}#{?window_zoomed_flag,Z,}'
+set -g window-status-format         "#I:#W#{?window_last_flag,-,}$window_flags"
+set -g window-status-current-format "#I:#W*$window_flags"
 
 set -g status-left "\
 #[fg=$status_bg,bg=$status_fg]#{?client_prefix, ^SPC ,}\
