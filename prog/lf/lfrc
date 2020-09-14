@@ -115,6 +115,8 @@ map gj goto-link-dest
 map gt cd /tmp/
 map g/ cd /
 map gs push :grep-to-file<space>
+map gx goto-executable
+map ge goto-environment
 map ct cdmktemp
 
 map dt trash
@@ -326,6 +328,44 @@ cmd goto-link-dest ${{
         else
             lf -remote "send $id select \"$dest\""
         fi
+    fi
+}}
+
+# find every executable in the users path and select
+# the chosen one.
+cmd goto-executable ${{
+    target=$(echo "$PATH" | 2>/dev/null \
+        xargs -d: -I {} -r -- \
+          find -L {} -maxdepth 1 -mindepth 1 -type f -executable -printf '%h/%P\n' |
+        fzf -d / --with-nth '-1')
+
+    if [ -n "$target" ]; then
+        lf -remote "send $id select \"$target\""
+    fi
+}}
+
+# Offer every environment variable with an associated value
+# that points to an existing path. Selects the chosen path.
+cmd goto-environment ${{
+    target=$(printenv -0 |
+        tr -d '\n' |
+        tr '\0' '\n' |
+        while IFS='=' read -r var value; do
+            [ -e "$value" ] && echo "$var=$value"
+        done |
+        if hash column 2>/dev/null; then
+            # when available, try to tabulate the available paths.
+            column -s = -t
+        else
+            # otherwise, just replace the seperator with tab
+            tr '=' '\t'
+        fi |
+        fzf |
+        cut -d ' ' -f 2- | sed 's/^ *//')
+
+    if [ -n "$target" ]; then
+        if [ -d "$target" ]; then cmd="cd"; else cmd="select"; fi
+        lf -remote "send $id $cmd \"$target\""
     fi
 }}
 

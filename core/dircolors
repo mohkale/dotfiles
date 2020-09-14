@@ -42,3 +42,6 @@ STICKY_OTHER_WRITABLE 41;33
 #+-------------------+
 *.mp4 36
 *.png 36
+*.jpg 36
+*.svg 36
+*.gif 36

@@ -9,6 +9,21 @@ typeset -Ag prompt_data # cache variable
 DEFAULT_PROMPT='%F{white}λ%f%b '
 DEFAULT_PROMPT_RHS='%B%F{green}%n@%m%f %F{yellow}%~%f'
 
+function generate_icon_times() { #(times max icon)
+    if [ "$1" -le "$2" ]; then
+        printf "$3"'%0.s ' $(seq 1 "$1")
+    else
+        prinft "%d %s" "$1" "$3"
+    fi
+}
+
+# include an indicator for the current depth of lf (my file manager) levels
+if [ -n "$LF_LEVEL" ]; then
+    DEFAULT_PROMPT_RHS="$(print -n '%F{yellow}%B%s%b' "$(generate_icon_times "$LF_LEVEL" 5 ' ')")$DEFAULT_PROMPT_RHS"
+fi
+
+unset -f generate_icon_times
+
 if ! hash __git_prompt 1>/dev/null 2>&1; then
   git_prompt_path="$HOME/.local/bin/git-prompt"
   if [ -f "$git_prompt_path" ]; then
