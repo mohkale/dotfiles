@@ -71,8 +71,9 @@ set autochdir
 :set smartcase
 
 if $TERM != "cygwin"
-    " doesn't play well with cygwin
-    set termguicolors
+    " use extended XTERM color codes when available.
+    " disable to match colorscheme to your terminal.
+    " set termguicolors
 else
     " use a block cursor
     let &t_ti.="\e[1 q"

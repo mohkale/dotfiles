@@ -1,6 +1,7 @@
 ;; -*- mode: clojure -*-
 (
- (:import "../prog/chocolatey")
+ (:import "../prog/chocolatey"
+          "../prog/desktop/windows")
 
  ;; setup msys, the unix like environment for windows
  (:packages (:chocolatey "msys2"))

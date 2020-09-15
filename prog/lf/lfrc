@@ -34,6 +34,7 @@ map zi :set icons!
 
 map i $preview $f | ${PAGER:-less} -R
 map I !true
+map oc cat
 
 set info size
 
@@ -88,9 +89,9 @@ map <bs2> toggle-backwards
 
 # inspect folder sizes
 cmd du        !du --max-depth=1 -h --apparent-size
-cmd du_sorted !du --max-depth=1 -h --apparent-size | sort -rh
+cmd du-sorted !du --max-depth=1 -h --apparent-size | sort -rh
 map du du
-map dU du_sorted
+map dU du-sorted
 
 # replicate my shell config in command line mode.
 cmap <c-g>  cmd-escape
@@ -127,14 +128,14 @@ map cx :bulkchmod
 
 map gd
 map gf fzf
-map gd fzf_cd
-map gF fzf_all
-map gD fzf_cd_all
+map gd fzf-cd
+map gF fzf-all
+map gD fzf-cd-all
 
 map cw    bulkrename
 map <a-e> bulkrename
 
-map cr bulkrename_all
+map cr bulkrename-all
 
 
 # open file at point in various ways
@@ -143,11 +144,18 @@ map oo open
 map op $$PAGER  "$f"
 map gr :reload; sync
 map oe evi
-map ox execute
-map oX execute-async
+map o! execute
+map o& execute-async
 map os shell-in-directory
 map oa open-all
 map oi open-images
+map ot open-tmuxinator
+map ov open-videos
+map ox  extract
+map ozt tar
+map ozT tar-replace
+map ozz zip
+map ozZ zip-replace
 
 # custom leaders
 map +  :push :mkdir<space>
@@ -195,6 +203,25 @@ map ,P push &printf<space>"%s\n"<space>$fx<space>|<space>
 #    lf -remote "send $id set promptfmt \"$fmt\""
 #}}
 
+# concatenate out the current file to your PAGER.
+cmd cat ${{
+    if [ -d "$f" ]; then
+        $lf_previewer "$f" | ${PAGER:-less} -R
+        exit 0
+    fi
+
+    case "$(file -bL --mime "$f")" in
+        *charset=binary)
+            # try to produce a hex dump of the file
+            if ! ( hexdump --color=always -C "$f" || xxd "$f" ); then
+                echo "error: failed to produce hexdump" >&2
+                exit 1
+            fi
+            ;;
+        *) cat "$f" ;;
+    esac | ${PAGER:-less} -R
+}}
+
 # This command is called when current file is not a directory. You may want to
 # use either file extensions and/or mime types here. Below uses an editor for
 # text files and a file opener for the rest.
@@ -236,7 +263,8 @@ cmd execute-async &{{
 # open all marked images or images in the cwd.
 cmd open-images &{{
     if [ -z "$fs" ]; then
-        fs=$(find -L "$(pwd)" -mindepth 1 -maxdepth 1 -type f | sort -V)
+        fs=$(find -L "$(pwd)" -mindepth 1 -maxdepth 1 -type f | sort -V |
+            if [ "$lf_hidden" = "false" ]; then filter-globs -vb -p "$lf_hiddenfiles"; else cat; fi)
     fi
 
     # strip out all files that aren't images
@@ -248,6 +276,11 @@ else
     printf "file not image: %s\n", $1 > "/dev/stderr"
 }')
 
+    if [ -z "$fs" ]; then
+      lf -remote "send $id echoerr \"no image files available\""
+      exit 1
+    fi
+
     # when current file is an image, and is in the list of opened images
     # make sure SXIV selects that image first.
     flags=""
@@ -257,6 +290,51 @@ else
     fi
 
     echo "$fs" | sxiv -i $flags
+}}
+
+cmd open-videos ${{
+    if [ -z "$fs" ]; then
+        fs=$(find -L "$(pwd)" -mindepth 1 -maxdepth 1 -type f | sort -V |
+            if [ "$lf_hidden" = "false" ]; then filter-globs -vb -p "$lf_hiddenfiles"; else cat; fi)
+    fi
+
+    fs=$(xargs -r -d '\n' file -L --mime-type <<< "$fs" |
+         awk -F : '{
+if ($2 ~ /video|audio/)
+    print $1
+else
+    printf "file not playable by VLC: %s\n", $1 > "/dev/stderr"
+}')
+
+    if [ -z "$fs" ]; then
+      lf -remote "send $id echoerr \"no video files available\""
+      exit 1
+    fi
+
+    echo "$fs" | nohup xargs -r -d '\n' vlc -- >/dev/null 2>&1 &
+}}
+
+# present all tmuxinator configs available from the cwd in a
+# fzf session and run the chosen session.
+cmd open-tmuxinator ${{
+    target=$(ttls |
+      if hash column 2>/dev/null; then
+        column -s : -t -o ':' |
+          awk -F ':' -e '{
+  printf("%s%s", $1, FS)
+  for (i=2; i <= NF; i++) {
+    printf("%s ", $i)
+  }
+
+  print("")
+}'
+      else
+        cat
+      fi |
+      fzf -d : --with-nth 2..)
+    [ "$?" -eq 0 ] || exit 1
+    target=$(echo "$target" | cut -d ':' -f 1)
+    tmuxinator start "$target"
 }}
 
 ## chdir commands
@@ -374,42 +452,82 @@ cmd goto-environment ${{
 # (xkcd link: https://xkcd.com/1168/)
 cmd extract ${{
     set -f
-    case $f in
-        *.tar.bz|*.tar.bz2|*.tbz|*.tbz2) tar xjvf $f;;
-        *.tar.gz|*.tgz) tar xzvf $f;;
-        *.tar.xz|*.txz) tar xJvf $f;;
-        *.zip) unzip $f;;
-        *.rar) unrar x $f;;
-        *.7z) 7z x $f;;
+    case "$f" in
+        *.tar.bz|*.tar.bz2|*.tbz|*.tbz2) tar xjvf "$f" ;;
+        *.tar.gz|*.tgz) tar xzvf "$f" ;;
+        *.tar.xz|*.txz) tar xJvf "$f" ;;
+        *.zip) unzip "$f" ;;
+        *.rar) unrar x "$f" ;;
+        *.7z) 7z x "$f" ;;
     esac
 }}
 
 # compress current file or selected files with tar and gunzip
 cmd tar ${{
     set -f
-    mkdir $1
-    cp -r $fx $1
-    tar czf $1.tar.gz $1
-    rm -rf $1
+    if [ "$?" -gt 0 ]; then dest="$@"; elif [ -n "$fs" ]; then
+        dest="$(basename "$(pwd)")-$(date +%Y%M%d%H%m%S).tar.gz"
+    else
+        dest="$(basename "$f")-$(date +%Y%M%d%H%m%S).tar.gz"
+    fi
+
+    if ! echo "$fx" | xargs -r -d '\n' realpath --relative-to="$(pwd)" | tar cavfT "$dest" -; then
+        lf -remote "send $id echoerr \"failed to tar file's\""
+    fi
 }}
+
+cmd tar-replace ${{
+    set -f
+    if [ "$?" -gt 0 ]; then dest="$@"; elif [ -n "$fs" ]; then
+        dest="$(basename "$(pwd)")-$(date +%Y%M%d%H%m%S).tar.gz"
+    else
+        dest="$(basename "$f")-$(date +%Y%M%d%H%m%S).tar.gz"
+    fi
+
+    if ! echo "$fx" | xargs -r -d '\n' realpath --relative-to="$(pwd)" |
+         tar -cav --file="$dest" --files-from="-" --remove-files; then
+        lf -remote "send $id echoerr \"failed to tar file's\""
+    fi
+}}
+
 
 # compress current file or selected files with zip
 cmd zip ${{
     set -f
-    mkdir $1
-    cp -r $fx $1
-    zip -r $1.zip $1
-    rm -rf $1
+    if [ "$?" -gt 0 ]; then dest="$@"; elif [ -n "$fs" ]; then
+        dest="$(basename "$(pwd)")-$(date +%Y%M%d%H%m%S).zip"
+    else
+        dest="$(basename "$f")-$(date +%Y%M%d%H%m%S).zip"
+    fi
+
+    if ! echo "$fx" | xargs -r -d '\n' realpath --relative-to="$(pwd)" | zip -r9 "$dest" -@; then
+        lf -remote "send $id echoerr \"failed to zip file's\""
+    fi
+}}
+
+cmd zip-replace ${{
+    set -f
+    if [ "$?" -gt 0 ]; then dest="$@"; elif [ -n "$fs" ]; then
+        dest="$(basename "$(pwd)")-$(date +%Y%M%d%H%m%S).zip"
+    else
+        dest="$(basename "$f")-$(date +%Y%M%d%H%m%S).zip"
+    fi
+
+    if ! echo "$fx" | xargs -r -d '\n' realpath --relative-to="$(pwd)" | zip -r9 "$dest" -@; then
+        lf -remote "send $id echoerr \"failed to zip file's\""
+    else
+        echo "$fx" | xargs -r -d '\n' rm -rf
+    fi
 }}
 
 ## fzf
 # change lf directories using fzf
-cmd fzf_cd ${{
+cmd fzf-cd ${{
     res=$(ls-project -d | fzf --no-multi --preview 'preview {}')
     [ -n "$res" ] && lf -remote "send $id cd \"$res\""
 }}
 
-cmd fzf_cd_all ${{
+cmd fzf-cd-all ${{
     res=$(find -L . -type d | fzf --no-multi --preview 'preview {}')
     [ -n "$res" ] && lf -remote "send $id cd \"$res\""
 }}
@@ -426,7 +544,7 @@ cmd fzf ${{
     fi
 }}
 
-cmd fzf_all ${{
+cmd fzf-all ${{
     # foo bar
     res=$(find . | fzf --no-multi --preview 'preview {}')
 
@@ -527,7 +645,7 @@ cmd bulkrename ${{
 }}
 
 # recursively bulkrename all files
-cmd bulkrename_all ${{
+cmd bulkrename-all ${{
     dir=$(dirname "$f")
     if [ -n "$fs" ]; then
         echo "$fs" | xargs -d '\n' -ri find -L {} -type f
@@ -568,7 +686,7 @@ cmd mkdir %{{
 # make a directory and then change to it.
 cmd mkcd %{{
     mkdir -p "$@"
-    lf -remote "send $id cd \"$@\""
+    lf -remote "send $id select \"$@\""$'\n'"send $id cd \"$@\""
 }}
 
 cmd touch %{{
@@ -686,7 +804,7 @@ cmd toggle-default-previewer &{{
 cmd grep-to-file ${{
   match=$(rg "$@" --color=always --colors path:none --smart-case |
      sed 's/:[[:blank:]]\+/:/' |
-     fzf --ansi -d : --preview 'preview {1}' --with-nth 2 --reverse)
+     fzf --ansi -d : --preview 'preview {1}' --with-nth 2.. --reverse)
   [ "$?" -eq 0 -o -z "$match" ] || exit 1
   file=$(echo "$match" | cut -d ':' -f1)
   lf -remote "send $id select \"$file\""
@@ -765,7 +883,7 @@ cmd yank-dirname &{{
 }}
 
 cmd yank-path &{{
-    echo "$fx" | tr -d '\n'; fi |
+    echo "$fx" | tr -d '\n' |
       xclip -i -selection clipboard
 }}
 
