@@ -144,12 +144,17 @@ map oo open
 map op $$PAGER  "$f"
 map gr :reload; sync
 map oe evi
-map ox execute
-map oX execute-async
+map o! execute
+map o& execute-async
 map os shell-in-directory
 map oa open-all
 map oi open-images
 map ot open-tmuxinator
+map ox  extract
+map ozt tar
+map ozT tar-replace
+map ozz zip
+map ozZ zip-replace
 
 # custom leaders
 map +  :push :mkdir<space>
@@ -419,32 +424,72 @@ cmd goto-environment ${{
 # (xkcd link: https://xkcd.com/1168/)
 cmd extract ${{
     set -f
-    case $f in
-        *.tar.bz|*.tar.bz2|*.tbz|*.tbz2) tar xjvf $f;;
-        *.tar.gz|*.tgz) tar xzvf $f;;
-        *.tar.xz|*.txz) tar xJvf $f;;
-        *.zip) unzip $f;;
-        *.rar) unrar x $f;;
-        *.7z) 7z x $f;;
+    case "$f" in
+        *.tar.bz|*.tar.bz2|*.tbz|*.tbz2) tar xjvf "$f" ;;
+        *.tar.gz|*.tgz) tar xzvf "$f" ;;
+        *.tar.xz|*.txz) tar xJvf "$f" ;;
+        *.zip) unzip "$f" ;;
+        *.rar) unrar x "$f" ;;
+        *.7z) 7z x "$f" ;;
     esac
 }}
 
 # compress current file or selected files with tar and gunzip
 cmd tar ${{
     set -f
-    mkdir $1
-    cp -r $fx $1
-    tar czf $1.tar.gz $1
-    rm -rf $1
+    if [ "$?" -gt 0 ]; then dest="$@"; elif [ -n "$fs" ]; then
+        dest="$(basename "$(pwd)")-$(date +%Y%M%d%H%m%S).tar.gz"
+    else
+        dest="$(basename "$f")-$(date +%Y%M%d%H%m%S).tar.gz"
+    fi
+
+    if ! echo "$fx" | xargs -r -d '\n' realpath --relative-to="$(pwd)" | tar cavfT "$dest" -; then
+        lf -remote "send $id echoerr \"failed to tar file's\""
+    fi
 }}
+
+cmd tar-replace ${{
+    set -f
+    if [ "$?" -gt 0 ]; then dest="$@"; elif [ -n "$fs" ]; then
+        dest="$(basename "$(pwd)")-$(date +%Y%M%d%H%m%S).tar.gz"
+    else
+        dest="$(basename "$f")-$(date +%Y%M%d%H%m%S).tar.gz"
+    fi
+
+    if ! echo "$fx" | xargs -r -d '\n' realpath --relative-to="$(pwd)" |
+         tar -cav --file="$dest" --files-from="-" --remove-files; then
+        lf -remote "send $id echoerr \"failed to tar file's\""
+    fi
+}}
+
 
 # compress current file or selected files with zip
 cmd zip ${{
     set -f
-    mkdir $1
-    cp -r $fx $1
-    zip -r $1.zip $1
-    rm -rf $1
+    if [ "$?" -gt 0 ]; then dest="$@"; elif [ -n "$fs" ]; then
+        dest="$(basename "$(pwd)")-$(date +%Y%M%d%H%m%S).zip"
+    else
+        dest="$(basename "$f")-$(date +%Y%M%d%H%m%S).zip"
+    fi
+
+    if ! echo "$fx" | xargs -r -d '\n' realpath --relative-to="$(pwd)" | zip -r9 "$dest" -@; then
+        lf -remote "send $id echoerr \"failed to zip file's\""
+    fi
+}}
+
+cmd zip-replace ${{
+    set -f
+    if [ "$?" -gt 0 ]; then dest="$@"; elif [ -n "$fs" ]; then
+        dest="$(basename "$(pwd)")-$(date +%Y%M%d%H%m%S).zip"
+    else
+        dest="$(basename "$f")-$(date +%Y%M%d%H%m%S).zip"
+    fi
+
+    if ! echo "$fx" | xargs -r -d '\n' realpath --relative-to="$(pwd)" | zip -r9 "$dest" -@; then
+        lf -remote "send $id echoerr \"failed to zip file's\""
+    else
+        echo "$fx" | xargs -r -d '\n' rm -rf
+    fi
 }}
 
 ## fzf
