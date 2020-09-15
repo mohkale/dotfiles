@@ -150,6 +150,7 @@ map os shell-in-directory
 map oa open-all
 map oi open-images
 map ot open-tmuxinator
+map ov open-videos
 map ox  extract
 map ozt tar
 map ozT tar-replace
@@ -285,6 +286,27 @@ else
     echo "$fs" | sxiv -i $flags
 }}
 
+cmd open-videos ${{
+    if [ -z "$fs" ]; then
+        fs=$(find -L "$(pwd)" -mindepth 1 -maxdepth 1 -type f | sort -V |
+            if [ "$lf_hidden" = "false" ]; then filter-globs -vb -p "$lf_hiddenfiles"; else cat; fi)
+    fi
+
+    fs=$(xargs -r -d '\n' file -L --mime-type <<< "$fs" |
+         awk -F : '{
+if ($2 ~ /video|audio/)
+    print $1
+else
+    printf "file not playable by VLC: %s\n", $1 > "/dev/stderr"
+}')
+
+    if [ -z "$fs" ]; then
+      lf -remote "send $id echoerr \"no video files available\""
+      exit 1
+    fi
+
+    echo "$fs" | nohup xargs -r -d '\n' vlc -- >/dev/null 2>&1 &
+}}
 
 # present all tmuxinator configs available from the cwd in a
 # fzf session and run the chosen session.
