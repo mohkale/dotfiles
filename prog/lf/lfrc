@@ -34,6 +34,7 @@ map zi :set icons!
 
 map i $preview $f | ${PAGER:-less} -R
 map I !true
+map oc cat
 
 set info size
 
@@ -195,6 +196,25 @@ map ,P push &printf<space>"%s\n"<space>$fx<space>|<space>
 #    fmt="\033[32;1m%u@%h\033[0m:\033[34;1m%w/\033[0m\033[1m%f$git\033[0m"
 #    lf -remote "send $id set promptfmt \"$fmt\""
 #}}
+
+# concatenate out the current file to your PAGER.
+cmd cat ${{
+    if [ -d "$f" ]; then
+        $lf_previewer "$f" | ${PAGER:-less} -R
+        exit 0
+    fi
+
+    case "$(file -bL --mime "$f")" in
+        *charset=binary)
+            # try to produce a hex dump of the file
+            if ! ( hexdump --color=always -C "$f" || xxd "$f" ); then
+                echo "error: failed to produce hexdump" >&2
+                exit 1
+            fi
+            ;;
+        *) cat "$f" ;;
+    esac | ${PAGER:-less} -R
+}}
 
 # This command is called when current file is not a directory. You may want to
 # use either file extensions and/or mime types here. Below uses an editor for
