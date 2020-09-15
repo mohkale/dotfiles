@@ -148,6 +148,7 @@ map oX execute-async
 map os shell-in-directory
 map oa open-all
 map oi open-images
+map ot open-tmuxinator
 
 # custom leaders
 map +  :push :mkdir<space>
@@ -257,6 +258,30 @@ else
     fi
 
     echo "$fs" | sxiv -i $flags
+}}
+
+
+# present all tmuxinator configs available from the cwd in a
+# fzf session and run the chosen session.
+cmd open-tmuxinator ${{
+    target=$(ttls |
+      if hash column 2>/dev/null; then
+        column -s : -t -o ':' |
+          awk -F ':' -e '{
+  printf("%s%s", $1, FS)
+  for (i=2; i <= NF; i++) {
+    printf("%s ", $i)
+  }
+
+  print("")
+}'
+      else
+        cat
+      fi |
+      fzf -d : --with-nth 2..)
+    [ "$?" -eq 0 ] || exit 1
+    target=$(echo "$target" | cut -d ':' -f 1)
+    tmuxinator start "$target"
 }}
 
 ## chdir commands

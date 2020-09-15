@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+# list tmuxinator configs both in the shared config
+# folder and any project local configs (from the cwd).
+
+require 'tmuxinator'
+require 'pathname'
+
+# yields [argument-to-tmuxinator, name-of-project, path-to-config]
+def each_config(&block)
+  Tmuxinator::Config.directories.map do |directory|
+    Dir["#{directory}/**/*.yml"].map(&Pathname.method(:new)).map do |path|
+      project_name = path.to_path.gsub("#{directory}/", "").gsub(".yml", "")
+      block.call(project_name, project_name, path.to_path)
+    end
+  end
+
+  cwd = Pathname.new('.').expand_path
+  local_path = cwd / Tmuxinator::Config::LOCAL_DEFAULT
+  if local_path.readable?
+    block.call('', cwd.basename, local_path.to_path)
+  end
+end
+
+each_config do |*args|
+  puts(args.join(':'))
+end
