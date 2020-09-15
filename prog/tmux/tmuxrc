@@ -105,7 +105,7 @@ bind -r ( switch-client -p
 ### toggle between this and the last active session
 bind Tab switch-client -l
 ### move or link between windows
-bind £ move-window -a -s '{marked}' -r
+bind £ move-window -a -s '{marked}'
 bind $ link-window -a -s '{marked}'
 ### toggle between the current window and the marked window
 ### sadly only works for windows in the same session. :cry:.

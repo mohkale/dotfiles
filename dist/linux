@@ -11,6 +11,8 @@
                   "ttf-symbola"
                   "noto-fonts"
                   "bdf-unifont"
+                  "s-nail"
+                  "nmap"
                   "fzf"
                   "xclip"
                   "trash-cli"))
