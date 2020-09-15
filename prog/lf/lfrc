@@ -89,9 +89,9 @@ map <bs2> toggle-backwards
 
 # inspect folder sizes
 cmd du        !du --max-depth=1 -h --apparent-size
-cmd du_sorted !du --max-depth=1 -h --apparent-size | sort -rh
+cmd du-sorted !du --max-depth=1 -h --apparent-size | sort -rh
 map du du
-map dU du_sorted
+map dU du-sorted
 
 # replicate my shell config in command line mode.
 cmap <c-g>  cmd-escape
@@ -128,14 +128,14 @@ map cx :bulkchmod
 
 map gd
 map gf fzf
-map gd fzf_cd
-map gF fzf_all
-map gD fzf_cd_all
+map gd fzf-cd
+map gF fzf-all
+map gD fzf-cd-all
 
 map cw    bulkrename
 map <a-e> bulkrename
 
-map cr bulkrename_all
+map cr bulkrename-all
 
 
 # open file at point in various ways
@@ -263,7 +263,8 @@ cmd execute-async &{{
 # open all marked images or images in the cwd.
 cmd open-images &{{
     if [ -z "$fs" ]; then
-        fs=$(find -L "$(pwd)" -mindepth 1 -maxdepth 1 -type f | sort -V)
+        fs=$(find -L "$(pwd)" -mindepth 1 -maxdepth 1 -type f | sort -V |
+            if [ "$lf_hidden" = "false" ]; then filter-globs -vb -p "$lf_hiddenfiles"; else cat; fi)
     fi
 
     # strip out all files that aren't images
@@ -274,6 +275,11 @@ if ($2 ~ /image/)
 else
     printf "file not image: %s\n", $1 > "/dev/stderr"
 }')
+
+    if [ -z "$fs" ]; then
+      lf -remote "send $id echoerr \"no image files available\""
+      exit 1
+    fi
 
     # when current file is an image, and is in the list of opened images
     # make sure SXIV selects that image first.
@@ -516,12 +522,12 @@ cmd zip-replace ${{
 
 ## fzf
 # change lf directories using fzf
-cmd fzf_cd ${{
+cmd fzf-cd ${{
     res=$(ls-project -d | fzf --no-multi --preview 'preview {}')
     [ -n "$res" ] && lf -remote "send $id cd \"$res\""
 }}
 
-cmd fzf_cd_all ${{
+cmd fzf-cd-all ${{
     res=$(find -L . -type d | fzf --no-multi --preview 'preview {}')
     [ -n "$res" ] && lf -remote "send $id cd \"$res\""
 }}
@@ -538,7 +544,7 @@ cmd fzf ${{
     fi
 }}
 
-cmd fzf_all ${{
+cmd fzf-all ${{
     # foo bar
     res=$(find . | fzf --no-multi --preview 'preview {}')
 
@@ -639,7 +645,7 @@ cmd bulkrename ${{
 }}
 
 # recursively bulkrename all files
-cmd bulkrename_all ${{
+cmd bulkrename-all ${{
     dir=$(dirname "$f")
     if [ -n "$fs" ]; then
         echo "$fs" | xargs -d '\n' -ri find -L {} -type f
@@ -680,7 +686,7 @@ cmd mkdir %{{
 # make a directory and then change to it.
 cmd mkcd %{{
     mkdir -p "$@"
-    lf -remote "send $id cd \"$@\""
+    lf -remote "send $id select \"$@\""$'\n'"send $id cd \"$@\""
 }}
 
 cmd touch %{{
@@ -798,7 +804,7 @@ cmd toggle-default-previewer &{{
 cmd grep-to-file ${{
   match=$(rg "$@" --color=always --colors path:none --smart-case |
      sed 's/:[[:blank:]]\+/:/' |
-     fzf --ansi -d : --preview 'preview {1}' --with-nth 2 --reverse)
+     fzf --ansi -d : --preview 'preview {1}' --with-nth 2.. --reverse)
   [ "$?" -eq 0 -o -z "$match" ] || exit 1
   file=$(echo "$match" | cut -d ':' -f1)
   lf -remote "send $id select \"$file\""
@@ -877,7 +883,7 @@ cmd yank-dirname &{{
 }}
 
 cmd yank-path &{{
-    echo "$fx" | tr -d '\n'; fi |
+    echo "$fx" | tr -d '\n' |
       xclip -i -selection clipboard
 }}
 
