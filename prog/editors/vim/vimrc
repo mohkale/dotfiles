@@ -43,6 +43,9 @@ call plug#end()
 """"""""""""""""""""""""""""""""""""
 " colorscheme old-hope
 " colorscheme elflord
+" colorscheme koehler
+" colorscheme pablo
+colorscheme mohkale
 syntax on " enable syntax highlighting
 
 "let &background = "dark"
