@@ -1,0 +1,97 @@
+[$Version]
+update_info=kwin.upd:replace-scalein-with-scale,kwin.upd:port-minimizeanimation-effect-to-js,kwin.upd:port-scale-effect-to-js,kwin.upd:port-dimscreen-effect-to-js,kwin.upd:auto-bordersize,kwin.upd:animation-speed
+
+[Compositing]
+OpenGLIsUnsafe=false
+
+[Desktops]
+Name_1=__main__
+Name_2=editor
+Name_3=browser
+Name_4=vlc
+Name_5=expansion1
+Name_6=expansion2
+Number=6
+Rows=2
+
+[Effect-Cube]
+BorderActivate=9
+BorderActivateCylinder=9
+BorderActivateSphere=9
+
+[Effect-DesktopGrid]
+BorderActivate=9
+
+[Effect-PresentWindows]
+BorderActivate=3
+BorderActivateAll=5
+BorderActivateClass=9
+
+[ElectricBorders]
+Bottom=None
+BottomLeft=None
+BottomRight=None
+Left=None
+Right=None
+Top=None
+TopLeft=None
+TopRight=None
+
+[MouseBindings]
+CommandActiveTitlebar1=Raise
+CommandActiveTitlebar2=Nothing
+CommandActiveTitlebar3=Operations menu
+CommandAll1=Move
+CommandAll2=Toggle raise and lower
+CommandAll3=Resize
+CommandAllKey=Alt
+CommandAllWheel=Nothing
+CommandInactiveTitlebar1=Activate and raise
+CommandInactiveTitlebar2=Nothing
+CommandInactiveTitlebar3=Operations menu
+CommandTitlebarWheel=Nothing
+CommandWindow1=Activate, raise and pass click
+CommandWindow2=Activate and pass click
+CommandWindow3=Activate and pass click
+CommandWindowWheel=Scroll
+
+[Plugins]
+windowgeometryEnabled=false
+
+[TabBox]
+BorderActivate=9
+BorderAlternativeActivate=9
+DesktopLayout=org.kde.breeze.desktop
+DesktopListLayout=org.kde.breeze.desktop
+LayoutName=org.kde.breeze.desktop
+
+[Windows]
+ActiveMouseScreen=true
+AutoRaise=false
+AutoRaiseInterval=750
+BorderSnapZone=10
+CenterSnapZone=0
+ClickRaise=true
+DelayFocusInterval=300
+ElectricBorderCooldown=350
+ElectricBorderCornerRatio=0.25
+ElectricBorderDelay=150
+ElectricBorderMaximize=false
+ElectricBorderTiling=false
+ElectricBorders=0
+FocusPolicy=ClickToFocus
+FocusStealingPreventionLevel=1
+GeometryTip=false
+HideUtilityWindowsForInactive=true
+MaximizeButtonLeftClickCommand=Maximize
+MaximizeButtonMiddleClickCommand=Maximize (vertical only)
+MaximizeButtonRightClickCommand=Maximize (horizontal only)
+NextFocusPrefersMouse=false
+Placement=Smart
+RollOverDesktops=false
+SeparateScreenFocus=false
+ShadeHover=false
+ShadeHoverInterval=250
+SnapOnlyWhenOverlapping=false
+TitlebarDoubleClickCommand=Maximize
+WindowSnapZone=10
