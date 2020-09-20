@@ -44,7 +44,7 @@ cls    clear
 
 
 # Emacs
-evipe   vipe -D -e 'emacsclient -nw' # emacs edit pipe
+evipe   VISUAL='emacsclient -nw -a= -c' vipe # emacs edit pipe
 ec      emacsclient
 ee      ec --no-wait --suppress-output # emacs dispatch
 ex      emacs

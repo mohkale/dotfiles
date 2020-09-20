@@ -1,24 +1,21 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python
 # vipe - edit pipe
-# reimplementation of moreutils vipe in shell script.
+# reimplementation of moreutils vipe in python.
 # why? because I h8 perl :P.
 #
 # see: https://joeyh.name/code/moreutils/
 
-# usage: command1 | vipe | command2
+# usage: command1 | vipe [options] | command2
 #
 # Environment Variables
 #  * VISUAL - determine editor to use
 #  * EDITOR - determine editor to use
-#  * VIPE_TMPDIR - temporary directory to keep intermittent
-#                  output in. defaults to the a vipe subdirectory
-#                  within your temp directory.
 #
 # vipe allows you to run your editor in the middle of a unix pipeline and edit
 # the data that is being piped between programs. Your editor will have the full
 # data being piped from command1 loaded into it, and when you close it, that
 # data will be piped into command2.
-
+#
 # changes from upstream version
 # * proper command line options and parsing.
 # * detects when input is a terminal and runs editor directly
@@ -29,90 +26,107 @@
 #   with echo or first send C-z before being prompted with your editor.
 #   In truth, this option is the main reason I created this fork.
 
-print_usage() {
-    echo "Usage: $0 [-h] [-d/-D] [-f FILE] [-i|-I] [-t TMPDIR] [-e CMD] [-s|-k] [-q]"
-    echo ""
-    echo "insert an editor into your shell pipeline."
-    echo ""
-    echo "Options:"
-    echo "  -h          print this help message and exit"
-    echo "  -q          suppress warnings"
-    echo "  -d/-D       redirect current TTY (/dev/tty) as stdin to EDITOR"
-    echo "  -i/-I       specify whether STDIN is an interactive terminal"
-    echo "  -f FILE     file to open with EDITOR, defaults to STDIN"
-    echo "  -t TMPDIR   save temporary pipe file to TMPDIR"
-    echo "  -e CMD      use CMD as EDITOR instead of VISUAL/EDITOR/vi"
-    echo "  -s shred    temporary files before unlinking them"
-    echo "  -k keep     temporary files after finishing EDITOR"
-}
+import os
+import io
+import sys
+import shlex
+import logging
+import pathlib
+import tempfile
+import subprocess
 
-while getopts 'h?f:iIt:e:skqdD' option; do
-    case "$option" in
-        h) print_usage
-           exit 0
-           ;;
-        \?) print_usage >&2
-            exit 1
-            ;;
-        f) stdin_file="$OPTARG"
-           ;;
-        d) redirect_tty=1
-           ;;
-        D) redirect_tty=0
-           ;;
-        i) interactive=1
-           ;;
-        I) interactive=0
-           ;;
-        e) VISUAL="$OPTARG"
-           ;;
-        t) VIPE_TMPDIR="$OPTARG"
-           ;;
-        s) secure=1 # shred tmpfiles before removing
-           ;;
-        k) keep_tmp_files=1
-           ;;
-        q) quiet=1 # suppress warnings
-           ;;
-        *) print_usage >&2
-           exit 1
-           ;;
-    esac
-done
+def open_tty():
+    try:
+        tty = os.ttyname(2)
+    except: tty = '/dev/tty'
 
-VIPE_TMPDIR="${VIPE_TMPDIR:-${TMPDIR:-/tmp/}}"
-[ ! -d "$VIPE_TMPDIR" ] && mkdir -p "$VIPE_TMPDIR"
+    try:
+        return io.TextIOWrapper(io.FileIO(os.open(tty, os.O_NOCTTY | os.O_RDWR), "r+"))
+    except:
+        logging.fatal('failed to open tty: %s', tty)
+        exit(1)
 
-editor="${VISUAL:-${EDITOR:-vi}}" # default is vi
+def get_editor():
+    return shlex.split(
+        os.environ.get('VISUAL',
+                       os.environ.get('EDITOR', 'vim')))
 
-# determine whether stdin is interactive or not
-if [ -z "$interactive" ]; then
-   [ -t 0 ] && interactive=1 || interactive=0
-fi
+if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
+                                     usage='command1 | %(prog)s [options] | command2',
+                                     description="""
+vipe - edit pipe
 
-temp_file=$(mktemp -p "$VIPE_TMPDIR")
-[ "$interactive" == 0 ] && cat $stdin_file > $temp_file
+Substitute your editor in the middle of a shell pipeline.
+Saves stdin to a file and passes it to your editor, then
+cats the modified file back to stdout.
 
-# run editor on temp_file using shells stdin and stdout
-if [ "${redirect_tty:-1}" -eq 1 ]; then
-    $editor "$temp_file" </dev/tty >/dev/tty
-else
-    $editor "$temp_file"
-fi
-exit_code=$?
+If the editor exits with a non-0 exit code, vipe breaks
+the pipeline by exiting with the same code.
+""")
+    parser.add_argument('-l', '--log-level', default=logging.ERROR,
+                        type=lambda lvl: getattr(logging, lvl.upper()),
+                        help='Set the verbosity of logging output')
+    parser.add_argument('-R', '--no-redirect', action='store_false',
+                        dest='redirect', help="Don't redirect stdin/stdout to tty")
+    parser.add_argument('-i', '--read-stdin', action='store_true',
+                        help="Read from stdin, even when it's a tty")
+    parser.add_argument('-t', '--tmp-dir',
+                        metavar='DIR', type=pathlib.Path,
+                        default=pathlib.Path(tempfile.gettempdir()),
+                        help='Place temporary pipe files into DIR')
+    parser.add_argument('-e', '--editor', nargs='+',
+                        help='Set editor command')
+    parser.add_argument('-k', '--keep', action='store_true',
+                        help='Keep temporary files after finishing EDITOR')
 
-if [ "$exit_code" == 0 ]; then
-    stdout_file="$(cat $temp_file)" # read into memory
-else
-    echo "vipe: $editor exited with non 0 exit code $exit_code, aborting." >&2
-fi
+    args = parser.parse_args()
+    logging.basicConfig(level=args.log_level)
 
-if [ "${keep_tmp_files:-0}" == 1 ]; then
-    [ "${quiet:-0}" == 1 ] || echo "vipe: warning the -k flag is unsafe, proceed at your own risk." >&2
-else
-    [ "${secure:-0}" == 1 ] && shred -fz "$temp_file" # >/dev/tty 2>&1
-    unlink "$temp_file" # delete temporary storage file, no longer needed.
-fi
+    if not args.editor:
+        args.editor = get_editor()
 
-[ "$exit_code" == 0 ] && cat <<< "$stdout_file"
-exit $exit_code
+    if not args.tmp_dir.exists():
+        try:
+            args.temp_dir.mkdir(parents=True, exist_ok=True)
+        except:
+            logging.exception('Failed to create temp directory: %s', args.tmp_dir)
+            exit(1)
+
+    try:
+        _, dest_file = tempfile.mkstemp(prefix='vipe-', dir=args.tmp_dir)
+        dest_file = pathlib.Path(dest_file)
+    except:
+        logging.exception('Failed to create temp temp file in: %s', args.tmp_dir)
+        exit(1)
+
+    exit_code = 0
+    try:
+        if args.read_stdin or not sys.stdin.isatty():
+            logging.info('Reading stdin into temp file: %s', dest_file)
+            with dest_file.open('w') as fd:
+                for line in sys.stdin:
+                    fd.write(line)
+
+        cmd = args.editor + [str(dest_file)]
+        logging.debug('running editor: %s', ' '.join(cmd))
+        if args.redirect:
+            with open_tty() as tty:
+                res = subprocess.run(cmd, stdin=tty, stdout=tty)
+        else:
+            res = subprocess.run(cmd)
+
+        exit_code = res.returncode
+        if res.returncode != 0:
+            logging.error('Process exited with non-0 exit code: %d', exit_code)
+        else:
+            with dest_file.open('r') as fd:
+                for line in fd:
+                    sys.stdout.write(line)
+    finally:
+        if not args.keep:
+            logging.debug('Removing temp file: %s', dest_file)
+            dest_file.unlink()
+
+    exit(exit_code)
