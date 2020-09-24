@@ -192,3 +192,8 @@ etemp@file   $(mktemp)
 
 # standalone-commands
 bash-startup-files      echo exit | strace bash -li | grep 'open(' | less
+# fuzzy jump to a new directory or to start editing a file.
+d fzf_cd
+D fzf_cd_all
+f fzf_select
+F fzf_select_all

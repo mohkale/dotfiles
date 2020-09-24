@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+fzf_select_all() {
+    fzf_select_flags=-az fzf_select
+}

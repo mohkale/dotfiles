@@ -541,18 +541,18 @@ cmd zip-replace ${{
 ## fzf
 # change lf directories using fzf
 cmd fzf-cd ${{
-    res=$(ls-project -d | fzf --no-multi --preview 'preview {}')
+    res=$(ls-project -dz | fzf --read0 --no-multi --preview-window=25% --preview 'preview {}')
     [ -n "$res" ] && lf -remote "send $id cd \"$res\""
 }}
 
 cmd fzf-cd-all ${{
-    res=$(find -L . -type d | fzf --no-multi --preview 'preview {}')
+    res=$(ls-project -adz | fzf --read0 --no-multi --preview-window=25% --preview 'preview {}')
     [ -n "$res" ] && lf -remote "send $id cd \"$res\""
 }}
 
 # open a file or cd using fzf.
 cmd fzf ${{
-    res=$(ls-project | fzf --no-multi --preview 'preview {}')
+    res=$(ls-project -z | fzf --read0 --no-multi --preview-window=25% --preview 'preview {}')
 
     if [ -f "$res" ]; then
       lf -remote "send $id select \"$res\"" &&
@@ -563,8 +563,7 @@ cmd fzf ${{
 }}
 
 cmd fzf-all ${{
-    # foo bar
-    res=$(find . | fzf --no-multi --preview 'preview {}')
+    res=$(ls-project -az | fzf --read0 --no-multi --preview-window=25% --preview 'preview {}')
 
     if [ -f "$res" ]; then
       lf -remote "send $id select \"$res\"" &&
