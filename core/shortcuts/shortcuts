@@ -1,4 +1,9 @@
-# -*- mode: sh -*-
+# -*- mode: sh -*- globally desired shortcuts
+
+# ┌────────────────────────┐
+# │ Setup global shortcuts │
+# └────────────────────────┘
+
 makecd() {
     mkdir -p "$*"
     cd       "$*"
@@ -8,12 +13,7 @@ get_last_command() {
     history | tail -n 2 | head -n 1 | sed -E 's/^ [0-9]+  //';
 }
 
-if [ ! -z "$platform" ]; then
-    platform_script="$XDG_CONFIG_HOME/shortcuts/platforms/$platform"
-    [ -f "$platform_script" ] && . "$platform_script"
-    unset platform_script
-fi
-
 alias with-emacs='with_emacs ' # alias expanding version
 alias with-evi='EMACS_FLAGS=-nw with_emacs '
 alias y='fp_yank'
+alias sd='sudo '

@@ -23,9 +23,9 @@ case "$TERM" in
 esac
 
 case "$(ps -p $$ | awk 'END { print($NF) }')" in
-    *bash) shell="bash" ;;
-    *zsh)  shell="zsh"  ;;
-    *)     shell=       ;;
+    *bash) shell="bash"   ;;
+    *zsh)  shell="zshell" ;;
+    *)     shell=         ;;
 esac
 
 # prioritize editors in order of nvim, vim, vi.
@@ -383,8 +383,9 @@ export FZF_DEFAULT_OPTS="
 
 # source shortcuts
 shortcuts_dir="$XDG_CONFIG_HOME/shortcuts"
-[ -f "$shortcuts_dir/shortcuts" ] && . "$shortcuts_dir/shortcuts"
-[ ! -z "$shell" -a -f "$shortcuts_dir/$shell" ] && . "$shortcuts_dir/$shell"
+[ -f "$shortcuts_dir/shortcuts" ]                         && . "$shortcuts_dir/shortcuts"
+[ -n "$shell"    -a -f "$shortcuts_dir/setup/$shell"    ] && . "$shortcuts_dir/setup/$shell"
+[ -n "$platform" -a -f "$shortcuts_dir/setup/$platform" ] && . "$shortcuts_dir/setup/$platform"
 unset shortcuts_script
 
 # reclaim C-s and C-q
@@ -410,8 +411,6 @@ case "$-" in
         fi
 
         eval "$(ls-aliases | xargs -d '\n' -r build-aliases -i1)"
-
-        alias sd='sudo '
         ;;
 esac
 
