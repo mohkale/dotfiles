@@ -23,18 +23,18 @@ case "$TERM" in
 esac
 
 case "$(ps -p $$ | awk 'END { print($NF) }')" in
-    *bash) shell="bash" ;;
-    *zsh)  shell="zsh"  ;;
-    *)     shell=       ;;
+    *bash) shell="bash"   ;;
+    *zsh)  shell="zshell" ;;
+    *)     shell=         ;;
 esac
 
 # prioritize editors in order of nvim, vim, vi.
-if   which nvim >/dev/null 2>&1; then export EDITOR=nvim
-elif which vim  >/dev/null 2>&1; then export EDITOR=vim
-else                                  export EDITOR=vi
+if   hash nvim 2>&1; then export EDITOR=nvim
+elif hash vim  2>&1; then export EDITOR=vim
+else                      export EDITOR=vi
 fi
 
-# source XDG compatibility script
+# source XDG compatibility environment files
 [ -r "$HOME/.config/xdg" ] && . "$HOME/.config/xdg"
 
 export VISUAL="$EDITOR"
@@ -68,194 +68,36 @@ if [ -x /usr/bin/dircolors ] && [ -r "$XDG_CONFIG_HOME/dircolors" ]; then
     eval "$(dircolors -b $XDG_CONFIG_HOME/dircolors)" || eval "$(dircolors -b)"
 fi
 
-# *.c=:\
-# *.cc=:\
-# *.cpp=:\
-# *.h=:\
-# *.hh=:\
-# *.hpp=:\
-# *.json=:\
-# *.ts=:\
-# *.nix=:\
-export LF_ICONS="\
-tw=:\
-st=:\
-ow=:\
-dt=:\
-di=:\
-fi=:\
-ln=:\
-or=:\
-ex=:\
-*.git=:\
-*.css=:\
-*.scss=:\
-*.el=:\
-*.clj=:\
-*.config=:\
-*.edn=:\
-*.pdf=:\
-*.py=:\
-*.rb=:\
-*.go=:\
-*.html=:\
-*.java=:\
-*.md=:\
-*.md=:\
-*.scala=:\
-*.php=:\
-*.rs=:\
-*.js=:\
-*.db=:\
-*.hs=:\
-*.DS_Store=:\
-.Dockerfile=:\
-*.vim=V:\
-*.org=:\
-*.gradle.kts=:\
-*.gradle=:\
-*CMakeLists.txt=:\
-*.gitlab-ci.yml=:\
-\
-*webpack*=:\
-*webpack*=:\
-*.sqlite=:\
-*.frm=:\
-*.myd=:\
-*.myi=:\
-*.mkd=:\
-*.ddf=:\
-\
-*.bash=:\
-*.cmd=:\
-*.fish=:\
-*.ps1=:\
-*.sh=:\
-*.zsh=:\
-\
-*.7z=:\
-*.ace=:\
-*.alz=:\
-*.arc=:\
-*.arj=:\
-*.bz2=:\
-*.bz=:\
-*.cab=:\
-*.cpio=:\
-*.deb=:\
-*.dwm=:\
-*.dz=:\
-*.ear=:\
-*.esd=:\
-*.gz=:\
-*.jar=:\
-*.lha=:\
-*.lrz=:\
-*.lz4=:\
-*.lz=:\
-*.lzh=:\
-*.lzma=:\
-*.lzo=:\
-*.rar=:\
-*.rpm=:\
-*.rz=:\
-*.sar=:\
-*.swm=:\
-*.t7z=:\
-*.tar=:\
-*.taz=:\
-*.tbz2=:\
-*.tbz=:\
-*.tgz=:\
-*.tlz=:\
-*.txz=:\
-*.tz=:\
-*.tzo=:\
-*.tzst=:\
-*.war=:\
-*.wim=:\
-*.xz=:\
-*.z=:\
-*.zip=:\
-*.zoo=:\
-*.zst=:\
-\
-*.aac=:\
-*.asf=:\
-*.au=:\
-*.avi=:\
-*.bmp=:\
-*.cgm=:\
-*.dl=:\
-*.emf=:\
-*.flac=:\
-*.flc=:\
-*.fli=:\
-*.flv=:\
-*.gif=:\
-*.gl=:\
-*.jpeg=:\
-*.jpg=:\
-*.m2v=:\
-*.m4a=:\
-*.m4v=:\
-*.mid=:\
-*.midi=:\
-*.mjpeg=:\
-*.mjpg=:\
-*.mka=:\
-*.mkv=:\
-*.mng=:\
-*.mov=:\
-*.mp3=:\
-*.mp4=:\
-*.mp4v=:\
-*.mpc=:\
-*.mpeg=:\
-*.mpg=:\
-*.nuv=:\
-*.oga=:\
-*.ogg=:\
-*.ogm=:\
-*.ogv=:\
-*.ogx=:\
-*.opus=:\
-*.pbm=:\
-*.pcx=:\
-*.pgm=:\
-*.png=:\
-*.ppm=:\
-*.qt=:\
-*.ra=:\
-*.rm=:\
-*.rmvb=:\
-*.spx=:\
-*.svg=:\
-*.svgz=:\
-*.tga=:\
-*.tif=:\
-*.tiff=:\
-*.vob=:\
-*.wav=:\
-*.webm=:\
-*.wmv=:\
-*.xbm=:\
-*.xcf=:\
-*.xpm=:\
-*.xspf=:\
-*.xwd=:\
-*.yuv=:\
-"
-# add some extra spacing after each icon, looks nicer to me :grin:.
-export LF_ICONS=$(echo "$LF_ICONS" | sed 's/:/ :/g')
+if [ -e "$XDG_CONFIG_HOME/diricons" ]; then
+    # load icons from human readable config file.
+    export LF_ICONS=$(sed ~/.config/diricons \
+                      -e '/^[ \t]*#/d'       \
+                      -e '/^[ \t]*$/d'       \
+                      -e 's/[ \t]\+/=/g'     \
+                      -e 's/$/ /' | tr '\n' ':')
+fi
 
-# Custom Configuration Paths
-export PYTHONIOENCODING="utf-8" # prevents error msg
+# Prevents Error Message with Python Encoding
+export PYTHONIOENCODING="utf-8"
 
 SAVEHIST=1000 HISTSIZE=1000 HISTFILESIZE=2000
 
 # set terminal used by i3
 export TERMINAL="st"
+
+# disable telemetary and tracking when possible, see [[https://consoledonottrack.com/][do-not-track]].
+export \
+    HOMEBREW_NO_ANALYTICS=1               \
+    SAM_CLI_TELEMETRY=0                   \
+    AZURE_CORE_COLLECT_TELEMETRY=0        \
+    DO_NOT_TRACK=1                        \
+    STRIPE_CLI_TELEMETRY_OPTOUT=1         \
+    GATSBY_TELEMETRY_DISABLED=1           \
+    HASURA_GRAPHQL_ENABLE_TELEMETRY=false \
+    DOTNET_CLI_TELEMETRY_OPTOUT=true      \
+    NEXT_TELEMETRY_DISABLED=1             \
+    AUTOMATEDLAB_TELEMETRY_OPTOUT=1       \
+    POWERSHELL_TELEMETRY_OPTOUT=1
 
 # set path based variables
 lines_to_path() { #(PATH [...PATH])
@@ -264,11 +106,18 @@ lines_to_path() { #(PATH [...PATH])
 
     # NOTE trailing whitespace is automatically removed with
     #      inline comments.
-    if [ $# -gt 0 -a ! -z "$1" ]; then
-        # print existing path variables when given
-        # in linux path format.
 
-        case "${OSTYPE}" in
+    # strip out empty lines, comments, replace ~/ with users home
+    # directory & join paths with a :.
+    sed -e 's/ *#.*$//g'          \
+        -e '/^ *$/d'              \
+        -e 's ^~/ '"${HOME}"/' g' \
+        -e 's/$/:/' | tr -d '\n'
+
+    if [ -n "$1" ]; then
+        # print existing path variables when given in linux path format.
+        # printf ":" # delimit the existing
+        case "$OSTYPE" in
             *cygwin|*msys)
                 printf "%s:" "$(cygpath --path "$*")"
                 ;;
@@ -277,10 +126,6 @@ lines_to_path() { #(PATH [...PATH])
                 ;;
         esac
     fi
-    local home=$(sed -e 's/\//\\\//g' <<< "$HOME")
-
-    sed -e 's/ *#.*$//g' -e '/^ *$/d' -e 's ^~/ '"${HOME}"/' g' | tr '\n' ':' | sed -e 's/:$//'
-    # strip out empty lines and comments, replace ~/ with users home directory & join paths with a :
 }
 
 export PATH=`lines_to_path $PATH <<EOF
@@ -325,12 +170,7 @@ export NODE_PATH=`lines_to_path $NODE_PATH <<EOF
 EOF`
 
 platform="$(ls-platform)"
-[ -z "$platform" ] && echo "shenv(warning) : unknown os type: $OSTYPE" >&2
-
-if [ "$platform" = "windows" ]; then
-    # assume it's the only platform using the TCP file.
-    export EMACS_SERVER_FILE="$EMACS_HOME/var/server/server"
-fi
+[ -z "$platform" ] && echo "warning: shenv: unknown OS type: $OSTYPE" >&2
 
 if [ "$platform" = "windows" ]; then
     for path_var in CLASSPATH PYTHONPATH; do
@@ -342,6 +182,9 @@ if [ "$platform" = "windows" ]; then
     done
 
     export GEM_HOME=$(cygpath --mixed "$GEM_HOME")
+
+    # assume it's the only platform using the TCP file.
+    export EMACS_SERVER_FILE="$EMACS_HOME/var/server/server"
 
     # proper symlinks, not that wibbly wobbley copy paste
     export MSYS=winsymlinks:nativestrict
@@ -383,8 +226,9 @@ export FZF_DEFAULT_OPTS="
 
 # source shortcuts
 shortcuts_dir="$XDG_CONFIG_HOME/shortcuts"
-[ -f "$shortcuts_dir/shortcuts" ] && . "$shortcuts_dir/shortcuts"
-[ ! -z "$shell" -a -f "$shortcuts_dir/$shell" ] && . "$shortcuts_dir/$shell"
+[ -f "$shortcuts_dir/shortcuts" ]                         && . "$shortcuts_dir/shortcuts"
+[ -n "$shell"    -a -f "$shortcuts_dir/setup/$shell"    ] && . "$shortcuts_dir/setup/$shell"
+[ -n "$platform" -a -f "$shortcuts_dir/setup/$platform" ] && . "$shortcuts_dir/setup/$platform"
 unset shortcuts_script
 
 # reclaim C-s and C-q
@@ -410,10 +254,10 @@ case "$-" in
         fi
 
         eval "$(ls-aliases | xargs -d '\n' -r build-aliases -i1)"
-
-        alias sd='sudo '
         ;;
 esac
 
 unset shell
 SOURCED_SHENV=1
+
+# vim:syntax=sh filetype=sh

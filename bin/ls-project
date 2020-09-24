@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
-# recursively find files in the current project directory.
+# Recursively find files in the current project directory.
+#
+# Uses a host of different programs to find ways to respect ignore
+# files (such as .gitignore or .ignore etc.).
 
 set -e # auto exit on a failed command
 
 function print_usage {
-    echo "Usage: ls-project [-h] [-d|-D] DIR"
+    echo "Usage: ls-project [-h] [-d|-f] [-z] [DIR]"
 }
 
 function print_help {
@@ -15,12 +18,14 @@ function print_help {
     echo ""
     echo "optional arguments:"
     echo "  -h      show this help message and exit"
-    echo "  -d/-f   only list directories, or files"
+    echo "  -d/-f   only list directories or files"
+    echo "  -z      output null delimited"
+    echo "  -a      skip project check and list all files"
+    echo "  -u/-U   guarantee the paths are outputted uniquely"
 }
 
-directories_only=0
-files_only=0
-while getopts 'hdf' OPTION; do
+dirs_only=0 files_only=0 null=0 find_all=0 uniquify=1
+while getopts 'hdfzauU' OPTION; do
     case "$OPTION" in
         h) print_help
            exit 0
@@ -28,17 +33,29 @@ while getopts 'hdf' OPTION; do
         \?) print_usage >&2
             exit 1
             ;;
-        d) directories_only=1 ;;
-        f) files_only=0 ;;
+        d) dirs_only=1 ;;
+        f) files_only=1 ;;
+        z) null=1 ;;
+        a) find_all=1 ;;
+        u) uniquify=1 ;;
+        U) uniquify=0 ;;
     esac
 done
-
 shift "$((OPTIND-1))"
 [ -n "$*" ] && cd "$*"
 
+# ┌───────────────────┐
+# │ Utility Functions │
+# └───────────────────┘
+
 function files_to_dir {
-    # strip out filename components, removing the cwd from the file list.
-    xargs -d '\n' -r dirname {} + | sort | uniq | sed --quiet -e '/^\.$/d' -e 'p'
+    # strip out filename components, removing all but the filename.
+    # WARN: there's this weird issue were some paths lead xargs to give out
+    #       two lines, one ending with a / and the other beginning with a .
+    #       For now I'm just stripping both these out, but I should probably
+    #       come up with a better solution.
+    xargs -d '\n' -r dirname {} + | sed --quiet -e '/^\.$/d' -e '/^\/$/d' -e 'p' | 
+        if [ "$uniquify" -eq 1 ]; then awk '!seen[$0]++'; else cat; fi
 }
 
 function files_to_files_and_dir {
@@ -60,8 +77,18 @@ function files_to_files_and_dir {
 }'
 }
 
+# ┌─────────┐
+# │ Filters │
+# └─────────┘
+#
+# Filters accept file paths from stdin and transform them depending
+# on the environment of the current script.
+
 function file_filter {
-    if [ "$directories_only" -eq 1 ]; then
+    # Given a stream of file paths, this filter either filters out the
+    # basename component or zips together directories and files in the
+    # output.
+    if [ "$dirs_only" -eq 1 ]; then
         files_to_dir
     elif [ "$files_only" -eq 1 ]; then
         cat
@@ -70,25 +97,63 @@ function file_filter {
     fi
 }
 
-if hash rg >/dev/null; then
-    rg --files | file_filter
-elif [ -d .git ] || git git rev-parse --git-dir >/dev/null; then
-    git ls-files | file_filter
-elif hash fd >/dev/null; then
-    if [ "$directories_only" -eq 1 ]; then
-        fd -H --type d --color never
+function null_filter() {
+    if [ "$null" -eq 1 ]; then tr '\n' '\0'; else cat; fi
+}
+
+# ┌──────────┐
+# │ Handlers │
+# └──────────┘
+
+function do_rg() {
+    rg --files | file_filter | null_filter
+}
+
+function do_git() {
+    git ls-files | file_filter | null_filter
+}
+
+function do_fd() {
+    flags=( )
+    if [ "$dirs_only" -eq 1 ]; then
+        flags+=( --type d )
     elif [ "$files_only" -eq 1 ]; then
-        fd -H --type f --color never
-    else
-        fd -H --color never
+        flags+=( --type f )
     fi
+
+    [ "$null" -eq 1 ] && flags+=( --print0 )
+
+    fd -H --color never "${flags[@]}"
+}
+
+function do_find() {
+    flags=( )
+    if [ "$dirs_only" -eq 1 ]; then
+        flags+=( -type d )
+    elif [ "$files_only" -eq 1 ]; then
+        flags+=( -type f )
+    fi
+
+    [ "$null" -eq 1 ] && flags+=( -print0 )
+
+    find -L . -mindepth 1 "${flags[@]}"
+}
+
+# ┌─────────────┐
+# │ Switchboard │
+# └─────────────┘
+#
+# Run through available programs and invoke the first handler you find.
+
+if [ "$find_all" -eq 1 ]; then
+    # jump straight to the fallback behaviour
+    do_find
+elif hash rg; then
+    do_rg
+elif [ -d .git ] || git git rev-parse --git-dir; then
+    do_git
+elif hash fd; then
+    do_fd
 else
-    if [ "$directories_only" -eq 1 ]; then
-        # list only directories, or symlinks which symlink to directories.
-        find -L . -mindepth 1 -type d -print
-    elif [ "$files_only" -eq 1 ]; then
-        find -L . -mindepth 1 -type f
-    else
-        find -L .
-    fi
+    do_find
 fi 2>/dev/null

@@ -27,14 +27,10 @@ T       thor
 Tl      thor list
 Th      thor help
 istat   stat -c "%A %08s %n"  # inline stat
-ctemp   cd    $(mktemp -d)
-qtemp   pushd $(mktemp -d)
 b       buku --suggest
-ttr     tortrans
 r       ranger
-c       lfcd
 
-# vim stuff
+# vi stuff
 :q      exit
 :wq     exit
 
@@ -49,8 +45,7 @@ ec      emacsclient
 ee      ec --no-wait --suppress-output # emacs dispatch
 ex      emacs
 sx      smacs
-et      bash -c 'cd $EMACS_HOME && ./bin/tangle -i -d hydras.org -d etc/snippets.org'
-etsx    et && sx
+et      sh -c 'cd $EMACS_HOME && ./bin/tangle -i -d hydras.org -d etc/snippets.org'
 emf     emacs-make-frame
 
 # TMUX
@@ -108,22 +103,9 @@ gq      g rebase
 # Configure Dotfiles
 dot@dirx $DOTFILES_REPO_PATH
 
-d       g --git-dir=$DOTFILES_REPO_PATH/.git --work-tree=$DOTFILES_REPO_PATH
-da      d add
-db      d branch
-dc      d commit
-dd      d diff
-# df      d fetch
-dl      d log
-ds      d status
-dm      d mv
-dr      d rm
-dv      d checkout
-dp      d pull
-dP      d push
-dq      d rebase
+dotg    g --git-dir=$DOTFILES_REPO_PATH/.git --work-tree=$DOTFILES_REPO_PATH
 # istats every file within my dotfiles repository.
-distat  d ls-tree --full-tree --full-name -r --name-only HEAD   \
+distat  dotg ls-tree --full-tree --full-name -r --name-only HEAD \
         | awk -v home="$DOTFILES_REPO_PATH" '{ printf("%s/%s\0", home, $1) }' \
         | xargs -r0 stat -c "%A %08s %n"
 
@@ -188,7 +170,12 @@ stl@file         $XDG_CONFIG_HOME/shortcuts/linux
 stm@file         $XDG_CONFIG_HOME/shortcuts/macos
 
 # Temp FS
-etemp@file   $(mktemp)
+ctemp       cd    $(mktemp -d)
+qtemp       pushd $(mktemp -d)
+etemp@file        $(mktemp)
 
-# standalone-commands
-bash-startup-files      echo exit | strace bash -li | grep 'open(' | less
+# fuzzy jump to a new directory or to start editing a file.
+d fzf_cd
+D fzf_cd_all
+f fzf_select
+F fzf_select_all

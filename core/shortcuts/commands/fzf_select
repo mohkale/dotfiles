@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+fzf_select() {
+    dest="$(ls-project "${fzf_select_flags:-"-z"}" "$@" | fzf --read0 --no-multi --preview 'preview {}' --preview-window=25%)" &&
+        if [ -d "$dest" ]; then
+            # shellcheck disable=SC2164
+            cd "$dest" || echo "error: failed to cd: $dest" >&2
+        elif [ -f "$dest" ]; then
+            ${VISUAL:-${EDITOR:-vi}} "$dest"
+        else
+            echo "error: don't know how to handle: $dest" >&2
+        fi
+    unset dest
+}
