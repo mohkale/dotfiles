@@ -106,11 +106,18 @@ lines_to_path() { #(PATH [...PATH])
 
     # NOTE trailing whitespace is automatically removed with
     #      inline comments.
-    if [ $# -gt 0 -a ! -z "$1" ]; then
-        # print existing path variables when given
-        # in linux path format.
 
-        case "${OSTYPE}" in
+    # strip out empty lines, comments, replace ~/ with users home
+    # directory & join paths with a :.
+    sed -e 's/ *#.*$//g'          \
+        -e '/^ *$/d'              \
+        -e 's ^~/ '"${HOME}"/' g' \
+        -e 's/$/:/' | tr -d '\n'
+
+    if [ -n "$1" ]; then
+        # print existing path variables when given in linux path format.
+        # printf ":" # delimit the existing
+        case "$OSTYPE" in
             *cygwin|*msys)
                 printf "%s:" "$(cygpath --path "$*")"
                 ;;
@@ -119,10 +126,6 @@ lines_to_path() { #(PATH [...PATH])
                 ;;
         esac
     fi
-    local home=$(sed -e 's/\//\\\//g' <<< "$HOME")
-
-    sed -e 's/ *#.*$//g' -e '/^ *$/d' -e 's ^~/ '"${HOME}"/' g' | tr '\n' ':' | sed -e 's/:$//'
-    # strip out empty lines and comments, replace ~/ with users home directory & join paths with a :
 }
 
 export PATH=`lines_to_path $PATH <<EOF

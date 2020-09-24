@@ -1,10 +1,6 @@
 # -*- mode: sh -*-
-commands_dir="$XDG_CONFIG_HOME/shortcuts/commands"
-
 fpath+="$commands_dir"
 
 while read file; do
     autoload "$file"
-done < <(find "$commands_dir" -type f -or -type l)
-
-unset commands_dir
+done < <(find -L "$XDG_CONFIG_HOME/shortcuts/commands" -maxdepth 1 -type f)
