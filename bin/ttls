@@ -2,8 +2,10 @@
 # list tmuxinator configs both in the shared config
 # folder and any project local configs (from the cwd).
 
-require 'tmuxinator'
 require 'pathname'
+
+require 'xdg'
+require 'tmuxinator/config'
 
 # yields [argument-to-tmuxinator, name-of-project, path-to-config]
 def each_config(&block)

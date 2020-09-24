@@ -20,7 +20,6 @@ set shellopts '-eu'
 set ifs "\n"
 
 set relativenumber
-set color256
 set icons
 set hiddenfiles .*:__pycache__:*.pyc:*.o:node_modules
 
