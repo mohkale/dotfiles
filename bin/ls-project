@@ -21,10 +21,11 @@ function print_help {
     echo "  -d/-f   only list directories or files"
     echo "  -z      output null delimited"
     echo "  -a      skip project check and list all files"
+    echo "  -u/-U   guarantee the paths are outputted uniquely"
 }
 
-dirs_only=0 files_only=0 null=0 find_all=0
-while getopts 'hdfza' OPTION; do
+dirs_only=0 files_only=0 null=0 find_all=0 uniquify=1
+while getopts 'hdfzauU' OPTION; do
     case "$OPTION" in
         h) print_help
            exit 0
@@ -36,6 +37,8 @@ while getopts 'hdfza' OPTION; do
         f) files_only=1 ;;
         z) null=1 ;;
         a) find_all=1 ;;
+        u) uniquify=1 ;;
+        U) uniquify=0 ;;
     esac
 done
 shift "$((OPTIND-1))"
@@ -51,7 +54,8 @@ function files_to_dir {
     #       two lines, one ending with a / and the other beginning with a .
     #       For now I'm just stripping both these out, but I should probably
     #       come up with a better solution.
-    xargs -d '\n' -r dirname {} + | sed --quiet -e '/^\.$/d' -e '/^\/$/d' -e 'p' | sort | uniq
+    xargs -d '\n' -r dirname {} + | sed --quiet -e '/^\.$/d' -e '/^\/$/d' -e 'p' | 
+        if [ "$uniquify" -eq 1 ]; then awk '!seen[$0]++'; else cat; fi
 }
 
 function files_to_files_and_dir {

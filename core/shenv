@@ -70,11 +70,11 @@ fi
 
 if [ -e "$XDG_CONFIG_HOME/diricons" ]; then
     # load icons from human readable config file.
-    LF_ICONS=$(sed ~/.config/diricons \
-               -e '/^[ \t]*#/d'       \
-               -e '/^[ \t]*$/d'       \
-               -e 's/[ \t]\+/=/g'     \
-               -e 's/$/ /' | tr '\n' ':')
+    export LF_ICONS=$(sed ~/.config/diricons \
+                      -e '/^[ \t]*#/d'       \
+                      -e '/^[ \t]*$/d'       \
+                      -e 's/[ \t]\+/=/g'     \
+                      -e 's/$/ /' | tr '\n' ':')
 fi
 
 # Prevents Error Message with Python Encoding
