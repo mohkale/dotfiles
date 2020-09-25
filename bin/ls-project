@@ -42,7 +42,7 @@ while getopts 'hdfzauU' OPTION; do
     esac
 done
 shift "$((OPTIND-1))"
-[ -n "$*" ] && cd "$*"
+[ -n "$*" ] && cwd="$*" || cwd="."
 
 # ┌───────────────────┐
 # │ Utility Functions │
@@ -106,11 +106,11 @@ function null_filter() {
 # └──────────┘
 
 function do_rg() {
-    rg --files | file_filter | null_filter
+    rg --files --follow -- "$cwd" | file_filter | null_filter
 }
 
 function do_git() {
-    git ls-files | file_filter | null_filter
+    git ls-files -- "$cwd" | file_filter | null_filter
 }
 
 function do_fd() {
@@ -123,7 +123,7 @@ function do_fd() {
 
     [ "$null" -eq 1 ] && flags+=( --print0 )
 
-    fd -H --color never "${flags[@]}"
+    fd --follow -H --color never "${flags[@]}" . -- "$cwd"
 }
 
 function do_find() {
@@ -136,7 +136,7 @@ function do_find() {
 
     [ "$null" -eq 1 ] && flags+=( -print0 )
 
-    find -L . -mindepth 1 "${flags[@]}"
+    find -L "$cwd" -mindepth 1 "${flags[@]}"
 }
 
 # ┌─────────────┐
