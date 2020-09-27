@@ -29,6 +29,7 @@ Th      thor help
 istat   stat -c "%A %08s %n"  # inline stat
 b       buku --suggest
 r       ranger
+x       fzf-dmenu
 
 # vi stuff
 :q      exit
