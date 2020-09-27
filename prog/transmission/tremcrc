@@ -18,7 +18,7 @@ invert = False
 [Misc]
 compact_list = False
 torrentname_is_progressbar = True
-file_viewer = xdg-open %%s
+file_viewer = xopen %%s
 file_open_in_terminal = True
 
 [Colors]
