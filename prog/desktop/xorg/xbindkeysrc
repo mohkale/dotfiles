@@ -25,10 +25,10 @@
 "term-dwim"
   Control + apostrophe
 
-"spawn-term fzf-dmenu"
+"spawn-term fzf-dmenu -H"
   Mod4 + bracketleft + Release
 
-"spawn-term fzf-dmenu -a"
+"spawn-term fzf-dmenu -aH"
   Mod4 + bracketright + Release
 
 "moji -n -d ' '"

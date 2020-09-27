@@ -1,11 +1,8 @@
 #!/usr/bin/sh
 # interactively select program to execute using fzf. [[https://github.com/oem/dotfiles/blob/master/launch/cmdlist][source]].
-# TODO support [[https://askubuntu.com/questions/436891/create-a-desktop-file-that-opens-and-execute-a-command-in-a-terminal][Terminal=true]].
-# Requires:
-#   - python >= 3.5
 
 print_usage() {
-  echo "Usage: $0 [-h] [-a] [-d]"
+  echo "Usage: $0 [-h] [-a] [-d] [-H]"
   echo ""
   echo "interactively select and execute (multiple) programs with fzf"
   echo ""
@@ -14,17 +11,19 @@ print_usage() {
   echo " -a    offer to complete all executables in PATH"
   echo "       not just those with know .desktop entries"
   echo " -d    run in debug mode, produces extra output"
+  echo " -H    hide desktop files from fzf display"
 }
 
-all=0
-debug=0
-while getopts 'had' OPTION; do
+all=0 debug=0 hide_dfile=0
+while getopts 'hHad' OPTION; do
   case "$OPTION" in
     h) print_usage
        exit 0 ;;
     a) all=1
        ;;
     d) debug=1
+       ;;
+    H) hide_dfile=1
        ;;
     \?) print_usage >&2
         exit 0 ;;
@@ -34,32 +33,6 @@ done
 fzf_command() {
   sort -u | fzf --reverse --border --multi "$@"
 }
-
-# python script to format .desktop entry command lines.
-FORMAT_SCRIPT=$(cat <<-EOF
-# the format spec for .desktop files states that the exec arg can
-# contain special format specifiers. See [[https://specifications.freedesktop.org/desktop-entry-spec/latest/ar01s07.html][here]]. We need to account
-# for them or else the program will probably crash.
-
-import sys
-import shlex
-
-for line in map(lambda x: x.rstrip(), sys.stdin.readlines()):
-  parsed = shlex.split(line)
-  new_cmd = []
-
-  for arg in parsed:
-    if arg in ["%f", "%F", "%u", "%U", "%k"]:
-      # these can be safely erased with no issue.
-      continue
-    elif arg == "%c":
-      new_cmd.append(parsed[0])
-    else:
-      new_cmd.append(arg)
-
-  print(shlex.join(new_cmd))
-EOF
-)
 
 # format a command line to be run asynchronously and not be interrupted
 # when it's parent process group exits. Like [[https://github.com/oem/lnch/blob/master/main.go][lnch]] except written in pure
@@ -82,22 +55,27 @@ list_desktop_entries() {
   find "${XDG_DATA_HOME:-$HOME/.local/share}/applications"       \
        "/usr/share/applications" "/usr/local/share/applications" \
        -iname '*.desktop' -exec grep -l 'Type=Application' {} + -print 2>/dev/null |
-    xargs -r -d '\n' grep -m1 -io '^name=\(.\+\)$' | sed 's/:Name=/:/'
+    xargs -r -d '\n' grep -m1 -io '^name=\(.\+\)$' |
+    sed -e 's/:Name=/:/' -e 's/\(.\+\):\(.\+\)/\2:\1/'
 }
 
 if [ "$all" -eq 1 ]; then
   list_all | fzf_command | lnch
 else
+  sep=$(printf "\t")
   list_desktop_entries |
-    fzf_command -d : --with-nth 2 |
-    cut -d: -f1 |
-    xargs -d '\n' -r grep -h -m1 -o '^Exec=\(.\+\)$' |
-    sed 's/^Exec=//' |
-    python3 -c "$FORMAT_SCRIPT" |
+    if hash column 2>/dev/null; then column -t -s : -o "$sep"; else tr ':' "$sep"; fi |
+    if [ "$hide_dfile" -eq 1 ]; then
+        fzf_command -d "$sep" --with-nth 1
+    else
+        fzf_command
+    fi |
+    sed 's/.\+\t\(.\+\)/\1/' |
+    awk -e '{ printf("xrun %s\n", $0) }' |
     lnch
 fi
 
 if [ "$debug" -eq 1 -o "$?" -ne 0 ]; then
   printf "%s" "fzf-dmenu: exited with non 0 exit code, press enter to continue:"
-  read
+  read -r
 fi
