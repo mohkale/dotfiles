@@ -669,6 +669,7 @@ class Desktop(abc.ABC):
             if not cmd:
                 continue
 
+            args = [a for a in args if a is not None]
             logging.info('Opening urls with: %s', cmd)
             logging.debug('Running command: %s', json.dumps(args))
             return subprocess.run(args).returncode == 0
@@ -685,7 +686,7 @@ class KDE(Desktop):
             {'cmd': 'kde-open',
              'exec': ['kde-open', *urls]},
             {'cmd': 'kde-open5',
-             'exec': ['kde-open5', '--interactive' if self.interactive else '', '--', *urls]},
+             'exec': ['kde-open5', '--interactive' if self.interactive else None, '--', *urls]},
             {'cmd': 'kfmclient',
              'exec': ['kfmclient', 'exec', *urls]},
             {'cmd': 'kioclient5',

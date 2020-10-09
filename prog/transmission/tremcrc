@@ -1,5 +1,3 @@
-# -*- mode: conf-unix -*-
-
 [Connection]
 password = 
 username = 
@@ -9,17 +7,19 @@ path = /transmission/rpc
 ssl = False
 
 [Sorting]
-order = name
+order = addedDate
 
 [Filtering]
 filter = 
 invert = False
 
 [Misc]
-compact_list = False
+lines_per_torrent = 2
 torrentname_is_progressbar = True
 file_viewer = xopen %%s
 file_open_in_terminal = True
+compact_list = False
+cancel = ^g,ESC
 
 [Colors]
 title_seed = bg:green,fg:black
@@ -32,12 +32,17 @@ download_rate = bg:black,fg:blue
 upload_rate = bg:black,fg:red
 eta+ratio = bg:black,fg:white
 filter_status = bg:red,fg:black
+multi_filter_status = bg:blue,fg:black
 dialog = bg:black,fg:white
 dialog_important = bg:red,fg:black
-button = bg:white,fg:black
-button_focused = bg:black,fg:white
 file_prio_high = bg:red,fg:black
 file_prio_normal = bg:white,fg:black
 file_prio_low = bg:yellow,fg:black
 file_prio_off = bg:blue,fg:black
+button = bg:white,fg:black
+button_focused = bg:black,fg:white
 
+[CommonKeys]
+^d = page_down
+^u = page_up
+^g = go_back_or_unfocus

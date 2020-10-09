@@ -31,11 +31,13 @@ jobs:
           )
           emacs --batch --eval "$script"
           mv ./README.html index.html
-    - name: Deploy
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.DOTFILES_PAGES_KEY }}
-        publish_dir: .
-        publish_branch: gh-pages
-        commit_message: "deploy: ${{ github.event.head_commit.message }}"
-        exclude_assets: ''
+    # XXX: I Give up, this is way too messy for it's own good.
+    # - name: Deploy
+    #   uses: peaceiris/actions-gh-pages@v3
+    #   with:
+    #     github_token: ${{ secrets.DOTFILES_PAGES_KEY }}
+    #     publish_dir: .
+    #     publish_branch: gh-pages
+    #     commit_message: "deploy: ${{ github.event.head_commit.message }}"
+    #     exclude_assets: ''
+    #     enable_jekyll: false

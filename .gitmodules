@@ -2,16 +2,21 @@
 	path = prog/editors/emacs
 	url = https://github.com/mohkale/emacs
 	ignore = dirty
-[submodule "programs/konsole/themes/an-old-hope"]
+	branch = master
+[submodule "prog/konsole/themes/an-old-hope"]
 	path = prog/konsole/themes/an-old-hope
 	url = https://github.com/mohkale/an-old-hope-konsole
-[submodule "programs/yakuake/themes/an-old-hope"]
+	branch = master
+[submodule "prog/yakuake/themes/an-old-hope"]
 	path = prog/yakuake/themes/an-old-hope
 	url = https://github.com/mohkale/an-old-hope-yakuake
-[submodule "programs/st/st"]
-	path = prog/st/st
+	branch = master
+[submodule "prog/st/st"]
+	path = prog/st
 	url = https://github.com/mohkale/st
 	ignore = dirty
+	branch = master
 [submodule "prog/bat/an-old-hope"]
 	path = prog/bat/an-old-hope
 	url = https://github.com/mohkale/an-old-hope-sublime
+	branch = master

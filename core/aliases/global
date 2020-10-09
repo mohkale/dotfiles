@@ -32,6 +32,7 @@ r       ranger
 x       fzf-dmenu
 
 # vi stuff
+q       exit
 :q      exit
 :wq     exit
 
@@ -172,7 +173,9 @@ stm@file         $XDG_CONFIG_HOME/shortcuts/macos
 
 # Temp FS
 ctemp       cd    $(mktemp -d)
+ct          cd    $(mktemp -d)
 qtemp       pushd $(mktemp -d)
+qt          pushd $(mktemp -d)
 etemp@file        $(mktemp)
 
 # fuzzy jump to a new directory or to start editing a file.

@@ -34,6 +34,7 @@ map zi :set icons!
 map i $preview $f | ${PAGER:-less} -R
 map I !true
 map oc cat
+map oy open-yank
 
 set info size
 
@@ -104,6 +105,7 @@ cmap <a-f> cmd-right
 
 # quick jump
 map gc
+map gb goto-bin
 map gl goto-downloads
 map gc goto-config
 map gi goto-images
@@ -260,6 +262,11 @@ cmd execute-async &{{
     fi
 }}
 
+# yank file contents into clipboard
+cmd open-yank ${{
+    cat "$fx" | xclip -i -selection clipboard -rmlastnl
+}}
+
 # open all marked images or images in the cwd.
 cmd open-images &{{
     if [ -z "$fs" ]; then
@@ -347,6 +354,11 @@ cmd goto-downloads ${{
 cmd goto-config ${{
     . "$HOME/.config/user-dirs.dirs"
     dir="${XDG_CONFIG_HOME:-~/.config}"
+    lf -remote "send $id cd \"$dir\""
+}}
+
+cmd goto-bin ${{
+    dir="$HOME/.local/bin"
     lf -remote "send $id cd \"$dir\""
 }}
 
@@ -894,12 +906,12 @@ cmd copy-remove %{{
 ## yank
 # yank the current working directory
 cmd yank-dirname &{{
-    dirname -- "$f" | tr -d '\n' | xclip -i -selection clipboard
+    if [ -n "$f" ]; then dirname -- "$f"; else pwd; fi | xclip -i -selection clipboard -rmlastnl
 }}
 
 cmd yank-path &{{
-    echo "$fx" | tr -d '\n' |
-      xclip -i -selection clipboard
+    echo "$fx" |
+      xclip -i -selection clipboard -rmlastnl
 }}
 
 cmd yank-basename &{{
