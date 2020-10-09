@@ -1,0 +1,53 @@
+#!/usr/bin/sh
+
+set -f -e
+
+print_usage() {
+  echo "Usage: $(basename $0) [-h] FILE [FILE...]"
+}
+
+print_help() {
+  print_usage
+  echo ""
+  echo "Options"
+  echo " -h    show this help message and exit"
+}
+
+while getopts 'h' OPTION; do
+  case "$OPTION" in
+    h) print_help
+       exit 0 ;;
+    \?) print_help >&2
+        exit 1 ;;
+  esac
+done
+
+shift "$((OPTIND-1))"
+if [ "$#" -eq 0 ]; then
+  echo "extract: error: no file paths supplied"
+  print_help >&2
+  exit 1
+fi
+
+exit_code=0
+while read -r path; do
+  if ! [ -r "$path" ]; then
+    echo "extract: warn: failed to find path: $path"
+    exit_code=1
+    continue
+  fi
+
+  case "$path" in
+    # (xkcd link: https://xkcd.com/1168/)
+    *.tar.bz|*.tar.bz2|*.tbz|*.tbz2) tar xjvf   "$path" ;;
+    *.tar.gz|*.tgz)                  tar xzvf   "$path" ;;
+    *.tar.xz|*.txz)                  tar xJvf   "$path" ;;
+    *.tar|*.tar.*|*.cbt)             tar xvf    "$path" ;;
+    *.zip|*.cbz)                     unzip      "$path" ;;
+    *.rar|*.cbr)                     unrar x    "$path" ;;
+    *.cab)                           cabextract "$path" ;;
+    *.cb7|*.7z)                      7z x       "$path" ;;
+  esac || exit_code=1
+done <<< "$(printf "%s\n" "$@")"
+
+exit "$exit_code"
