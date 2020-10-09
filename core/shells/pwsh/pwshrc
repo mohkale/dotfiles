@@ -1,0 +1,47 @@
+# -*- mode: powershell -*- powershell profile, see [[https://docs.microsoft.com/en-us/previous-versions//bb613488(v=vs.85)?redirectedfrom=MSDN][here]].
+#function Prompt {
+#  "PS $($executionContext.SessionState.Path.CurrentLocation)$('>' * ($nestedPromptLevel + 1)) "
+#}
+
+# source: https://stackoverflow.com/questions/34648169/how-to-right-align-something-in-powershell-prompt
+function Global:prompt {
+    $oc = $host.ui.RawUI.ForegroundColor
+    $hostname = [System.Net.Dns]::GetHostName()
+    $username = [Environment]::UserName
+
+    $host.UI.RawUI.ForegroundColor = "Green"
+    $Host.UI.Write($username + "@" + $hostname + " ")
+
+    $host.UI.RawUI.ForegroundColor = "Yellow"
+    switch ($PSVersionTable.Platform) {
+        { ($_ -eq "Unix") -or ($_ -eq "Darwin") } {
+            $Host.UI.Write(([string]$pwd).Replace("/home/"+$username, "~"))
+            break
+        }
+        "Win32NT" {
+            $Host.UI.Write(([string]$pwd).Replace("C:\Users\"+$username, "~"))
+            break
+        }
+    }
+
+    $prompt_rhs = ""
+    if ($prompt_rhs.length -ne 0) {
+        $startposx = $Host.UI.RawUI.windowsize.width - $prompt_rhs.length
+        $startposy = $Host.UI.RawUI.CursorPosition.Y
+        $Host.UI.RawUI.CursorPosition = New-Object System.Management.Automation.Host.Coordinates $startposx,$startposy
+        $host.UI.RawUI.ForegroundColor = "DarkGreen"
+        $Host.UI.Write($prompt_rhs)
+    } else {
+        $Host.UI.Write(" ")
+    }
+
+    # reset prompt color
+    $host.UI.RawUI.ForegroundColor = $oc
+    $Host.UI.Write("λ")
+    return " "
+}
+
+# fix bindings
+Set-PSReadLineOption -EditMode Emacs
+Set-PSReadlineKeyHandler -Key Tab -Function Complete
+Set-PSReadlineKeyHandler -Chord Ctrl+LeftArrow -Function BackwardWord
