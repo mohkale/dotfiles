@@ -1,0 +1,28 @@
+#!/usr/bin/sh
+# Open rar/cbz files with sxiv, source [[https://github.com/muennich/sxiv/issues/301#issuecomment-473677743][here]].
+
+if [ "$#" -eq 0 ]; then
+    echo "Usage: $(basename "$0") ARCHIVE [SXIV_ARGS...]"
+    exit 0
+fi
+
+set -e
+
+dir="$(mktemp -p /tmp -d sxcv-XXX)"
+cleanup() {
+    [ -n "$dir" ] && rm -r "$dir"
+}
+trap cleanup EXIT
+
+file="$1"; shift
+if hash 7z 2>/dev/null; then
+    # 7z supports basically everything
+    7z x "$file" -o"$dir" >/dev/null
+else
+    case "$file" in
+        *.zip|*.cbz) unzip "$file" -d "$dir" ;;
+        *.rar|*.cbr) unrar e "$file" "$dir" ;;
+    esac > /dev/null
+fi
+
+find "$dir" -type f | sort -V | sxiv "$@" -
