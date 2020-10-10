@@ -1,18 +1,5 @@
 #!/usr/bin/env sh
 fzf_select() {
-    local selected="$(ls-project "${fzf_select_flags:-"-z"}" "$@" | fzf --read0 --no-multi --preview 'preview {}' --preview-window=25%)"
-    [ -z "$selected" ] && return
-
-    if ! local dest="$(readlink -e "$selected")"; then
-        echo "error: failed to read symlink: $selected"
-    fi
-
-    if [ -d "$dest" ]; then
-        # shellcheck disable=SC2164
-        cd "$dest" || echo "error: failed to cd: $dest" >&2
-    elif [ -f "$dest" ]; then
-        ${VISUAL:-${EDITOR:-vi}} "$dest"
-    else
-        echo "error: don't know how to handle: $dest" >&2
-    fi
+    select_path "$(ls-project -z "$@" |
+                     fzf --read0 --no-multi --preview 'preview {}' --preview-window=25%)"
 }

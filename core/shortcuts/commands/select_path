@@ -1,0 +1,21 @@
+#!/usr/bin/env sh
+# try to handle the path at $1 in the best way possible, this could
+# mean changing the cwd or opening your EDITOR on the path.
+select_path() {
+    selected="$1"
+    [ -z "$selected" ] && return
+
+    if ! local dest="$(readlink -e "$selected")"; then
+        echo "error: failed to read symlink: $selected"
+    fi
+
+    if [ -d "$dest" ]; then
+        # shellcheck disable=SC2164
+        cd "$dest" || echo "error: failed to cd: $dest" >&2
+    elif [ -f "$dest" ]; then
+        ${VISUAL:-${EDITOR:-vi}} "$dest"
+    else
+        echo "error: don't know how to handle: $dest" >&2
+    fi
+}
+

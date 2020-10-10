@@ -178,6 +178,7 @@ qtemp       pushd $(mktemp -d)
 qt          pushd $(mktemp -d)
 etemp@file        $(mktemp)
 
+ca cd_fsmap
 # fuzzy jump to a new directory or to start editing a file.
 d fzf_cd
 D fzf_cd_all

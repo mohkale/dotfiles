@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+cd_fsmap() {
+    local dest=$(ls-fsdirmaps -re |
+      if hash column 2>/dev/null; then column -s : -t; else tr ':' ' '; fi |
+      fzf --no-multi --preview 'preview {}' --preview-window=25% |
+      cut -d ' ' -f 2- | sed 's/^ *//')
+
+    cd "$dest" || echo "error: failed to cd: $dest" >&2
+}
