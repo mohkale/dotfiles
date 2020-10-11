@@ -126,7 +126,6 @@ q7      pushd +7
 q8      pushd +8
 q9      pushd +9
 
-cdd@dir     -
 cd1@dir     ../
 cd2@dir     ../../
 cd3@dir     ../../../
@@ -177,8 +176,13 @@ ct          cd    $(mktemp -d)
 qtemp       pushd $(mktemp -d)
 qt          pushd $(mktemp -d)
 etemp@file        $(mktemp)
+cswap       cd -
+cs          cd -
+qswap       pushd -
+qs          pushd -
 
 ca cd_fsmap
+ce cd_env
 # fuzzy jump to a new directory or to start editing a file.
 d fzf_cd
 D fzf_cd_all

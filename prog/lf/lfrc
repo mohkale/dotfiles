@@ -388,7 +388,7 @@ cmd goto-fsmap ${{
             column -s : -t
         else
             # otherwise, just replace the seperator with tab
-            tr ':' '\t'
+            tr ':' ' '
         fi |
         fzf |
         cut -d ' ' -f 2- | sed 's/^ *//')
@@ -437,20 +437,15 @@ cmd goto-executable ${{
 # Offer every environment variable with an associated value
 # that points to an existing path. Selects the chosen path.
 cmd goto-environment ${{
-    target=$(printenv -0 |
-        tr -d '\n' |
-        tr '\0' '\n' |
-        while IFS='=' read -r var value; do
-            [ -e "$value" ] && echo "$var=$value"
-        done |
+    target=$(env-paths -d |
         if hash column 2>/dev/null; then
             # when available, try to tabulate the available paths.
             column -s = -t
         else
             # otherwise, just replace the seperator with tab
-            tr '=' '\t'
+            tr '=' ' '
         fi |
-        fzf |
+        fzf -d ' ' --preview 'preview {2..}' |
         cut -d ' ' -f 2- | sed 's/^ *//')
 
     if [ -n "$target" ]; then
