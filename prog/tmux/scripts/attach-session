@@ -15,6 +15,7 @@ while getopts 'h?d' option; do
     esac
 done
 
+fzf=$(if [ -n "$TMUX" ]; then echo "fzf-tmux"; else echo "fzf"; fi)
 sessions=$(tmux ls -F '#S:#{session_id}:#{session_created}:#{session_windows}')
 
 if [ -z "$sessions" ]; then
@@ -70,7 +71,7 @@ sessions=$(echo "$sessions" | awk -F':'         \
     printf(" ago)\n")
 }')
 
-choice=$(fzf-tmux -1 --exact --prompt="${PROMPT:-choose a session: }" <<< "$sessions")
+choice=$($fzf -1 --exact --prompt="${PROMPT:-choose a session: }" <<< "$sessions")
 
 if [ ! -z "$choice" ]; then
     # extract the session id from choice name

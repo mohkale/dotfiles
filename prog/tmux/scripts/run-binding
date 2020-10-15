@@ -25,6 +25,8 @@ while getopts 'rpvc' option; do
     esac
 done
 
+fzf=$(if [ -n "$TMUX" ]; then echo "fzf-tmux"; else echo "fzf"; fi)
+
 # bindings format is "key map values"
 bindings=$(tmux list-keys |
                awk -e 'match($0, "'$(echo "${maps[@]}" | tr " " "|")'") { print $0 }' |
@@ -37,7 +39,7 @@ bindings=$(paste -d' ' \
            <(awk -e '{ printf("%-'$(wc -L <<< "$tabulated_columns")'s \n",$0); }' <<< "$tabulated_columns") \
            <(cut -d' ' -f3- <<< "$bindings") | sort)
 
-binding=$(fzf-tmux -- --prompt="binding: " <<< "$bindings")
+binding=$($fzf -- --prompt="binding: " <<< "$bindings")
 [ -z "$binding" ] && exit 1 # fzf session cancelled by user
 
 read key map binding <<< "$binding"

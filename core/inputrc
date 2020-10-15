@@ -39,7 +39,8 @@ set vi-ins-mode-string "\1\e[6 q\2"
 $endif
 
 # some defaults / modifications for the emacs mode
-$if term!=dumb
+$if term=dumb
+$else
 $if mode=emacs
 "\C-h": backward-word
 "\C-l": forward-word

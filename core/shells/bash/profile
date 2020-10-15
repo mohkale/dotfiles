@@ -10,6 +10,7 @@ shopt -s globstar # enable **/* in shell globing
 shopt -s autocd   # cd to path automatically.
 shopt -s histappend # open history file as a, not w
 HISTCONTROL=ignoreboth # ignore duplicate lines or lines with spaces.
+bind 'set enable-bracketed-paste on' # allow paste with newlines
 
 # enable programmable completion features
 if ! shopt -oq posix; then

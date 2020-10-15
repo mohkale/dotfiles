@@ -51,4 +51,4 @@ __git_prompt() {
   printf "%s" "$b$r"
 }
 
-if [ -z "$ENTRY_POINT" ]; then __git_ps1; fi
+if [ -z "$ENTRY_POINT" ]; then __git_prompt; fi

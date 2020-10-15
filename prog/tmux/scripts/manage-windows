@@ -29,6 +29,8 @@ while getopts 'i@:glmsSrkh?' option; do
     esac
 done
 
+fzf=$(if [ -n "$TMUX" ]; then echo "fzf-tmux"; else echo "fzf"; fi)
+
 _select_window() {
     # select a window, output format is "session_id:window_id"
     local input=$(cat)
@@ -50,7 +52,7 @@ _select_window() {
         for (c=0; c < '$name_width' + '$wid_width' + 1 - session_width; c++) printf " "
 
         printf("%s\n", $4)
-    }' <<< "$input" | fzf-tmux --prompt="${PROMPT:-select window: }" "$@" | grep -Eo '[0-9]+,[0-9]+' | tr ',' ':'
+    }' <<< "$input" | $fzf --prompt="${PROMPT:-select window: }" "$@" | grep -Eo '[0-9]+,[0-9]+' | tr ',' ':'
 }
 select_window() {
     _select_window "$@" <<< "$windows"
@@ -93,7 +95,7 @@ windows=$(tmux list-windows -a -F "#{session_id}:#S:#I:#{window_name}" | cut -c 
 if [ -z "$windows" ]; then echo "no windows to operate on found" >&2; exit; fi
 
 if [ -z "$action" ]; then
-    action=$(echo -e "switch\nlink\nmove\nswap\nrename\nkill" | fzf-tmux --prompt="choose an action: ") || exit
+    action=$(echo -e "switch\nlink\nmove\nswap\nrename\nkill" | $fzf --prompt="choose an action: ") || exit
 fi
 
 case $action in

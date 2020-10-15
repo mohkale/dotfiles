@@ -53,15 +53,14 @@ emf     emacs-make-frame
 # TMUX
 t      tmux
 tt     tmuxinator
-tx     $TMUX_HOME/scripts/run-command
 ta     $TMUX_HOME/scripts/attach-session
-td     tmux detach
 t?     tmux show-options -g
-tm     tmux display-message
-tmvw   tmux move-window
+tM     tmux display-message
+tm     tmux show-messages
 tls    tmux ls
-trn    tmux rename-session
-trnw   tmux rename-window
+tn     tmux new-session
+# NOTE you can attach to an existing session with a new
+# name if you don't want to follow it. See [[https://unix.stackexchange.com/a/152280][here]].
 
 
 # Python Shortcuts
@@ -178,6 +177,7 @@ qt          pushd $(mktemp -d)
 etemp@file        $(mktemp)
 cswap       cd -
 cs          cd -
+cdd         cd -
 qswap       pushd -
 qs          pushd -
 
