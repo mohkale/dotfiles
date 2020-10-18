@@ -18,13 +18,50 @@
 #+HTML:   <a style="margin-left: 4px;" href="https://www.msys2.org/"><img src="https://img.shields.io/badge/msys-2019.05.24-blue?logo=microsoft"/></a>
 #+HTML:   <a style="margin-left: 4px;" href="https://www.archlinux.org/"><img src="https://img.shields.io/badge/Arch-BTW-blue?logo=arch%20linux"/></a>
 #+HTML:   <a style="margin-left: 4px;" href="https://ubuntu.com/"><img src="https://img.shields.io/badge/Ubuntu-20.04-orange?logo=ubuntu"></a>
-# #+HTML:   <a style="margin-left: 4px;" href="https://mohkale.github.io/dotfiles/"><img src="https://img.shields.io/website?down_message=down&label=docs&up_message=up&url=https%3A%2F%2Fmohkale.github.io%2Fpuddle%2F"/></a>
 #+HTML: </div>
 #+HTML: <p></p>
 
 My dotfile repository, happily brought to you by [[https://github.com/mohkale/dotty][dotty]] :book:.
 
-[[file:./.github/main.png]]
+[[file:./.github/main.png]].
+
+* Powered By
+#+HTML: <div align="left" style="display: flex; justify-content: flex-start">
+#+HTML:   <a style="margin-right: 4px;" href="prog/desktop/xorg"><img src="https://img.shields.io/badge/-Xorg-informational?style=for-the-badge&logo=X.Org&logoColor=white&color=EF7C2A"/></a>
+#+HTML:   <a style="margin-right: 4px;" href="prog/desktop/plasma"><img src="https://img.shields.io/badge/-Plasma-informational?style=for-the-badge&logo=KDE&logoColor=white&color=4FB4D8"/></a>
+
+#+HTML:   <a style="margin-right: 4px;" href="core/shells/zsh"><img src="https://img.shields.io/badge/-ZSH-informational?style=for-the-badge&logo=gnu-bash&logoColor=white&color=1C1D21"/></a>
+#+HTML:   <a style="margin-right: 4px;" href="core/shells/pwsh"><img src="https://img.shields.io/badge/-PWSH-informational?style=for-the-badge&logo=PowerShell&logoColor=white&color=4FB4D8"/></a>
+#+HTML:   <a style="margin-right: 4px;" href="core/shells/bash"><img src="https://img.shields.io/badge/-Bash-informational?style=for-the-badge&logo=gnu-bash&logoColor=white&color=EB3D54"/></a>
+#+HTML:   <a style="margin-right: 4px;" href="prog/tmux"><img src="https://img.shields.io/badge/-tmux-informational?style=for-the-badge&logo=gnu-bash&logoColor=white&color=78BD65"/></a>
+#+HTML:   <a style="margin-right: 4px;" href="prog/st"><img src="https://img.shields.io/badge/-st-informational?style=for-the-badge&logo=gnu-bash&logoColor=white&color=1C1D21"/></a>
+
+#+HTML:   <a style="margin-right: 4px;" href="prog/editors/vim"><img src="https://img.shields.io/badge/-Vim-informational?style=for-the-badge&logo=vim&logoColor=white&color=78BD65"/></a>
+#+HTML:   <a style="margin-right: 4px;" href="prog/editors/emacs"><img src="https://img.shields.io/badge/-Emacs-informational?style=for-the-badge&logo=GNU%20Emacs&logoColor=white&color=BA78AB"/></a>
+
+#+HTML:   <a style="margin-right: 4px;" href="prog/games/gog"><img src="https://img.shields.io/badge/-GOG-informational?style=for-the-badge&logo=GOG.com&logoColor=white&color=BA78AB"/></a>
+#+HTML:   <a style="margin-right: 4px;" href="prog/games/steam"><img src="https://img.shields.io/badge/-Steam-informational?style=for-the-badge&logo=Steam&logoColor=white&color=1C1D21"/></a>
+
+#+HTML:   <a style="margin-right: 4px;" href="prog/langs/go"><img src="https://img.shields.io/badge/-Go-informational?style=for-the-badge&logo=go&logoColor=white&color=4FB4D8"/></a>
+#+HTML:   <a style="margin-right: 4px;" href="prog/langs/python"><img src="https://img.shields.io/badge/-Python-informational?style=for-the-badge&logo=python&logoColor=white&color=EF7C2A"/></a>
+#+HTML:   <a style="margin-right: 4px;" href="prog/langs/rust"><img src="https://img.shields.io/badge/-Rust-informational?style=for-the-badge&logo=rust&logoColor=white&color=EF7C2A"/></a>
+#+HTML:   <a style="margin-right: 4px;" href="prog/langs/haskell"><img src="https://img.shields.io/badge/-Haskell-informational?style=for-the-badge&logo=Haskell&logoColor=white&color=BA78AB"/></a>
+#+HTML:   <a style="margin-right: 4px;" href="prog/langs/node"><img src="https://img.shields.io/badge/-Node-informational?style=for-the-badge&logo=Node.js&logoColor=white&color=78BD65"/></a>
+#+HTML:   <a style="margin-right: 4px;" href="prog/langs/ruby"><img src="https://img.shields.io/badge/-Ruby-informational?style=for-the-badge&logo=ruby&logoColor=white&color=EB3D54"/></a>
+
+#+HTML:   <a style="margin-right: 4px;" href="prog/browsers/brave"><img src="https://img.shields.io/badge/-Brave-informational?style=for-the-badge&logo=Brave&logoColor=white&color=EF7C2A"/></a>
+#+HTML:   <a style="margin-right: 4px;" href="prog/browsers/tor"><img src="https://img.shields.io/badge/-Tor-informational?style=for-the-badge&logo=Tor%20Browser&logoColor=white&color=BA78AB"/></a>
+#+HTML:   <a style="margin-right: 4px;" href="prog/browsers/firefox"><img src="https://img.shields.io/badge/-Firefox-informational?style=for-the-badge&logo=Firefox%20Browser&logoColor=white&color=EF7C2A"/></a>
+
+#+HTML:   <a style="margin-right: 4px;" href="prog/media/itunes"><img src="https://img.shields.io/badge/-iTunes-informational?style=for-the-badge&logo=iTunes&logoColor=white&color=BA78AB"/></a>
+#+HTML:   <a style="margin-right: 4px;" href="prog/media/vlc"><img src="https://img.shields.io/badge/-VLC-informational?style=for-the-badge&logo=VLC%20media%20player&logoColor=white&color=EF7C2A"/></a>
+#+HTML:   <a style="margin-right: 4px;" href="prog/rtorrent"><img src="https://img.shields.io/badge/-rtorrent-informational?style=for-the-badge&logo=Tor&logoColor=white&color=EB3D54"/></a>
+#+HTML:   <a style="margin-right: 4px;" href="prog/transmission"><img src="https://img.shields.io/badge/-transmission-informational?style=for-the-badge&logo=Tor&logoColor=white&color=1C1D21"/></a>
+#+HTML:   <a style="margin-right: 4px;" href="prog/sxiv"><img src="https://img.shields.io/badge/-sxiv-informational?style=for-the-badge&logo=Imgur&logoColor=white&color=45474F"/></a>
+#+HTML:   <a style="margin-right: 4px;" href="prog/wsl"><img src="https://img.shields.io/badge/-WSL-informational?style=for-the-badge&logo=Linux&logoColor=white&color=78BD65"/></a>
+#+HTML:   <a style="margin-right: 4px;" href="prog/dropbox"><img src="https://img.shields.io/badge/-Dropbox-informational?style=for-the-badge&logo=Dropbox&logoColor=white&color=4FB4D8"/></a>
+#+HTML:   <a style="margin-right: 4px;" href="prog/gimp"><img src="https://img.shields.io/badge/-GIMP-informational?style=for-the-badge&logo=GIMP&logoColor=white&color=45474F"/></a>
+#+HTML: </div>
 
 * Installation
   =git clone https://github.com/mohkale/dotfiles ~/.dotfiles && cd ~/.dotfiles && ./manage install=.
