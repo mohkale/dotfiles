@@ -20,3 +20,6 @@
 	path = prog/bat/an-old-hope
 	url = https://github.com/mohkale/an-old-hope-sublime
 	branch = master
+[submodule "prog/sxiv/sxiv"]
+	path = prog/sxiv/sxiv
+	url = git@github.com:mohkale/sxiv.git
