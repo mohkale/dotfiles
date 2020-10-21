@@ -1,0 +1,58 @@
+# Default config for imv
+
+[options]
+
+# Suppress built-in key bindings, and specify them explicitly in this
+# config file.
+suppress_default_binds = true
+
+[aliases]
+# Define aliases here. Any arguments passed to an alias are appended to the
+# command.
+# alias = command to run
+
+[binds]
+# sxiv like bindings
+n = next
+p = prev
+<bracketleft> = prev 10
+<bracketright> = next 10
+gg = goto 0
+<Shift+G> = goto -1
+
+# Define some key bindings
+q = quit
+y = exec echo working!
+
+# Panning
+<Up> = pan 0 50
+<Down> = pan 0 -50
+<Left> = pan 50 0
+<Right> = pan -50 0
+j = pan 0 -50
+k = pan 0 50
+h = pan 50 0
+l = pan -50 0
+
+# Zooming
+<Shift+plus> = zoom 1
+<minus> = zoom -1
+e = zoom actual
+
+# Other commands
+x = close
+f = fullscreen
+d = overlay
+# p = exec echo $imv_current_file
+c = center
+s = scaling next
+<Shift+S> = upscaling next
+r = reset
+
+# Gif playback
+<period> = next_frame
+<space> = toggle_playing
+
+# Slideshow control
+t = slideshow +1
+<Shift+T> = slideshow -1
