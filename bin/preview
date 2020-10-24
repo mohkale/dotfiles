@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# original source [[https://github.com/gokcehan/lf/wiki/Ranger][here]].
+# Usage: preview [path] [height] [width] [x] [y]
+# Script to preview files/dirs in your terminal. Original source [[https://github.com/gokcehan/lf/wiki/Ranger][here]].
 
 set -C -f -u
 IFS=$'\n'
@@ -9,6 +10,7 @@ IFS=$'\n'
 
 # Script arguments
 FILE_PATH="$1"         # Full path of the highlighted file
+X="${4:-0}" Y="${5:-0}" COLS="${3:-$(tput cols  || echo 100)}" ROWS="${2:-$(tput lines || echo 100)}"
 
 FILE_EXTENSION="${FILE_PATH##*.}"
 FILE_EXTENSION_LOWER=$(tr '[:upper:]' '[:lower:]' <<< "$FILE_EXTENSION")
@@ -105,10 +107,15 @@ do_DSDIFF() {
 }
 
 # Preview as text conversion
+[ -n "${KITTY:-}" ] && kitty +kitten icat --clear --transfer-mode file --silent
 do_img() {
+    if [ -n "${KITTY:-}" ]; then
+        local dest="${COLS}x${ROWS}@${X}x${Y}"
+        kitty +kitten icat --transfer-mode file --silent --place "$dest" "$1" && exit
+    fi
     # viu -- "$FILE_PATH" && exit
     # img2txt --gamma=0.6 -- "$FILE_PATH" && exit
-    exiftool "$FILE_PATH" && exit
+    exiftool "$1" && exit
 }
 
 do_text() {
