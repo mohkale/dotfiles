@@ -1,0 +1,143 @@
+#!/usr/bin/bash
+# see: https://misc.flogisoft.com/bash/tip_colors_and_formatting
+
+reset="\e[0m"
+
+number_to_attribute() { # NUMBER
+    # you can chain these attributes together
+    # by seperating them with ; before the m.
+    case "$1" in
+        0)   echo "reset all" ;;
+        1)   echo "bold" ;;
+        2)   echo "dim" ;;
+        4)   echo "underlined" ;;
+        5)   echo "blink" ;;
+        7)   echo "reverse" ;;
+        8)   echo "hidden" ;;
+        # specialised reset
+        21)  echo "reset bold" ;;
+        22)  echo "reset dim" ;;
+        24)  echo "reset underlined" ;;
+        25)  echo "reset blink" ;;
+        27)  echo "reset reverse" ;;
+        28)  echo "reset hidden" ;;
+        # foreground colors
+        39)  echo "FG default" ;;
+        30)  echo "FG black" ;;
+        31)  echo "FG red" ;;
+        32)  echo "FG green" ;;
+        33)  echo "FG yellow" ;;
+        34)  echo "FG blue" ;;
+        35)  echo "FG magenta" ;;
+        36)  echo "FG cyan" ;;
+        37)  echo "FG light grey" ;;
+        90)  echo "FG dark grey" ;;
+        91)  echo "FG light red" ;;
+        92)  echo "FG light green" ;;
+        93)  echo "FG light yellow" ;;
+        94)  echo "FG light blue" ;;
+        95)  echo "FG light magenta" ;;
+        96)  echo "FG light cyan" ;;
+        97)  echo "FG white" ;;
+        # background colors
+        49)  echo "BG default" ;;
+        40)  echo "BG black" ;;
+        41)  echo "BG red" ;;
+        42)  echo "BG green" ;;
+        43)  echo "BG yellow" ;;
+        44)  echo "BG blue" ;;
+        45)  echo "BG magenta" ;;
+        46)  echo "BG cyan" ;;
+        47)  echo "BG light gray" ;;
+        100) echo "BG dark gray" ;;
+        101) echo "BG light red" ;;
+        102) echo "BG light green" ;;
+        103) echo "BG light yellow" ;;
+        104) echo "BG light blue" ;;
+        105) echo "BG light magenta" ;;
+        106) echo "BG light cyan" ;;
+        107) echo "BG white" ;;
+    esac
+}
+
+8bit_list() {
+    # list all the 8/16 bit colors in order, line by line
+    for i in {0..2} 4 5 7 {30..37} {40..47} {90..97} {100..107}; do
+        value=$(number_to_attribute $i)
+
+        if [ ! -z "$value" ]; then
+            printf "%-6s \e[${i}m$value$reset\n" "^[${i}m"
+        fi
+    done
+}
+
+8bit_matrix() {
+    # combine every attribute with every fg and bg pair
+    for clbg in {40..47} {100..107} 49; do
+        for clfg in {30..37} {90..97} 39 ; do
+            for attr in 0 1 2 4 5 7 ; do
+                printf "\e[${attr};${clbg};${clfg}m%15s$reset" "^[${attr};${clbg};${clfg}m"
+            done
+            echo #Newline
+        done
+    done
+}
+
+256bit_list() {
+    for fg_or_bg in 38 48 ; do # 38 for foreground, 48 for background
+        for color in {0..255} ; do # colors in the range of 256 bits
+            printf "%-6s \e[${fg_or_bg};5;%sm  %3s  $reset\n" "\e[${fg_or_bg};5;${color}m" "$color" "$color"
+            [ $((($color + 1) % 6)) == 4 ] && echo # \n every 6 colors
+        done
+    done
+}
+
+256bit_matrix() {
+    for fg_or_bg in 38 48 ; do # 38 for foreground, 48 for background
+        for color in {0..255} ; do # colors in the range of 256 bits
+            printf "\e[${fg_or_bg};5;%sm  %3s  \e[0m" $color $color
+            [ $((($color + 1) % 6)) == 4 ] && echo # \n every 6 colors
+        done
+    done
+}
+
+print_usage() {
+    echo "Usage: $(basename "$0") [-h] [-8|-x] [-i|-m]"
+}
+
+print_help() {
+    print_usage
+    echo ""
+    echo "List color spectrum for your curren terminal."
+    echo ""
+    echo "Optional Arguments:"
+    echo "  -h         Print this help message and exit"
+    echo "  -i | -m    Display ansi values inline or a matrix"
+    echo "  -8 | -x    Display only 16/256 bit ansi values"
+}
+
+case "$TERM" in
+    *-256color) eight_bit=0 ;;
+    *)          eight_bit=1 ;;
+esac
+
+inline=0 # draw as a matrix by default
+
+while getopts 8ximh option; do
+    case "$option" in
+        8) eight_bit=1 ;;
+        x) eight_bit=0 ;;
+        i) inline=1 ;;
+        m) inline=0 ;;
+        h) print_help
+           exit 0 ;;
+        \?) print_help >&2
+            exit 1 ;;
+    esac
+done
+
+if [ "$eight_bit" -eq 1 ]; then
+    if [ $inline -eq 0 ]; then 8bit_matrix; else 8bit_list; fi
+else
+    if [ $inline -eq 0 ]; then 256bit_matrix; else 256bit_list; fi
+fi
