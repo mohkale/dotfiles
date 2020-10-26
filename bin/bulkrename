@@ -38,6 +38,10 @@ function print_help {
     echo "              (enabled by default)."
     echo "  -y, --no-confirm"
     echo "              don't confirm operations before executing them."
+    echo "  -x, --pre-command"
+    echo "              automatically run pre-command on script before opening editor"
+    echo ""
+    echo "Scripts:"
     echo "  -m SCRIPT, --move-script SCRIPT"
     echo "              override the default rename command with this bash script"
     echo "  -t SCRIPT, --trash-script SCRIPT"
@@ -60,6 +64,7 @@ editor="${VISUAL:-$EDITOR:-vi}" # a sane choice
 index=$(get_temp index)
 move_script=''
 trash_script=''
+pre_command=''
 
 if [ "$#" -eq 0 ]; then
     print_help
@@ -96,6 +101,9 @@ while [ "$#" -gt 0 ]; do
             shift ;;
         -t|--trash-script)
             trash_script="$1"
+            shift ;;
+        -x|--pre-command)
+            pre_command="$1"
             shift ;;
         # file lists
         -) cat >> "$index"
@@ -165,6 +173,13 @@ fi
 
 index_edit=$(get_temp edit)
 cat "$index" > "$index_edit"
+
+if [ -n "$pre_command" ]; then
+    if ! sh -c -- "$pre_command" "precom" "$index_edit"; then
+        echo "bulkrename: error: pre command failed" >&2
+        exit 1
+    fi
+fi
 
 editor_flags=""
 if [ -n "$select" ]; then
