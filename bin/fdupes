@@ -1,0 +1,214 @@
+#!/usr/bin/env python3
+"""
+A script to find and group duplicate files.
+
+For example, if you have 6 files {00..06}.png where 00.png and 05.png
+have the exact same file contents, running this program on them will
+produce:
+
+> 00.png:05.png
+> 01.png
+> 02.png
+> 03.png
+> 04.png
+> 06.png
+
+This program tries to be smart about how it compares files, first grouping
+by hash and then comparing by either file inode or file contents to assert
+whether two files are duplicates of each other.
+
+For example, to get the list of all duplicate files excluding the first none
+duplicate file, you can run: fdupes - -o | cut -d ':' -f 2- | tr ':' '\n'
+
+# fdupes
+This script isn't a reimplementation of [[https://linux.die.net/man/1/fdupes][fdupes]]. It lacks any mechanism
+for file traversal or symlink following etc. Rather than building such
+functionality into this script, I recommend using find or fd.
+
+For example: find ~/multifolder/ -type f | fdupes -
+
+If you prefer the readable output format of the existing fdupes utility
+you can set flags to get a similair affect: fdupes -r '\n\n' -s '\n'.
+
+The following command produces exactly the same output as the equivelant
+fdupes command: find ~/multifolder/ -type f | fdupes - -r '\n\n' -s '\n' -o
+"""
+
+import os
+import io
+import logging
+
+import filecmp
+import hashlib
+import itertools
+import collections
+
+def is_duplicate(f1, f2):
+    """Assert whether two files are equal.
+    assumes f1!=f2
+    """
+    # perform a shallow check first and a full check only
+    # when the shallow check fails.
+    # ( get_hash(f1) == get_hash(f2) and
+    return filecmp.cmp(f1, f2, shallow=True) or \
+          filecmp.cmp(f1, f2, shallow=False)
+
+_get_hash_type = collections.namedtuple('HashType', ['hash', 'time'])
+def get_hash(fp, mem={}):
+    """Get the hash for the file at `fp'.
+    Employs a caching mechanism to avoid recalculating the
+    hash for a file you've already supplied. The cache is
+    invalidated if the file pointed to by `fp' has been
+    modified since we last calculated a hash value.
+    """
+    logging.debug('Getting hash for file: %s', fp)
+    mtime = os.stat(fp).st_mtime
+    if fp not in mem or mtime != mem[fp].time:
+        logging.debug('Hash not in memory, generating from file path')
+        with open(fp, 'rb') as fd:
+            hasher = hashlib.md5()
+            for chunk in iter(lambda: fd.read(4096), b""):
+                hasher.update(chunk)
+            fp_hash = hasher.hexdigest()
+        mem[fp] = _get_hash_type(fp_hash, mtime)
+
+    return mem[fp].hash
+
+def group_equals(iterable, key=lambda a, b: a == b):
+    """Group equivalent elements together in a collection.
+    Uses key to determine whether two elements are equal.
+
+    This implementation assumes transativity in key func,
+    I.E. for arr = [1,1], arr[0] == arr[1] -> arr[1] == arr[0].
+    """
+    groups = []
+    for it in iterable:
+        for i in range(len(groups)):
+            if key(groups[i][0], it):
+                groups[i].append(it)
+                break
+        else:
+            groups.append([it])
+    return groups
+
+def gen_dups(paths):
+    # Turns out itertools.groupby only groups sequentially matching items
+    # like `uniq`. We're gonna have to find and keep track of all the file
+    # hashes in advance until I get a chance to implement a lazy groupby.
+    hashes = {}
+    for fp in paths:
+        try:
+            hashes[fp] = get_hash(fp)
+        except:
+            logging.exception('Failed to get hash for file at path: %s', fp)
+    paths = sorted(hashes.keys(), key=hashes.__getitem__)
+
+    for fhash, path_gen in itertools.groupby(paths, key=hashes.__getitem__):
+        # we have a list of files that have the same hash, now we need
+        # to group files that're identicle together. There's no guarantee
+        # that the same hash leads to the same file.
+        for eq_paths in group_equals(path_gen, key=is_duplicate):
+            yield fhash, eq_paths
+
+if __name__ == '__main__':
+    import sys
+    import codecs
+    import argparse
+
+    def parse_args():
+        parser = argparse.ArgumentParser(
+            formatter_class=argparse.RawDescriptionHelpFormatter,
+            description = """
+Compare and group duplicate files.
+            """.strip()
+        )
+
+        read_group = parser.add_argument_group('Read Paths')
+        read_group.add_argument('path', nargs='*', help='Specify paths to check.')
+        read_group.add_argument('-', '--stdin', action='store_true',
+                                help='Read paths to check from stdin.')
+
+        output_group = parser.add_argument_group('Output',
+                                                 description="""
+Configure how this program outputs results. By default it joins
+each equal file with a field seperator (:) and seperates unequal
+files with row seperator (\\n).
+                                                 """.strip())
+        output_group.add_argument('-s', '--field-seperator',
+                                  default=':', metavar='SEP',
+                                  help='Seperator for identicle files in the same column')
+        output_group.add_argument('-r', '--row-seperator',
+                                  default='\n', metavar='SEP',
+                                  help='Seperator for identicle files in the same column')
+
+        # dup_pred_group = output_group.add_argument_group()
+        dup_pred_group = output_group.add_mutually_exclusive_group()
+        dup_pred_group.add_argument('-o', '--only',
+                                    action='store_true', dest='only_duplicates',
+                                    help='Only print files with at least one duplicate.')
+        dup_pred_group.add_argument('-O', '--except',
+                                    action='store_true', dest='no_duplicates',
+                                    help='Only print files that have no duplicates.')
+
+        logging_group = parser.add_argument_group('Logging')
+        logging_group.add_argument('-l', '--log-level', metavar='LEVEL',
+                                    type=lambda X: getattr(logging, X.upper()),
+                                    default=logging.INFO, help='Level of logging output.')
+        logging_group.add_argument('-L', '--log-file', metavar='FILE', default=sys.stderr,
+                                   help='File to write log to. defaults to stderr.')
+        logging_group.add_argument('-C', '--no-color', dest='log_color', action='store_false',
+                                   help='Disable coloring of logging output.')
+
+        args  = parser.parse_args()
+        vargs = vars(args)
+
+        if args.stdin:
+            args.path = itertools.chain(args.path, map(lambda x: x.rstrip(os.linesep), sys.stdin))
+
+        args.field_seperator = codecs.decode(args.field_seperator, 'unicode_escape')
+        args.row_seperator = codecs.decode(args.row_seperator, 'unicode_escape')
+
+        return args, vargs, parser
+
+    def setup_logger(log_fd, level, color=True):
+        """Setup a prettier, [[https://github.com/rs/zerolog][zerolog]] like logger for the console."""
+        black    = "\x1b[30m"
+        red      = "\x1b[31m"
+        green    = "\x1b[32m"
+        yellow   = "\x1b[33m"
+        # blue     = "\x1b[34m"
+        # magenta  = "\x1b[35m"
+        # cyan     = "\x1b[36m"
+        # white    = "\x1b[37m"
+        bold_red = "\x1b[31;1m"
+        reset    = "\x1b[0m"
+
+        log_format = (black if color else '') + '%(asctime)s ' + (reset if color else '') \
+            + '%(levelname)s %(message)s'
+
+        logging.addLevelName(logging.DEBUG,    (yellow   if color else '') + 'DBG' + (reset if color else ''))
+        logging.addLevelName(logging.INFO,     (green    if color else '') + 'INF' + (reset if color else ''))
+        logging.addLevelName(logging.WARNING,  (yellow   if color else '') + 'WRN' + (reset if color else ''))
+        logging.addLevelName(logging.ERROR,    (red      if color else '') + 'ERR' + (reset if color else ''))
+        logging.addLevelName(logging.CRITICAL, (bold_red if color else '') + 'CRT' + (reset if color else ''))
+
+        logging_args = {
+            'level': level,
+            'format': log_format,
+            'datefmt': '%H:%M%p',
+        }
+        if isinstance(log_fd, io.TextIOWrapper):
+            logging_args['stream'] = log_fd
+        else:
+            logging_args['handlers'] = [logging.FileHandler(log_fd, 'a', 'utf-8')]
+
+        logging.basicConfig(**logging_args)
+
+    args, vargs, parser = parse_args()
+    setup_logger(vargs.pop('log_file'), vargs.pop('log_level'), vargs.pop('log_color'))
+
+    for _, fs in gen_dups(args.path):
+        if args.only_duplicates and len(fs) == 1 or\
+           args.no_duplicates and len(fs) != 1:
+            continue
+        print(args.field_seperator.join(fs), end=args.row_seperator)
