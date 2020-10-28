@@ -9,10 +9,14 @@ else # All other shells: examine $0 for known shell binary filenames
     case ${0##*/} in sh|dash) sourced=1;; esac
 fi
 
+set -e
+
 inline=0
-ignore=0
 prettify=0
 editor=${EDITOR:-vi}
+# generated aliases will be cached here.
+cache_dir="$XDG_CACHE_HOME/aliases/"
+[ -e "$cache_dir" ] || mkdir -p "$cache_dir"
 
 print_usage() {
     echo 'Usage: eval "$(build_shortcuts.sh [-1] [-i] [-P] [-e EDITOR] FILE [FILE...])"'
@@ -24,20 +28,17 @@ print_usage() {
     echo ""
     echo "Optional Arguments:"
     echo "  -1         output all aliases in a single line"
-    echo "  -i         don't cancel program if one of FILEs doesn't exist"
     echo "  -p/-P      prettify outputed aliases; this'll probably break"
     echo "  -e EDITOR  set the editor used for file aliases"
 }
 
-while getopts "hi1e:Pp" option; do
+while getopts "hi1e:PpC" option; do
     case "$option" in
         h) print_usage
            exit 0 ;;
         \?) print_usage >&2
             exit 1 ;;
         1) inline=1
-           ;;
-        i) ignore=1
            ;;
         e) editor=$OPTARG
            ;;
@@ -50,7 +51,7 @@ done
 
 shift $(($OPTIND - 1))
 
-read_scripts() { #(*files)
+read_script() { #(*files)
     cat "$@" | sed -r - -e ':x /\\$/ { N; s/\\\n//g ; bx }' \
                         -e 's/#.*$//'                       \
                         -e '/^\s+/s/^\s+//'                 \
@@ -63,7 +64,7 @@ read_scripts() { #(*files)
     #  * https://www.gnu.org/software/sed/manual/html_node/Joining-lines.html
 }
 
-create_aliases() { #(*files)
+parse_aliases() {
     while read -r cut dest; do
         # available tags:
         #  @file create a file shortcut, invoking it opens editor with it.
@@ -84,7 +85,27 @@ create_aliases() { #(*files)
             *) echo alias ${cut@Q}=${dest@Q}
                ;;
         esac
-    done < <(read_scripts "$@") | if [ "$prettify" -eq 1 ]; then sed "s/''//g"; else cat; fi
+    done
+}
+
+create_aliases() { #(*files)
+    for file in "$@"; do
+        if ! [ -r "$file" -a -f "$file" ]; then
+            echo "build-aliases(error) : shortcut file '$file' is not readable" >&2
+            continue
+        fi
+
+        # check if generated cache exists and use it instead.
+        base=$(basename -- "$file")
+        cached="$cache_dir/$base"
+        if [ -e "$cached" -a "$cached" -nt "$file" ]; then
+            cat -- "$cached"
+            continue
+        fi
+
+        # generate aliases and then save back to cache
+        read_script "$file" | parse_aliases | tee "$cache_dir/$base"
+    done | if [ "$prettify" -eq 1 ]; then sed "s/''//g"; else cat; fi
 }
 
 _inline_alias_calls() {
@@ -93,28 +114,16 @@ _inline_alias_calls() {
 
     cat | sed 's/^alias //' \
         | tr '\n' ' '       \
-        | awk -e 'BEGIN { printf "alias " }' -e '{ printf("%s", $0) }' -e 'END { printf "\n" }'
+        | awk -e 'BEGIN { printf "alias " }' \
+              -e '{ printf("%s", $0) }' \
+              -e 'END { printf "\n" }'
 }
 
 main() {
-    failed=0
-
-    for file in "$@"; do
-        if [ ! -e "$file" ]; then
-            echo "build_shortcuts(error) : shortcut path '$file' not found" >&2
-            failed=1
-        elif [ ! -f "$file" ]; then
-            echo "build_shortcuts(error) : shortcut path '$file' is not a file" >&2
-            failed=1
-        elif [ ! -r "${file}" ]; then
-            echo "build_shortcuts(error) : shortcut file '$file' is not readable" >&2
-            failed=1
-        fi
-    done
-
-    [ "$failed" -eq 1 -a "$ignore" -eq 0 ] && exit 1
-
-    create_aliases "$@" | if [ "$inline" -eq 1 ]; then _inline_alias_calls; else cat; fi
+    create_aliases "$@" |
+        if [ "$inline" -eq 1 ]; then _inline_alias_calls; else cat; fi
 }
 
-[ "${sourced:-0}" -eq 0 ] && main "$@"
+if [ "${sourced:-0}" -eq 0 ]; then
+    main "$@"
+fi

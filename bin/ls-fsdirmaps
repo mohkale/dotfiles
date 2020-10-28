@@ -31,9 +31,8 @@ while getopts 'hre' option; do
   esac
 done
 
-
 . build-aliases
-read_scripts $(ls-aliases) |
+read_script $(ls-aliases) |
   sed 's/ \+/:/' |
   while IFS=':' read -r key path; do
     case "$key" in
