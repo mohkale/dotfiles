@@ -230,12 +230,11 @@ set -g status-right-length 40
 set -g status-right-style default
 
 # script bindings
-bind C-a run -b "$TMUX_HOME/scripts/attach-session"
-bind C-b run -b "$TMUX_HOME/scripts/run-binding -rpv"
+bind A run -b "$TMUX_HOME/scripts/attach-session"
+bind B run -b "$TMUX_HOME/scripts/run-binding -rpv"
 # bind M-a run -b "$TMUX_HOME/scripts/manage-windows -s"
 # bind M-w run -b "$TMUX_HOME/scripts/manage-windows"
-bind w   run -b "$TMUX_HOME/scripts/manage-windows -i"
-bind C-x run -b "$TMUX_HOME/scripts/run-command"
-bind x   run -b "$TMUX_HOME/scripts/run-command"
+bind W run -b "$TMUX_HOME/scripts/manage-windows -i"
+bind X run -b "$TMUX_HOME/scripts/run-command"
 
 # bind Enter set-window-option mouse # for some reason, can only be bound at EOF

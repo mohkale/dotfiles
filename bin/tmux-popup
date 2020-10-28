@@ -1,0 +1,249 @@
+#!/usr/bin/env bash
+# A [[https://github.com/junegunn/fzf/blob/246b9f313085fac4c9c84cf8bf55cc8a8fc29482/bin/fzf-tmux][fzf-tmux]] like script designed to support tmux's new [[https://github.com/tmux/tmux/issues/1842][floating window]] feature.
+# This script accepts a command line, runs it in a new tmux popup (or window if
+# the current tmux version doesn't support popups) and then echoes out the
+# commands stdout.
+#
+# This script is largely just an edit of the existing fzf-tmux script from commit
+# 246b9f. A list of changes include:
+# - Removal of uniquely fzf targeting logic. This script is generic, use it
+#   to create run a command in a tmux popup or the current shell if you're
+#   not in tmux.
+# - Replacement of [[]] with POSIX shell [] where possible. This is mostly to
+#   avoid interference with emacs org-mode links.
+# - Various quoting and other issues pointed out by shell check.
+#
+# I'll try to maintain compatibility with the upstream fzf-tmux script, but frankly
+# there's a lot about this script I don't understand. Partly because of bashisms and
+# partly because it's not very legible.
+
+fail() {
+  >&2 echo "$1"
+  exit 2
+}
+
+tmux_args=()
+args=()
+opt=""
+skip=""
+swap=""
+close=""
+term=""
+
+[ -n "$LINES"   ] && lines=$LINES     || lines=$(tput lines)  || lines=$(tmux display-message -p "#{pane_height}")
+[ -n "$COLUMNS" ] && columns=$COLUMNS || columns=$(tput cols) || columns=$(tmux display-message -p "#{pane_width}")
+
+usage() {
+  echo "Usage: tmux-popup [--help] [-] [-p|-P] [-x COL] [-y ROW]"
+  echo "                  [-h HEIGHT[%]] [-w WIDTH[%]]"
+  echo "                  [-u HEIGHT[%]] [-l WIDTH[%]]"
+  echo "                  [-d HEIGHT[%]] [-r WIDTH[%]]"
+  echo "                  [--] SUCOMMAND [OPTS]"
+}
+
+help() {
+  usage
+  echo ""
+  echo "Optional Arguments:"
+  echo "  -                  Treat current stdin as tty even when it isn't."
+  echo "  -p|-P              Toggle use of popup windows (requires tmux >= 3.2)"
+  echo ""
+  echo "Popup Options:"
+  echo "  -w   WIDTH[%]      Set the width of the popup window"
+  echo "  -h   HEIGHT[%]     Set the height of the popup window"
+  echo "  -x   COL           Set the column position of the popup"
+  echo "  -y   ROW           Set the row position of the popup"
+  echo ""
+  echo "Split Pane Options:"
+  echo "  -u [HEIGHT[%]]     Split window above (up)"
+  echo "  -d [HEIGHT[%]]     Split window below (down)"
+  echo "  -l [WIDTH[%]]      Split window to the left"
+  echo "  -r [WIDTH[%]]      Split window to the right"
+}
+
+# detect whether popup support is available and enable it by default.
+[ "$(tmux -V | grep -o '[[:digit:]].[[:digit:]]' | tr -d .)" -gt 32 ] && opt="-K -E"
+
+while [ "$#" -gt 0 ]; do
+  arg="$1"
+  shift
+  [ -z "$skip" ] && case "$arg" in
+    --help)
+      help
+      exit 0
+      ;;
+    # toggle popup usage
+    -p) [[ "$opt" =~ "-K -E" ]] || opt="-K -E" ;;
+    -P) opt="${opt//-K -E}" ;;
+    # redirect current stdin to subcommand
+    -) term=1
+       ;;
+    # configure popup/split features.
+    -w*|-h*|-x*|-y*|-d*|-u*|-r*|-l*)
+      if [[ "$arg" =~ ^-[whxy] ]]; then
+        [[ "$opt" =~ "-K -E" ]] || opt="-K -E"
+      elif [[ "$arg" =~ ^.[lr] ]]; then
+        opt="-h"
+        if [[ "$arg" =~ ^.l ]]; then
+          opt="$opt -d"
+          swap="; swap-pane -D ; select-pane -L"
+          close="; tmux swap-pane -D"
+        fi
+      else
+        opt=""
+        if [[ "$arg" =~ ^.u ]]; then
+          opt="$opt -d"
+          swap="; swap-pane -D ; select-pane -U"
+          close="; tmux swap-pane -D"
+        fi
+      fi
+      if [ "${#arg}" -gt 2 ]; then
+        size="${arg:2}"
+      else
+        if [[ "$1" =~ ^[0-9%,]+$ ]] || [[ "$1" =~ ^[A-Z]$ ]]; then
+          size="$1"
+          shift
+        else
+          continue
+        fi
+      fi
+
+      if [[ "$arg" =~ ^-[whxy] ]]; then
+        opt="$opt ${arg:0:2}$size"
+      elif [[ "$size" =~ %$ ]]; then
+        size=${size:0:((${#size}-1))}
+        if [ -n "$swap" ]; then
+          opt="$opt -p $(( 100 - size ))"
+        else
+          opt="$opt -p $size"
+        fi
+      else
+        if [ -n "$swap" ]; then
+          if [[ "$arg" =~ ^.l ]]; then
+            max=$columns
+          else
+            max=$lines
+          fi
+          size=$(( max - size ))
+          [ "$size" -lt 0 ] && size=0
+          opt="$opt -l $size"
+        else
+          opt="$opt -l $size"
+        fi
+      fi
+      ;;
+    --)
+      # "--" can be used to separate this scripts options from subcommand options.
+      skip=1
+      tmux_args=( "${args[@]}" )
+      args=( )
+      continue
+      ;;
+    *)
+      args+=( "$arg" )
+      ;;
+  esac
+  [ -n "$skip" ] && args+=("$arg")
+done
+
+if [ "${#args[@]}" -eq 0 ]; then
+  echo "tmux-popup: warn: no command to spawn found. defaulting to sh" >&2
+  args=( sh -i )
+fi
+
+if [ -z "$TMUX" ]; then
+  echo "tmux-popup: warn: not running inside tmux" >&2
+  "${args[@]}"
+  exit $?
+fi
+
+# Handle zoomed tmux pane without popup options by moving it to a temp window
+if [[ ! "$opt" =~ "-K -E" ]] && tmux list-panes -F '#F' | grep -q Z; then
+  zoomed_without_popup=1
+  original_window=$(tmux display-message -p "#{window_id}")
+  tmp_window=$(tmux new-window -d -P -F "#{window_id}" "bash -c '
+  while :; do
+    for c in \\| / - '\\;' do
+      sleep 0.2
+      printf \"\\r\$c tmux-popup is running\\r\"
+    done
+  done
+'")
+  tmux swap-pane -t "$tmp_window" \; select-window -t "$tmp_window"
+fi
+
+set -e
+
+# Clean up named pipes on exit
+id=$RANDOM
+argsf="${TMPDIR:-/tmp}/tmux-popup-args-$id"  # will be sourced in the new tmux pane.
+fifo1="${TMPDIR:-/tmp}/tmux-popup-fifo1-$id"
+fifo2="${TMPDIR:-/tmp}/tmux-popup-fifo2-$id"
+fifo3="${TMPDIR:-/tmp}/tmux-popup-fifo3-$id"
+tmux_win_opts=( $(tmux show-window-options remain-on-exit \; show-window-options synchronize-panes |
+                    sed '/ off/d; s/^/set-window-option /; s/$/ \\;/') )
+
+cleanup() {
+  \rm -f "$argsf" "$fifo1" "$fifo2" "$fifo3"
+
+  # Restore tmux window options
+  if [ "${#tmux_win_opts[@]}" -gt 0 ]; then
+    eval "tmux ${tmux_win_opts[*]}"
+  fi
+
+  # Remove temp window if we were zoomed without popup options
+  if [ -n "$zoomed_without_popup" ]; then
+    tmux display-message -p "#{window_id}" > /dev/null
+    tmux swap-pane  -t "$original_window" \; \
+      select-window -t "$original_window" \; \
+      kill-window   -t "$tmp_window" \; \
+      resize-pane -Z
+  fi
+
+  if [ $# -gt 0 ]; then
+    trap - EXIT
+    exit 130
+  fi
+}
+trap 'cleanup 1' SIGUSR1
+trap 'cleanup' EXIT
+
+envs="export TERM=$TERM "
+echo "$envs;" > "$argsf"
+
+# Build command that's to be processed in popup.
+opts=$(printf "%q " "${args[@]}")
+
+pppid=$$
+echo -n "trap 'kill -SIGUSR1 -$pppid' EXIT SIGINT SIGTERM;" >> "$argsf"
+close="; trap - EXIT SIGINT SIGTERM $close"
+
+export TMUX
+TMUX=$(cut -d , -f 1,2 <<< "$TMUX")
+mkfifo -m o+w "$fifo2"
+if [[ "$opt" =~ "-K -E" ]]; then
+  cat "$fifo2" &
+  if [ -n "$term" ] || [ -t 0 ]; then
+    cat <<< "$opts | tee $fifo2; out=\$? $close; exit \$out" >> "$argsf"
+  else
+    mkfifo "$fifo1"
+    cat <<< "$opts < $fifo1 | tee $fifo2; out=\$? $close; exit \$out" >> "$argsf"
+    cat <&0 > "$fifo1" &
+  fi
+  tmux popup -d "$PWD" "${tmux_args[@]}" $opt -R "bash $argsf" > /dev/null 2>&1
+  exit $?
+fi
+mkfifo -m o+w "$fifo3"
+if [ -n "$term" ] || [ -t 0 ]; then
+  cat <<< "$opts | tee $fifo2; echo \$? > $fifo3 $close" >> "$argsf"
+else
+  mkfifo "$fifo1"
+  cat <<< "$opts < $fifo1 | tee $fifo2; echo \$? > $fifo3 $close" >> "$argsf"
+  cat <&0 > "$fifo1" &
+fi
+tmux set-window-option synchronize-panes off \;\
+     set-window-option remain-on-exit off \;\
+     split-window -c "$PWD" $opt "${tmux_args[@]}" "bash $argsf" $swap \
+     > /dev/null 2>&1 || { "${args[@]}"; exit $?; }
+cat "$fifo2"
+exit "$(cat "$fifo3")"

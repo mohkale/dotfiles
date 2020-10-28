@@ -25,7 +25,7 @@ while getopts 'rpvc' option; do
     esac
 done
 
-fzf=$(if [ -n "$TMUX" ]; then echo "fzf-tmux"; else echo "fzf"; fi)
+fzf="tmux-popup -- fzf"
 
 # bindings format is "key map values"
 bindings=$(tmux list-keys |
@@ -33,19 +33,15 @@ bindings=$(tmux list-keys |
                sed -E -e 's/bind-key +(-r *)?-T *//' |
                awk -e '{ printf("%s %s ", $2, $1); for (i=3; i < NF; i++) { printf("%s ", $i) }; print $NF }')
 
-tabulated_columns=$(cut -d ' ' -f 1-2 <<< "$bindings" | column -tx) # key and map columns
+tabulated_columns=$(cut -d ' ' -f 1-2 <<< "$bindings" | column -t) # key and map columns
 # pad key and map columns to max width then push the binding as the final unpadded column
 bindings=$(paste -d' ' \
            <(awk -e '{ printf("%-'$(wc -L <<< "$tabulated_columns")'s \n",$0); }' <<< "$tabulated_columns") \
            <(cut -d' ' -f3- <<< "$bindings") | sort)
 
-binding=$($fzf -- --prompt="binding: " <<< "$bindings")
+binding=$($fzf --prompt="binding: " <<< "$bindings")
 [ -z "$binding" ] && exit 1 # fzf session cancelled by user
 
 read key map binding <<< "$binding"
-
-# flags= # nice try hackers :P
-# if grep -Ei "copy-mode"   >/dev/null 2>&1; then flags="$flags -X"; fi <<< "$map"
-# if grep -Ei "mouse|wheel" >/dev/null 2>&1; then flags="$flags -M"; fi <<< "$binding"
 
 tmux $binding
