@@ -59,6 +59,8 @@ tM     tmux display-message
 tm     tmux show-messages
 tls    tmux ls
 tn     tmux new-session
+tx     tmux kill-session
+tprint tmux display-message -p
 # NOTE you can attach to an existing session with a new
 # name if you don't want to follow it. See [[https://unix.stackexchange.com/a/152280][here]].
 

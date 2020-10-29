@@ -22,10 +22,12 @@ set ifs "\n"
 set relativenumber
 set icons
 set hiddenfiles .*:__pycache__:*.pyc:*.o:node_modules
+set info size
 
 # show number of files in directory, not size of directory inode.
 set dircounts
 
+# toggles
 map zd :set info time
 map zp toggle-preview
 map zP toggle-parent-preview
@@ -33,10 +35,6 @@ map zi :set icons!
 
 map i $preview $f | ${PAGER:-less} -R
 map I !true
-map oc cat
-map oy open-yank
-
-set info size
 
 ## Bindings
 map zl set relativenumber!
@@ -55,19 +53,21 @@ map g; find-prev
 
 # make lf more like ranger
 map c
-map cc clear
-map cd push :cd<space>
-
 map d
+map p
+map y
+map cc clear
 map dd cut
+map pp paste
+map yy copy
 
+# delete/cut files
 map da cut-add
 map dr cut-remove
 map dD delete
 map D  trash
 
-map y
-map yy copy
+# yank files
 map ya copy-add
 map yr copy-remove
 map yp yank-path
@@ -75,13 +75,12 @@ map yd yank-dirname
 map yb yank-basename
 map y. yank-basename-without-extension
 
-map w
-map S $$SHELL
-
-map p
-map pp paste
+# paste files
 map pl paste-links
 map pL paste-links-reverse
+
+map w
+map S $$SHELL
 
 cmd toggle-backwards :up;toggle
 map <bs>  toggle-backwards
@@ -112,21 +111,13 @@ map gi goto-images
 map gM goto-music
 map gm goto-mount
 map gu goto-documents
-map ga goto-fsmap
 map gp goto-project-root
-map gj goto-link-dest
 map gt cd /tmp/
 map g/ cd /
-map gs push :grep-to-file<space>
-map gx goto-executable
+map ga goto-fsmap
+map gj goto-link-dest
 map ge goto-environment
-map ct cdmktemp
-
-map dt trash
-map dT trash
-
-map x :push :chmod<space>
-map cx :bulkchmod
+map gx goto-executable
 
 map gd
 map gf fzf
@@ -134,18 +125,30 @@ map gd fzf-cd
 map gF fzf-all
 map gD fzf-cd-all
 
+map gs push :grep-to-file<space>
+map gr :reload; sync
+
+# change dir (interactive or dynamic)
+map cd push :cd<space>
+map ct cdmktemp
+
+map dt trash
+map dT trash
+
+# edit files
+map x     :push :chmod<space>
+map cp    bulkchmod
 map cw    bulkrename
 map <a-e> bulkrename
-
-map cr bulkrename-all
-
+map cr    bulkrename-all
 
 # open file at point in various ways
 map o
 map oo open
 map op $$PAGER  "$f"
-map gr :reload; sync
 map oe evi
+map oc cat
+map oy open-yank
 map o! execute
 map o& execute-async
 map os shell-in-directory
@@ -153,6 +156,7 @@ map oa open-all
 map oi open-images
 map ot open-tmuxinator
 map ov open-videos
+# archive related commands
 map ox  extract
 map ozt tar
 map ozT tar-replace

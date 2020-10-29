@@ -1,7 +1,7 @@
 name: main
 root: ~/
 
-startup_window: fs
+startup_window: dash
 
 windows:
   # dashboard to inspect system
