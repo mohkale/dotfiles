@@ -15,7 +15,6 @@ set -g renumber-windows on
 set -g visual-activity on
 # update the title of my terminal
 set -g set-titles on
-set -g set-titles-string 'tmux@#H [#S:#I] #W'
 
 # windows and panes start from 1
 set -g base-index 1
@@ -26,13 +25,12 @@ set -g history-limit 10000
 set -gw xterm-keys on
 # improve color display for tmux session
 set -g default-terminal "screen-256color"
+# title of terminal when running tmux
+set -g set-titles-string 'tmux@#H [#S:#I] #W'
 
 # makes escape instant, but removes the
 # ability to bind to meta keys :cry:.
 # set -g escape-time 0
-
-status_fg="#18181b" # matches my st theme bg.
-status_bg="green"
 
 # change prefix to C-q
 unbind C-b
@@ -133,6 +131,7 @@ bind M-w unlink-window -k
 bind B choose-tree -Zw
 bind b choose-tree -Zs
 
+# transpose window layout
 bind -r C-o rotate-window -ZU
 bind -r M-o rotate-window -ZD
 
@@ -204,31 +203,6 @@ bind -T off F12 \
   set -u escape-time \;\
   refresh-client -S
 
-# theming
-set -g status on
-set -g status-interval 15
-set -g status-justify left
-set -g status-position bottom
-set -g window-status-current-style fg=$status_bg,bg=$status_fg
-set -g status-style fg=$status_fg,bg=$status_bg
-
-# reverse enginner the default window flags so that you can modify indicators and add
-# a linked-window indicator.
-window_flags='#{?window_linked,L,}#{?window_activity_flag,##,}#{?window_bell_flag,!,}#{?window_silence_flag,~,}#{?window_marked_flag,M,}#{?window_zoomed_flag,Z,}'
-set -g window-status-format         "#I:#W#{?window_last_flag,-,}$window_flags"
-set -g window-status-current-format "#I:#W*$window_flags"
-
-set -g status-left "\
-#[fg=$status_bg,bg=$status_fg]#{?client_prefix, ^SPC ,}\
-#[fg=$status_fg,bg=#{?selection_present,yellow,yellow} bright]#{?pane_in_mode, #{?selection_present,COPY,META} ,}#[default] \
-[#S] "
-set -g status-left-length 20
-set -g status-left-style default
-
-set -g status-right " #{=15:pane_title}(#{=30:pane_current_command}) %d-%b-%Y %H:%M"
-set -g status-right-length 40
-set -g status-right-style default
-
 # script bindings
 bind A run -b "$TMUX_HOME/scripts/attach-session"
 bind B run -b "$TMUX_HOME/scripts/run-binding -rpv"
@@ -236,5 +210,7 @@ bind B run -b "$TMUX_HOME/scripts/run-binding -rpv"
 # bind M-w run -b "$TMUX_HOME/scripts/manage-windows"
 bind W run -b "$TMUX_HOME/scripts/manage-windows -i"
 bind X run -b "$TMUX_HOME/scripts/run-command"
+
+source ~/.config/tmux/theme
 
 # bind Enter set-window-option mouse # for some reason, can only be bound at EOF

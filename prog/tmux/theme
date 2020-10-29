@@ -1,0 +1,97 @@
+# -*- mode: conf-space -*- my tmux theme configuration (See [[https://github.com/nicknisi/dotfiles/blob/99b50f3a33c2a2d6ecf73d4f6e94efc8fe36f09a/tmux/base16.sh][base16]])
+
+set -g status on
+set -g status-interval 15
+set -g status-justify left
+set -g status-position bottom
+
+set -g status-left-length  32
+set -g status-right-length 150
+
+set -g status-left-style  default
+set -g status-right-style default
+
+# an-old-hope Colors
+very_light_grey="#CBCDD2"
+light_grey="#848794"
+grey="#686B78"
+dark_grey="#45474F"
+very_dark_grey="#1C1D21"
+
+black="#3b3d45"
+red="#eb3d54"
+green="#78bd65"
+yellow="#e5cd52"
+blue="#4fb4d8"
+magenta="#c46eb1"
+cyan="#85e0c9"
+white="white"
+
+bright_grey="#525560"
+bright_red="#f1223e"
+bright_green="#6cc653"
+bright_yellow="#edcd2c"
+bright_blue="#21acde"
+bright_magenta="#ce64b7"
+bright_cyan="#63e9c7"
+bright_white="white"
+
+# Theme Vars
+fg="#909090"
+bg="#18181b"
+
+highlight_color=$blue
+
+# colors for the block at the start of the status bar.
+copying_color=$yellow
+visual_color=$yellow
+prefix_color=$green
+session_color=$highlight_color
+
+# whether to show the last window flag.
+hide_last_window=1
+# which character to use to seperate window numbers from names.
+winum_seperator=":"
+# whether to attach the window number to the current window
+number_current_window=1
+
+# default statusbar colors
+set-option -g status-style fg=$fg,bg=$bg,default
+
+set-window-option -g window-status-style fg=$fg,bg=$bg
+set-window-option -g window-status-format " #I #W"
+
+# active window title colors
+set-window-option -g window-status-current-style fg=$highlight_color,bg=$bg,bright
+set-window-option -g window-status-current-format " #[bold]#W"
+
+# message text
+set-option -g message-style bg=$bg,fg=$cyan
+
+# clock
+set-window-option -g clock-mode-colour $cyan
+
+# pane border colors
+set-window-option -g pane-active-border-style fg=$highlight_color
+set-window-option -g pane-border-style fg=$grey
+
+# pane number display
+set-option -g display-panes-active-colour $cyan
+set-option -g display-panes-colour $grey
+
+# status bar contents - updates depending on tmux state.
+set -g status-left "\
+#[fg=$bg,bg=#{?selection_present,$copying_color,$visual_color},bright]#{?pane_in_mode, #{?selection_present,COPY,META} ,}#[default]\
+#[fg=$bg,bg=$prefix_color,bright]#{?client_prefix, TMUX ,}#[default]\
+#[fg=$bg,bg=$session_color,bright] #S #[default] "
+
+# reverse engineer the default window flags so that you can modify indicators and add
+# a linked-window indicator.
+window_flags='#{?window_linked,L,}#{?window_activity_flag,##,}#{?window_bell_flag,!,}#{?window_silence_flag,~,}#{?window_marked_flag,M,}#{?window_zoomed_flag,Z,}'
+window_flags_suffix="#{?#{==:$window_flags,},,[#[bright,fg=$red]$window_flags#[default]]}"
+set -g window-status-format "#I$winum_seperator#W#{?#{==:$hide_last_window,1},,#{?window_last_flag,-,}}$window_flags_suffix"
+set -g window-status-current-format "#{?#{==:$number_current_window,1},#I$winum_seperator,}#W$window_flags_suffix"
+
+status_date="#[default,bg=$highlight_color,fg=$bg] %d-%b-%Y %H:%M "
+status_host="#[bg=$bg,fg=$fg]#{=15:pane_title}(#{=30:pane_current_command})"
+set -g status-right "$status_host $status_date"
