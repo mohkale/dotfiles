@@ -39,7 +39,7 @@ fi
 
 export VISUAL="$EDITOR"
 export PAGER=less
-export LESS="-R -i --save-marks -x4"
+export LESS="-R -S -i --save-marks -x4"
 export DOTFILES_REPO_PATH=$HOME/.dotfiles
 export TMUX_HOME=$XDG_CONFIG_HOME/tmux
 export TMUX_TMPDIR=$XDG_CACHE_HOME/tmux
@@ -63,6 +63,12 @@ export LESS_TERMCAP_se=$'\e[0m'    # end standout-mode
 export LESS_TERMCAP_ue=$'\e[0m'    # end underline
 export LESS_TERMCAP_us=$'\e[1;32m' # begin underline
 export LESS_TERMCAP_so=$'\e[36m'   # begin standout-mode - info box
+
+## Generate lesskey file when it's out of date
+if command -v lesskey >/dev/null 2>&1 && \
+   [ -e "$LESSKEY.base" -a "$LESSKEY.base" -nt "$LESSKEY" ]; then
+    lesskey "$LESSKEY.base"
+fi
 
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ] && [ -r "$XDG_CONFIG_HOME/dircolors" ]; then

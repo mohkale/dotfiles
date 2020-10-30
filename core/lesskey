@@ -1,0 +1,13 @@
+#command
+h left-scroll
+l right-scroll
+H help
+^h help
+^n next-file
+^p prev-file
+
+#line-edit
+^b word-left
+^f word-right
+^h left
+^l right
