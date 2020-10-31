@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+# Present all manual pages in a fzf session and choose
+# one or more manual entries to open in less.
+
+fzman() {
+    delimiter=£
+    targets=$(apropos -w '*' |
+        sed -e 's/\([^ ]\+\) (\([^)]\+\)) *- \?\(.*\)$/\1 (\2)'"$delimiter"'\3/' |
+        column -t -s "$delimiter" |
+        fzf --reverse --multi --no-hscroll |
+        cut -d ' ' -f 1-2 |
+        tr -d ' ')
+    [ -z "$targets" ] && return
+    # see [[https://unix.stackexchange.com/questions/396397/open-multiple-man-pages-in-less][here]] for how the multi-man command works.
+    LESSOPEN='|man %s' xargs -r -d '\n' less -is <<< "$targets"
+}

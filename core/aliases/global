@@ -30,6 +30,7 @@ istat   stat -c "%A %08s %n"  # inline stat
 b       buku --suggest
 r       ranger
 x       fzf-dmenu
+m       fzman
 
 # vi stuff
 q       exit
