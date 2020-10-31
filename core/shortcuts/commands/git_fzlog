@@ -1,0 +1,18 @@
+#!/usr/bin/env sh
+# Present all commits in current repositry as a colored log in fzf
+# and select one to show the diff of it in your PAGER. Opening a
+# commit doesn't exit the fzf session, that stays open until you're
+# finished.
+
+git_fzlog() {
+    if ! git --help >/dev/null 2>&1; then
+        echo "git_fzlog: error: failed to run git in cwd" >&2
+        return 1
+    fi
+    git log --graph --color=always \
+          --format="%C(auto)%h%d %s %C(black)%C(bold)%cr" "$@" |
+      fzf --ansi --no-sort --reverse --tiebreak=index --toggle-sort=\` --info=inline \
+          --bind "ctrl-m:execute:
+                    echo {} | grep -o '[a-f0-9]\{7\}' | head -1 |
+                    xargs -r -d '\n' -I % sh -c 'git show --color=always % | ${PAGER}'"
+}

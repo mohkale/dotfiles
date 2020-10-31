@@ -95,6 +95,7 @@ gC      g clone
 gd      g diff
 # gf      g fetch
 gl      g log
+gf      git_fzlog
 gs      g status
 gm      g mv
 gr      g rm
