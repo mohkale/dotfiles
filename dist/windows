@@ -4,13 +4,14 @@
           "../prog/desktop/windows")
 
  ;; setup msys, the unix like environment for windows
- (:packages (:chocolatey "msys2"))
+ (:packages (:choco "msys2"))
 
  ;; by default msys uses it's own home directory independent from
  ;; my user home directory. That would require me to have to sync
  ;; my dotfiles in 2 places, so lets just make msys use my real home
  ;; directory.
  (:shell {:desc "Setting msys Home Directory"
+          :stderr true
           :cmd "conf_file=\"c:/tools/msys64/etc/nsswitch.conf\"
                 if ! [ -f \"$conf_file\" ]; then
                   echo \"failed to set msys user home directory, conf file doesn't exist\" >&2
@@ -22,18 +23,20 @@
  ;; by default msys completely disregards your user path and
  ;; builds it's own PATH independent from it. Let's prevent that.
  (:shell {:desc "Allowing Windows PATH Inheritance"
-          :cmd "conf_file=\"c:/tools/msys64/msys2_shell.cmd\"
-                if ! [ -f \"$conf_file\" ]; then
-                  echo 'failed to set PATH inheritance, conf file doesn't exist' >&2
+          :stderr true
+          :cmd "conf_file=c:/tools/msys64/msys2_shell.cmd
+                if ! [ -f $conf_file ]; then
+                  echo \"failed to set PATH inheritance, conf file doesn't exist\" >&2
                   exit 1
                 fi
-
-                sed -i -e 's/rem \\(set MSYS2_PATH_TYPE=inherit\\)/\\1/' \"$conf_file\""})
+                sed -i -e 's/rem \\(set MSYS2_PATH_TYPE=inherit\\)/\\1/' $conf_file"})
 
  (:packages (:msys "base-devel"
                    "make"
                    "gcc"
                    "mingw-w64-x86_64-gcc"))
+
+ (:packages (:choco "fzf"))
 
  (:import "../prog/git")
 
