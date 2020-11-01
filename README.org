@@ -85,3 +85,8 @@ My dotfile repository, happily brought to you by [[https://github.com/mohkale/do
 ** Windows
   - Requires [[https://security.stackexchange.com/questions/10194/why-do-you-have-to-be-an-admin-to-create-a-symlink-in-windows#:~:text=By%20default%2C%20only%20administrators%20can,%5CUser%20Rights%20Assignment%5C%20granted.][admin privilages]] to create symlinks.
   - [[https://chocolatey.org/][chocolatey]] fails when stderr is the null device.
+
+* Screenshots
+  [[file:./.github/gotop.png]]
+
+  [[file:./.github/lf.png]]
