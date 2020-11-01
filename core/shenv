@@ -29,9 +29,9 @@ case "$(ps -p $$ | awk 'END { print($NF) }')" in
 esac
 
 # prioritize editors in order of nvim, vim, vi.
-if   hash nvim 2>&1; then export EDITOR=nvim
-elif hash vim  2>&1; then export EDITOR=vim
-else                      export EDITOR=vi
+if   hash nvim 2>/dev/null; then export EDITOR=nvim
+elif hash vim  2>/dev/null; then export EDITOR=vim
+else                             export EDITOR=vi
 fi
 
 # source XDG compatibility environment files
