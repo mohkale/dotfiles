@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+cd_project_root() {
+    local dest="$(project-root)"
+    cd "$dest" || echo "error: failed to cd: $dest" >&2
+}

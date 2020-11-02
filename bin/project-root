@@ -1,0 +1,31 @@
+#!/usr/bin/env sh
+# Print the root directory for the current project.
+
+print_usage() {
+  echo "Usage: $(basename "$0") [-h]"
+}
+
+print_help() {
+  print_usage
+  echo ""
+  echo "Options:"
+  echo "  -h    Show this help message and exit."
+  echo "  -v    Don't suppress verbose output"
+}
+
+debug_file="/dev/null"
+while getopts 'hv' OPTION; do
+  case  "$OPTION" in
+    h) print_help
+       exit 0 ;;
+    v) debug_file="&2" ;;
+    \?) print_help >&2
+        exit 1 ;;
+  esac
+done
+
+set -e
+
+git rev-parse --show-toplevel 2>"$debug_file" && exit 0
+
+exit 1

@@ -403,14 +403,12 @@ cmd goto-fsmap ${{
 }}
 
 cmd goto-project-root ${{
-    function finish {
-        if [ -n "$1" ]; then
-            lf -remote "send $id cd \"$1\""
-            exit 0
-        fi
-    }
-    finish "$(git rev-parse --show-toplevel 2>/dev/null)"
-    lf -remote "send $id echoerr failed to find a project root"
+    root="$(project-root)"
+    if [ -n "$root" ]; then
+        lf -remote "send $id cd \"$root\""
+    else
+        lf -remote "send $id echoerr failed to find a project root"
+    fi
 }}
 
 cmd goto-link-dest ${{
