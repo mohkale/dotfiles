@@ -1,0 +1,81 @@
+#!/usr/bin/env python3
+import sys
+import time
+import json
+import codecs
+import pyperclip as clip
+
+def enumerate_clipboard(delay, first=False):
+    """Enumerate changes in the system clipboard.
+    When FIRST is true, the initial value of the clipboard is
+    also yielded.
+    """
+    last = clip.paste()
+    if first:
+        yield last
+
+    while True:
+        time.sleep(delay)
+        current = clip.paste()
+        if last != current:
+            yield current
+            last = current
+
+if __name__ == '__main__':
+    import argparse
+
+    def parse_args():
+        parser = argparse.ArgumentParser(
+            description="""
+Periodically inspect and output the contents of the system clipboard.
+            """
+        )
+
+        parser.add_argument('-i', '--interval',
+                            type=int, default=0.5,
+                            help='How long to wait between checking for changes')
+        parser.add_argument('-1', '--first',
+                            action='store_true',
+                            help='Print the current value of the clipboard on startup')
+
+        output_group = parser.add_argument_group('Output', 'Configure clipboard outputting')
+        default_formatter = lambda x: x + args.delimiter
+        output_group.add_argument('-j', '--json',
+                                  dest='formatter', action='store_const',
+                                  const=lambda x: json.dumps(x) + '\n',
+                                  help='Print clipboard contents as JSON lines')
+        output_group.add_argument('-p', '--plain',
+                                  dest='formatter', action='store_const',
+                                  const=default_formatter,
+                                  help='Print clipboard entries as they are')
+        output_group.add_argument('-b', '--line-buffer',
+                                  action='store_true',
+                                  help="Automatically flush entries after writing")
+
+        delimiter_group = output_group.add_mutually_exclusive_group()
+        delimiter_group.add_argument('-d', '--delimiter',
+                                     default='\\n',
+                                     help='Delimiter between outputted entries')
+        delimiter_group.add_argument('-0', '--null',
+                                     action='store_const', const='\\0',
+                                     dest='delimiter',
+                                     help='Seperate clipboard entries with null')
+
+        args  = parser.parse_args()
+        vargs = vars(args)
+
+        args.delimiter = codecs.decode(args.delimiter, 'unicode_escape')
+        args.formatter = args.formatter or default_formatter
+
+        return args, vargs, parser
+
+    args, vargs, parser = parse_args()
+
+    pred = lambda x: x.strip() != ''
+    try:
+        for entry in filter(pred, enumerate_clipboard(args.interval, args.first)):
+            print(args.formatter(entry), end='')
+            if args.line_buffer:
+                sys.stdout.flush()
+    except KeyboardInterrupt:
+        pass
