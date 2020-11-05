@@ -3,6 +3,9 @@
 ## GNU Readline
 export INPUTRC="$XDG_CONFIG_HOME"/bindings/readline
 
+## GNU Parallel
+export PARALLEL_HOME="$XDG_CONFIG_HOME"/parallel
+
 ## Ruby Bundler
 export BUNDLE_USER_CONFIG="$XDG_CONFIG_HOME"/bundle
 export BUNDLE_USER_CACHE="$XDG_CACHE_HOME"/bundle

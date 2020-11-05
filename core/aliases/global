@@ -31,6 +31,9 @@ b       buku --suggest
 r       ranger
 x       fzf-dmenu
 m       fzman
+par     parallel
+parx    par -X
+pard    par --dry-run
 
 # vi stuff
 q       exit
@@ -78,6 +81,8 @@ l      ls -CF
 ll     ls -l
 lal    ls -al
 la     ls -A
+l1     \ls -1 --quoting-style=literal
+f1     \find -mindepth 1 -maxdepth 1
 
 
 # Colors Colors Colors
@@ -167,11 +172,9 @@ docs@dirx         ~/user/
 
 # File Shortcuts
 profile@file     ~/.profile
-stg@file         $XDG_CONFIG_HOME/shortcuts/shortcuts
-ste@file         $XDG_CONFIG_HOME/shortcuts/eshell
-stw@file         $XDG_CONFIG_HOME/shortcuts/windows
-stl@file         $XDG_CONFIG_HOME/shortcuts/linux
-stm@file         $XDG_CONFIG_HOME/shortcuts/macos
+shenv@file       $XDG_CONFIG_HOME/shenv
+al@file          $XDG_CONFIG_HOME/aliases
+sct@file         $XDG_CONFIG_HOME/shortcuts
 
 # Temp FS
 ctemp       cd    $(mktemp -d)

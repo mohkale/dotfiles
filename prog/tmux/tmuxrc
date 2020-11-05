@@ -1,4 +1,5 @@
 # -*- mode: conf-space -*-
+# vim:syntax=tmux filetype=tmux
 
 set-window-option -g mode-keys vi
 # bash like bindings in command prompt
@@ -58,7 +59,7 @@ bind C-m   resize-pane -Z
 bind -r . next-layout
 bind -r , previous-layout
 
-bind e new-window "$EDITOR $HOME/.tmux.conf"
+bind e new-window "$EDITOR $TMUX_HOME/tmuxrc"
 
 ## reload my configuration
 bind M-r source "$TMUX_HOME/tmuxrc" \; display-message "Config reloaded..."

@@ -13,7 +13,7 @@
 # assigned to them is left to the caller.
 
 print_usage() {
-    echo "Usage: $(basename "$0") [-h] [-n NUM] [-p STR] [-x] [...BULKRENAME_ARGS]"
+    echo "Usage: $(basename "$0") [-h] [-n NUM] [-f FORMAT] [...BULKRENAME_ARGS]"
 }
 
 print_help() {

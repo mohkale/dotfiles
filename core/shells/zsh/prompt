@@ -1,7 +1,4 @@
-# # -*- mode: sh -*-
-#
-# PS1='%F{blue}%B$('"$git_prompt"')%b%f%F{white}λ%f%b '
-# RPS1='%B%F{green}%n@%m%f %F{yellow}%~%f'
+# -*- mode: sh -*- my zshell prompt configuration.
 
 # async prompt template curtesy of [[https://gist.github.com/denysdovhan/e83dec6f09b237acbc24a6bb25fabd13][Denys Dovhan]].
 typeset -Ag prompt_data # cache variable
@@ -265,12 +262,23 @@ prompt_refresh() {
 
 prompt_callback() {
   local job=$1 code=$2 output=$3 exec_time=$4
+
+  # See [[https://github.com/mafredri/zsh-async/issues/42#issuecomment-716782220][zsh-async]], this evidently fixes issues with crashing workers
+  if [ "$code" -eq 2 -o "$code" -eq 3 -o "$code" -eq 130 ]; then
+    # reinit async workers
+    async_stop_worker 'prompt' # stop the current worker
+    prompt_init_worker         # start the workers again
+  fi
+
   prompt_data[$job]=$output
   prompt_refresh
 }
 
-async_start_worker 'prompt' -n
-async_register_callback 'prompt' prompt_callback
+prompt_init_worker() {
+  async_start_worker 'prompt' -n
+  async_register_callback 'prompt' prompt_callback
+}
+prompt_init_worker
 
 # start async jobs before cmd
 prompt_precmd() {

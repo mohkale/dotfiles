@@ -145,7 +145,7 @@ map cr    bulkrename-all
 # open file at point in various ways
 map o
 map oo open
-map op $$PAGER  "$f"
+map op $<<< "$fx" xargs -d '\n' -r $PAGER
 map oe evi
 map oc cat
 map oy open-yank

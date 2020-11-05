@@ -44,6 +44,7 @@ while read -r path; do
     *.tar.xz|*.txz)                  tar xJvf   "$path" ;;
     *.tar|*.tar.*|*.cbt)             tar xvf    "$path" ;;
     *.zip|*.cbz)                     unzip      "$path" ;;
+    *.jar)                           jar xf     "$path" ;;
     *.rar|*.cbr)                     unrar x    "$path" ;;
     *.cab)                           cabextract "$path" ;;
     *.cb7|*.7z)                      7z x       "$path" ;;

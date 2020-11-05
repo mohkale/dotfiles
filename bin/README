@@ -1,0 +1,52 @@
+<!-- -*- mode: markdown -*- -->
+
+# bin - binaries
+
+Where I keep most of my scripts. Most are written in bash, some in python (3), some
+in ruby. Generally whatever works for whatever I'm trying to do.
+
+| Script                                 | Purpose                                                                                     |
+|----------------------------------------|---------------------------------------------------------------------------------------------|
+| [ansils](./ansils)                     | List a bunch of colorcodes. Good for when your double checking what your terminal can do.   |
+| [app-windows](./app-windows)           | List open application windows in XOrg.                                                      |
+| [build-aliases](./build-aliases)       | Build alias declarations from my alias files, see ([here](../core/aliases/)).               |
+| [bulkchmod](./bulkchmod)               | Open a bulkrename session to modify unix file permissions.                                  |
+| [bulkrename](./bulkrename)             | Open a bunch of files in your editor and sync changes back to the filesystem.               |
+| [clipsink](./clipsink)                 | Monitor changes to the system clipboard and print them to stdout.                           |
+| [clj](./clj)                           | A wrapper around the clojure compiler which adds in readline support.                       |
+| [condemn](./condemn)                   | Trash files using the various tools installed on your system.                               |
+| [dotsync](./dotsync)                   | Sync dotfiles through dotty. Skips package installation and other time-consuming steps.     |
+| [emacs-focus](./emacs-focus)           | Switch focus to any open emacs frames (only works on linux).                                |
+| [emacs-make-frame](./emacs-make-frame) | Create a new emacs frame.                                                                   |
+| [env-paths](./env-paths)               | List environment variables which points to an existing filepath.                            |
+| [ern](./ern)                           | enumerate-rename. Open a bulkrename session with paths suffixed with ascending numbers.     |
+| [error-colors](./error-colors)         | Associate process exit codes with colors.                                                   |
+| [extract](./extract)                   | A quick and dirty multipurpose archive extracter. Takes only one arg (the path to extract). |
+| [fdupes](./fdupes)                     | Pass a list of files and print back out any duplicates (based on file content).             |
+| [file-path](./file-path)               | Print paths back to stdout in a way that can be substituted back into the shell.            |
+| [filter-globs](./filter-globs)         | Filter all paths from stdin which match (or don't match) a glob pattern.                    |
+| [fzf-dmenu](./fzf-dmenu)               | Open a fzf window with executables that can be spawned (see [here][fzf-dmenu]).             |
+| [git-prompt](./git-prompt)             | Outputs version control information for use in my shell prompt.                             |
+| [image2ascii](./image2ascii)           | Convert images to ascii text.                                                               |
+| [img2pdf](./img2pdf)                   | Bulk convert a bunch of input images to a PDF using pillow.                                 |
+| [ls-aliases](./ls-aliases)             | List alias files to use alongside `build-aliases` for your current platform.                |
+| [ls-exec](./ls-exec)                   | List executables which can be accessed from your PATH.                                      |
+| [ls-fsdirmaps](./ls-fsdirmaps)         | List aliases (from `ls-aliases`) that point to directories (used for file-system jumps).    |
+| [ls-platform](./ls-platform)           | List the current platform (Unix, MacOS, Windows).                                           |
+| [ls-project](./ls-project)             | List all files in the current (git) code repository.                                        |
+| [magnet2torrent](./magnet2torrent)     | Convert magnet files to torrent files using python libtorrent bindings.                     |
+| [moji](./moji)                         | Open a list of kaomojis in a fzf session.                                                   |
+| [nfc](./nfc)                           | Copy numbered folders in a range while predictably increasing numbers.                      |
+| [preview](./preview)                   | Preview files/directories.                                                                  |
+| [project-root](./project-root)         | List the root directory for the current code (git) repository.                              |
+| [spawn-term](./spawn-term)             | Create a new terminal instance (st, urxvt, etc.).                                           |
+| [sxcv](./sxcv)                         | View archive (cbr, cbz etc.) files using sxiv.                                              |
+| [term-dwim](./term-dwim)               | Create a new terminal, cycle between open terminals, etc.                                   |
+| [tmux-popup](./tmux-popup)             | Create and run a popup command in a tmux window or using the new popup functionality.       |
+| [ttls](./ttls)                         | List tmuxinator config files accessible from the cwd and globally.                          |
+| [vipe](./vipe)                         | Insert your editor in the middle of a shell pipeline (like the moreutils script).           |
+| [wine-jp](./wine-jp)                   | Run wine with japanese locale settings (good for non-translated japanese games).            |
+| [xopen](./xopen)                       | xdg-open like script written in python. Open files in appropriate programs.                 |
+| [xrun](./xrun)                         | Open a .desktop file directly.                                                              |
+
+[fzf-dmenu]: https://mohkale.gitlab.io/posts/2020/08/20/using-fzf-as-a-dmenu-replacement/

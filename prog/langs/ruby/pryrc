@@ -1,4 +1,5 @@
 # -*- mode: ruby -*-
+ENV['LESS'] = '-R -i --save-marks -x4'
 if ENV["INSIDE_EMACS"]
     Pry.config.pager = false
 
