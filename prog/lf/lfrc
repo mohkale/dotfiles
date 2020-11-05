@@ -426,10 +426,7 @@ cmd goto-link-dest ${{
 # find every executable in the users path and select
 # the chosen one.
 cmd goto-executable ${{
-    target=$(echo "$PATH" | 2>/dev/null \
-        xargs -d: -I {} -r -- \
-          find -L {} -maxdepth 1 -mindepth 1 -type f -executable -printf '%h/%P\n' |
-        fzf -d / --with-nth '-1')
+    target=$(ls-exec | fzf -d / --with-nth '-1')
 
     if [ -n "$target" ]; then
         lf -remote "send $id select \"$target\""

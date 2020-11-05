@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+echo "$PATH" | 2>/dev/null \
+  xargs -d: -I {} -r -- \
+    find -L {} -maxdepth 1 -mindepth 1 -type f -executable -printf '%h/%P\n'
