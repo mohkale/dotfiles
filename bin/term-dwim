@@ -30,28 +30,48 @@ windows=$(app-windows "${term:-st-256color}")
 
 if [ -z "$windows" ]; then
     # no open terminals, let's make one :smile:.
-    lnch st
-elif [ $(<<< "$windows" wc -l) -eq 1  ]; then
-    # only one window, select it
+    st & disown
+    exit $?
+fi
+
+if [ "$(<<< "$windows" wc -l)" -eq 1 ]; then
     active_window="$windows"
 else
-    # choose a row from the list of available windows
+    # read a bunch of useful options used for configuration here.
+    IFS=':' read -r desk desk_count active_window_pid rest \
+       < <(xdotool get_desktop get_num_desktops getwindowfocus getwindowpid | tr '\n' :)
 
-    # sort windows based on workspace
+    # sort all the windows relative to the current workspace.
     windows=$(<<< "$windows" \
-              awk -v workspace=$(xdotool get_desktop) \
-                  -v workspace_count=$(xdotool get_num_desktops) \
-                  '{ printf("%d %s\n", ($2-workspace >= 0) ? $2-workspace : $2+workspace_count, $0) }' |
-                  sort -n | cut -d' ' -f 2-)
+              awk -v workspace="$desk" \
+                  -v workspace_count="$desk_count" \
+                  -e 'BEGIN { entries[1] = ""; count = 0; }' \
+                  -e '{
+  entries[++count] = sprintf("%d %s", ($2-workspace >= 0) ? $2-workspace : $2+workspace_count, $0);
+}' \
+                  -e 'END {
+  asort(entries, entries, "@val_num_asc")
+  for (i=1; i <= count; i++) {
+    pos = index(entries[i], " ")
+    print substr(entries[i], pos+1)
+  }
+}')
 
-    active_window_pid=$(xdotool getwindowfocus getwindowpid)
-    if <<< "$windows" cut -d ' ' -f3 | grep -- "$active_window_pid" >/dev/null 2>&1; then
+    if [[ "$(<<< "$windows" cut -d ' ' -f3)" =~ "$active_window_pid" ]]; then # shellcheck disable=2076
         # currently on a terminal, try to select the next terminal in the list.
 
-        active_window_wid=$(printf "%x" $(xdotool getwindowfocus))
+        active_window_wid=$(printf "%x" "$(xdotool getwindowfocus)")
         # find the current row for the current terminal, then print the next row
-        active_window=$(<<< "$windows" awk -e '{ print $0 }' -e 'END { print "\n" }' \
-                            | awk -e '$1 ~ /(0x)?0*'$active_window_wid'/ { getline; print; exit }')
+        active_window=$(<<< "$windows" \
+                          awk -e '
+$1 ~ /(0x)?0*'"$active_window_wid"'/ {
+  if ((getline nxt) > 0) {
+     print nxt
+  } else {
+     print "\n"
+  }
+  exit
+}')
 
         # when the next row is empty (I.E. we were on the last row), select the first one
         [ -z "$active_window" ] && active_window=$(<<< "$windows" head -n1)
@@ -60,4 +80,4 @@ else
     fi
 fi
 
-wmctrl -ia "$(cut -d ' ' -f 1 <<< $active_window)"
+[ -n "$active_window" ] && wmctrl -ia "$(cut -d ' ' -f 1 <<< "$active_window")"
