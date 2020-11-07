@@ -174,10 +174,10 @@ cdd         cd -
 qswap       pushd -
 qs          pushd -
 
-ca cd_fsmap
-ce cd_env
-cg cd_project_root
-cx edit_executables
+ga cd_fsmap
+ge cd_env
+gu cd_project_root
+gx edit_executables
 # fuzzy jump to a new directory or to start editing a file.
 d fzf_cd
 D fzf_cd_all

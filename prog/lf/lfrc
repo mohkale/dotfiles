@@ -110,8 +110,8 @@ map gc goto-config
 map gi goto-images
 map gM goto-music
 map gm goto-mount
-map gu goto-documents
-map gp goto-project-root
+map go goto-documents
+map gu goto-project-root
 map gt cd /tmp/
 map g/ cd /
 map ga goto-fsmap
