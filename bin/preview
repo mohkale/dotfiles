@@ -22,9 +22,16 @@ HIGHLIGHT_STYLE='pablo'
 PYGMENTIZE_STYLE='autumn'
 BAT_THEME='an-old-hope'
 
+# Whether to include the directory path
+INCLUDE_DIR="${INCLUDE_DIR:-0}"
+
 # early cancel switch when previewing directories. this isn't done
-# by ranger/lf, but my fzf script might use this script for previews.
+# by ranger/lf, but my fzf scripts might use this script for previews.
 if [ -d "$FILE_PATH" ]; then
+    if [ "$INCLUDE_DIR" -eq 1 ]; then
+        ls -d --color=always "$FILE_PATH"
+        echo "${FILE_PATH//?/-}"
+    fi
     ls "$FILE_PATH" --color=always --group-directories-first -1
     exit 0
 fi
