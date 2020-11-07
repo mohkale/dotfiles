@@ -146,14 +146,14 @@ cd20@dir    ../../../../../../../../../../../../../../../../../../../../
 h@dirx            ~
 dl@dirx           ~/downloads
 em@dirx           $EMACS_HOME
-rp@dirx           ~/programming/repos
+rp@dirx           ~/prog/repos
 st@dirx           ~/.config/shortcuts
-sc@dirx           ~/programming/scripts
+sc@dirx           ~/prog/scripts
 bin@dirx          ~/.local/bin
 dtop@dirx         ~/OS/desktop
-music@dirx        ~/multimedia/music
+music@dirx        ~/media/music
 dbox@dirx         ~/Dropbox
-images@dirx       ~/multimedia/images
+images@dirx       ~/media/images
 docs@dirx         ~/user/
 
 # File Shortcuts

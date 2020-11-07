@@ -10,7 +10,7 @@ print_usage() {
     echo "  -s         don't notify the user of the screenshot"
 }
 
-dest="$HOME/multimedia/images/screenshots"
+dest="$HOME/media/images/screenshots"
 args=""
 
 while getopts 'ho:wsr' OPTION; do

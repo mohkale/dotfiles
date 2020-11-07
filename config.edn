@@ -4,9 +4,10 @@
 
  (:mkdirs
   "~/downloads"
-  ("~/multimedia"
+  "~/multi"
+  ("~/media"
    ("images" "videos" "music"))
-  "~/programming/repos"
+  "~/prog/repos"
   ("~/.local/share"
    ("man" "info")))
 
