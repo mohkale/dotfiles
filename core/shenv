@@ -177,6 +177,14 @@ export NODE_PATH=`lines_to_path $NODE_PATH <<EOF
 /usr/share/nodejs
 EOF`
 
+# Where to look for code repositories
+export REPO_PATH=`lines_to_path $REPO_PATH <<EOF
+~/programming/repos
+~/programming/upwork
+~/programming/.modules/go/src/*/*
+~/programming/.modules/ruby/gems
+EOF`
+
 platform="$(ls-platform)"
 [ -z "$platform" ] && echo "warning: shenv: unknown OS type: $OSTYPE" >&2
 

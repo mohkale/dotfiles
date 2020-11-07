@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+cd_repo() {
+    dest="$(ls-repos | fzf -d '/' --with-nth -1 --preview 'INCLUDE_DIR=1 preview {}')"
+    cd "$dest" || echo "error: failed to cd: $dest" >&2
+}

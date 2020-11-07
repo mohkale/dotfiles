@@ -118,6 +118,7 @@ map ga goto-fsmap
 map gj goto-link-dest
 map ge goto-environment
 map gx goto-executable
+map gp goto-repo
 
 map gd
 map gf fzf
@@ -394,7 +395,7 @@ cmd goto-fsmap ${{
             # otherwise, just replace the seperator with tab
             tr ':' ' '
         fi |
-        fzf |
+        fzf --no-multi -d ' ' --preview 'p={2..}; preview "${p/\~/$HOME}"' --preview-window=25% |
         cut -d ' ' -f 2- | sed 's/^ *//')
 
     if [ -n "$target" ]; then
@@ -408,6 +409,14 @@ cmd goto-project-root ${{
         lf -remote "send $id cd \"$root\""
     else
         lf -remote "send $id echoerr failed to find a project root"
+    fi
+}}
+
+cmd goto-repo ${{
+    target="$(ls-repos | fzf -d '/' --with-nth -1 --preview 'INCLUDE_DIR=1 preview {}')"
+
+    if [ -n "$target" ]; then
+        lf -remote "send $id cd \"$target\""
     fi
 }}
 
