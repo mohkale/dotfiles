@@ -16,3 +16,5 @@ git_fzlog() {
                     echo {} | grep -o '[a-f0-9]\{7\}' | head -1 |
                     xargs -r -d '\n' -I % sh -c 'git show --color=always % | ${PAGER}'"
 }
+
+git_fzlog

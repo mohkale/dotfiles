@@ -93,21 +93,7 @@ egrep  egrep --color=auto
 
 # Git - Version Control
 g       git
-ga      g add
-gb      g branch
-gc      g commit
-gC      g clone
-gd      g diff
-# gf      g fetch
-gl      g log
-gf      git_fzlog
 gs      g status
-gm      g mv
-gr      g rm
-gv      g checkout
-gp      g pull
-gP      g push
-gq      g rebase
 
 
 # Configure Dotfiles

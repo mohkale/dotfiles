@@ -27,6 +27,7 @@ in ruby. Generally whatever works for whatever I'm trying to do.
 | [filter-globs](./filter-globs)         | Filter all paths from stdin which match (or don't match) a glob pattern.                    |
 | [fzf-dmenu](./fzf-dmenu)               | Open a fzf window with executables that can be spawned (see [here][fzf-dmenu]).             |
 | [git-prompt](./git-prompt)             | Outputs version control information for use in my shell prompt.                             |
+| [git-fzlog](./git-fzlog)               | Interactively inspect your repos git log using fzf.                                         |
 | [image2ascii](./image2ascii)           | Convert images to ascii text.                                                               |
 | [img2pdf](./img2pdf)                   | Bulk convert a bunch of input images to a PDF using pillow.                                 |
 | [ls-aliases](./ls-aliases)             | List alias files to use alongside `build-aliases` for your current platform.                |

@@ -8,3 +8,20 @@ email = mohkale@kisara.moe
 	required = true
 [core]
 	autocrlf = input
+[alias]
+	c = commit
+	s = status
+	a = add
+	b = branch
+	cl = clone
+	d = diff
+	l = log
+	v = checkout
+	m = mv
+	x = rm
+	r = rebase
+	p = push
+	f = pull
+	unstage = reset HEAD --
+	fzlog = !git_fzlog
+	g = fzlog
