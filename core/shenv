@@ -178,11 +178,12 @@ export NODE_PATH=`lines_to_path $NODE_PATH <<EOF
 EOF`
 
 # Where to look for code repositories
-export REPO_PATH=`lines_to_path $REPO_PATH <<EOF
-~/prog/repos
-~/prog/upwork
-~/prog/.modules/go/src/*/*
-~/prog/.modules/ruby/gems
+export REPO_PATH=`lines_to_path <<EOF
+~/prog/repos/
+~/prog/upwork/
+$DOTFILES_REPO_PATH
+~/prog/.modules/go/src/*/*/
+~/prog/.modules/ruby/gems/
 EOF`
 
 platform="$(ls-platform)"

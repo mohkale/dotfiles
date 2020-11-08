@@ -1,25 +1,12 @@
 #!/usr/bin/env bash
 # List repositories on my system using the REPO_PATH environment variable.
 #
-# REPO_PATH points to directories which can contain one or more code repositories.
-# REPO_PATH can contain globs such as ~/foo/*/* and all of the directories expanded
+# REPO_PATH either points to code repositories or to directories which can
+# contain one or more code repositories. A trailing slash indicates a container
+# whereas the absence of one indicates a repo.
+#
+# REPO_PATH can contain globs such as ~/foo/*/*/ and all of the directories expanded
 # by the glob will also be considered as potential repository containers.
-
-repo_paths() {
-  # Expand all the paths in REPO_PATH, including glob expansion.
-  # This method also avoids duplicate paths in REPO_PATH by keeping
-  # track of all the paths encountered so far.
-  echo "${REPO_PATH//:/$'\n'}" |
-    awk -e '{ if (!mem[$0]++) print($0) }' |
-    while read -r path; do
-      [ -z "$path" ] && continue
-      for path in $path; do
-        echo "$path"
-      done
-    done |
-    perl -ne 'chomp(); if (-e $_) {print "$_\n"}'
-    # filter out non-existant paths, from [[https://serverfault.com/a/609900][here]].
-}
 
 # NOTE: This script can use GNU parallel or xargs, but parallel is better
 # because you can spawn a single find process with multiple paths. For xargs
@@ -27,14 +14,49 @@ repo_paths() {
 # as the number of possible repo containers increase.
 batch=(  )
 if command -v parallel >/dev/null 2>&1; then
-  batch+=( parallel -d '\n' -X -I% --line-buffer --quote )
+    batch+=( parallel -d '\n' -X -I% --line-buffer --quote )
 else
-  batch+=( xargs -d '\n' -I% )
+    batch+=( xargs -d '\n' -I% )
 fi
 
-# The approach is to spawn a find process for each path that can potentially
-# contain a repository, traverse over all the folders in those directories, upto
-# depth 1, and assert a repository test on them.
-repo_paths |
+repo_containers() {
+  # Expand all the paths in REPO_PATH, including glob expansion.
+  # This method also avoids duplicate paths in REPO_PATH by keeping
+  # track of all the paths encountered so far.
+  echo "${REPO_PATH//:/$'\n'}" |
+    while read -r it; do
+      [ -z "$it" ] && continue
+      for it in $it; do
+        echo "$it"
+      done
+    done |
+    perl -ne 'chomp(); if (-e $_) {print "$_\n"}'
+    # filter out non-existant paths, from [[https://serverfault.com/a/609900][here]].
+}
+
+# The condition used to check whether a directory {} is a code repository or not.
+# this can be any shell expression that can be passed to `find -exec`.
+repo_assert=( [ -e '{}/.git' -o -e '{}/GemFile' ] )
+
+maybe_repos() {
+    # we create a third file descriptor so we can partition the found
+    # repo paths into container directories and repo directories. Repo
+    # directories are sent straight to &3, others are piped to a find
+    # process which outputs the repo directories in that container.
+    #
+    # There's a 3 process overhead here which is only necessary in bash
+    # TODO consider switching this script to python, something faster.
+    exec 3>&1
+    repo_containers |
+        awk -e '/\/$/ { print($0); next; }' \
+            -e '{ print $0 | "cat >&3" }' |
+        "${batch[@]}" \
+            find % -mindepth 1 -maxdepth 1 -type d -print
+    exec 3>&-
+}
+
+# The approach is to spawn a find process for each path that is potentially
+# a repository assert a repository test on them and print out when true.
+maybe_repos |
   "${batch[@]}" \
-    find % -mindepth 1 -maxdepth 1 -type d -exec [ -e '{}/.git' -o -e '{}/GemFile' ] ';' -print
+    find % -mindepth 0 -maxdepth 0 -exec ${repo_assert[@]} ';' -print
