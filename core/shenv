@@ -275,6 +275,8 @@ case "$-" in
         ;;
 esac
 
+[ -e "$XDG_CONFIG_HOME/shenv.local" ] && . "$XDG_CONFIG_HOME/shenv.local"
+
 unset shell
 SOURCED_SHENV=1
 

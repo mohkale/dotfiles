@@ -6,6 +6,9 @@ export INPUTRC="$XDG_CONFIG_HOME"/bindings/readline
 ## GNU Parallel
 export PARALLEL_HOME="$XDG_CONFIG_HOME"/parallel
 
+## rust/cargo
+export RUSTUP_HOME="$XDG_DATA_HOME"/rustup
+
 ## Ruby Bundler
 export BUNDLE_USER_CONFIG="$XDG_CONFIG_HOME"/bundle
 export BUNDLE_USER_CACHE="$XDG_CACHE_HOME"/bundle
@@ -19,6 +22,12 @@ export GEM_SPEC_CACHE="$XDG_CACHE_HOME/gem"
 
 ## Solargraph
 export SOLARGRAPH_CACHE="$XDG_CACHE_HOME"/solargraph
+
+## OpenJDK
+export _JAVA_OPTIONS=-Djava.util.prefs.userRoot="$XDG_CONFIG_HOME"/java
+
+## irssi
+alias irssi="irssi --config=$XDG_CONFIG_HOME/irssi/config --home=$XDG_DATA_HOME/irssi"
 
 ## Less is More
 [ -e "$XDG_CACHE_HOME/less" ] || mkdir -p "$XDG_CACHE_HOME/less"
@@ -40,6 +49,9 @@ fi
 ## XDG
 export GTK_RC_FILES="$XDG_CONFIG_HOME/gtk-1.0/gtkrc"
 export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
+
+## z
+export _Z_DATA="$XDG_DATA_HOME/z"
 
 ## gradle
 export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
@@ -74,6 +86,9 @@ export WGETRC="$XDG_CONFIG_HOME/wgetrc"
 
 ## Wine
 export WINEPREFIX="$XDG_DATA_HOME"/wine/prefixes/default
+
+## aspell
+export ASPELL_CONF="per-conf $XDG_CONFIG_HOME/aspell/aspell.conf; personal $XDG_CONFIG_HOME/aspell/en.pws; repl $XDG_CONFIG_HOME/aspell/en.prepl"
 
 ## pass
 export PASSWORD_STORE_DIR="$XDG_DATA_HOME"/pass

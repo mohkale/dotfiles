@@ -1,6 +1,7 @@
 #!/usr/bin/env sh
 edit_executables() {
     paths=$(ls-exec | fzf -d / --with-nth '-1' --multi)
-    [ "$?" -eq 0 -o -z "$paths" ]
-    xargs -r -d '\n' $EDITOR <<< "$paths"
+    if [ "$?" -eq 0 -o -n "$paths" ]; then
+        xargs -r -d '\n' $EDITOR <<< "$paths"
+    fi
 }

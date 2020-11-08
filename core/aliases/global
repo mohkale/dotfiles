@@ -34,6 +34,7 @@ m       fzman
 par     parallel
 parx    par -X
 pard    par --dry-run
+we      with-evi
 
 # vi stuff
 q       exit

@@ -65,8 +65,7 @@ function files_to_files_and_dir {
 {
   if (match($0, /(.+)\/[^\/]+$/, group)) {
     dir = group[1]
-    if (!dirs[dir]) {
-      dirs[dir] = 1
+    if (dir != "." && !dirs[dir]++) {
       print dir
     }
 
