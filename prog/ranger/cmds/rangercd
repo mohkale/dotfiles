@@ -1,5 +1,5 @@
 # -*- mode: sh -*- use ranger to change directories; source [[https://github.com/ranger/ranger/wiki/Integration-with-other-programs#changing-directories][here]].
-function ranger {
+function rangercd {
     local IFS=$'\t\n'
     local tempfile="$(mktemp -t tmp.XXXXXX)"
     local ranger_cmd=(

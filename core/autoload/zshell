@@ -1,0 +1,7 @@
+# -*- mode: sh -*-
+cmds="$XDG_CONFIG_HOME/autoloads/cmds/"
+fpath+="$cmds"
+
+while read file; do
+    [ -f "$cmds/$file" ] && autoload "$file"
+done < <(ls -1 --quoting-style=literal "$cmds/")

@@ -19,7 +19,7 @@ cache_dir="$XDG_CACHE_HOME/aliases/"
 [ -e "$cache_dir" ] || mkdir -p "$cache_dir"
 
 print_usage() {
-    echo 'Usage: eval "$(build_shortcuts.sh [-1] [-i] [-P] [-e EDITOR] FILE [FILE...])"'
+    echo 'Usage: eval "$(build-aliases [-1] [-i] [-P] [-e EDITOR] FILE [FILE...])"'
     echo ""
     echo "Required Arguments:"
     echo "  FILE       file from which to read alias declarations from"

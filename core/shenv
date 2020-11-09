@@ -78,11 +78,13 @@ fi
 
 if [ -e "$XDG_CONFIG_HOME/diricons" ]; then
     # load icons from human readable config file.
-    export LF_ICONS=$(sed ~/.config/diricons \
-                      -e '/^[ \t]*#/d'       \
-                      -e '/^[ \t]*$/d'       \
-                      -e 's/[ \t]\+/=/g'     \
-                      -e 's/$/ /' | tr '\n' ':')
+    LF_ICONS=$(sed ~/.config/diricons \
+                -e '/^[ \t]*#/d'       \
+                -e '/^[ \t]*$/d'       \
+                -e 's/[ \t]\+/=/g'     \
+                -e 's/$/ /')
+    LF_ICONS=${LF_ICONS//$'\n'/:}
+    export LF_ICONS
 fi
 
 # Prevents Error Message with Python Encoding
@@ -117,10 +119,11 @@ lines_to_path() { #(PATH [...PATH])
 
     # strip out empty lines, comments, replace ~/ with users home
     # directory & join paths with a :.
-    sed -e 's/ *#.*$//g'          \
-        -e '/^ *$/d'              \
-        -e 's ^~/ '"${HOME}"/' g' \
-        -e 's/$/:/' | tr -d '\n'
+    local p=$(sed -e 's/ *#.*$//g'          \
+                  -e '/^ *$/d'              \
+                  -e 's ^~/ '"${HOME}"/' g' \
+                  -e 's/$/:/')
+    echo ${p//$'\n'}
 
     if [ -n "$1" ]; then
         # print existing path variables when given in linux path format.
@@ -242,12 +245,12 @@ export FZF_DEFAULT_OPTS="
     --cycle
 "
 
-# source shortcuts
-shortcuts_dir="$XDG_CONFIG_HOME/shortcuts"
-[ -f "$shortcuts_dir/shortcuts" ]                         && . "$shortcuts_dir/shortcuts"
-[ -n "$shell"    -a -f "$shortcuts_dir/setup/$shell"    ] && . "$shortcuts_dir/setup/$shell"
-[ -n "$platform" -a -f "$shortcuts_dir/setup/$platform" ] && . "$shortcuts_dir/setup/$platform"
-unset shortcuts_script
+# source autoloads
+autoloads_dir="$XDG_CONFIG_HOME/autoloads"
+[ -f "$autoloads_dir/global" ]                      && . "$autoloads_dir/global"
+[ -n "$shell"    -a -f "$autoloads_dir/$shell"    ] && . "$autoloads_dir/$shell"
+[ -n "$platform" -a -f "$autoloads_dir/$platform" ] && . "$autoloads_dir/$platform"
+unset autoloads_script
 
 # reclaim C-s and C-q
 if [ "$SMART_TERM" -eq 1 ]; then
@@ -258,7 +261,7 @@ fi
 # source aliases
 case "$-" in
     *i*)
-        if which thefuck >/dev/null 2>&1; then
+        if command -v thefuck >/dev/null 2>&1; then
             # honestly I doubt I'll really be using 'the-fuck' but
             # lazy loading it is a near effortless task so why not
 

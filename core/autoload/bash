@@ -1,0 +1,9 @@
+# -*- mode: sh -*-
+# bash doesn't have the concept of autoloads, so
+# you're going to have to instead load everything.
+
+cmds="$XDG_CONFIG_HOME/autoloads/cmds/"
+while read file; do
+    [ -f "$cmds/$file" ] && . "$cmds/$file"
+done < <(ls -1 --quoting-style=literal "$cmds")
+unset cmds

@@ -205,12 +205,12 @@ bind -T off F12 \
   refresh-client -S
 
 # script bindings
-bind A run -b "$TMUX_HOME/scripts/attach-session"
-bind B run -b "$TMUX_HOME/scripts/run-binding -rpv"
-# bind M-a run -b "$TMUX_HOME/scripts/manage-windows -s"
-# bind M-w run -b "$TMUX_HOME/scripts/manage-windows"
-bind W run -b "$TMUX_HOME/scripts/manage-windows -i"
-bind X run -b "$TMUX_HOME/scripts/run-command"
+bind A run -b "$TMUX_HOME/cmds/attach-session"
+bind B run -b "$TMUX_HOME/cmds/run-binding -rpv"
+# bind M-a run -b "$TMUX_HOME/cmds/manage-windows -s"
+# bind M-w run -b "$TMUX_HOME/cmds/manage-windows"
+bind W run -b "$TMUX_HOME/cmds/manage-windows -i"
+bind X run -b "$TMUX_HOME/cmds/run-command"
 
 source ~/.config/tmux/theme
 

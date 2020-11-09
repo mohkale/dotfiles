@@ -148,7 +148,6 @@ h@dirx            ~
 dl@dirx           ~/downloads
 em@dirx           $EMACS_HOME
 rp@dirx           ~/prog/repos
-st@dirx           ~/.config/shortcuts
 sc@dirx           ~/prog/scripts
 bin@dirx          ~/.local/bin
 dtop@dirx         ~/OS/desktop
@@ -161,7 +160,8 @@ docs@dirx         ~/user/
 profile@file     ~/.profile
 shenv@file       $XDG_CONFIG_HOME/shenv
 al@file          $XDG_CONFIG_HOME/aliases
-sct@file         $XDG_CONFIG_HOME/shortcuts
+au@file          $XDG_CONFIG_HOME/autoloads/cmds
+lfrc@file        $XDG_CONFIG_HOME/lf/lfrc
 
 # Temp FS
 ctemp       cd    $(mktemp -d)

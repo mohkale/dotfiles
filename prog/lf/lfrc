@@ -751,7 +751,7 @@ cmd bulkchmod ${{
 ### Editor
 # link lf to emacsclient through evi
 cmd evi ${{
-    . $HOME/.config/shortcuts/commands/evi
+    . $HOME/.config/autoloads/cmds/evi
     evi "$f"
 }}
 
@@ -762,7 +762,7 @@ cmd edit-config ${{
 }}
 
 cmd evi-config ${{
-    . $HOME/.config/shortcuts/commands/evi
+    . $HOME/.config/autoloads/cmds/evi
     if evi $XDG_CONFIG_HOME/lf/lfrc; then
         lf -remote "send $id source $XDG_CONFIG_HOME/lf/lfrc"
     fi
