@@ -1,0 +1,64 @@
+# -*- mode: sh -*-
+# Associate a color code with a processes exit code.
+
+# See For More: https://misc.flogisoft.com/bash/tip_colors_and_formatting
+# Color Codes: \e[0;%dm % (code)
+#     * DIM               ~> 0
+#     * BRIGHT            ~> 1 (for colors in 30s)
+#     * BOLD              ~> 1 (for colors in 90s)
+#
+#     * BLACK             ~> 30
+#     * RED               ~> 31
+#     * GREEN             ~> 32
+#     * YELLOW            ~> 33
+#     * LIGHT_BLUE        ~> 34
+#     * PURPLE            ~> 35
+#     * CYAN              ~> 36
+#     * WHITE             ~> 37
+#     * RESTORE           ~> 39
+#     * DARK GREY         ~> 90
+#     * LIGHT RED         ~> 91
+#     * LIGHT GREEN       ~> 92
+#     * LIGHT YELLOW      ~> 93
+#     * LIGHT BLUE        ~> 94
+#     * LIGHT MAGENTA     ~> 95
+#     * LIGHT CYAN        ~> 96
+#     * LIGHT WHITE (WTF) ~> 97
+
+exit_color() { #(exit_code, substr)
+    if [ "$#" -lt 2 ]; then
+        echo "exit_color: error: usage exit_color CODE MSG"
+        return 1
+    fi
+
+    local zsh=
+    [ -n "$ZSH_VERSION" ] && zsh=1
+
+    local found=1
+    case "$1" in
+        1|2|126|128|129|131|132|133|134|135|136|255)
+            # catchall for general errors
+            # misuse of shell builtins
+            # command invoked cannot execute
+            # invalid argument to exit
+            # SIGHUP
+            # SIGQUIT
+            # SIGILL
+            # SIGTRAP
+            # SIGABRT
+            # SIGBUS
+            # SIGFPE
+            # Exit Status Out Of Range
+            if [ -n "$zsh" ]; then echo -n '%B%F{white}'; else echo -n '\e[1;37m'; fi ;;
+        127) # command not found
+            if [ -n "$zsh" ]; then echo -n '%B%F{blue}'; else echo -n '\e[1;34m'; fi ;;
+        130) # SIGINT
+            if [ -n "$zsh" ]; then echo -n '%B%F{yellow}'; else echo -n '\e[1;33m'; fi ;;
+        137) # SIGKILL
+            if [ -n "$zsh" ]; then echo -n '%B%F{red}'; else echo -n '\e[1;31m'; fi ;;
+    esac
+
+    echo -n "$2"
+    [ "$found" -eq 1 ] &&
+        if [ -n "$zsh" ]; then echo -n '%f%b'; else echo -n '\e[1;39m'; fi
+}

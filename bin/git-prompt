@@ -46,7 +46,7 @@ __git_prompt() {
   if [ -n "$r" ] && [ -n "$step" ] && [ -n "$total" ]; then
     r="$r $step/$total"
   fi
-	b=${b##refs/heads/}
+  b=${b##refs/heads/}
 
   printf "%s" "$b$r"
 }

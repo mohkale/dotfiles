@@ -220,6 +220,12 @@ prompt_ruby() {
   print -n '%F{red}%B'"💎 %b${ruby_version}"
 }
 
+prompt_exit() { #(code)
+  [ "$1" -eq 0 ] && return 0
+  exit_color $1 ${(l:3::0:)1}
+  print -n ' :: '
+}
+
 # ┌────────────────────────────────────────────────┐
 # │                   Construct                    │
 # └────────────────────────────────────────────────┘
@@ -251,7 +257,7 @@ prompt_refresh() {
                           "$prompt_data[prompt_python]"  \
         )
   PS1="${data_rendered}$DEFAULT_PROMPT"
-  RPS1="$DEFAULT_PROMPT_RHS"
+  RPS1="${prompt_data[prompt_exit]}$DEFAULT_PROMPT_RHS"
 
   zle && zle .reset-prompt # Trigger prompt redraw after update
 }
@@ -270,8 +276,11 @@ prompt_callback() {
     prompt_init_worker         # start the workers again
   fi
 
-  prompt_data[$job]=$output
-  prompt_refresh
+  # only refresh prompt, when segment has changed
+  if [ "${prompt_data[$job]}" != "$output" ]; then
+    prompt_data[$job]=$output
+    prompt_refresh
+  fi
 }
 
 prompt_init_worker() {
@@ -282,12 +291,14 @@ prompt_init_worker
 
 # start async jobs before cmd
 prompt_precmd() {
+  local prompt_last_exit=$?
   root=$(prompt::project_root "$PWD")
   async_job 'prompt' prompt_root
   async_job 'prompt' prompt_git "$PWD"
   async_job 'prompt' prompt_node "${root:-$PWD}"
   async_job 'prompt' prompt_golang "${root:-$PWD}"
   async_job 'prompt' prompt_ruby "${root:-$PWD}"
+  async_job 'prompt' prompt_exit "$prompt_last_exit"
   # async_job 'prompt' prompt_python "${root:-$PWD}"
 }
 
