@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+# list file system mounts with mount device and mount path.
+
+mount | awk '{
+  printf("%s:", $1)
+  for (i=NF; i >= 4; i--) {
+    if ($i == "type") break
+  }
+  for (j=3; j < i; j++) {
+    printf("%s", $j)
+  }
+  print("")
+}'

@@ -180,6 +180,7 @@ ge cd_env
 gu cd_project_root
 p  cd_repo
 gp cd_repo
+gm cd_mount
 gx edit_executables
 # fuzzy jump to a new directory or to start editing a file.
 d fzf_cd
