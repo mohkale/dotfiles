@@ -7,7 +7,7 @@
 set -e # auto exit on a failed command
 
 function print_usage {
-    echo "Usage: ls-project [-h] [-d|-f] [-z] [DIR]"
+    echo "Usage: ls-project [-h] [-d|-f] [-z] [-c|-C] [DIR]"
 }
 
 function print_help {
@@ -22,10 +22,11 @@ function print_help {
     echo "  -z      output null delimited"
     echo "  -a      skip project check and list all files"
     echo "  -u/-U   guarantee the paths are outputted uniquely"
+    echo "  -c/-C   color paths using same format as LS_COLORS"
 }
 
-dirs_only=0 files_only=0 null=0 find_all=0 uniquify=1
-while getopts 'hdfzauU' OPTION; do
+dirs_only=0 files_only=0 null=0 find_all=0 uniquify=1 color=0
+while getopts 'cChdfzauU' OPTION; do
     case "$OPTION" in
         h) print_help
            exit 0
@@ -39,6 +40,8 @@ while getopts 'hdfzauU' OPTION; do
         a) find_all=1 ;;
         u) uniquify=1 ;;
         U) uniquify=0 ;;
+        c) color=1 ;;
+        C) color=0 ;;
     esac
 done
 shift "$((OPTIND-1))"
@@ -66,7 +69,7 @@ function files_to_files_and_dir {
   if (match($0, /(.+)\/[^\/]+$/, group)) {
     dir = group[1]
     if (dir != "." && !dirs[dir]++) {
-      print dir
+      print dir "/"
     }
 
     print $0
@@ -144,15 +147,26 @@ function do_find() {
 #
 # Run through available programs and invoke the first handler you find.
 
-if [ "$find_all" -eq 1 ]; then
-    # jump straight to the fallback behaviour
-    do_find
-elif hash rg; then
-    do_rg
-elif [ -d .git ] || git git rev-parse --git-dir; then
-    do_git
-elif hash fd; then
-    do_fd
-else
-    do_find
-fi 2>/dev/null
+function list_project() {
+    if [ "$find_all" -eq 1 ]; then
+        # jump straight to the fallback behaviour
+        do_find
+    elif hash rg; then
+        do_rg
+    elif [ -d .git ] || git git rev-parse --git-dir; then
+        do_git
+    elif hash fd; then
+        do_fd
+    else
+        do_find
+    fi 2>/dev/null
+}
+
+list_project |
+    if [ "$color" -eq 0 ]; then
+        cat # no color, output as is :-(
+    elif command -v parallel >/dev/null 2>&1; then
+        parallel --line-buffered -X ls -qd --quoting-style=literal --color {}
+    else
+        xargs -r -d '\n' ls -qd --quoting-style=literal --color
+    fi
