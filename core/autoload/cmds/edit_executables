@@ -1,6 +1,6 @@
-#!/usr/bin/env sh
+# -*- mode: sh -*-
 edit_executables() {
-    paths=$(ls-exec | fzf -d / --with-nth '-1' --multi)
+    paths=$(ls-exec | FZF_DEFAULT_OPTS="$FZF_SHELL_OPTS" fzf -d / --with-nth '-1' --multi)
     if [ "$?" -eq 0 -o -n "$paths" ]; then
         xargs -r -d '\n' $EDITOR <<< "$paths"
     fi

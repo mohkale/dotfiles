@@ -8,12 +8,14 @@ makecd() {
     mkdir -p "$*"
     cd       "$*"
 }
+alias mcd=makecd mkcd=makecd
 
 get_last_command() {
     history | tail -n 2 | head -n 1 | sed -E 's/^ [0-9]+  //';
 }
 
-alias with-emacs='with_emacs ' # alias expanding version
+# alias expanding version
+alias with-emacs='with_emacs ' \
 alias with-evi='EMACS_FLAGS=-nw with_emacs '
 alias y='fp_yank'
 alias sd='sudo '

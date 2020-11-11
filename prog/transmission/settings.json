@@ -53,7 +53,7 @@
     "rpc-whitelist-enabled": true,
     "scrape-paused-torrents-enabled": true,
     "script-torrent-done-enabled": true,
-    "script-torrent-done-filename": "/home/mohkale/.config/transmission-daemon/scripts/on-complete",
+    "script-torrent-done-filename": "/home/mohkale/.config/transmission-daemon/cmds/on-complete",
     "seed-queue-enabled": true,
     "seed-queue-size": 3,
     "speed-limit-down": 2000,

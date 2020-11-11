@@ -1,5 +1,6 @@
-#!/usr/bin/env sh
+# -*- mode: sh -*-
 fzf_cd() {
-    dest="$(ls-project -dz "$@" | fzf --read0 --no-multi --preview 'preview {}' --preview-window=25%)"
+    local dest=$(ls-project -dz "$@" |
+      FZF_DEFAULT_OPTS="$FZF_SHELL_OPTS" fzf --read0 --no-multi --preview 'preview {}' --preview-window=25%)
     cd "$dest" || echo "error: failed to cd: $dest" >&2
 }

@@ -1,4 +1,4 @@
-# -*- mode: conf-space -*-
+# -*- mode: conf-space -*- Platform agnostic alias configuration
 #        .__                   __                 __
 #   _____|  |__   ____________/  |_  ____  __ ___/  |_  ______
 #  /  ___/  |  \ /  _ \_  __ \   __\/ ___\|  |  \   __\/  ___/
@@ -6,45 +6,74 @@
 # /____  >___|  /\____/|__|   |__|  \___  >____/ |__| /____  >
 #      \/     \/                        \/                 \/
 
-# Global shortcuts file, these shortcuts will be sourced regardless
-# of which platform, shell or OS is invoked.
+a       cd_fsmap
+d       fzf_cd
+D       fzf_cd_all
+e       sh --norc -c '$EDITOR "$@"' edit
+f       fzf_select
+F       fzf_select_all
+i       sh -c 'preview "$@" | less' inspect
+m       fzman
+o       xopen
+p       cd_repo
+r       ranger
+x       fzf-dmenu
 
-# Programs
+cls     clear
+
 wai     whoami
-edit    sh --norc -c '$EDITOR "$@"' edit
-e       edit
 nv      nvim
-ccat    highlight --out-format=ansi
-mcd     makecd
-mkcd    makecd
-img     feh
 netcat  ncat
 chksum  cksum
 unmount umount
+
+g       git
+gs      g status
+
 R       rake
 Rl      rake -T
+
 T       thor
 Tl      thor list
 Th      thor help
-istat   stat -c "%A %08s %n"  # inline stat
-b       buku --suggest
-r       ranger
-x       fzf-dmenu
-m       fzman
+
 par     parallel
 parx    par -X
 pard    par --dry-run
-we      with-evi
+
+istat   stat -c "%A %08s %n"
+
+grep    grep  --color=auto
+fgrep   fgrep --color=auto
+egrep   egrep --color=auto
+
+python  python3
+py      python
+pip     py -m pip
+
+l       ls -CF
+ls      ls --color=auto --group-directories-first
+ll      ls -l
+lal     ls -al
+la      ls -A
+l1      \ls -1 --quoting-style=literal
+f1      \find -mindepth 1 -maxdepth 1
+
+gD      fzf_cd_all
+gF      fzf_select_all
+ga      cd_fsmap
+gd      fzf_cd
+ge      cd_env
+gf      fzf_select
+gm      cd_mount
+gp      cd_repo
+gu      cd_project_root
+gx      edit_executables
 
 # vi stuff
-q       exit
+ q      exit
 :q      exit
 :wq     exit
-
-
-# Windows Compatibility
-cls    clear
-
 
 # Emacs
 evipe   VISUAL='emacsclient -nw -a= -c' vipe # emacs edit pipe
@@ -53,6 +82,7 @@ ee      ec --no-wait --suppress-output # emacs dispatch
 ex      emacs
 sx      smacs
 et      sh -c 'cd $EMACS_HOME && ./bin/tangle -i -d hydras.org -d etc/snippets.org'
+we      with-evi
 emf     emacs-make-frame
 
 # TMUX
@@ -69,35 +99,7 @@ tprint tmux display-message -p
 # NOTE you can attach to an existing session with a new
 # name if you don't want to follow it. See [[https://unix.stackexchange.com/a/152280][here]].
 
-
-# Python Shortcuts
-python python3
-py     python
-pip    py -m pip
-
-
-# ls Variants
-ls     ls --color=auto --group-directories-first
-l      ls -CF
-ll     ls -l
-lal    ls -al
-la     ls -A
-l1     \ls -1 --quoting-style=literal
-f1     \find -mindepth 1 -maxdepth 1
-
-
-# Colors Colors Colors
-grep   grep  --color=auto
-fgrep  fgrep --color=auto
-egrep  egrep --color=auto
-
-
-# Git - Version Control
-g       git
-gs      g status
-
-
-# Configure Dotfiles
+# dotfiles
 dot@dirx $DOTFILES_REPO_PATH
 
 dotg    g --git-dir=$DOTFILES_REPO_PATH/.git --work-tree=$DOTFILES_REPO_PATH
@@ -106,8 +108,7 @@ distat  dotg ls-tree --full-tree --full-name -r --name-only HEAD \
         | awk -v home="$DOTFILES_REPO_PATH" '{ printf("%s/%s\0", home, $1) }' \
         | xargs -r0 stat -c "%A %08s %n"
 
-
-# Change Directory
+# directory-stack
 qa      pushd
 qd      popd
 qs      dirs -v
@@ -131,39 +132,8 @@ cd7@dir     ../../../../../../../
 cd8@dir     ../../../../../../../../
 cd9@dir     ../../../../../../../../../
 cd10@dir    ../../../../../../../../../../
-# why would I ever need any more of these :P
-cd11@dir    ../../../../../../../../../../../
-cd12@dir    ../../../../../../../../../../../../
-cd13@dir    ../../../../../../../../../../../../../
-cd14@dir    ../../../../../../../../../../../../../../
-cd15@dir    ../../../../../../../../../../../../../../../
-cd16@dir    ../../../../../../../../../../../../../../../../
-cd17@dir    ../../../../../../../../../../../../../../../../../
-cd18@dir    ../../../../../../../../../../../../../../../../../../
-cd19@dir    ../../../../../../../../../../../../../../../../../../../
-cd20@dir    ../../../../../../../../../../../../../../../../../../../../
 
-# Directories Shortcuts
-h@dirx            ~
-dl@dirx           ~/downloads
-em@dirx           $EMACS_HOME
-rp@dirx           ~/prog/repos
-sc@dirx           ~/prog/scripts
-bin@dirx          ~/.local/bin
-dtop@dirx         ~/OS/desktop
-music@dirx        ~/media/music
-dbox@dirx         ~/Dropbox
-images@dirx       ~/media/images
-docs@dirx         ~/user/
-
-# File Shortcuts
-profile@file     ~/.profile
-shenv@file       $XDG_CONFIG_HOME/shenv
-al@file          $XDG_CONFIG_HOME/aliases
-au@file          $XDG_CONFIG_HOME/autoloads/cmds
-lfrc@file        $XDG_CONFIG_HOME/lf/lfrc
-
-# Temp FS
+# temporary file-system
 ctemp       cd    $(mktemp -d)
 ct          cd    $(mktemp -d)
 qtemp       pushd $(mktemp -d)
@@ -175,15 +145,22 @@ cdd         cd -
 qswap       pushd -
 qs          pushd -
 
-ga cd_fsmap
-ge cd_env
-gu cd_project_root
-p  cd_repo
-gp cd_repo
-gm cd_mount
-gx edit_executables
-# fuzzy jump to a new directory or to start editing a file.
-d fzf_cd
-D fzf_cd_all
-f fzf_select
-F fzf_select_all
+# filesystem-shortcuts
+profile@file     ~/.profile
+shenv@file       $XDG_CONFIG_HOME/shenv
+al@file          $XDG_CONFIG_HOME/aliases
+au@file          $XDG_CONFIG_HOME/autoloads/cmds
+lfrc@file        $XDG_CONFIG_HOME/lf/lfrc
+
+h@dirx            ~
+dl@dirx           ~/downloads
+em@dirx           $EMACS_HOME
+org@dirx          $EMACS_HOME/org
+rp@dirx           ~/prog/repos
+sc@dirx           ~/prog/scripts
+bin@dirx          ~/.local/bin
+dtop@dirx         ~/OS/desktop
+music@dirx        ~/media/music
+dbox@dirx         ~/Dropbox
+images@dirx       ~/media/images
+docs@dirx         ~/user

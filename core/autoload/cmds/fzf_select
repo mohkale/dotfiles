@@ -1,5 +1,5 @@
-#!/usr/bin/env sh
+# -*- mode: sh -*-
 fzf_select() {
     select_path "$(ls-project -z "$@" |
-                     fzf --read0 --no-multi --preview 'preview {}' --preview-window=25%)"
+                     FZF_DEFAULT_OPTS="$FZF_SHELL_OPTS" fzf --read0 --no-multi --preview 'preview {}' --preview-window=25%)"
 }

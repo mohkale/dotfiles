@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+# -*- mode: sh -*-
 # try to handle the path at $1 in the best way possible, this could
 # mean changing the cwd or opening your EDITOR on the path.
 select_path() {

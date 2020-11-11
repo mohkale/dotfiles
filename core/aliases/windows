@@ -7,6 +7,6 @@ ywd        pwd | tee /dev/tty | cygpath -f - -w | tr -d "\n" | clip
 # languages
 irb        winpty $(which irb).cmd
 
-# Directories
+# directories
 pf@dirx           c:/Program Files
 pf86@dirx         "c:/Program Files (x86)"

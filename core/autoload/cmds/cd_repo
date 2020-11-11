@@ -1,5 +1,6 @@
-#!/usr/bin/env sh
+# -*- mode: sh -*-
 cd_repo() {
-    dest="$(ls-repos | fzf -d '/' --with-nth -1 --preview 'INCLUDE_DIR=1 preview {}')"
+    local dest=$(ls-repos |
+      FZF_DEFAULT_OPTS="$FZF_SHELL_OPTS" fzf -d '/' --with-nth -1 --preview 'INCLUDE_DIR=1 preview {}')
     cd "$dest" || echo "error: failed to cd: $dest" >&2
 }

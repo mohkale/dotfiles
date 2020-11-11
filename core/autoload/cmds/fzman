@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+# -*- mode: sh -*-
 # Present all manual pages in a fzf session and choose
 # one or more manual entries to open in less.
 
