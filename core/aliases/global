@@ -7,6 +7,7 @@
 #      \/     \/                        \/                 \/
 
 a       cd_fsmap
+b       fzbm
 d       fzf_cd
 D       fzf_cd_all
 e       sh --norc -c '$EDITOR "$@"' edit

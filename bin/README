@@ -12,6 +12,7 @@ in ruby. Generally whatever works for whatever I'm trying to do.
 | [build-aliases](./build-aliases)       | Build alias declarations from my alias files, see ([here](../core/aliases/)).               |
 | [bulkchmod](./bulkchmod)               | Open a bulkrename session to modify unix file permissions.                                  |
 | [bulkrename](./bulkrename)             | Open a bunch of files in your editor and sync changes back to the filesystem.               |
+| [clip](./clip)                         | Clipboard sink for pipelines. Anything piped to this command is put into your clipboard.    |
 | [clipsink](./clipsink)                 | Monitor changes to the system clipboard and print them to stdout.                           |
 | [clj](./clj)                           | A wrapper around the clojure compiler which adds in readline support.                       |
 | [condemn](./condemn)                   | Trash files using the various tools installed on your system.                               |
@@ -30,6 +31,7 @@ in ruby. Generally whatever works for whatever I'm trying to do.
 | [image2ascii](./image2ascii)           | Convert images to ascii text.                                                               |
 | [img2pdf](./img2pdf)                   | Bulk convert a bunch of input images to a PDF using pillow.                                 |
 | [ls-aliases](./ls-aliases)             | List alias files to use alongside `build-aliases` for your current platform.                |
+| [ls-bookmarks](./ls-bookmarks)         | List system bookmarks. These can come from browsers, buku or any other arbitrary source.    |
 | [ls-exec](./ls-exec)                   | List executables which can be accessed from your PATH.                                      |
 | [ls-fsdirmaps](./ls-fsdirmaps)         | List aliases (from `ls-aliases`) that point to directories (used for file-system jumps).    |
 | [ls-platform](./ls-platform)           | List the current platform (Unix, MacOS, Windows).                                           |

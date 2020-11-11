@@ -1,0 +1,199 @@
+#!/usr/bin/env bash
+
+print_usage() {
+  echo "Usage: $(basename "$0") [-h] [-d SEP] [-p FORMAT] [-C]"
+}
+
+print_help() {
+  print_usage
+  echo "Optional Arguments:"
+  echo "  -d SEP"
+  echo "     Specify seperator for the URL, tags, and output"
+  echo "  -p FORMAT"
+  echo "     Pretty print parsed output for use in fzbm."
+  echo "     FORMAT should be a string containing the following"
+  echo "     to include them in the output: {h: host, #: tags, t: title}"
+  echo "  -C"
+  echo "     Remove color codes from pretty-printed output"
+}
+
+# delimiter for outputted fields.
+d=$'\t'
+
+# color codes for pretty printed output
+c_tag_l=$'\e[1m'
+c_tag_r=$'\e[0m'
+c_title_l=""
+c_title_r=""
+c_url_l=$'\e[32m'
+c_url_r=$'\e[0m'
+
+while getopts 'hd:p:C' OPTION; do
+  case "$OPTION" in
+    h) print_help
+       exit 0 ;;
+    d) d="$OPTARG" ;;
+    p) if [ -n "$OPTARG" ]; then
+         pretty_print="$OPTARG"
+       else
+         pretty_print="1"
+       fi
+       ;;
+    C) c_tag_l=''
+       c_tag_r=''
+       c_title_l=''
+       c_title_r=''
+       c_url_l=''
+       c_url_r=''
+       ;;
+    *|\?) print_help >&2
+          exit 1 ;;
+  esac
+done
+
+shopt -s nullglob
+
+# All the chromium variants generally have the same format for
+# bookmark files so this is a generic function for outputting
+# bookmarks for all chromium browsers.
+#
+# Each argument contains the path information for a single chromium
+# variant (eg. brave). It should be a : delimited list with the first
+# value being the browser name and the rest being a series of paths to
+# check for a bookmark file.
+do_chromium() { # ([browser:path1:path2...]...)
+  # jq script sourced from [[https://github.com/junegunn/fzf/wiki/Examples#google-chrome-os-xlinux][here]].
+  # We cat out all the paths to avoid spawning more than
+  # one jq process when working with multiple browsers.
+  for arg in "$@"; do
+    IFS=: read -r browser paths <<< "$arg"
+    while read -r it; do
+      if [ -e "$it" ]; then
+        cat "$it"; break
+      fi
+    done <<< "${paths//:/$'\n'}"
+  done |
+    jq -r \
+       --arg sep "$d" \
+       'def ancestors: while(. | length >= 2; del(.[-1,-2]));
+        . as $in
+        | paths(.url?) as $key
+        | $in
+        | getpath($key)
+        | {name,url, path: [$key[0:-2] | ancestors as $a | $in | getpath($a) | .name?] | reverse | join("/") | sub("^Bookmarks/?"; "") }
+        | [.url, .path, .name]
+        | join($sep)'
+}
+
+do_firefox() {
+  # bookmarks are stored as an sqlite3 db, so we're gonna need sqlite3
+  # to extract the URLs in a readable format.
+  command -v sqlite3 >/dev/null 2>&1 || return 1
+
+  # temporary directory for locked db files.
+  local tempdest=
+
+  for arg in "$@"; do
+    IFS=: read -r browser paths <<< "$arg"
+    while read -r it; do
+      [ -f $it ] || continue
+
+      # firefox and torbrowser have this weird issue where whenever
+      # you're running the browser the entire bookmarks file is locked
+      # so you can't even read it. For now I just copy it.
+      if ! sqlite3 $it "BEGIN IMMEDIATE" >/dev/null 2>&1; then
+        # make the temp directory for db copies.
+        if [ -z "$tempdest" ]; then
+          tempdest=$(mktemp -d)
+          trap "rm -rf $tempdest" EXIT
+        fi
+        cp -f $it "$tempdest/db"
+        it="$tempdest/db"
+      fi
+
+      # This beheamoth of an SQL query returns the url, folder path, and title for a
+      # bookmark from a mozilla formatted SQL places database.
+      #
+      # moz_bookmarks stores both bookmarked urls and the folder structure of a bookmark
+      # (as a foreign key relation back onto the table itself). Here I'm using a recursive
+      # CTE (introduced in sqlite 3.8.3) which simply goes through all the foreign key
+      # relations and then concatenates each folders name with /.
+      #
+      # NOTE: moz_places and moz_bookmarks both store a title field, but the bookmarks
+      # one seems to be the one used in the browser window so that's the one I'm using
+      # here.
+      sqlite3 -separator "$d" $it '
+SELECT url, (
+  SELECT group_concat(z, "/") FROM (
+    WITH RECURSIVE tree(x, y, z) AS
+      (SELECT id, parent, title FROM moz_bookmarks WHERE id = bm.parent
+       UNION ALL
+       SELECT id, parent, title FROM tree,moz_bookmarks where id = y)
+    SELECT z FROM tree ORDER BY x ASC LIMIT -1 OFFSET 2
+  )
+) AS tags, bm.title
+FROM moz_places as places
+INNER JOIN moz_bookmarks as bm ON places.id == bm.fk;'
+      break
+    done <<< "${paths//:/$'\n'}"
+  done
+}
+
+do_buku() {
+  command -v buku >/dev/null 2>&1 || return 1
+  buku -p -f 4 -j |
+    jq --arg sep "$d" -r \
+       '.[]
+        | [.uri, .tags, .title]
+        | join ($sep)'
+}
+
+pretty_print() {
+  # prettify the bookmarks list for use in fzbm.
+  gawk -F "$d" \
+       -v sep="$d" \
+       -v tag_l="$c_tag_l" \
+       -v tag_r="$c_tag_r" \
+       -v title_l="$c_title_l" \
+       -v title_r="$c_title_r" \
+       -v url_l="$c_url_l" \
+       -v url_r="$c_url_r" \
+       -v fmt="$1" \
+       -e 'BEGIN {
+  show_tags=1; show_title=1; show_host=1
+  if (fmt != "1") {
+    show_tags = match(fmt, /#/)
+    show_title = match(fmt, /t/)
+    show_host = match(fmt, /h/)
+  }
+}' \
+       -e '{
+  url=$1; tags=$2; title=$3
+
+  printf("%s%s", url, sep)
+
+  if (show_tags && tags) {
+    printf("%s(%s)%s ", tag_l, tags, tag_r)
+  }
+
+  if (show_title) {
+    printf("%s%s%s", title_l, title ? title : url, title_r)
+  }
+
+  if (show_host && title != "" && match(url, /https?:\/\/(www\.)?([^:/]*)/, a)) {
+    printf(" [%s%s%s]", url_l, a[2], url_r)
+  }
+
+  print ""
+}'
+}
+
+{ # NOTE: These are ordered based on how quickly the response is expected to take.
+  # For now I just do brave browser on linux, I'll add cases for windows
+  # and other chromium derivatives as I encounter them.
+  do_chromium "brave:$XDG_CONFIG_HOME/BraveSoftware/Brave-Browser/Default/Bookmarks"
+  do_firefox "firefox:$HOME/.mozilla/firefox/*/places.sqlite" \
+             "tor:$HOME/.tor-browser/app/Browser/TorBrowser/Data/Browser/*/places.sqlite"
+  do_buku
+} |
+  if [ -n "$pretty_print" ]; then pretty_print "$pretty_print"; else cat; fi

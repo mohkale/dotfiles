@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# System agnostic clipboard sink.
+#
+# Pipe data into this command and it'll
+
+if [ "$(ls-platform)" == "linux" ]; then
+  xclip -i -selection clipboard
+else
+  echo "error: clip: no clipboard utility known for current platform"
+fi

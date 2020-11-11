@@ -682,16 +682,19 @@ class Desktop(abc.ABC):
 
 class KDE(Desktop):
     def open(self, urls):
-        return self.run_opener(
-            {'cmd': 'kde-open',
-             'exec': ['kde-open', *urls]},
-            {'cmd': 'kde-open5',
-             'exec': ['kde-open5', '--interactive' if self.interactive else None, '--', *urls]},
-            {'cmd': 'kfmclient',
-             'exec': ['kfmclient', 'exec', *urls]},
-            {'cmd': 'kioclient5',
-             'exec': ['kioclient5', '--interactive' if self.interactive else '', 'exec', *urls]},
-        )
+        res = True
+        for url in urls:
+            res = res and self.run_opener(
+                {'cmd': 'kde-open',
+                 'exec': ['kde-open', url]},
+                {'cmd': 'kde-open5',
+                 'exec': ['kde-open5', '--interactive' if self.interactive else None, '--', url]},
+                {'cmd': 'kfmclient',
+                 'exec': ['kfmclient', 'exec', url]},
+                {'cmd': 'kioclient5',
+                 'exec': ['kioclient5', '--interactive' if self.interactive else '', 'exec', url]},
+            )
+        return res
 
     # @staticmethod
     # @functools.lru_cache()
