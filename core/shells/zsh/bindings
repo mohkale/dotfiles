@@ -6,10 +6,6 @@ zle_highlight+="isearch:bg=blue,fg=black"
 zle_highlight+="region:fg=black,bg=white"
 zle_highlight+="paste:fg=cyan"
 
-# offers interactive completion selection
-zmodload -i zsh/complist
-# only activated when more than <NUM> candidates
-# zstyle ':completion:*' menu select=10
 setopt listrowsfirst
 
 autoload -U select-word-style
@@ -111,19 +107,23 @@ bindkey -s '^[xs' "\C-p\C-asd \C-a"
 bindkey -s '^[x`' '\C-e`\C-a`\C-a'
 bindkey -s '^[xe' 'emacsclient -nw'
 
-# menuselect
-bindkey -M menuselect "^p" backward-char
-bindkey -M menuselect "^n" forward-char
+# # menuselect
+# ## offers interactive completion selection
+# zmodload -i zsh/complist
+# zstyle ':completion:*' menu select=1
 
-# bindkey -M menuselect "h" backward-char
-# bindkey -M menuselect "j" down-line-or-history
-# bindkey -M menuselect "k" up-line-or-history
-# bindkey -M menuselect "l" forward-char
+# bindkey -M menuselect "^p" backward-char
+# bindkey -M menuselect "^n" forward-char
 
-bindkey -M menuselect "^h" backward-char
-bindkey -M menuselect "^j" down-line-or-history
-bindkey -M menuselect "^k" up-line-or-history
-bindkey -M menuselect "^l" forward-char
+# # bindkey -M menuselect "h" backward-char
+# # bindkey -M menuselect "j" down-line-or-history
+# # bindkey -M menuselect "k" up-line-or-history
+# # bindkey -M menuselect "l" forward-char
 
-# bindkey -M menuselect "^l" accept-line
-bindkey -M menuselect "^o" accept-and-infer-next-history
+# bindkey -M menuselect "^h" backward-char
+# bindkey -M menuselect "^j" down-line-or-history
+# bindkey -M menuselect "^k" up-line-or-history
+# bindkey -M menuselect "^l" forward-char
+
+# # bindkey -M menuselect "^l" accept-line
+# bindkey -M menuselect "^o" accept-and-infer-next-history

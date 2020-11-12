@@ -4,7 +4,8 @@ if [ -f "$HOME/.profile" ]; then
 fi
 
 export ZDOTDIR="$XDG_CONFIG_HOME/zshell"
-export ZPLUG_HOME="$ZDOTDIR/zplug"
+#export ZPLUG_HOME="$ZDOTDIR/zplug"
+ZGEN_DIR="$ZDOTDIR/zgen"
 
 if [ -z "$ZSH_COMPDUMP" ]; then
   ZSH_COMPDUMP="${ZDOTDIR:-${ZSH}}/cache/.zcompdump-${ZSH_VERSION}"

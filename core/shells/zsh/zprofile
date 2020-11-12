@@ -1,36 +1,64 @@
 # -*- mode: sh -*-
-source "$ZPLUG_HOME/init.zsh"
+if ! [ -d "$ZGEN_DIR" ]; then
+    echo "info: zprofile: zgen installation not found, installing now"
+    git clone --quiet https://github.com/tarjoilija/zgen.git "$ZGEN_DIR"
+fi
+ZGEN_RESET_ON_CHANGE=($ZDOTDIR/.zprofile)
+source "$ZGEN_DIR/zgen.zsh"
 
-# Ctrl+Shift+(left|right) to cycle dirstack
-zplug 'michaelxmcbride/zsh-dircycle'
-
-# interactive jq
-zplug 'reegnz/jq-zsh-plugin'
-
-# complete ssh hostanmes
-zplug 'zpm-zsh/ssh'
-
-# asynchronous actions (for prompt), see [[https://github.com/mafredri/zsh-async/issues/42][#42]] for why v1.7.2
-zplug 'mafredri/zsh-async', from:github, use:async.zsh, at:v1.7.2
-
-## preview completions/suggestions
-#ZSH_AUTOSUGGEST_USE_ASYNC=1
-#zplug 'zsh-users/zsh-autosuggestions', from:github
-
-# highlight keywords/commands as you write
+# zsh-highlight
 typeset -A ZSH_HIGHLIGHT_STYLES
 ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets cursor)
+# errors and warnings
 ZSH_HIGHLIGHT_STYLES[unknown-token]='fg=red'
-# remove underlines
-ZSH_HIGHLIGHT_STYLES[suffix-alias]="fg=green"
-ZSH_HIGHLIGHT_STYLES[precommand]="fg=green"
-ZSH_HIGHLIGHT_STYLES[autodirectory]="fg=green"
-ZSH_HIGHLIGHT_STYLES[path]="fg=grey"
-zplug "zsh-users/zsh-syntax-highlighting", defer:2
+# builtins and syntax specific stuff
+ZSH_HIGHLIGHT_STYLES[reserved-word]='fg=blue'
+ZSH_HIGHLIGHT_STYLES[builtin]='fg=blue'
+ZSH_HIGHLIGHT_STYLES[named-fd]='fg=blue'
+ZSH_HIGHLIGHT_STYLES[numeric-fd]='fg=yellow'
+ZSH_HIGHLIGHT_STYLES[named-fd]='fg=yellow'
+ZSH_HIGHLIGHT_STYLES[precommand]="fg=blue"
 
-# install, then load, if required
-if ! zplug check; then zplug install; fi
-zplug load
+ZSH_HIGHLIGHT_STYLES[global-alias]="fg=green"
+ZSH_HIGHLIGHT_STYLES[suffix-alias]="fg=green"
+# color for quoted arguments/bodies
+ZSH_HIGHLIGHT_STYLES[single-quoted-argument]="fg=blue"
+ZSH_HIGHLIGHT_STYLES[dollar-quoted-argument]="fg=blue"
+ZSH_HIGHLIGHT_STYLES[double-quoted-argument]="fg=blue"
+ZSH_HIGHLIGHT_STYLES[single-quoted-argument-unclosed]="fg=black,bold"
+ZSH_HIGHLIGHT_STYLES[double-quoted-argument-unclosed]="fg=black,bold"
+ZSH_HIGHLIGHT_STYLES[dollar-quoted-argument-unclosed]="fg=black,bold"
+ZSH_HIGHLIGHT_STYLES[back-double-quoted-argument]="fg=cyan"
+ZSH_HIGHLIGHT_STYLES[back-dollar-quoted-argument]="fg=cyan"
+
+ZSH_HIGHLIGHT_STYLES[assign]="fg=yellow"
+ZSH_HIGHLIGHT_STYLES[path]="none"
+ZSH_HIGHLIGHT_STYLES[autodirectory]="fg=green"
+
+# zsh-autosuggest
+#ZSH_AUTOSUGGEST_USE_ASYNC=1
+
+if ! zgen saved; then
+    # Ctrl+Shift+(left|right) to cycle dirstack
+    zgen load 'michaelxmcbride/zsh-dircycle'
+
+    # interactive jq
+    zgen load 'reegnz/jq-zsh-plugin'
+
+    # complete ssh hostanmes
+    zgen load 'zpm-zsh/ssh'
+
+    # asynchronous actions (for prompt), see [[https://github.com/mafredri/zsh-async/issues/42][#42]] for why v1.7.2
+    zgen load 'mafredri/zsh-async'
+
+    # preview completions/suggestions
+    #zplug 'zsh-users/zsh-autosuggestions', from:github
+
+    # highlight keywords/commands as you write
+    zgen load "zsh-users/zsh-syntax-highlighting"
+
+    zgen save # sync installations
+fi
 
 # Shell Options
 ## shwordsplit      - allows $foo to expand to multiple space delimeted arguments, instead of
@@ -56,11 +84,18 @@ zplug load
 setopt shwordsplit globsubst notify localtraps promptpercent \
        promptsubst appendhistory incappendhistory histfindnodups \
        histignorespace histnofunctions nohistbeep autocd nobeep autolist automenu \
-       noautoremoveslash completeinword
+       noautoremoveslash completeinword listrowsfirst
 
 unsetopt menucomplete
+
 # have completion candidates styled like ls
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+
+# Smart matching of dashed values, e.g. f-b matching foo-bar
+zstyle ':completion:*' matcher-list 'r:|[._-]=* r:|=*'
+
+# # Don't insert a literal tab when trying to complete in an empty buffer
+# zstyle ':completion:*' insert-tab false
 
 # orders directories first, but seperates files from dirs
 # even when theres more than enough room for both :sad:.
