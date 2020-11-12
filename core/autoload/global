@@ -15,7 +15,7 @@ get_last_command() {
 }
 
 # alias expanding version
-alias with-emacs='with_emacs ' \
+alias with-emacs='with_emacs '
 alias with-evi='EMACS_FLAGS=-nw with_emacs '
 alias y='fp_yank'
 alias sd='sudo '

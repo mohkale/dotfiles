@@ -89,7 +89,7 @@ emf     emacs-make-frame
 # TMUX
 t      tmux
 tt     tmuxinator
-ta     $TMUX_HOME/scripts/attach-session
+ta     $TMUX_HOME/cmds/attach-session
 t?     tmux show-options -g
 tM     tmux display-message
 tm     tmux show-messages
@@ -149,6 +149,7 @@ qs          pushd -
 # filesystem-shortcuts
 profile@file     ~/.profile
 shenv@file       $XDG_CONFIG_HOME/shenv
+shenvl@file      $XDG_CONFIG_HOME/shenv.local
 al@file          $XDG_CONFIG_HOME/aliases
 au@file          $XDG_CONFIG_HOME/autoloads/cmds
 lfrc@file        $XDG_CONFIG_HOME/lf/lfrc

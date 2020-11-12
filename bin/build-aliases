@@ -11,13 +11,6 @@ fi
 
 set -e
 
-inline=0
-prettify=0
-editor=${EDITOR:-vi}
-# generated aliases will be cached here.
-cache_dir="$XDG_CACHE_HOME/aliases/"
-[ -e "$cache_dir" ] || mkdir -p "$cache_dir"
-
 print_usage() {
     echo 'Usage: eval "$(build-aliases [-1] [-i] [-P] [-e EDITOR] FILE [FILE...])"'
     echo ""
@@ -28,11 +21,15 @@ print_usage() {
     echo ""
     echo "Optional Arguments:"
     echo "  -1         output all aliases in a single line"
-    echo "  -p/-P      prettify outputed aliases; this'll probably break"
     echo "  -e EDITOR  set the editor used for file aliases"
 }
 
-while getopts "hi1e:PpC" option; do
+inline=0
+editor=${EDITOR:-vi}
+# generated aliases will be cached here.
+cache_dir="$XDG_CACHE_HOME/aliases"
+
+while getopts "h1e:" option; do
     case "$option" in
         h) print_usage
            exit 0 ;;
@@ -42,13 +39,8 @@ while getopts "hi1e:PpC" option; do
            ;;
         e) editor=$OPTARG
            ;;
-        P) prettify=0 # probably the safe bet :)
-           ;;
-        p) prettify=1
-           ;;
     esac
 done
-
 shift $(($OPTIND - 1))
 
 read_script() { #(*files)
@@ -65,47 +57,39 @@ read_script() { #(*files)
 }
 
 parse_aliases() {
-    while read -r cut dest; do
-        # available tags:
-        #  @file create a file shortcut, invoking it opens editor with it.
-        #  @dir  create a dir shortcut, invoking it changes dir to it.
-        #  @dirx same as @dir, but also creates a q{name} alias which
-        #        pushes onto the directory stack.
-        case "$cut" in
-            *@file) cut=${cut%@file*}
-                    echo alias ${cut@Q}=${editor@Q}"' '"${dest@Q}
-                    ;;
-            *@dir) cut=${cut%@dir*}
-                   echo alias ${cut@Q}="'cd '"${dest@Q}
-                   ;;
-            *@dirx) cut="${cut%@dir*}"
-                    echo alias  ${cut@Q}="'cd '"${dest@Q}
-                    echo alias q${cut@Q}="'pushd '"${dest@Q}
-                    ;;
-            *) echo alias ${cut@Q}=${dest@Q}
+    while read -r key dest; do
+        local cut=${key%@*}
+        local tag=${key:${#cut}}
+        case "$tag" in
+            @file) echo alias  ${cut@Q}=${editor@Q}"' '"${dest@Q} ;;
+            @dir)  echo alias  ${cut@Q}="'cd '"${dest@Q} ;;
+            @dirx) echo alias  ${cut@Q}="'cd '"${dest@Q}
+                   echo alias q${cut@Q}="'pushd '"${dest@Q} ;;
+            *) [ -n "$tag" ] && echo "warn: build-aliases: unknown alias tag: $tag"
+               echo alias ${cut@Q}=${dest@Q}
                ;;
         esac
     done
 }
 
 create_aliases() { #(*files)
+    [ -e "$cache_dir" ] || mkdir -p "$cache_dir"
     for file in "$@"; do
         if ! [ -r "$file" -a -f "$file" ]; then
-            echo "build-aliases(error) : shortcut file '$file' is not readable" >&2
+            echo 'build-aliases(error) : shortcut file '"$file"' is not readable' >&2
             continue
         fi
 
-        # check if generated cache exists and use it instead.
-        base=$(basename -- "$file")
-        cached="$cache_dir/$base"
-        if [ -e "$cached" -a "$cached" -nt "$file" ]; then
+        base=${file##*/}
+        cached=$cache_dir/$base
+        # WARN: hardcoded path to current script.
+        if [ -e "$cached" -a "$cached" -nt "$file" -a "$cached" -nt "$HOME/.local/bin/build-aliases" ]; then
             cat -- "$cached"
-            continue
+        else
+            # generate aliases and then save back to cache
+            read_script "$file" | parse_aliases | tee "$cached"
         fi
-
-        # generate aliases and then save back to cache
-        read_script "$file" | parse_aliases | tee "$cache_dir/$base"
-    done | if [ "$prettify" -eq 1 ]; then sed "s/''//g"; else cat; fi
+    done
 }
 
 _inline_alias_calls() {
@@ -113,9 +97,8 @@ _inline_alias_calls() {
     # into one alias calls with multiple alias targets
 
     cat | sed 's/^alias //' \
-        | tr '\n' ' '       \
-        | awk -e 'BEGIN { printf "alias " }' \
-              -e '{ printf("%s", $0) }' \
+        | awk -e 'BEGIN { RS=""; printf "alias " }' \
+              -e '{ gsub(/\n/, " ", $0) }1' \
               -e 'END { printf "\n" }'
 }
 
