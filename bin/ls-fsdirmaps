@@ -3,7 +3,7 @@
 # alongside the absolute directory they point to in PATH like form.
 
 print_usage() {
-  echo "Usage: $(basename $0) [-h]"
+  echo "Usage: $(basename "$0") [-h] [-r] [-e]"
 }
 
 print_help() {
@@ -17,7 +17,6 @@ print_help() {
   echo "  -h    show this help message and exit"
   echo "  -r    replace '$HOME' with ~/ before outputting"
   echo "  -e    only show dirmaps that currently exist."
-  echo "        prints non-existant paths to stderr."
 }
 
 while getopts 'hre' option; do
@@ -33,30 +32,44 @@ done
 
 . build-aliases
 read_script $(ls-aliases) |
-  sed 's/ \+/:/' |
-  while IFS=':' read -r key path; do
-    case "$key" in
-      # only working with dirx for now
-      *@dirx*) key="${key%@dirx*}" ;;
-      *) continue ;;
-    esac
+  awk -v check_exists="${exists_only}" \
+      -v home_relative="${home_relative}" \
+      -v home="$HOME" \
+      -v sep=":" \
+      -v envsubst="stdbuf -oL envsubst" \
+      -v exists_cmd='while read -r p; do if [ -d "$p" ]; then echo "$p"; else echo; fi; done' \
+      -e '$1 ~ /@dirx|@file$/ {
+  key = substr($1, 0, length($1)-5)
 
-    path=$(eval echo "$path")
-    [ -z "$path" ] && continue
+  path = ""
+  for (i=2; i <= NF; i++) {
+    path = path (i > 2 ? FS : "") $i
+  }
+  print path |& envsubst
+  envsubst |& getline path
 
-    if [ "${exists_only:-0}" -eq 0 ] || [ -e "$path" ]; then
-      echo "$key:$path"
-    fi
-  done |
-  if [ "${home_relative:-0}" -eq 1 ] && [ -n "$HOME" ]; then
-    awk -v home="$HOME" '{
-      pos = index($0, sprintf(":%s", home))
-      if (pos == 0) {
-        print $0
-      } else {
-        printf("%s~/%s\n", substr($0, 1, pos), substr($0, pos+length(home)+2, length($0)))
-      }
-    }'
-  else
-    cat
-  fi
+  # skip path when destination is empty.
+  if (path ~ /^\s*$/) next
+
+  # expand path when checking whether it exists
+  if (path == "~" || path ~ /^~\//) {
+    path = home substr(path, 2)
+  }
+
+  if (check_exists) {
+    # pass through an exists cmd to assert whether a path
+    # exists. exists_cmd should output one line for every
+    # input line. The output should be empty if the path
+    # does not exist.
+    print path |& exists_cmd
+    exists_cmd |& getline path
+
+    if (path ~ /^\s*$/) next
+  }
+
+  if (home_relative && index(path, home) == 1) {
+    path = "~" substr(path, length(home)+1)
+  }
+
+  print key sep path
+}'

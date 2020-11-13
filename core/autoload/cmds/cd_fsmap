@@ -2,8 +2,10 @@
 cd_fsmap() {
     local dest=$(ls-fsdirmaps -re |
       if hash column 2>/dev/null; then column -s : -t; else tr ':' ' '; fi |
-      FZF_DEFAULT_OPTS="$FZF_SHELL_OPTS" fzf --no-multi -d ' ' --preview 'p={2..}; preview "${p/\~/$HOME}"' --preview-window=25% |
-      cut -d ' ' -f 2- | sed 's/^ *//')
+      FZF_DEFAULT_OPTS="$FZF_SHELL_OPTS" \
+                 fzf --no-multi -d ' ' --preview 'p={2..}; preview "${p/\~/$HOME}"' --preview-window=25% |
+      cut -d ' ' -f 2-)
 
-    cd "$dest" || echo "error: failed to cd: $dest" >&2
+    dest=${dest//[[:space:]]}
+    cd "${dest/\~/$HOME}"
 }
