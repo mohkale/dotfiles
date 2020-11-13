@@ -58,7 +58,6 @@ ll      ls -l
 lal     ls -al
 la      ls -A
 l1      \ls -1 --quoting-style=literal
-f1      \find -mindepth 1 -maxdepth 1
 
 gD      fzf_cd_all
 gF      fzf_select_all

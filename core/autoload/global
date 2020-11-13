@@ -1,4 +1,4 @@
-# -*- mode: sh -*- globally desired shortcuts
+# -*- mode: sh -*- platform independent aliase/function configuration.
 
 # ┌────────────────────────┐
 # │ Setup global shortcuts │
@@ -19,3 +19,5 @@ alias with-emacs='with_emacs '
 alias with-evi='EMACS_FLAGS=-nw with_emacs '
 alias y='fp_yank'
 alias sd='sudo '
+alias f1d='FIND_ARGS="-mindepth 1 -maxdepth 1 -type d" f1'
+alias f1f='FIND_ARGS="-mindepth 1 -maxdepth 1 -type f" f1'

@@ -1,0 +1,29 @@
+# -*- mode: sh -*-
+# A wrapper around find which lets you specify a few default options.
+#
+# Find is a cool program, but its syntax is really restrictive. You can
+# only specify paths to be searched at the start of the command. So if
+# you ever want to make an alias with some default options, eg:
+#   find -mindepth 1 -maxdepth 1
+# You lose the ability to supply paths to be searched, you can only append
+# more conditions to the query.
+#
+# f1 gets around these issues by partitioning the passed arguments into
+# paths and flags (depending on the first character of the arg). Any default
+# flags are passed through the FIND_ARGS environment variable meaning now you
+# get the best of both worlds.
+
+f1() {
+  local FIND_ARGS="${FIND_ARGS:- -mindepth 1 -maxdepth 1}"
+  paths=( )
+  while [ "$#" -gt 0 ]; do
+    if [[ "$1" =~ -.* ]]; then
+      break
+    fi
+
+    paths+=( "$1" )
+    shift
+  done
+  [ "${#paths[@]}" -eq 0 ] && paths+=( . )
+  find "${paths[@]}" $FIND_ARGS "$@"
+}
