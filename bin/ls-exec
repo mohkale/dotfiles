@@ -1,5 +1,28 @@
-#!/usr/bin/env sh
+#!/usr/bin/sh
+# List all executables findable through your PATH.
+#
+# This script automatically removes duplicate entries in your
+# PATH variable such that (UNLESS an executable with the same
+# name exists in multiple PATH locations) no duplicates should
+# be echoed out.
 
-echo "$PATH" | 2>/dev/null \
-  xargs -d: -I {} -r -- \
-    find -L {} -maxdepth 1 -mindepth 1 -type f -executable -printf '%h/%P\n'
+# we can use parallel or xargs, but parallel is better because
+# it spawns less processes... even though it messes up the order
+# of our output.
+if command -v parallel >/dev/null 2>&1; then
+  batch='parallel -X --line-buffer --quote'
+else
+  batch='xargs'
+fi
+
+echo "$PATH" | \
+  awk -e 'BEGIN { RS=":" }' \
+      -e '{
+  f=$0
+  gsub(/\n/, "", f)
+  if (length(f) > 0 && !mem[f]++) {
+      print f
+  }
+}' |
+  $batch -d '\n' -I {} -r -- \
+    find -L {} -maxdepth 1 -mindepth 1 -type f -executable -printf '%h/%P\n' 2>/dev/null
