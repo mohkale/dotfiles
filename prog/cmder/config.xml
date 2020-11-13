@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <key name="Software">
 	<key name="ConEmu">
-		<key name=".Vanilla" modified="2020-03-29 03:10:27" build="191012">
+		<key name=".Vanilla" modified="2020-11-13 18:31:13" build="191012">
 			<value name="Language" type="string" data="en"/>
 			<value name="StartType" type="hex" data="02"/>
 			<value name="CmdLine" type="string" data=""/>
@@ -61,7 +61,7 @@
 			<value name="DefaultTerminalNoInjects" type="hex" data="00"/>
 			<value name="DefaultTerminalNewWindow" type="hex" data="00"/>
 			<value name="DefaultTerminalDebugLog" type="hex" data="00"/>
-			<value name="DefaultTerminalConfirm" type="hex" data="01"/>
+			<value name="DefaultTerminalConfirm" type="hex" data="02"/>
 			<value name="DefaultTerminalApps" type="string" data="explorer.exe"/>
 			<value name="ProcessAnsi" type="hex" data="01"/>
 			<value name="AnsiExecution" type="hex" data="01"/>
@@ -136,10 +136,10 @@
 			<value name="Cascaded" type="hex" data="00"/>
 			<value name="IntegralSize" type="hex" data="00"/>
 			<value name="WindowMode" type="dword" data="0000051f"/>
-			<value name="ConWnd X" type="long" data="62"/>
+			<value name="ConWnd X" type="long" data="72"/>
 			<value name="ConWnd Y" type="long" data="484"/>
-			<value name="LastMonitor" type="string" data="62,0,1920,1080"/>
-			<value name="ConWnd Width" type="dword" data="000000e5"/>
+			<value name="LastMonitor" type="string" data="94,0,2560,1600"/>
+			<value name="ConWnd Width" type="dword" data="000000d4"/>
 			<value name="ConWnd Height" type="dword" data="00000016"/>
 			<value name="16bit Height" type="ulong" data="0"/>
 			<value name="QuakeStyle" type="hex" data="00"/>
@@ -391,7 +391,7 @@
 			<value name="Update.DownloadPath" type="string" data="%TEMP%\ConEmu"/>
 			<value name="Update.LeavePackages" type="hex" data="00"/>
 			<value name="Update.PostUpdateCmd" type="string" data="echo Last successful update&gt;ConEmuUpdate.info &amp;&amp; date /t&gt;&gt;ConEmuUpdate.info &amp;&amp; time /t&gt;&gt;ConEmuUpdate.info"/>
-			<key name="HotKeys" modified="2020-03-28 23:30:45" build="191012">
+			<key name="HotKeys" modified="2020-11-01 14:50:44" build="191012">
 				<value name="KeyMacroVersion" type="hex" data="02"/>
 				<value name="Multi.Modifier" type="dword" data="00000011"/>
 				<value name="Multi.ArrowsModifier" type="dword" data="0000005b"/>
@@ -406,7 +406,7 @@
 				<value name="ChildSystemMenu" type="dword" data="1012114d"/>
 				<value name="CheckUpdates" type="dword" data="00000000"/>
 				<value name="Multi.NewConsole" type="dword" data="00001154"/>
-				<value name="Multi.NewConsoleShift" type="dword" data="00101154"/>
+				<value name="Multi.NewConsoleShift" type="dword" data="00001254"/>
 				<value name="Multi.CmdKey" type="dword" data="00000000"/>
 				<value name="Multi.NewWndConfirm" type="dword" data="00000000"/>
 				<value name="Multi.NewConsolePopup" type="dword" data="00000000"/>

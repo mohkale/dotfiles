@@ -152,6 +152,7 @@ shenvl@file      $XDG_CONFIG_HOME/shenv.local
 al@file          $XDG_CONFIG_HOME/aliases
 au@file          $XDG_CONFIG_HOME/autoloads/cmds
 lfrc@file        $XDG_CONFIG_HOME/lf/lfrc
+xdg@file         $XDG_CONFIG_HOME/xdg
 
 h@dirx            ~
 dl@dirx           ~/downloads

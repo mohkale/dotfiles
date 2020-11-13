@@ -198,10 +198,10 @@ if [ "$platform" = "windows" ]; then
         # only about the OS, convert paths back to a windows
         # like path.
 
-        export $path_var=$(cygpath --windows --path "${!path_var}")
+        export $path_var="$(cygpath --windows --path "${!path_var}")"
     done
 
-    export GEM_HOME=$(cygpath --mixed "$GEM_HOME")
+    export GEM_HOME="$(cygpath --mixed "$GEM_HOME")"
 
     # assume it's the only platform using the TCP file.
     export EMACS_SERVER_FILE="$EMACS_HOME/var/server/server"

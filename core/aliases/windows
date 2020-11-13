@@ -9,4 +9,4 @@ irb        winpty $(which irb).cmd
 
 # directories
 pf@dirx           c:/Program Files
-pf86@dirx         "c:/Program Files (x86)"
+pf86@dirx         c:/Program Files '(x86)'

@@ -629,11 +629,11 @@ class GenericOpener(object):
 
 @functools.lru_cache()
 def xdg_current_desktop(): # pylint: disable=missing-function-docstring
-    return os.environ.get('XDG_CURRENT_DESKTOP')
+    return os.environ.get('XDG_CURRENT_DESKTOP', '')
 
 @functools.lru_cache()
 def desktop_session(): # pylint: disable=missing-function-docstring
-    return os.environ.get('DESKTOP_SESSION')
+    return os.environ.get('DESKTOP_SESSION', '')
 
 class Desktop(abc.ABC):
     """Abstract base class for a desktop environment with it's own `open' command.
@@ -725,8 +725,8 @@ class Enlightenment(Desktop):
 
     @classmethod
     def is_current(cls) -> bool:
-        return xdg_current_desktop() in 'ENLIGHTENMENT' or \
-            os.environ.get('DESKTOP').startswith('Enlightenment')
+        return 'ENLIGHTENMENT' in xdg_current_desktop() or \
+            os.environ.get('DESKTOP', '').startswith('Enlightenment')
 
 class Deepin(Desktop):
     def open(self, urls):
@@ -806,16 +806,23 @@ class Darwin(Desktop):
     def is_current(cls) -> bool:
         return sys.platform.startswith('darwin')
 
-class Cygwin(Desktop):
+class Windows(Desktop):
     def open(self, urls):
-        return self.run_opener(
-            {'cmd': 'cygstart',
-             'exec': ['cygstart', *urls]},
-        )
+        res = True
+        for url in urls:
+            res = res and self.run_opener(
+                {'cmd': 'cygstart',
+                 'exec': ['cygstart', url]},
+                {'cmd': 'start',
+                 'exec': ['start', '', url]}
+            )
+        return res
 
     @classmethod
     def is_current(cls) -> bool:
-        return sys.platform.startswith('cygwin')
+        return sys.platform.startswith('cygwin') or \
+            sys.platform.startswith('msys') or\
+            os.name == 'nt'
 
 class Flatpak(Desktop):
     def open(self, urls):

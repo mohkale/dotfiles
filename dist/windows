@@ -4,7 +4,7 @@
           "../prog/desktop/windows")
 
  ;; setup msys, the unix like environment for windows
- (:packages (:choco "msys2"))
+ (:packages (:choco "msys2" "cyg-get"))
 
  ;; by default msys uses it's own home directory independent from
  ;; my user home directory. That would require me to have to sync
@@ -37,6 +37,8 @@
                    "mingw-w64-x86_64-gcc"))
 
  (:packages (:choco "fzf"))
+
+ (:packages (:cygwin "envsubst"))
 
  (:import "../prog/git")
 

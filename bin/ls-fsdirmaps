@@ -30,14 +30,26 @@ while getopts 'hre' option; do
   esac
 done
 
+has_stdbuf=0
+envsubst_cmd='envsubst'
+if command -v stdbuf >/dev/null 2>&1; then
+  envsubst_cmd="stdbuf -oL $envsubst_cmd"
+  has_stdbuf=1
+fi
+
 . build-aliases
 read_script $(ls-aliases) |
   awk -v check_exists="${exists_only}" \
       -v home_relative="${home_relative}" \
       -v home="$HOME" \
       -v sep=":" \
-      -v envsubst="stdbuf -oL envsubst" \
+      -v envsubst="$envsubst_cmd" \
+      -v has_stdbuf="$has_stdbuf" \
       -v exists_cmd='while read -r p; do if [ -d "$p" ]; then echo "$p"; else echo; fi; done' \
+      -e 'BEGIN { 
+if (!has_stdbuf) # disable buffering
+  PROCINFO[envsubst, "pty"] = 1
+}' \
       -e '$1 ~ /@dirx|@file$/ {
   key = substr($1, 0, length($1)-5)
 
