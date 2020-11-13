@@ -152,7 +152,6 @@ if [ "${#args[@]}" -eq 0 ]; then
 fi
 
 if [ -z "$TMUX" ]; then
-  echo "tmux-popup: warn: not running inside tmux" >&2
   "${args[@]}"
   exit $?
 fi

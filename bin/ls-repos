@@ -34,10 +34,6 @@ repo_containers() {
     # filter out non-existant paths, from [[https://serverfault.com/a/609900][here]].
 }
 
-# The condition used to check whether a directory {} is a code repository or not.
-# this can be any shell expression that can be passed to `find -exec`.
-repo_assert=( [ -e '{}/.git' -o -e '{}/GemFile' ] )
-
 maybe_repos() {
     # we create a third file descriptor so we can partition the found
     # repo paths into container directories and repo directories. Repo
@@ -54,6 +50,10 @@ maybe_repos() {
             find % -mindepth 1 -maxdepth 1 -type d -print
     exec 3>&-
 }
+
+# The condition used to check whether a directory {} is a code repository or not.
+# this can be any shell expression that can be passed to `find -exec`.
+repo_assert=( [ -e '{}/.git' -o -e '{}/GemFile' -o -e '{}/__main__.py' ] )
 
 # The approach is to spawn a find process for each path that is potentially
 # a repository assert a repository test on them and print out when true.

@@ -106,6 +106,7 @@ cmap <a-f> cmd-right
 map gc
 map gb goto-bin
 map gl goto-downloads
+map dl goto-downloads
 map gc goto-config
 map gi goto-images
 map gM goto-music

@@ -36,7 +36,7 @@ ZSH_HIGHLIGHT_STYLES[path]="none"
 ZSH_HIGHLIGHT_STYLES[autodirectory]="fg=green"
 
 # zsh-autosuggest
-#ZSH_AUTOSUGGEST_USE_ASYNC=1
+# ZSH_AUTOSUGGEST_USE_ASYNC=1
 
 if ! zgen saved; then
     # Ctrl+Shift+(left|right) to cycle dirstack
@@ -48,11 +48,11 @@ if ! zgen saved; then
     # complete ssh hostanmes
     zgen load 'zpm-zsh/ssh'
 
-    # asynchronous actions (for prompt), see [[https://github.com/mafredri/zsh-async/issues/42][#42]] for why v1.7.2
+    # asynchronous actions (for prompt)
     zgen load 'mafredri/zsh-async'
 
-    # preview completions/suggestions
-    #zplug 'zsh-users/zsh-autosuggestions', from:github
+    # # preview completions/suggestions
+    # zgen load 'zsh-users/zsh-autosuggestions'
 
     # highlight keywords/commands as you write
     zgen load "zsh-users/zsh-syntax-highlighting"
@@ -93,6 +93,9 @@ zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 
 # Smart matching of dashed values, e.g. f-b matching foo-bar
 zstyle ':completion:*' matcher-list 'r:|[._-]=* r:|=*'
+
+# expand aliases with tab as well (see also <C-x>+a).
+zstyle ':completion:*' completer _expand_alias _complete _ignored
 
 # # Don't insert a literal tab when trying to complete in an empty buffer
 # zstyle ':completion:*' insert-tab false

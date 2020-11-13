@@ -59,7 +59,7 @@ set encoding=utf8
 set hidden         " change buffers even when current one is modified
 set nostartofline  " prevent column changing on scroll
 set wildmenu       " jump through completion candidates with tab/shift-tab
-set autochdir      " set cwd to match the opened file
+" set autochdir      " set cwd to match the opened file
 set autoread       " automatically read changes in unmodified buffers
 set hidden         " hide files in the background instead of closing them
 set ignorecase     " make search case insensitive by default
@@ -77,6 +77,8 @@ if has('nvim')
   set inccommand=nosplit
 endif
 
+" like autochdir except for any buffer, not just files.
+autocmd BufEnter * silent! lcd %:p:h
 silent! au TermOpen * setlocal listchars= nonumber norelativenumber
 
 if $TERM != "cygwin"
