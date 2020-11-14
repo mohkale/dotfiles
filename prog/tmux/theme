@@ -94,4 +94,7 @@ set -g window-status-current-format "#{?#{==:$number_current_window,1},#I$winum_
 
 status_date="#[default,bg=$highlight_color,fg=$bg] %d-%b-%Y %H:%M "
 status_host="#[bg=$bg,fg=$fg]#{=15:pane_title}(#{=30:pane_current_command})"
-set -g status-right "$status_host $status_date"
+set -g status-right "\
+$status_host \
+#(echo ""; $TMUX_HOME/cmds/tmux-icons -d 0.5) \
+$status_date"

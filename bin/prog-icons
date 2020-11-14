@@ -1,0 +1,124 @@
+#!/bin/sh
+# Associate programs with icons using a human readable config.
+
+fallback=""
+conf_file="${XDG_CONFIG_HOME:-$HOME/.config}/progicons"
+
+print_usage() {
+  echo "Usage: $(basename "$0") [-h] PROG [PROG...]"
+}
+
+print_help() {
+  print_usage
+  echo ""
+  echo "Output an icon to associate with the program PROG"
+  echo "using the config file at: $conf_file."
+  echo ""
+  echo "Optional Arguments:"
+  echo "  -h    Print this help message and exit"
+  echo "  -f    Keep reading program names from stdin and"
+  echo "        outputting icons. You must still supply an"
+  echo "        initial program name."
+}
+
+follow=0 format="%s \n"
+while getopts hf OPTION; do
+  case "$OPTION" in
+    h) print_help
+       exit 0 ;;
+    \?) print_help >&2
+        exit 1 ;;
+    f) follow=1 ;;
+  esac
+done
+shift "$((OPTIND-1))"
+
+if [ "$#" -lt 1 -a "$follow" -eq 0 ]; then
+  echo "warn: progicons: no program names supplied and follow is false" >&2
+  exit 0
+fi
+
+if ! [ -e "$conf_file" ]; then
+  if [ "$follow" -eq 1 ]; then
+    yes "$(printf "$format" "$fallback")"
+  else
+    printf "$format" "$fallback"
+  fi
+  exit 0
+fi
+
+# extracted from [[file:~/.dotfiles/core/shenv::LF_ICONS=][shenv]].
+icons=$(sed "$conf_file" \
+          -e '/^[ \t]*#/d'       \
+          -e '/^[ \t]*$/d'       \
+          -e 's/[ \t]\+/=/g' | tr '\n' ':')
+icons="$icons:"'*='"$fallback"
+
+{
+  while [ "$#" -gt 0 ]; do
+    echo "$1"
+    shift
+  done
+  if [ "$follow" -eq 1 ]; then
+    cat
+  fi
+} |
+  awk -v icon_path="$icons" \
+      -v format="$format" \
+      -e '
+function rfind(str, ch, i) {
+  for (i = length(str); i > 0; i--) {
+    if (substr(str, i, 1) == ch) {
+      return i
+    }
+  }
+  return 0
+}
+' \
+      -e 'BEGIN {
+  icon_count = split(icon_path, _icons, ":")
+  ic = 1 # icon_counter
+  for (i = 1; i <= icon_count; i++) {
+    icon = _icons[i]
+
+    if (icon ~ /^[:space:]*$/) continue;
+    # extract current pattern/icon pair.
+    sep = rfind(icon, "=")
+    if (sep == 0) {
+      printf("warn: progicons: icon missing pattern: %s\n", icon) > "/dev/stderr";
+      continue
+    }
+    pattern = substr(icon, 1, sep-1)
+    icon    = substr(icon, sep+1)
+
+    # convert pattern to glob
+    gsub("*", ".*", pattern);
+    pattern = "^" pattern "$"
+
+    # store back to icons array
+    icons[ic, "pattern"] = pattern
+    icons[ic, "icon"]    = icon
+    ic++
+  }
+}' \
+      -e '{
+  prog = $0
+
+  # check whether this matches the last program and output
+  # the previous icon instead.
+  if (prog == last_prog && last_icon) {
+    printf(format, last_icon)
+    next
+  }
+  last_prog = prog
+
+  for (i=1; i <= ic; i++) {
+    pattern = icons[i, "pattern"]
+    icon    = icons[i, "icon"]
+    if (prog ~ pattern) {
+      printf(format, icon)
+      last_icon = icon
+      next
+    }
+  }
+}'

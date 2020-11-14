@@ -43,6 +43,7 @@ in ruby. Generally whatever works for whatever I'm trying to do.
 | [nfc](./nfc)                           | Copy numbered folders in a range while predictably increasing numbers.                      |
 | [preview](./preview)                   | Preview files/directories.                                                                  |
 | [project-root](./project-root)         | List the root directory for the current code (git) repository.                              |
+| [prog-icons](./prog-icons)             | Output icons for program names from your [progicons](../core/progicons) configuration.      |
 | [spawn-term](./spawn-term)             | Create a new terminal instance (st, urxvt, etc.).                                           |
 | [sxcv](./sxcv)                         | View archive (cbr, cbz etc.) files using sxiv.                                              |
 | [term-dwim](./term-dwim)               | Create a new terminal, cycle between open terminals, etc.                                   |

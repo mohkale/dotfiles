@@ -1,0 +1,52 @@
+# -*- mode: conf-space -*- Program (unicode) icon configuration.
+
+st*    
+zsh    
+bash   
+
+# File Managers
+lf        
+ranger    
+
+# Archive Managers
+7z       
+rar      
+tar      
+bzip     
+bzip2    
+gzip     
+zip      
+unzip    
+
+# Media Players
+vlc     
+sxiv    
+imv     
+
+# Editors
+emacs*    
+*vim      
+
+# Torrenting
+tremc         
+transmission* 
+
+# Languages/Compilers/Build-Tools
+gcc        
+g++        
+clang      
+python*    
+java       
+ruby       
+irb        
+go         
+rs         
+node       
+gradle     
+
+
+# Misc Programs
+sqlite      
+steam*      
+zathura     
+*           ﲎ

@@ -1,0 +1,36 @@
+#!/bin/sh
+
+print_usage() {
+  echo "Usage: $(basename "$0") [-h] [-d DELAY]"
+}
+
+print_help() {
+  print_usage
+  echo "Optional Arguments:"
+  echo "  -h    Show this help message and exit"
+  echo "  -d DELAY"
+  echo "     Specify the delay between outputs"
+}
+
+delay=1
+while getopts hd: OPTION; do
+  case "$OPTION" in
+    h) print_help
+       exit 0 ;;
+    \?) print_help >&2
+        exit 1 ;;
+    d) delay="$OPTARG" ;;
+  esac
+done
+
+unbuffer_cmd=''
+if command -v stdbuf >/dev/null 2>&1; then
+  unbuffer_cmd='stdbuf -oL'
+elif command -v unbuffer >/dev/null 2>&1; then
+  unbuffer_cmd='unbuffer'
+fi
+
+while true; do
+  tmux display -p '#{pane_current_command}'
+  sleep "$delay"
+done | $unbuffer_cmd prog-icons -f

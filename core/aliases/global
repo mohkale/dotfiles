@@ -156,6 +156,7 @@ lfrc@file        $XDG_CONFIG_HOME/lf/lfrc
 xdg@file         $XDG_CONFIG_HOME/xdg
 lsicons@file     $XDG_CONFIG_HOME/diricons
 lscolors@file    $XDG_CONFIG_HOME/dircolors
+progicons@file   $XDG_CONFIG_HOME/progicons
 
 h@dirx            ~
 dl@dirx           ~/downloads
