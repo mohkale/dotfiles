@@ -1,7 +1,11 @@
 # -*- mode: sh -*-
-cmds="$XDG_CONFIG_HOME/autoloads/cmds/"
-fpath+="$cmds"
-
-while read file; do
-    [ -f "$cmds/$file" ] && autoload "$file"
-done < <(ls -1 --quoting-style=literal "$cmds/")
+load-autoloads() {
+    local cmds="$XDG_CONFIG_HOME/autoloads/cmds/"
+    if ! [[ ${fpath[(ie)$cmds]} -le ${#fpath} ]]; then
+        fpath+="$cmds"
+    fi
+    while read file; do
+        [ -f "$cmds/$file" ] && autoload "$file"
+    done < <(ls -1 --quoting-style=literal "$cmds/")
+}
+load-autoloads

@@ -296,7 +296,8 @@ case "$-" in
             unset alias # remove a basically uselass environment variable from the shell
         fi
 
-        eval "$(ls-aliases | xargs -d '\n' -r build-aliases -1)"
+        load-aliases() { eval "$(ls-aliases | xargs -d '\n' -r build-aliases -1 -e e)"; }
+        load-aliases
         ;;
 esac
 

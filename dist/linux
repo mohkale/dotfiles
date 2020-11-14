@@ -11,6 +11,7 @@
                   "ttf-symbola"
                   "noto-fonts"
                   "bdf-unifont"
+                  "ttf-nerd-fonts-symbols"
                   "s-nail"
                   "nmap"
                   "fzf"

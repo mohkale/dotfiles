@@ -40,6 +40,8 @@ STICKY_OTHER_WRITABLE 41;33
 #+-------------------+
 #+ Extension Pattern +
 #+-------------------+
+
+# Media Files
 *.mp4 36
 *.mkv 36
 *.png 36
@@ -47,3 +49,8 @@ STICKY_OTHER_WRITABLE 41;33
 *.svg 36
 *.gif 36
 *.ico 36
+
+# Documents
+*.pdf  31
+*.doc  31
+*.docx 31

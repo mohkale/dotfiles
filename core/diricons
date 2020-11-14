@@ -12,32 +12,38 @@ or 
 ex 
 
 ## Misc
-*.config  
+*.config  
 *webpack* 
 
 ## Full Matches
-.DS_Store      
-.Dockerfile    
+.DS_Store      
+.Dockerfile    
 CMakeLists.txt 
-.gitlab-ci.yml 
+.gitlab-ci.yml 
 
 ## Extension Associations
-*.git    
-*.edn    
-*.pdf    
-*.db     
-*.hs     
-*.vim    V
-*.org    
-*.frm    
-*.myd    
-*.myi    
-*.mkd    
-*.ddf    
-*.sqlite 
+*.git     
+*.edn     
+*.pdf     
+*.db      
+*.hs      
+*.vim     
+*.org     
+*.frm     
+*.myd     
+*.myi     
+*.mkd     
+*.ddf     
+*.sqlite  
+*.bib     
+*.part    
+*.torrent 
 
 
 ## Languages
+*.c      
+*.cpp    
+*.cc     
 *.css    
 *.scss   
 *.el     
@@ -47,7 +53,7 @@ CMakeLists.txt 
 *.go     
 *.html   
 *.java   
-*.md     
+*.md     
 # *.md     
 *.scala  
 *.php    
@@ -184,7 +190,14 @@ CMakeLists.txt 
 *.xwd   
 *.yuv   
 
+## Folders (XXX: Not supported in lf yet)
+.git          
+node_modules  
+.github       
+
 ## TODO
+## When in doubt, check [[https://www.nerdfonts.com/cheat-sheet][here]].
+# ex=🎯:\
 # *.c=:\
 # *.cc=:\
 # *.cpp=:\

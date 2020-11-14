@@ -150,9 +150,12 @@ profile@file     ~/.profile
 shenv@file       $XDG_CONFIG_HOME/shenv
 shenvl@file      $XDG_CONFIG_HOME/shenv.local
 al@file          $XDG_CONFIG_HOME/aliases
+alg@file         $XDG_CONFIG_HOME/aliases/global
 au@file          $XDG_CONFIG_HOME/autoloads/cmds
 lfrc@file        $XDG_CONFIG_HOME/lf/lfrc
 xdg@file         $XDG_CONFIG_HOME/xdg
+lsicons@file     $XDG_CONFIG_HOME/diricons
+lscolors@file    $XDG_CONFIG_HOME/dircolors
 
 h@dirx            ~
 dl@dirx           ~/downloads
@@ -166,3 +169,5 @@ music@dirx        ~/media/music
 dbox@dirx         ~/Dropbox
 images@dirx       ~/media/images
 docs@dirx         ~/user
+prompt@dirx       $XDG_CONFIG_HOME/prompt
+conf@dirx         $XDG_CONFIG_HOME/

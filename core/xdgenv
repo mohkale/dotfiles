@@ -37,6 +37,9 @@ export LESSHISTFILE="$XDG_CACHE_HOME/less/history"
 ## Node
 export NODE_REPL_HISTORY="$XDG_DATA_HOME/node_repl_history"
 
+### npm
+export NPM_CONFIG_USERCONFIG=$XDG_CONFIG_HOME/npm/npmrc
+
 ## Bash/zsh
 if [ -n "$ZSH_VERSION" ]; then
   # using extended zshell history, which isn't

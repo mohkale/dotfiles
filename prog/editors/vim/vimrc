@@ -13,7 +13,6 @@ set undodir=~/.local/share/vim/undo
 set directory=~/.local/share/vim/swap
 set backupdir=~/.local/share/vim/backup
 set viewdir=~/.local/share/vim/view
-set viminfo+=n~/.local/share/vim/viminfo
 set runtimepath=~/.config/vim,$VIMRUNTIME,~/.config/vim/after
 
 """"""""""""""""""""""""""""""""""""
@@ -77,6 +76,9 @@ if has('nvim')
   set inccommand=nosplit
 endif
 
+" configure netrw to be more dired like.
+let g:netrw_banner = 0
+
 " like autochdir except for any buffer, not just files.
 autocmd BufEnter * silent! lcd %:p:h
 silent! au TermOpen * setlocal listchars= nonumber norelativenumber
@@ -92,6 +94,23 @@ else
     let &t_EI.="\e[1 q"
     let &t_te.="\e[0 q"
 endif
+
+
+""""""""""""""""""""""""""""""""""""
+"         Position Restore         "
+""""""""""""""""""""""""""""""""""""
+set viminfo='10,\"100,:20,%,n~/.local/share/vim/viminfo
+function! ResCur()
+  if line("'\"") <= line("$")
+    normal! g`"zz
+    return 1
+  endif
+endfunction
+
+augroup resCur
+  autocmd!
+  autocmd BufWinEnter * call ResCur()
+augroup END
 
 """"""""""""""""""""""""""""""""""""
 "         custom bindings          "
@@ -147,12 +166,13 @@ nnoremap <leader>ss :Lines<cr>
 nnoremap <leader>tl :set wrap!<cr>
 nnoremap <leader>tn :set relativenumber!<cr>
 nnoremap <leader>sc :nohlsearch<cr>
+nnoremap <leader>ff :edit<Space>
 
 nnoremap <C-s>      :Lines<cr>
 
 " Manipulate This Configuration File
 nnoremap <leader>fec :tabedit ~/.config/vim/vimrc<cr>
-nnoremap <leader>fer :source  ~/.config/vim/vimrc<cr>
+nnoremap <leader>fer :source ~/.config/vim/vimrc<cr>
 nnoremap <leader>bb  :Buffers<cr>
 
 """"""""""""""""""""""""""""""""""""

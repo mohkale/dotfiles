@@ -10,6 +10,6 @@ cd_fsmap() {
       FZF_DEFAULT_OPTS="$FZF_SHELL_OPTS" fzf --no-multi -d ' ' --preview 'p={2..}; preview "${p/\~/$HOME}"' --preview-window=25% |
       cut -d ' ' -f 2-)
 
-    dest=${dest/[[:space:]]}
+    dest=${dest//[[:space:]]/}
     cd "${dest/\~/$HOME}"
 }
