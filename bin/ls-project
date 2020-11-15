@@ -108,7 +108,7 @@ function null_filter() {
 # └──────────┘
 
 function do_rg() {
-    rg --files --follow -- "$cwd" | file_filter | null_filter
+    rg --files --hidden --follow -- "$cwd" | file_filter | null_filter
 }
 
 function do_git() {

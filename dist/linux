@@ -5,8 +5,7 @@
                   {:package "ripgrep"
                    :before ("sudo add-apt-repository ppa:x4121/ripgrep"
                             "sudo apt update")})
-            (:yay "ripgrep"
-                  "lsof"
+            (:yay "lsof"
                   "adobe-source-code-pro-fonts"
                   "ttf-symbola"
                   "noto-fonts"

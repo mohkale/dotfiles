@@ -1,0 +1,15 @@
+<!-- -*- mode: markdown -*- -->
+
+# rg - ripgrep
+
+[ripgrep][rg] is a better grep. Written in rust with direct support for PCRE and a
+plethora of cool extra features. I use rg mostly as a find/fd alternative because:
+1. It lets you. There's a flag which just outputs the paths to be searched.
+2. It supports ignore configurations (eg. *.gitignore*) which makes it perfect for
+   listing files in my dotfiles repository.
+
+Normally I wouldn't go as far as create a subfolder configuration for a general
+purpose utility like rg but seeing as rg supports a config file and I'd like to
+change some of the default options, this seemed like a good idea.
+
+[rg]: https://github.com/BurntSushi/ripgrep

@@ -117,6 +117,9 @@ export VAGRANT_ALIAS_FILE="$XDG_DATA_HOME"/vagrant/aliases
 ## sqlite
 export SQLITE_HISTORY="$XDG_DATA_HOME/sqlite_history"
 
+## ripgrep
+export RIPGREP_CONFIG_PATH="$XDG_CONFIG_HOME/rgrc"
+
 # Path Management
 if [ "$platform" = "windows" ]; then
     # fix unconverted msys paths which crash some programs
