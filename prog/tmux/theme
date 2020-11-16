@@ -58,11 +58,11 @@ number_current_window=1
 # default statusbar colors
 set-option -g status-style fg=$fg,bg=$bg,default
 
-set-window-option -g window-status-style fg=$fg,bg=$bg
+set-window-option -g window-status-style fg=$fg
 set-window-option -g window-status-format " #I #W"
 
 # active window title colors
-set-window-option -g window-status-current-style fg=$highlight_color,bg=$bg,bright
+set-window-option -g window-status-current-style fg=$highlight_color,bright
 set-window-option -g window-status-current-format " #[bold]#W"
 
 # message text
@@ -92,8 +92,8 @@ window_flags_suffix="#{?#{==:$window_flags,},,[#[bright,fg=$red]$window_flags#[d
 set -g window-status-format "#I$winum_seperator#W#{?#{==:$hide_last_window,1},,#{?window_last_flag,-,}}$window_flags_suffix"
 set -g window-status-current-format "#{?#{==:$number_current_window,1},#I$winum_seperator,}#W$window_flags_suffix"
 
+status_host="#[default,fg=$fg]#{=15:pane_title}(#{=30:pane_current_command})"
 status_date="#[default,bg=$highlight_color,fg=$bg] %d-%b-%Y %H:%M "
-status_host="#[bg=$bg,fg=$fg]#{=15:pane_title}(#{=30:pane_current_command})"
 set -g status-right "\
 $status_host \
 #(echo ""; $TMUX_HOME/cmds/tmux-icons -d 0.5) \

@@ -159,16 +159,18 @@ lscolors@file    $XDG_CONFIG_HOME/dircolors
 progicons@file   $XDG_CONFIG_HOME/progicons
 
 h@dirx            ~
-dl@dirx           ~/downloads
+dl@dirx           $XDG_DOWNLOAD_DIR
 em@dirx           $EMACS_HOME
 org@dirx          $EMACS_HOME/org
 rp@dirx           ~/prog/repos
 sc@dirx           ~/prog/scripts
 bin@dirx          ~/.local/bin
-dtop@dirx         ~/OS/desktop
-music@dirx        ~/media/music
 dbox@dirx         ~/Dropbox
-images@dirx       ~/media/images
 docs@dirx         ~/user
 prompt@dirx       $XDG_CONFIG_HOME/prompt
-conf@dirx         $XDG_CONFIG_HOME/
+conf@dirx         $XDG_CONFIG_HOME
+img@dirx          $XDG_PICTURES_DIR
+music@dirx        $XDG_MUSIC_DIR
+vid@dirx        $XDG_VIDEOS_DIR
+desktop@dirx      $XDG_DESKTOP_DIR
+docs@dirx         $XDG_DOCUMENTS_DIR
