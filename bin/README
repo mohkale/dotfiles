@@ -12,6 +12,7 @@ in ruby. Generally whatever works for whatever I'm trying to do.
 | [build-aliases](./build-aliases)       | Build alias declarations from my alias files, see ([here](../core/aliases/)).               |
 | [bulkchmod](./bulkchmod)               | Open a bulkrename session to modify unix file permissions.                                  |
 | [bulkrename](./bulkrename)             | Open a bunch of files in your editor and sync changes back to the filesystem.               |
+| [check-font](./check-font)             | Output character code points in one-or-more font files.                                     |
 | [clip](./clip)                         | Clipboard sink for pipelines. Anything piped to this command is put into your clipboard.    |
 | [clipsink](./clipsink)                 | Monitor changes to the system clipboard and print them to stdout.                           |
 | [clj](./clj)                           | A wrapper around the clojure compiler which adds in readline support.                       |
