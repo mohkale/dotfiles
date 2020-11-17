@@ -3,6 +3,8 @@
 st*    
 zsh    
 bash   
+su     
+sudo   
 
 # File Managers
 lf        
@@ -44,9 +46,28 @@ rs         
 node       
 gradle     
 
+# Package Managers
+apt     
+pacman  
+brew    
+pkg     
+
+# Browsers
+explorer      
+edge          
+chrome        
+chromium      
+brave         
+opera         
+safari        
+firefox       
+tor-browser   
 
 # Misc Programs
 sqlite      
 steam*      
 zathura     
+libtool     
+wget        
+curl        
 *           ﲎ

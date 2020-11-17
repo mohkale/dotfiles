@@ -51,7 +51,7 @@ fi
 icons=$(sed "$conf_file" \
           -e '/^[ \t]*#/d'       \
           -e '/^[ \t]*$/d'       \
-          -e 's/[ \t]\+/=/g' | tr '\n' ':')
+          -e 's/[ \t]\+/=/' | tr '\n' ':')
 icons="$icons:"'*='"$fallback"
 
 {
