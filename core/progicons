@@ -40,17 +40,23 @@ clang      
 python*    
 java       
 ruby       
+rspec      
 irb        
 go         
 rs         
+cargo      
+rustup     
 node       
 gradle     
 
 # Package Managers
 apt     
 pacman  
+yay     
 brew    
 pkg     
+npm     
+yarn    
 
 # Browsers
 explorer      

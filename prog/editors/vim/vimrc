@@ -57,6 +57,7 @@ set splitright     " split to right, not left
 set encoding=utf8
 set hidden         " change buffers even when current one is modified
 set nostartofline  " prevent column changing on scroll
+set wildmode=longest,list,full " make vim completion work like bash
 set wildmenu       " jump through completion candidates with tab/shift-tab
 " set autochdir      " set cwd to match the opened file
 set autoread       " automatically read changes in unmodified buffers
@@ -65,6 +66,11 @@ set ignorecase     " make search case insensitive by default
 set smartcase      " make search case sensetive when including a capital letter
 set laststatus=2   " always show the status bar
 set shortmess+=I   " disable the default startup message
+set title          " change the terminals title depending on the current buffer
+" Shows path as: [filename] [modifiers] (dirname)
+set titlestring=%t%(\ %M%)%(\ (%{substitute(getcwd(),\ $HOME,\ '~',\ '')})%)%(\ %a%)
+set list           " highlight trailing whitespace and other confusing things
+set listchars=tab:\ \ ,trail:.,extends:#,nbsp:.
 
 set backspace=indent,eol,start " allow backspace in insert mode
 set tabstop=4 softtabstop=0 expandtab shiftwidth=4 smarttab
@@ -78,6 +84,8 @@ endif
 
 " configure netrw to be more dired like.
 let g:netrw_banner = 0
+"" Fix relativenumber being unset in netrw buffers.
+let g:netrw_bufsettings = "noma nomod nonu nowrap ro nobl relativenumber"
 
 " like autochdir except for any buffer, not just files.
 autocmd BufEnter * silent! lcd %:p:h
@@ -167,6 +175,7 @@ nnoremap <leader>tl :set wrap!<cr>
 nnoremap <leader>tn :set relativenumber!<cr>
 nnoremap <leader>sc :nohlsearch<cr>
 nnoremap <leader>ff :edit<Space>
+nnoremap <leader>jd :edit .<cr>
 
 nnoremap <C-s>      :Lines<cr>
 
