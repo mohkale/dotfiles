@@ -27,6 +27,9 @@ nv      nvim
 netcat  ncat
 chksum  cksum
 unmount umount
+touchx  sh -c 'touch "$@" && chmod +x "$@"' touchx
+noout   >/dev/null 2>&1 sh -c '"$@"' run
+nojob   >/dev/null 2>&1 nohup sh -c '"$@" &' run
 
 g       git
 gs      g status

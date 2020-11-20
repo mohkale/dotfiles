@@ -71,6 +71,8 @@ set title          " change the terminals title depending on the current buffer
 set titlestring=%t%(\ %M%)%(\ (%{substitute(getcwd(),\ $HOME,\ '~',\ '')})%)%(\ %a%)
 set list           " highlight trailing whitespace and other confusing things
 set listchars=tab:\ \ ,trail:.,extends:#,nbsp:.
+" increment or decrement work with any number type
+set nf=hex,octal,alpha
 
 set backspace=indent,eol,start " allow backspace in insert mode
 set tabstop=4 softtabstop=0 expandtab shiftwidth=4 smarttab

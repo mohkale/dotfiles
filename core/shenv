@@ -126,7 +126,7 @@ lines_to_path() { #(PATH [...PATH])
                   -e '/^ *$/d'              \
                   -e 's ^~/ '"${HOME}"/' g' \
                   -e 's/$/:/')
-    echo ${p//$'\n'}
+    echo -n "${p//$'\n'/}"
 
     if [ -n "$1" ]; then
         # print existing path variables when given in linux path format.

@@ -89,7 +89,7 @@ bindkey "^[h" vi-backward-blank-word
 bindkey "^[l" vi-forward-blank-word
 
 # shifttab to autosuggest from history
-bindkey "^[[Z" autosuggest-fetch
+# bindkey "^[[Z" autosuggest-fetch
 
 # Bindings for Packages
 bindkey '^[xj' jq-complete
@@ -106,6 +106,9 @@ bindkey -s '^[xl' "\C-e | less"
 bindkey -s '^[xs' "\C-p\C-asd \C-a"
 bindkey -s '^[x`' '\C-e`\C-a`\C-a'
 bindkey -s '^[xe' 'emacsclient -nw'
+
+bindkey "^i"  complete-word
+bindkey "^[i" expand-word
 
 # # menuselect
 # ## offers interactive completion selection

@@ -28,6 +28,7 @@ imv     
 # Editors
 emacs*    
 *vim      
+kak       
 
 # Torrenting
 tremc         
@@ -37,12 +38,12 @@ transmission* 
 gcc        
 g++        
 clang      
-python*    
-java       
-ruby       
-rspec      
-irb        
-go         
+python*    
+java       
+ruby       
+rspec      
+irb        
+go         
 rs         
 cargo      
 rustup     
@@ -76,4 +77,6 @@ zathura     
 libtool     
 wget        
 curl        
+make        
+jq          
 *           ﲎ

@@ -66,6 +66,7 @@ export MYSQL_HISTFILE="$XDG_DATA_HOME"/mysql_history
 export PYTHONSTARTUP="$XDG_CONFIG_HOME/pythonrc.py"
 export PYENV_ROOT="$XDG_DATA_HOME/pyenv"
 export PYLINTHOME="$XDG_CACHE_HOME/pylint"
+export PIPENV_IGNORE_VIRTUALENVS=1
 
 ## ipython/jupyter notebooks
 export IPYTHONDIR="$XDG_CONFIG_HOME"/jupyter

@@ -1,4 +1,4 @@
-# -*- mode: conf-space -*- icon config file for lf, see [[https://github.com/gokcehan/lf/wiki/Icons][lf-icons]].
+# -*- mode: conf-space -*- icon config file for [[https://github.com/gokcehan/lf/wiki/Icons][lf]] using mostly [[https://www.nerdfonts.com/cheat-sheet][nerdfonts]].
 
 ## Basic File Types
 tw 
@@ -47,21 +47,25 @@ README    
 *.c      
 *.cpp    
 *.cc     
+*.h      
+*.hh     
+*.hpp    
 *.css    
 *.scss   
 *.el     
 *.clj    
-*.py     
-*.rb     
-*.go     
+*.py     
+*.rb     
+*.go     
 *.html   
-*.java   
+*.java   
 *.md     
-# *.md     
+*.json   
 *.scala  
 *.php    
 *.rs     
 *.js     
+*.ts     
 *.kts    
 *.gradle 
 
@@ -198,17 +202,3 @@ README    
 node_modules  
 .github       
 games         
-
-
-## TODO
-## When in doubt, check [[https://www.nerdfonts.com/cheat-sheet][here]].
-# ex=🎯:\
-# *.c=:\
-# *.cc=:\
-# *.cpp=:\
-# *.h=:\
-# *.hh=:\
-# *.hpp=:\
-# *.json=:\
-# *.ts=:\
-# *.nix=

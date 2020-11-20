@@ -1,5 +1,8 @@
 # -*- mode: conf-space; eval: (display-line-numbers-mode +1) -*-
 
+# disable title poisoning
+set global ui_options ncurses_set_title=false
+
 # enable highlighting for all search matches
 set-face global search +bi
 add-highlighter global/search dynregex '%reg{/}' 0:search

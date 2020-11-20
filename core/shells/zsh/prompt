@@ -177,9 +177,9 @@ prompt_python() {
   cd -q "$1"
 
   local py_exec='python'
-  if [ -n "$PIPENV_ACTIVE" -o -f "Pipfile" -o "Pipfile.lock" ] && prompt::exists pipenv; then
+  if [ -n "$PIPENV_ACTIVE" -o -f "Pipfile" -o -f "Pipfile.lock" ] && prompt::exists pipenv; then
     py_exec=$(pipenv --py)
-  elif [ -f "requirements.txt" ] && prompt::exists "$py_exec"; then
+  elif [ "${POETRY_ACTIVE:-0}" -eq 1 -o -f "requirements.txt" ] && prompt::exists "$py_exec"; then
     :
   else
     return
@@ -188,7 +188,7 @@ prompt_python() {
   python_version="${python_version#* }"
   [ -z "$python_version" ] && return
 
-  print -n '%F{yellow}'"🐍 (v${python_version})"
+  print -n '%F{yellow}'" (v${python_version})"
 }
 
 # see [[https://github.com/denysdovhan/spaceship-prompt/blob/master/sections/ruby.zsh][spaceship-prompt/ruby]].
@@ -217,7 +217,24 @@ prompt_ruby() {
   # ensure ruby version begins with a "v".
   [[ "${ruby_version}" =~ ^[0-9].+$ ]] && ruby_version="v${ruby_version}"
 
-  print -n '%F{red}%B'"💎 %b${ruby_version}"
+  print -n '%F{red}'" ${ruby_version}"
+}
+
+prompt_rust() {
+    cd -q "$1"
+    [ -f "Cargo.lock" -o -f "Cargo.toml" ] || return
+
+    local rust_version=
+    if prompt::exists rustc; then
+      rust_version=$(rustc --version)
+      rust_version="${rust_version#* }"
+      rust_version="${rust_version%% *}"
+    else
+      return
+    fi
+
+    [ -z "$rust_version" ] && return
+    echo -n '%F{yellow}'" (v${rust_version})"
 }
 
 prompt_exit() { #(code)
@@ -255,6 +272,7 @@ prompt_refresh() {
                           "$prompt_data[prompt_golang]"  \
                           "$prompt_data[prompt_ruby]"    \
                           "$prompt_data[prompt_python]"  \
+                          "$prompt_data[prompt_rust]"    \
         )
   PS1="${data_rendered}$DEFAULT_PROMPT"
   RPS1="${prompt_data[prompt_exit]}$DEFAULT_PROMPT_RHS"
@@ -299,7 +317,8 @@ prompt_precmd() {
   async_job 'prompt' prompt_golang "${root:-$PWD}"
   async_job 'prompt' prompt_ruby "${root:-$PWD}"
   async_job 'prompt' prompt_exit "$prompt_last_exit"
-  # async_job 'prompt' prompt_python "${root:-$PWD}"
+  async_job 'prompt' prompt_python "${root:-$PWD}"
+  async_job 'prompt' prompt_rust "${root:-$PWD}"
 }
 
 add-zsh-hook precmd prompt_precmd

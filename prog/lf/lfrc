@@ -915,7 +915,7 @@ cmd yank-basename &{{
       echo "$fs" | xargs -r -d '\n' basename -a --
     else
       basename -- "$f" | tr -d '\n'
-    fi | xclip -i -selection clipboard
+    fi | clip
 }}
 
 cmd yank-basename-without-extension &{{
@@ -935,7 +935,7 @@ cmd yank-basename-without-extension &{{
           print $0
       }' |
       if [ -n "$fs" ]; then cat; else tr -d '\n'; fi |
-      xclip -i -selection clipboard
+      clip
 }}
 
 # Local Variables:
