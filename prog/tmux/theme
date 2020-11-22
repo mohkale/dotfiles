@@ -1,4 +1,5 @@
 # -*- mode: conf-space -*- my tmux theme configuration (See [[https://github.com/nicknisi/dotfiles/blob/99b50f3a33c2a2d6ecf73d4f6e94efc8fe36f09a/tmux/base16.sh][base16]])
+# vim:syntax=tmux filetype=tmux
 
 set -g status on
 set -g status-interval 15
@@ -96,5 +97,5 @@ status_host="#[default,fg=$fg]#{?#{==:#{host},#{pane_title}},,#{=/50/...:pane_ti
 status_date="#[default,bg=$highlight_color,fg=$bg] %d-%b-%Y %H:%M "
 set -g status-right "\
 $status_host \
-#(echo ""; $TMUX_HOME/cmds/tmux-icons -d 0.5) \
+#(echo ""; $TMUX_HOME/cmds/tmux-icons -d 0.5 -s '#{client_tty}') \
 $status_date"

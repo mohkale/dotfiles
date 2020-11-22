@@ -1,7 +1,7 @@
 #!/bin/sh
 
 print_usage() {
-  echo "Usage: $(basename "$0") [-h] [-d DELAY]"
+  echo "Usage: $(basename "$0") [-h] [-d DELAY] [-s SESSION]"
 }
 
 print_help() {
@@ -10,18 +10,23 @@ print_help() {
   echo "  -h    Show this help message and exit"
   echo "  -d DELAY"
   echo "     Specify the delay between outputs"
+  echo "  -s SESSION"
+  echo "     Specify the tmux session to query"
 }
 
-delay=1
-while getopts hd: OPTION; do
+delay=1 session=''
+while getopts hd:s: OPTION; do
   case "$OPTION" in
     h) print_help
        exit 0 ;;
     \?) print_help >&2
         exit 1 ;;
     d) delay="$OPTARG" ;;
+    s) session="$OPTARG" ;;
   esac
 done
+
+set -e
 
 unbuffer_cmd=''
 if command -v stdbuf >/dev/null 2>&1; then
@@ -31,6 +36,6 @@ elif command -v unbuffer >/dev/null 2>&1; then
 fi
 
 while true; do
-  tmux display -p '#{pane_current_command}'
+  tmux display -t "$session" -p '#{pane_current_command}'
   sleep "$delay"
 done | $unbuffer_cmd prog-icons -f
