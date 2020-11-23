@@ -71,8 +71,8 @@ set title          " change the terminals title depending on the current buffer
 set titlestring=%t%(\ %M%)%(\ (%{substitute(getcwd(),\ $HOME,\ '~',\ '')})%)%(\ %a%)
 set list           " highlight trailing whitespace and other confusing things
 set listchars=tab:\ \ ,trail:.,extends:#,nbsp:.
-" increment or decrement work with any number type
-set nf=hex,octal,alpha
+" set nf=hex,octal,alpha " increment or decrement work with any number type
+set clipboard=unnamedplus " automatically yank into system clipboard when available.
 
 set backspace=indent,eol,start " allow backspace in insert mode
 set tabstop=4 softtabstop=0 expandtab shiftwidth=4 smarttab
@@ -83,6 +83,21 @@ set nowrap " disable lines being wrapped by default
 if has('nvim')
   set inccommand=nosplit
 endif
+
+let g:fzf_colors =
+\ { 'fg':      ['fg', 'Normal'],
+  \ 'bg':      ['bg', 'Normal'],
+  \ 'hl':      ['fg', 'Comment'],
+  \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
+  \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
+  \ 'hl+':     ['fg', 'Statement'],
+  \ 'info':    ['fg', 'PreProc'],
+  \ 'border':  ['fg', 'Ignore'],
+  \ 'prompt':  ['fg', 'Conditional'],
+  \ 'pointer': ['fg', 'Exception'],
+  \ 'marker':  ['fg', 'Keyword'],
+  \ 'spinner': ['fg', 'Label'],
+  \ 'header':  ['fg', 'Comment'] }
 
 " configure netrw to be more dired like.
 let g:netrw_banner = 0

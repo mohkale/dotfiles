@@ -12,5 +12,5 @@ fzman() {
         tr -d ' ')
     [ -z "$targets" ] && return
     # see [[https://unix.stackexchange.com/questions/396397/open-multiple-man-pages-in-less][here]] for how the multi-man command works.
-    LESSOPEN='|man %s' xargs -r -d '\n' less -is <<< "$targets"
+    LESSOPEN='|man %s' xargs -r -d '\n' ${MANPAGER:-less} -is <<< "$targets"
 }

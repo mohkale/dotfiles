@@ -6,7 +6,7 @@
   "~/downloads"
   "~/multi"
   ("~/media"
-   ("images" "videos" "music"))
+   ("games" "images" "videos" "music"))
   "~/prog/repos"
   ("~/.local/share"
    ("man" "info")))

@@ -12,10 +12,12 @@ or 
 ex 
 
 ## Misc
-*.config  
-*webpack* 
+.config          
+webpack.config.* 
 
 ## Full Matches
+README         
+LICENSE        
 .DS_Store      
 .Dockerfile    
 CMakeLists.txt 
@@ -40,8 +42,12 @@ CMakeLists.txt 
 *.torrent 
 *.url     
 *.link    
-README    
-
+*.ass     
+*.srt     
+*.nfo     
+*.psb     
+*.psd     
+*.xlsx    
 
 ## Languages
 *.c      
@@ -61,6 +67,7 @@ README    
 *.java   
 *.md     
 *.json   
+*.sc     
 *.scala  
 *.php    
 *.rs     
@@ -68,6 +75,7 @@ README    
 *.ts     
 *.kts    
 *.gradle 
+*.rss    參
 
 ## Shells and Command Interpreters
 *.bash 

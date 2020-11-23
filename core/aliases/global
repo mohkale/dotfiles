@@ -27,9 +27,10 @@ nv      nvim
 netcat  ncat
 chksum  cksum
 unmount umount
+lc      lfcd
 touchx  sh -c 'touch "$@" && chmod +x "$@"' touchx
 noout   >/dev/null 2>&1 sh -c '"$@"' run
-nojob   >/dev/null 2>&1 nohup sh -c '"$@" &' run
+nojob   >/dev/null 2>&1 nohup sh -c '"$@"' run
 
 g       git
 gs      g status
@@ -157,9 +158,10 @@ alg@file         $XDG_CONFIG_HOME/aliases/global
 au@file          $XDG_CONFIG_HOME/autoloads/cmds
 lfrc@file        $XDG_CONFIG_HOME/lf/lfrc
 xdg@file         $XDG_CONFIG_HOME/xdg
-lsicons@file     $XDG_CONFIG_HOME/diricons
-lscolors@file    $XDG_CONFIG_HOME/dircolors
+diricons@file    $XDG_CONFIG_HOME/diricons
+dircolors@file   $XDG_CONFIG_HOME/dircolors
 progicons@file   $XDG_CONFIG_HOME/progicons
+prompt@file      $XDG_CONFIG_HOME/prompt
 
 h@dirx            ~
 dl@dirx           $XDG_DOWNLOAD_DIR
@@ -168,11 +170,11 @@ org@dirx          $EMACS_HOME/org
 rp@dirx           ~/prog/repos
 sc@dirx           ~/prog/scripts
 bin@dirx          ~/.local/bin
-dbox@dirx         ~/Dropbox
+box@dirx          ~/Dropbox
 docs@dirx         ~/user
-prompt@dirx       $XDG_CONFIG_HOME/prompt
 conf@dirx         $XDG_CONFIG_HOME
 img@dirx          $XDG_PICTURES_DIR
+games@dirx        ~/media/games
 music@dirx        $XDG_MUSIC_DIR
 vid@dirx          $XDG_VIDEOS_DIR
 desktop@dirx      $XDG_DESKTOP_DIR
