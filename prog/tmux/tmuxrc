@@ -31,7 +31,7 @@ set -g set-titles-string 'tmux@#H [#S:#I] #W'
 
 # makes escape instant, but removes the
 # ability to bind to meta keys :cry:.
-# set -g escape-time 0
+set -sg escape-time 10
 
 # change prefix to C-q
 unbind C-b
@@ -115,6 +115,8 @@ bind % swap-pane
 bind -r [ swap-window -d -t -1
 bind -r ] swap-window -d -t +1
 
+bind C-a           select-window -t 1
+bind C-e run 'tmux select-window -t "#{session_windows}"'
 # bind    n   next-window
 # bind    p   previous-window
 bind -r C-n next-window
@@ -131,6 +133,7 @@ bind M-w unlink-window -k
 
 bind B choose-tree -Zw
 bind b choose-tree -Zs
+bind C-b choose-client -Z
 
 # transpose window layout
 bind -r C-o rotate-window -ZU
@@ -206,11 +209,11 @@ bind -T off F12 \
 
 # script bindings
 bind A run -b "$TMUX_HOME/cmds/attach-session"
-bind B run -b "$TMUX_HOME/cmds/run-binding -rpv"
+# bind B run -b "$TMUX_HOME/cmds/run-binding -rpv"
 # bind M-a run -b "$TMUX_HOME/cmds/manage-windows -s"
 # bind M-w run -b "$TMUX_HOME/cmds/manage-windows"
-bind W run -b "$TMUX_HOME/cmds/manage-windows -i"
-bind X run -b "$TMUX_HOME/cmds/run-command"
+# bind W run -b "$TMUX_HOME/cmds/manage-windows -i"
+# bind X run -b "$TMUX_HOME/cmds/run-command"
 
 source ~/.config/tmux/theme
 
