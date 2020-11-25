@@ -156,6 +156,7 @@ shenvl@file      $XDG_CONFIG_HOME/shenv.local
 al@file          $XDG_CONFIG_HOME/aliases
 alg@file         $XDG_CONFIG_HOME/aliases/global
 au@file          $XDG_CONFIG_HOME/autoloads/cmds
+vimrc@file       $XDG_CONFIG_HOME/vim/vimrc
 lfrc@file        $XDG_CONFIG_HOME/lf/lfrc
 xdg@file         $XDG_CONFIG_HOME/xdg
 diricons@file    $XDG_CONFIG_HOME/diricons
