@@ -1,10 +1,13 @@
 # -*- mode: sh -*-
 fzbm() {
+  local fzf_args=( -d $'\t' --ansi --with-nth '2..' --multi \
+                      --bind 'alt-return:execute-silent(xopen {1} &)+down' \
+                      --bind 'ctrl-y:execute-silent(echo {1} | clip)' )
+  [ -z "$*" ] || fzf_args+=( -q "$*" )
+
   ls-bookmarks -p '' |
     sed '/^javascript:/d' |
-    FZF_DEFAULT_OPTS="$FZF_SHELL_OPTS" fzf -d $'\t' --ansi --with-nth '2..' --multi \
-                    --bind 'alt-return:execute-silent(xopen {1} &)+down' \
-                    --bind 'ctrl-y:execute-silent(echo {1} | clip)' |
+    FZF_DEFAULT_OPTS="$FZF_SHELL_OPTS" fzf "${fzf_args[@]}" |
     cut -d $'\t' -f 1 |
     xargs -d '\n' -r xopen
 }

@@ -141,7 +141,7 @@ INNER JOIN moz_bookmarks as bm ON places.id == bm.fk;'
 
 do_buku() {
   command -v buku >/dev/null 2>&1 || return 1
-  buku -p -f 4 -j |
+  buku -p -f 4 -j 2>/dev/null |
     jq --arg sep "$d" -r \
        '.[]
         | [.uri, .tags, .title]
