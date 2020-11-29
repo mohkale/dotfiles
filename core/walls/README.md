@@ -11,3 +11,7 @@ If possible I also try to include License files when I have them:
 | future-world.jpg  | [Robert McCall](http://www.mccallstudios.com/the-prologue-and-the-promise/)                                                     |         |
 | metropolis.jpg    | [Robert McCall](http://www.mccallstudios.com/earthlight/)                                                                       |         |
 | saber.jpg         | [pro-p](https://danbooru.donmai.us/posts/3853111)                                                                               |         |
+| alita.jpg         | [sakimichan](https://yande.re/post?tags=sakimichan)                                                                             |         |
+| alita2.jpg        |                                                                                                                                 |         |
+| alita3.jpg        |                                                                                                                                 |         |
+| prototype.jpg     |                                                                                                                                 |         |
