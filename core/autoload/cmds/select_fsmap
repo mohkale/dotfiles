@@ -1,0 +1,15 @@
+# -*- mode: sh -*-
+select_fsmap() {
+    local fzf_args=( --no-multi -d ' ' --preview 'p={2..}; preview "${p/\~/$HOME}"' --preview-window=25% )
+    [ -z "$*" ] || fzf_args+=( -q "$*" )
+    local dest=$(ls-fsmaps -re |
+      if command -v column >/dev/null 2>&1; then
+          column -s : -t
+      else
+          # replace the first : (seperator) on each line.
+          sed -e 's/\(.\+\):\(.\+\)/\1 \2/'
+      fi |
+      FZF_DEFAULT_OPTS="$FZF_SHELL_OPTS" fzf "${fzf_args[@]}" |
+      sed 's/^[^[:space:]]*[[:space:]]\+//')
+    select_path "$dest"
+}

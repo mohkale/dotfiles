@@ -19,6 +19,7 @@ o       xopen
 p       cd_repo
 r       ranger
 x       fzf-dmenu
+z       select_fsmap
 
 cls     clear
 
@@ -73,6 +74,7 @@ gm      cd_mount
 gp      cd_repo
 gu      cd_project_root
 gx      edit_executables
+gz      select_fsmap
 
 # vi stuff
  q      exit
