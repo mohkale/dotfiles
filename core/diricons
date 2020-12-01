@@ -205,8 +205,30 @@ CMakeLists.txt 
 *.xwd   
 *.yuv   
 
-## Folders (XXX: Not supported in lf yet)
-.git          
-node_modules  
-.github       
-games         
+## Directories
+.git/           
+.github/        
+.config/        
+node_modules/   
+games/          
+steam/          
+
+### Home Directories
+# ~/downloads/    
+~/media/videos/ ﳜ
+~/media/images/ 
+~/media/music/  
+~/.steam/       
+~/.wine/        
+~/.dotfiles/    
+~/.mozilla/     
+~/.tor-browser/ 
+
+### XDG Stuff
+# ~/user/         
+# ~/prog/         
+# ~/multi/        
+# ~/OS/           
+
+# TODO
+# 

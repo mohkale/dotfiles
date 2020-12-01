@@ -19,8 +19,9 @@ set shellopts '-eu'
 # commands accordingly.
 set ifs "\n"
 
-set relativenumber
+# set relativenumber
 set icons
+set iconsdir
 set hiddenfiles .*:__pycache__:*.pyc:*.o:node_modules
 set info size
 
