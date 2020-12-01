@@ -3,23 +3,28 @@
 # alongside the absolute directory they point to in PATH like form.
 
 print_usage() {
-  echo "Usage: $(basename "$0") [-h] [-r] [-e]"
+  echo "Usage: $(basename "$0") [-h] [-r] [-e|-f|-d]"
 }
 
 print_help() {
   print_usage
   echo ""
   echo "Using my configured aliases, filter out all filesystem"
-  echo "aliases and present them to the user with file paths"
+  echo "aliases and present them to the user with env-variables"
   echo "properly expanded."
   echo ""
   echo "Options:"
-  echo "  -h    show this help message and exit"
-  echo "  -r    replace '$HOME' with ~/ before outputting"
-  echo "  -e    only show dirmaps that currently exist."
+  echo "  -h    Show this help message and exit"
+  echo "  -r    Replace '$HOME' with ~/ before outputting"
+  echo "  -e    Only show dirmaps that currently exist."
+  echo "  -f    Only show dirmaps that currently exist as files"
+  echo "  -d    Only show dirmaps that currently exist as directories"
 }
 
-while getopts 'hre' option; do
+# shellcheck disable=SC2016
+exists_cmd='while read -r p; do if [ -e "$p" ]; then echo "$p"; else echo; fi; done'
+envsubst_cmd='envsubst'
+while getopts 'hrefd' option; do
   case "$option" in
     h) print_help
        exit 0 ;;
@@ -27,11 +32,16 @@ while getopts 'hre' option; do
         exit 1 ;;
     r) home_relative=1 ;;
     e) exists_only=1 ;;
+    d) exists_only=1
+       # shellcheck disable=SC2016
+       exists_cmd='while read -r p; do if [ -d "$p" ]; then echo "$p"; else echo; fi; done' ;;
+    f) exists_only=1
+       # shellcheck disable=SC2016
+       exists_cmd='while read -r p; do if [ -f "$p" ]; then echo "$p"; else echo; fi; done' ;;
   esac
 done
 
 has_stdbuf=0
-envsubst_cmd='envsubst'
 if command -v stdbuf >/dev/null 2>&1; then
   envsubst_cmd="stdbuf -oL $envsubst_cmd"
   has_stdbuf=1
@@ -39,14 +49,14 @@ fi
 
 . build-aliases
 read_script $(ls-aliases) |
-  awk -v check_exists="${exists_only}" \
-      -v home_relative="${home_relative}" \
+  awk -v check_exists="$exists_only" \
+      -v home_relative="$home_relative" \
       -v home="$HOME" \
       -v sep=":" \
       -v envsubst="$envsubst_cmd" \
       -v has_stdbuf="$has_stdbuf" \
-      -v exists_cmd='while read -r p; do if [ -d "$p" ]; then echo "$p"; else echo; fi; done' \
-      -e 'BEGIN { 
+      -v exists_cmd="$exists_cmd" \
+      -e 'BEGIN {
 if (!has_stdbuf) # disable buffering
   PROCINFO[envsubst, "pty"] = 1
 }' \

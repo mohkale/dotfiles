@@ -34,7 +34,7 @@ in ruby. Generally whatever works for whatever I'm trying to do.
 | [ls-aliases](./ls-aliases)             | List alias files to use alongside `build-aliases` for your current platform.                |
 | [ls-bookmarks](./ls-bookmarks)         | List system bookmarks. These can come from browsers, buku or any other arbitrary source.    |
 | [ls-exec](./ls-exec)                   | List executables which can be accessed from your PATH.                                      |
-| [ls-fsdirmaps](./ls-fsdirmaps)         | List aliases (from `ls-aliases`) that point to directories (used for file-system jumps).    |
+| [ls-fsmaps](./ls-fsmaps)               | List aliases (from `ls-aliases`) that point to dirs/files (used for file-system jumps).     |
 | [ls-platform](./ls-platform)           | List the current platform (Unix, MacOS, Windows).                                           |
 | [ls-project](./ls-project)             | List all files in the current (git) code repository.                                        |
 | [ls-repos](./ls-repos)                 | List all code repositories found through the `REPO_PATH` environment variable.              |
