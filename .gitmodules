@@ -23,3 +23,7 @@
 [submodule "prog/sxiv/sxiv"]
 	path = prog/sxiv/sxiv
 	url = git@github.com:mohkale/sxiv.git
+[submodule "prog/lf/lf"]
+	path = prog/lf/lf
+	url = git@github.com:mohkale/lf.git
+	branch = dotfiles
