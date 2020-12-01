@@ -1,24 +1,24 @@
 [submodule "editors/emacs"]
 	path = prog/editors/emacs
-	url = https://github.com/mohkale/emacs
+	url = git@github.com:mohkale/emacs.git
 	ignore = dirty
 	branch = master
 [submodule "prog/konsole/themes/an-old-hope"]
 	path = prog/konsole/themes/an-old-hope
-	url = https://github.com/mohkale/an-old-hope-konsole
+	url = git@github.com:mohkale/an-old-hope-konsole.git
 	branch = master
 [submodule "prog/yakuake/themes/an-old-hope"]
 	path = prog/yakuake/themes/an-old-hope
-	url = https://github.com/mohkale/an-old-hope-yakuake
+	url = git@github.com:mohkale/an-old-hope-yakuake.git
 	branch = master
 [submodule "prog/st/st"]
 	path = prog/st
-	url = https://github.com/mohkale/st
+	url = git@github.com:mohkale/st.git
 	ignore = dirty
 	branch = master
 [submodule "prog/bat/an-old-hope"]
 	path = prog/bat/an-old-hope
-	url = https://github.com/mohkale/an-old-hope-sublime
+	url = git@github.com:mohkale/an-old-hope-sublime.git
 	branch = master
 [submodule "prog/sxiv/sxiv"]
 	path = prog/sxiv/sxiv
