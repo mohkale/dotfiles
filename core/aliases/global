@@ -8,6 +8,7 @@
 
 a       cd_fsmap
 b       fzbm
+c       cd
 d       fzf_cd
 D       fzf_cd_all
 e       sh --norc -c '$EDITOR "$@"' edit
@@ -158,7 +159,7 @@ shenvl@file      $XDG_CONFIG_HOME/shenv.local
 al@file          $XDG_CONFIG_HOME/aliases
 alg@file         $XDG_CONFIG_HOME/aliases/global
 au@file          $XDG_CONFIG_HOME/autoloads/cmds
-vimrc@file       $XDG_CONFIG_HOME/vim/vimrc
+vimrc@file       $XDG_CONFIG_HOME/vim
 lfrc@file        $XDG_CONFIG_HOME/lf/lfrc
 xdg@file         $XDG_CONFIG_HOME/xdg
 diricons@file    $XDG_CONFIG_HOME/diricons
@@ -173,6 +174,7 @@ org@dirx          $EMACS_HOME/org
 rp@dirx           ~/prog/repos
 sc@dirx           ~/prog/scripts
 bin@dirx          ~/.local/bin
+dbin@dirx         $DOTFILES_REPO_PATH/bin
 box@dirx          ~/Dropbox
 docs@dirx         ~/user
 conf@dirx         $XDG_CONFIG_HOME

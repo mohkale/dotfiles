@@ -36,7 +36,7 @@ set splitright                                                                 "
 set encoding=utf8
 set hidden                                                                     " change buffers even when current one is modified
 set nostartofline                                                              " prevent column changing on scroll
-set wildmode=longest,list,full                                                 " make vim completion work like bash
+set wildmode=longest,list:full                                                 " make vim completion work like bash
 set wildmenu                                                                   " jump through completion candidates with tab/shift-tab
 set autoread                                                                   " automatically read changes in unmodified buffers
 set hidden                                                                     " hide files in the background instead of closing them
@@ -72,7 +72,7 @@ runtime! bindings/*
 " Automatically restore the previous cursor position when entering a
 " new buffer.
 
-set viminfo='10,\"100,:20,%,n$XDG_DATA_HOME/vim/viminfo                        " Save marks to viminfo file on :wq
+set viminfo='250,\"100,:20,%,n$XDG_DATA_HOME/vim/viminfo                        " Save marks to viminfo file on :wq
 
 " ResCur silently jumps to the previous cursor position saved in mark "
 " without updating the jumplist.
@@ -102,3 +102,8 @@ function! SynStack ()
   endfor
 endfunction
 map gm :call SynStack()<CR>
+
+augroup help_splits
+  autocmd!
+  autocmd! BufEnter * if &ft ==# 'help' | wincmd L | endif
+augroup END

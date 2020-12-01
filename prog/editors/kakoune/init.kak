@@ -10,6 +10,8 @@ add-highlighter global/search dynregex '%reg{/}' 0:search
 # highlight TODO matches
 add-highlighter global/ regex \b(TODO|FIXME|XXX|NOTE)\b 0:default+rb
 
+add-highlighter global/ number-lines -relative
+
 # C-g works the same as escape
 map global insert <c-g> <esc>
 map global normal <c-g> '<space>;'

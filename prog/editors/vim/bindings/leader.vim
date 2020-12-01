@@ -20,6 +20,14 @@ nnoremap <leader>fet :tabedit ~/.config/vim/vimrc<cr>
 nnoremap <leader>fec :edit ~/.config/vim/vimrc<cr>
 nnoremap <leader>fer :source ~/.config/vim/vimrc<cr>
 nnoremap <leader>bb  :Buffers<cr>
+nnoremap <leader>fa  :Files<cr>
+nnoremap <leader>fr  :History<cr>
+nnoremap <leader>ss  :BLines<cr>
+nnoremap <leader>sa  :Lines<cr>
+nnoremap <leader>rm  :Marks<cr>
+nnoremap <leader>ww  :Windows<cr>
+
+nnoremap <leader>xt  :silent %s/[[:space:]]\+$//e<cr>
 
 """"""""""""""""""""""""""""""""""""
 "         leader prefixes          "

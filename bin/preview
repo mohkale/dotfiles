@@ -32,7 +32,8 @@ if [ -d "$FILE_PATH" ]; then
         ls -d --color=always "$FILE_PATH"
         echo "${FILE_PATH//?/-}"
     fi
-    ls "$FILE_PATH" --color=always --group-directories-first -1
+    list=$(ls "$FILE_PATH" --color=always --group-directories-first -1)
+    if [ -n "$list" ]; then echo "$list"; else echo -e "\e[7mEmpty\e[27m"; fi
     exit 0
 fi
 

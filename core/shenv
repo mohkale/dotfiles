@@ -52,7 +52,7 @@ export MANPAGER='less -s -M +Gg'
 export MAN_KEEP_FORMATTING=1
 export INFOPATH=$XDG_DATA_HOME/info:$INFOPATH
 # shell used by emacs for various shell like purposes
-export ESHELL="$(which bash 2>/dev/null || echo /bin/sh)"
+export ESHELL="$(command -v bash 2>/dev/null || echo /bin/sh)"
 export OPENER='xopen' # command used to open files/URLs
 
 # make less more friendly for non-text input files, see lesspipe(1)

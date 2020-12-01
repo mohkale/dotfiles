@@ -54,3 +54,6 @@ STICKY_OTHER_WRITABLE 41;33
 *.pdf  31
 *.doc  31
 *.docx 31
+*.epub 31
+*.pptx 31
+*.ppt  31

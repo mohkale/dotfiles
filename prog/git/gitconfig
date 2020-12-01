@@ -25,3 +25,4 @@ email = mohkale@kisara.moe
 	unstage = reset HEAD --
 	fzlog = !git_fzlog
 	g = fzlog
+    undo = reset HEAD~

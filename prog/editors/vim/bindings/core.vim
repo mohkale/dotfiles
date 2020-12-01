@@ -4,7 +4,8 @@
 " Here you find core editor bindings that I couldn't put
 " into any other files.
 
-nnoremap <C-s>      :Lines<cr>
+nnoremap <C-s>      :BLines<cr>
+nnoremap <C-w>w     :Windows<cr>
 
 " Use C-g as an alias for escape - Doesn't work for insert mode
 cnoremap <C-g> <Esc>
