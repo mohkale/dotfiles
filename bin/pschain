@@ -1,0 +1,71 @@
+#!/bin/sh
+# List information about each parent process of a given process recursively
+# until we reach the init process. Think of this like pstree(1) except instead
+# of showing the branches and sibling relationships in a process tree, this
+# just elucidates the branch leading from the root process to a given process.
+
+set -e
+
+print_usage() {
+  echo "Usage: $(basename "$0") [-h] [-f FORMAT] [-t COUNT] [-a] [-r] PID"
+}
+
+print_help() {
+  print_usage
+  echo ""
+  echo "Optional arguments:"
+  echo "  -f FORMAT"
+  echo "      Specify the format of the output as a csv value passed to 'ps -o'"
+  echo "  -t COUNT     Strip out the last COUNT entries, like tail"
+  echo "  -a           Search all processes, rather than the current group"
+  echo "  -r           Reverse the output branch (going from most recent to oldest)"
+}
+
+format=cmd tail=0 list_flags='-o' reverse=0
+while getopts 'hrf:t:a' OPTION; do
+  case "$OPTION" in
+    h) print_help
+       exit 0 ;;
+    a) list_flags="-e $list_flags" ;;
+    f) format="$OPTARG" ;;
+    t) tail="$OPTARG" ;;
+    r) reverse=1 ;;
+    \?) print_usage
+        exit 1 ;;
+  esac
+done
+shift $(("$OPTIND" - 1))
+if [ "$#" -eq 0 ]; then
+  echo "pschain: error: must supply a PID" >&2
+  exit 1
+fi
+
+ps $list_flags ppid,pid,"$format" --no-headers  |
+  awk -v tail="$tail" \
+      -v target="$*" \
+      -v reverse="$reverse" \
+      -e '{
+  p[$2,1] = $1
+  p[$2,2] = $3
+  for (n = 4; n <= NF; n++) {
+    p[$2,2] = p[$2,2] FS $n
+  }
+}' \
+       -e 'END {
+  parent = target
+  while (parent && !!p[parent,1]) {
+    ptree[++i] = p[parent,2]
+    parent     = p[parent,1]
+  }
+
+  if (reverse) {
+    j=1
+    while (j <= i-tail) {
+      print ptree[j++]
+    }
+  } else {
+    while (i > tail) {
+      print ptree[i--]
+    }
+  }
+}'
