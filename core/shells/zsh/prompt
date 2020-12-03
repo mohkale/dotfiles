@@ -4,34 +4,7 @@
 typeset -Ag prompt_data # cache variable
 
 DEFAULT_PROMPT='%F{white}λ%f%b '
-DEFAULT_PROMPT_RHS='%B%F{green}%n@%m%f %F{yellow}%~%f'
-
-# Include ancestor processes of the current shell as icons on the RHS
-# of the shell. There's a slight startup overhead which I'd like to move
-# to zsh-async but I can't figure out a way to avoid zsh rerunning the
-# generation process multiple times even when it doesn't need to.
-if command -v pschain >/dev/null 2>&1; then
-    # List the process names (argv[0]) then pre-process them by only
-    # keeping the first column, removing the interactive indicator and
-    # maybe removing some unecessary processes from the list. Then we
-    # pass through an awk mapping script to get zsh formatted icons.
-    #
-    # TODO: the two awk overhead here can be replaced by one giant mapping
-    # of the basename in the final expression of the first awk process.
-    ancestors=$(pschain -t1 $$ |
-                    awk \
-                        -e '{ $0 = $1 }' \
-                        -e '$0 ~ /^-/ { $0 = substr($0, 2) }' \
-                        -e '$0 ~ /lf/ { print; getline; next }' \
-                        -e '{ print $0 }' |
-                    awk -F=/ \
-                        -v prog_icons_pattern="'%%F{grey}%s%%f  '" \
-                        -e '$NF ~ /zsh/ { printf("%s ", "%F{blue} %f"); next }' \
-                        -e '$NF ~  /lf/ { printf("%s ", "%F{yellow} %f"); next }' \
-                        -e '{ print $0 | ("prog-icons -f -x " prog_icons_pattern) }')
-    DEFAULT_PROMPT_RHS="$ancestors$DEFAULT_PROMPT_RHS"
-    unset ancestors
-fi
+DEFAULT_PROMPT_RHS="$(ancestor_icons)"'%B%F{green}%n@%m%f %F{yellow}%~%f'
 
 if ! hash __git_prompt 1>/dev/null 2>&1; then
   git_prompt_path="$HOME/.local/bin/git-prompt"

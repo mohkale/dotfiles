@@ -1,0 +1,36 @@
+# -*- mode: sh -*-
+# Output icons for the ancestor processes of the current shell in a way
+# that can be substituted back into your current shells prompt. This only
+# works for zsh and bash.
+
+ancestor_icons() {
+  if [ -n "$ZSH_VERSION" ]; then
+    local fallback="'%%F{grey}%s%%f  '" \
+          colors=( reset='%f' grey='%F{grey}' blue='%F{blue}' yellow='%F{yellow}' )
+  else
+    local fallback="'"'\\\\e[1;37m%s \\\\e[1;39m '"'" \
+          colors=( reset='\\e[1;39m' grey='\\e[1;37m' blue='\\e[1;34m' yellow='\\e[1;33m' )
+  fi
+
+  # List the process names (argv[0]) then pre-process them by only
+  # keeping the first column, removing the interactive indicator and
+  # maybe removing some unecessary processes from the list. Then we
+  # pass through an awk mapping script to get zsh formatted icons.
+  #
+  # TODO: the two awk overhead here can be replaced by one giant mapping
+  # of the basename in the final expression of the first awk process.
+  if command -v pschain prog-icons >/dev/null 2>&1; then
+    pschain -t1 ${1:-$$} |
+      awk \
+        -e '{ $0 = $1 }' \
+        -e '$0 ~ /^-/ { $0 = substr($0, 2) }' \
+        -e '$0 ~ /lf/ { print; getline; next }' \
+        -e '{ print $0 }' |
+      awk -F=/ \
+          -v prog_icons_pattern="$fallback" \
+          $(printf " -v %s" "${colors[@]}") \
+          -e '$NF ~ /zsh/ { printf("%s ", blue " " reset); next }' \
+          -e '$NF ~  /lf/ { printf("%s ", yellow " " reset); next }' \
+          -e '{ print $0 | ("prog-icons -f -x " prog_icons_pattern) }'
+  fi
+}

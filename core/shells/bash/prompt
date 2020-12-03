@@ -33,6 +33,7 @@ if ! hash __git_ps1 1>/dev/null 2>&1; then
   unset git_prompt_path
 fi
 
+_prompt_ancestors="$(ancestor_icons)"
 _pre_prompt() {
   local previous_exit_code="$?" user_color="\[\e[0;1;32m\]"
 
@@ -43,12 +44,18 @@ _pre_prompt() {
     ps1_pre="$ps1_pre :: $(exit_color "$previous_exit_code" $(printf "%03d" "$previous_exit_code"))"
   fi
 
+  if [ "${PS1_INLINE:-0}" -eq 1 ]; then
+    ps1_pre="$_prompt_ancestors$ps1_pre"
+  elif [ -n "$_prompt_ancestors" ]; then
+    ps1_pre="$ps1_pre ${_prompt_ancestors::-1}"
+  fi
+
   local git="$(__git_ps1)"
   if [ -n "$git" ]; then
     ps1_pre="$ps1_pre \[\e[1;34m\]\$(__git_ps1)"
   fi
 
-  if [ "${PS1_INLINE:-0}" = 1 ]; then
+  if [ "${PS1_INLINE:-0}" -eq 1 ]; then
     ps1_pre="$ps1_pre "
   else
     ps1_pre="$ps1_pre"$'\n'
