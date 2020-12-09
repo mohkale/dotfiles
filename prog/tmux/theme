@@ -90,8 +90,10 @@ set -g status-left "\
 # a linked-window indicator.
 window_flags='#{?window_linked,L,}#{?window_activity_flag,##,}#{?window_bell_flag,!,}#{?window_silence_flag,~,}#{?window_marked_flag,M,}#{?window_zoomed_flag,Z,}'
 window_flags_suffix="#{?#{==:$window_flags,},,[#[bright,fg=$red]$window_flags#[default]]}"
-set -g window-status-format "#I$winum_seperator#W#{?#{==:$hide_last_window,1},,#{?window_last_flag,-,}}$window_flags_suffix"
+set -g window-status-format         "#I$winum_seperator#W#{?#{==:$hide_last_window,1},,#{?window_last_flag,-,}}$window_flags_suffix"
 set -g window-status-current-format "#{?#{==:$number_current_window,1},#I$winum_seperator,}#W$window_flags_suffix"
+set -g window-status-activity-style ""
+set -g window-status-bell-style ""
 
 status_host="#[default,fg=$fg]#{?#{==:#{host},#{pane_title}},,#{=/50/...:pane_title} | }#{host}(#{=30:pane_current_command})"
 status_date="#[default,bg=$highlight_color,fg=$bg] %d-%b-%Y %H:%M "

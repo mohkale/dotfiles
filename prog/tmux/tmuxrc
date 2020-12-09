@@ -20,11 +20,27 @@ set -g default-terminal "screen-256color"                            # improve c
 set -g set-titles-string 'tmux@#H [#S:#I] #W'                        # title of terminal when running tmux
 set -sg escape-time 10                                               # small enough for nvim and alt-keys :smile:.
 
+# Detect events in windows and mark appropriately. Supported events include:
+# activity - refers to any new content being written to the terminal on the window.
+# silence  - checks whether window has been inactive for the given duration
+# bell     - checks whether the terminal in that window has issued the bell
+set -g monitor-activity off
+set -g monitor-bell     on
+set -g monitor-silence  0
+set -g visual-activity  off
+set -g visual-bell      off
+set -g visual-silence   off
+set -g activity-action  other
+set -g bell-action      other
+set -g silence-action   other
+
 # change leader to C-q
 unbind C-b
 set -g prefix C-q
 bind C-q send-prefix
 
+bind \# set-window-option monitor-activity\; display-message "#{?monitor-activity,Monitoring,Ignoring} activity in current window"
+bind \~ run "tmux command-prompt -I #{?monitor-silence,#{monitor-silence},10} -p 'Set silence interval (seconds):' 'set monitor-silence %%'"
 
 bind T set -w status #{?#{==:#{status},on},on,off}                                                 # toggle whether to show the status-bar or not
 bind t set status-position #{?#{==:#{status-position},top},bottom,top}                             # toggle the position of the status-bar
