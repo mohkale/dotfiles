@@ -29,6 +29,19 @@ nnoremap <leader>ww  :Windows<cr>
 
 nnoremap <leader>xt  :silent %s/[[:space:]]\+$//e<cr>
 
+" Easymotions
+map  <Leader>jj <Plug>(easymotion-overwin-f)
+map  <Leader>jJ <Plug>(easymotion-overwin-f2)
+map  <Leader>jml <Plug>(easymotion-lineforward)
+map  <Leader>jmj <Plug>(easymotion-j)
+map  <Leader>jmk <Plug>(easymotion-k)
+map  <Leader>jmh <Plug>(easymotion-linebackward)
+map  <Leader>jmw <Plug>(easymotion-overwin-w)
+map  <Leader>jn <Plug>(easymotion-next)
+map  <Leader>jp <Plug>(easymotion-prev)
+map  <Leader>js <Plug>(easymotion-sn)
+
+
 """"""""""""""""""""""""""""""""""""
 "         leader prefixes          "
 """"""""""""""""""""""""""""""""""""

@@ -10,7 +10,7 @@ Plug 'Raimondi/delimitMate'     " auto close pairs such as parens
 Plug 'tpope/vim-surround'       " change surrounding pairs
 Plug 'junegunn/fzf' ", { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
-" Plug 'easymotion/vim-easymotion' " like emacs avy-jump TODO properly implement
+Plug 'easymotion/vim-easymotion'
 Plug 'tpope/vim-commentary'
 
 call plug#end()
