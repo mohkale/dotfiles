@@ -1,6 +1,7 @@
 # -*- mode: conf-space -*- Program (unicode) icon configuration.
 
 st*    
+sh     
 zsh    
 bash   
 su     

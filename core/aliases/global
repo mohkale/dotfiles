@@ -14,17 +14,19 @@ D       fzf_cd_all
 e       sh --norc -c '$EDITOR "$@"' edit
 f       fzf_select
 F       fzf_select_all
+h@dirx  ~
 i       sh -c 'if [ $# -gt 0 ]; then preview "$@" | less; fi' inspect
 m       fzman
 o       xopen
 p       cd_repo
-r       ranger
+s       $SHELL
 x       fzf-dmenu
 z       select_fsmap
 
 cls     clear
 
 wai     whoami
+bell    echo -ne '\a'
 nv      nvim
 netcat  ncat
 chksum  cksum
@@ -167,7 +169,6 @@ dircolors@file   $XDG_CONFIG_HOME/dircolors
 progicons@file   $XDG_CONFIG_HOME/progicons
 prompt@file      $XDG_CONFIG_HOME/prompt
 
-h@dirx            ~
 dl@dirx           $XDG_DOWNLOAD_DIR
 em@dirx           $EMACS_HOME
 org@dirx          $EMACS_HOME/org

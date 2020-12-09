@@ -38,7 +38,7 @@ _pre_prompt() {
   local previous_exit_code="$?" user_color="\[\e[0;1;32m\]"
 
   local ps1_pre="$user_color\u@\h \[\e[0;1;33m\]\w\[\e[0;1m\]" \
-        ps1_post="\[\e[0;1m\]λ "
+        ps1_post="\[\e[0m\]λ "
 
   if [ "$previous_exit_code" -ne 0 ]; then
     ps1_pre="$ps1_pre :: $(exit_color "$previous_exit_code" $(printf "%03d" "$previous_exit_code"))"

@@ -7,10 +7,11 @@ let maplocalleader  = '<leader>m'
 let g:which_key_map = {}
 
 nnoremap <silent><leader> :WhichKey '<Space>'<cr>
+nnoremap <leader>am :Man<Space>
 nnoremap <leader>bk :Bclose<cr>
 nnoremap <leader>ss :Lines<cr>
 nnoremap <leader>tl :set wrap!<cr>
-nnoremap <leader>tn :set relativenumber!<cr>
+nnoremap <leader>tn :set relativenumber! number!<cr>
 nnoremap <leader>sc :nohlsearch<cr>
 nnoremap <leader>ff :edit<Space>
 nnoremap <leader>jd :edit .<cr>
