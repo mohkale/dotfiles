@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+set -e
+
+print_usage() {
+  echo "Usage: $(basename "$0") [-h] [-c WIDTH] [-x] FILE"
+}
+
+print_help() {
+  print_usage
+  echo ""
+  echo "Required Arguments:"
+  echo "  FILE       Banner file from which to output banner"
+  echo ""
+  echo "Optional Arguments:"
+  echo "  -c WIDTH    Center the banner within WIDTH region "
+  echo "  -x WIDTH    Clip the output to fit within WIDTH"
+}
+
+center= clip=
+while getopts "hc:x:" option; do
+  case "$option" in
+    h) print_help
+       exit 0 ;;
+    \?) print_usage >&2
+        exit 1 ;;
+    c) center=$OPTARG
+       ;;
+    x) clip=$OPTARG
+       ;;
+  esac
+done
+shift $(($OPTIND - 1))
+
+if [ "$#" -eq 0 ]; then
+  echo "show-banners: error: must supply a banner file" >&2
+  exit 1
+fi
+
+if ! [ -r "$*" ]; then
+  echo "show-banners: error: failed to find banner file: $*"
+fi
+
+center_output() {
+  if [ "$center" -le "$width" ]; then
+    clip="$width"
+    clip_output
+  else
+    w=$((("$center"-"$width")/2))
+    padding=$(printf "%1.s" $(seq "$w"))
+    sed -e 's/^/'"$padding"'/'
+  fi
+}
+
+clip_output() {
+  if [ "$width" -le "$clip" ]; then
+    cat
+  elif command -v perl >/dev/null 2>&1; then
+    # not perfect, but works well enough for most use cases.
+    perl -pe 's/^((?:(?>(?:\e\[.*?m)*).){'"$clip"'}).*/$1\e[m/'
+  else
+    cat
+  fi
+}
+
+# read the configuration line from the banner
+IFS=: read -r width height _ < "$*"
+sed -e '1d' "$*" |
+  if [ -n "$center" ]; then
+    center_output
+  elif [ -n "$clip" ]; then
+    clip_output
+  else
+    cat
+  fi

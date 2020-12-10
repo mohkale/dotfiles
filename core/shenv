@@ -55,6 +55,8 @@ export INFOPATH=$XDG_DATA_HOME/info:$INFOPATH
 export ESHELL="$(command -v bash 2>/dev/null || echo /bin/sh)"
 export OPENER='xopen' # command used to open files/URLs
 
+show_banner=0 # whether to show an ascii art banner on startup
+
 # make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 

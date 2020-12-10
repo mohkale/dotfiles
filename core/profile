@@ -12,3 +12,22 @@
 #  > git --git-dir=$HOME/.dotfiles --work-tree=$HOME config --local status.showUntrackedFiles no
 
 [ -r "$HOME/.config/shenv" ] && . "$HOME/.config/shenv"
+
+if [ "${interactive:-0}" -ne 0 \
+    -a "${show_banner:-0}" -gt 0 \
+    -a -n "$COLUMNS" \
+    -a -d "$XDG_CONFIG_HOME/banners" \
+    -a -r "$XDG_CONFIG_HOME/banners" ] \
+    && command -v "show-banners" >/dev/null 2>&1; then
+  banner=$(find -L "$XDG_CONFIG_HOME/banners" -type f -or -type l |
+    sort -R |
+    while read -r b; do
+      IFS=: read -r width _ < "$b"
+      if [ "$width" -le "$COLUMNS" ]; then
+        echo "$b"
+        break
+      fi
+    done)
+  [ -n "$banner" ] && show-banners -c "$COLUMNS" "$banner"
+  unset banner
+fi
