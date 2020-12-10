@@ -7,4 +7,4 @@ case $- in
     *) return ;;
 esac
 
-[ -n "$SOURCED_ZPROFILE" ] || . $ZDOTDIR/.zprofile
+[ -n "$sourced_zprofile" ] || . $ZDOTDIR/.zprofile

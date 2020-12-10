@@ -111,12 +111,12 @@ tprint tmux display-message -p
 # name if you don't want to follow it. See [[https://unix.stackexchange.com/a/152280][here]].
 
 # dotfiles
-dot@dirx $DOTFILES_REPO_PATH
+dot@dirx $DOTFILES
 
-dotg    g --git-dir=$DOTFILES_REPO_PATH/.git --work-tree=$DOTFILES_REPO_PATH
+dotg    g --git-dir=$DOTFILES/.git --work-tree=$DOTFILES
 # istats every file within my dotfiles repository.
 distat  dotg ls-tree --full-tree --full-name -r --name-only HEAD \
-        | awk -v home="$DOTFILES_REPO_PATH" '{ printf("%s/%s\0", home, $1) }' \
+        | awk -v home="$DOTFILES" '{ printf("%s/%s\0", home, $1) }' \
         | xargs -r0 stat -c "%A %08s %n"
 
 # directory-stack
@@ -177,7 +177,7 @@ org@dirx          $EMACS_HOME/org
 rp@dirx           ~/prog/repos
 sc@dirx           ~/prog/scripts
 bin@dirx          ~/.local/bin
-dbin@dirx         $DOTFILES_REPO_PATH/bin
+dbin@dirx         $DOTFILES/bin
 box@dirx          ~/Dropbox
 docs@dirx         ~/user
 conf@dirx         $XDG_CONFIG_HOME

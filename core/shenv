@@ -7,22 +7,40 @@
 # |___/_| |_|\___|_|_|___\___|_| |_|\_/ |_|_|  \___/|_| |_|_| |_| |_|\___|_| |_|\__|
 #                   |_____|
 
+# Assigned/available environment variables
+# | Variable      | Description                                                                        |
+# |---------------+------------------------------------------------------------------------------------|
+# | shell         | The name of the current shell (bash, zsh, etc.)                                    |
+# | platform      | The platform (linux, windows, darwin, etc.) of the current host.                   |
+# | smart_term    | Whether the current terminal is a smart terminal or a dumb terminal.               |
+# | sourced_shenv | 1 when ~/.config/shenv has been sourced.                                           |
+# | interactive   | 1 when this shell is being run interactively.                                      |
+# | show_banner   | 1 when a colorful banner (from [[file:.config/banners/][banners]]) should be shown on shell startup.          |
+# |---------------+------------------------------------------------------------------------------------|
+# | EDITOR        | The preffered EDITOR that various programs should use.                             |
+# | VISUAL        | EDITOR alternative which should be used when [[https://unix.stackexchange.com/questions/4859/visual-vs-editor-what-s-the-difference][advanced term-codes]] are available.    |
+# | PAGER         | The preferred program that should be used to page long file output.                |
+# | OPENER        | The program used for opening URLs on your system, eg: [[file://home/mohkale/.profile]] |
+# |---------------+------------------------------------------------------------------------------------|
+# | PATH          | The : delimited list of directories bash/zsh/sh looks for executables.             |
+# | DOTFILES      | Path to where user dotfiles repository can be found. Should always be ~/.dotfiles. |
+# | REPO_PATH     | PATH like for variable for looking up code repositories (see [[file:.local/bin/ls-repos][ls-repos]]).            |
+
 # don't source this script if you've already sourced it.
-[ -z "$SOURCED_SHENV" ] || return
+[ -z "$sourced_shenv" ] || return
 
 [ -f "$HOME/.config/user-dirs.dirs" ] && . "$HOME/.config/user-dirs.dirs"
 export XDG_CONFIG_HOME XDG_DATA_HOME XDG_CACHE_HOME XDG_DOCUMENTS_DIR \
     XDG_PICTURES_DIR XDG_MUSIC_DIR XDG_VIDEOS_DIR XDG_DESKTOP_DIR \
     XDG_DOWNLOAD_DIR
 
-
 case "$TERM" in
+    xterm*|rxvt*|eterm*|screen*|cygwin*|emacs*|st*)
+        smart_term=1 ;;
     dumb)
         PS1="> " # dumb terminal used by emacs tramp
-        ;;
-    xterm*|rxvt*|eterm*|screen*|cygwin*|emacs*|st*)
-        SMART_TERM=1 ;;
-    *) SMART_TERM=0 ;;
+        smart_term=0 ;;
+    *) smart_term=0 ;;
 esac
 
 case "$(ps -p $$ | awk 'END { print($NF) }')" in
@@ -43,7 +61,7 @@ fi
 export VISUAL="$EDITOR"
 export PAGER=less
 export LESS="-R -S -i --save-marks -x4"
-export DOTFILES_REPO_PATH=$HOME/.dotfiles
+export DOTFILES=$HOME/.dotfiles
 export TMUX_HOME=$XDG_CONFIG_HOME/tmux
 export TMUX_TMPDIR=$XDG_CACHE_HOME/tmux
 export LANG=en_GB.UTF-8 LC_MESSAGES="C"
@@ -114,37 +132,50 @@ export \
     AUTOMATEDLAB_TELEMETRY_OPTOUT=1       \
     POWERSHELL_TELEMETRY_OPTOUT=1
 
-# set path based variables
-lines_to_path() { #(PATH [...PATH])
+lines_to_path() { #([:]PATH_VAR)
     # converts a list of paths into a PATH like string sequence,
     # with support for comments and auto removal of empty lines.
+    #
+    # Supply the variable name as the first argument and supply
+    # new paths through stdin. If the path variable is prefixed
+    # with a :, this function won't extend the existing PATH and
+    # will instead overwrite it with stdin.
 
-    # NOTE trailing whitespace is automatically removed with
-    #      inline comments.
+    local existing var="$1"
+    [ -z "$var" ] && return
 
-    # strip out empty lines, comments, replace ~/ with users home
-    # directory & join paths with a :.
+    if [ "${var:0:1}" = ":" ]; then
+        var="${var:1}" # strip out : prefix.
+    else
+        case "$shell" in
+            zshell) existing="${(P)1}" ;;
+            bash)   existing="${!1}" ;;
+            # POSIX compliant but ugly and vulnerable
+            *)      existing=$(eval "echo \${$1}") ;;
+        esac
+
+        if [ -n "$existing" ]; then
+            # print existing path variables when given in linux path format.
+            # printf ":" # delimit the existing
+            case "$OSTYPE" in
+                *cygwin|*msys) existing=:$(printf "%s:" "$(cygpath --path "$existing")") ;;
+                *)             existing=:$(printf "%s:" "$existing") ;;
+            esac
+        fi
+    fi
+
+    # strip out empty lines, comments, replace ~/ with users home directory &
+    # join paths with a :.
+    # NOTE trailing whitespace is automatically removed with inline comments.
     local p=$(sed -e 's/ *#.*$//g'          \
                   -e '/^ *$/d'              \
                   -e 's ^~/ '"${HOME}"/' g' \
                   -e 's/$/:/')
-    echo -n "${p//$'\n'/}"
-
-    if [ -n "$1" ]; then
-        # print existing path variables when given in linux path format.
-        # printf ":" # delimit the existing
-        case "$OSTYPE" in
-            *cygwin|*msys)
-                printf "%s:" "$(cygpath --path "$*")"
-                ;;
-            *)
-                printf "%s:" "$*"
-                ;;
-        esac
-    fi
+    p="${p//$'\n'/}$existing" # remove newlines and concat existing
+    export "$var"="${p//::/:}"
 }
 
-export PATH=`lines_to_path $PATH <<EOF
+lines_to_path PATH <<EOF
 ~/.local/bin/
 ~/prog/scripts
 ~/prog/.modules/ruby/bin
@@ -152,9 +183,9 @@ export PATH=`lines_to_path $PATH <<EOF
 $XDG_DATA_HOME/npm/bin
 ~/.rvm/bin
 ${POETRY_HOME:-$HOME/.poetry}/bin
-EOF`
+EOF
 
-export CLASSPATH=`lines_to_path "$CLASSPATH" <<EOF
+lines_to_path CLASSPATH <<EOF
 .
 # WARN you need to specify both the directory with
 #      wildcards to reference JARs and without them
@@ -164,35 +195,35 @@ export CLASSPATH=`lines_to_path "$CLASSPATH" <<EOF
 #      when you pass the -cp argument.
 ~/prog/.modules/java/
 ~/prog/.modules/java/*
-EOF`
+EOF
 
-export PYTHONPATH=`lines_to_path "$PYTHONPATH" <<EOF
+lines_to_path PYTHONPATH <<EOF
 ~/prog/.modules/python
-EOF`
+EOF
 
-export GEM_HOME=$HOME/prog/.modules/ruby
-export GEM_PATH=`lines_to_path "$GEM_PATH" <<EOF
+export GEM_HOME="$HOME"/prog/.modules/ruby
+lines_to_path GEM_PATH <<EOF
 $GEM_HOME
-EOF`
+EOF
 
-export GOPATH=`lines_to_path $GOPATH <<EOF
+lines_to_path GOPATH <<EOF
 ~/prog/.modules/go
-EOF`
+EOF
 
-export NODE_PATH=`lines_to_path $NODE_PATH <<EOF
+lines_to_path NODE_PATH <<EOF
 ~/prog/.modules/node
 /usr/lib/nodejs
 /usr/share/nodejs
-EOF`
+EOF
 
 # Where to look for code repositories
-export REPO_PATH=`lines_to_path <<EOF
+lines_to_path :REPO_PATH <<EOF
 ~/prog/repos/
 ~/prog/upwork/
-$DOTFILES_REPO_PATH
+$DOTFILES
 ~/prog/.modules/go/src/*/*/
 ~/prog/.modules/ruby/gems/
-EOF`
+EOF
 
 platform="$(ls-platform)"
 [ -z "$platform" ] && echo "warning: shenv: unknown OS type: $OSTYPE" >&2
@@ -281,7 +312,7 @@ autoloads_dir="$XDG_CONFIG_HOME/autoloads"
 unset autoloads_script
 
 # reclaim C-s and C-q
-if [ "$SMART_TERM" -eq 1 ]; then
+if [ "$smart_term" -eq 1 ]; then
     stty stop  undef 2>/dev/null
     stty start undef 2>/dev/null
 fi
@@ -304,12 +335,16 @@ case "$-" in
 
         load-aliases() { eval "$(ls-aliases | xargs -d '\n' -r build-aliases -1 -e e)"; }
         load-aliases
+
+        interactive=1
         ;;
+    *) interactive=0
+       ;;
 esac
 
 [ -e "$XDG_CONFIG_HOME/shenv.local" ] && . "$XDG_CONFIG_HOME/shenv.local"
 
 unset shell
-SOURCED_SHENV=1
+sourced_shenv=1
 
 # vim:syntax=sh filetype=sh

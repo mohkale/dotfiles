@@ -30,5 +30,5 @@ while getopts 'hl:-' option; do
 done
 shift $(("$OPTIND" - 1))
 
-cd "$DOTFILES_REPO_PATH"
+cd "$DOTFILES"
 ./manage -l "${logging:-info}" install -b "$(cat ./setup/cache/dotty.bots || true)" --except package,packages "$@"
