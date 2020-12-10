@@ -17,7 +17,7 @@ f1() {
   local FIND_ARGS="${FIND_ARGS:- -mindepth 1 -maxdepth 1}"
   paths=( )
   while [ "$#" -gt 0 ]; do
-    if [[ "$1" =~ ^-.* ]]; then
+    if [[ "$1" =~ ^-.* ]] || [ "$1" = \( ]; then
       break
     fi
 

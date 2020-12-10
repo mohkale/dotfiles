@@ -40,7 +40,7 @@ if [ "$#" -eq 0 ]; then
   exit 1
 fi
 
-ps $list_flags ppid,pid,"$format" --no-headers  |
+ps $list_flags ppid,pid,"$format" --no-headers 2>/dev/null  |
   awk -v tail="$tail" \
       -v target="$*" \
       -v reverse="$reverse" \

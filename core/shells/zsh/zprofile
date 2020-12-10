@@ -39,12 +39,6 @@ ZSH_HIGHLIGHT_STYLES[autodirectory]="fg=green"
 # ZSH_AUTOSUGGEST_USE_ASYNC=1
 
 if ! zgen saved; then
-    # Ctrl+Shift+(left|right) to cycle dirstack
-    zgen load 'michaelxmcbride/zsh-dircycle'
-
-    # interactive jq
-    zgen load 'reegnz/jq-zsh-plugin'
-
     # complete ssh hostanmes
     zgen load 'zpm-zsh/ssh'
 
