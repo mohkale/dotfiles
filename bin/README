@@ -9,6 +9,7 @@ in ruby. Generally whatever works for whatever I'm trying to do.
 |----------------------------------------|---------------------------------------------------------------------------------------------|
 | [ansils](./ansils)                     | List a bunch of colorcodes. Good for when your double checking what your terminal can do.   |
 | [app-windows](./app-windows)           | List open application windows in XOrg.                                                      |
+| [bang](./bang)                         | Bang a bell.                                                                                |
 | [build-aliases](./build-aliases)       | Build alias declarations from my alias files, see ([here](../core/aliases/)).               |
 | [bulkchmod](./bulkchmod)               | Open a bulkrename session to modify unix file permissions.                                  |
 | [bulkrename](./bulkrename)             | Open a bunch of files in your editor and sync changes back to the filesystem.               |
