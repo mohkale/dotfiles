@@ -125,6 +125,9 @@ export SQLITE_HISTORY="$XDG_DATA_HOME/sqlite_history"
 ## ripgrep
 export RIPGREP_CONFIG_PATH="$XDG_CONFIG_HOME/rgrc"
 
+## vscode
+export VSCODE_PORTABLE="$XDG_DATA_HOME"/vscode
+
 # Path Management
 if [ "$platform" = "windows" ]; then
     # fix unconverted msys paths which crash some programs
