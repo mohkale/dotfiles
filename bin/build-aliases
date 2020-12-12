@@ -12,6 +12,7 @@ fi
 set -e
 
 print_usage() {
+    # shellcheck disable=SC2016
     echo 'Usage: eval "$(build-aliases [-1] [-i] [-P] [-e EDITOR] FILE [FILE...])"'
     echo ""
     echo "Required Arguments:"
@@ -41,7 +42,7 @@ while getopts "h1e:" option; do
            ;;
     esac
 done
-shift $(($OPTIND - 1))
+shift $((OPTIND - 1))
 
 read_script() { #(*files)
     cat "$@" | sed -r - -e ':x /\\$/ { N; s/\\\n//g ; bx }' \
@@ -60,6 +61,7 @@ parse_aliases() {
     while read -r key dest; do
         local cut=${key%@*}
         local tag=${key:${#cut}}
+        # shellcheck disable=SC2086
         case "$tag" in
             @file) echo alias  ${cut@Q}=${editor@Q}"' '"${dest@Q} ;;
             @dir)  echo alias  ${cut@Q}="'cd '"${dest@Q} ;;

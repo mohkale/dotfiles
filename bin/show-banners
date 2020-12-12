@@ -16,7 +16,7 @@ print_help() {
   echo "  -x WIDTH    Clip the output to fit within WIDTH"
 }
 
-center= clip=
+center='' clip=''
 while getopts "hc:x:" option; do
   case "$option" in
     h) print_help
@@ -29,7 +29,7 @@ while getopts "hc:x:" option; do
        ;;
   esac
 done
-shift $(($OPTIND - 1))
+shift $((OPTIND - 1))
 
 if [ "$#" -eq 0 ]; then
   echo "show-banners: error: must supply a banner file" >&2
@@ -63,6 +63,7 @@ clip_output() {
 }
 
 # read the configuration line from the banner
+# shellcheck disable=SC2034
 IFS=: read -r width height _ < "$*"
 sed -e '1d' "$*" |
   if [ -n "$center" ]; then

@@ -37,6 +37,7 @@ fzf_command() {
 # format a command line to be run asynchronously and not be interrupted
 # when it's parent process group exits. Like [[https://github.com/oem/lnch/blob/master/main.go][lnch]] except written in pure
 # shell and with no external dependencies..
+# shellcheck disable=SC2039
 lnch() {
   if [ "$debug" -eq 1 ]; then tee /dev/tty; else cat; fi |
     xargs -d '\n' -r -n1 nohup sh -c >/dev/null 2>&1 & disown
@@ -75,6 +76,7 @@ else
     lnch
 fi
 
+# shellcheck disable=SC2181
 if [ "$debug" -eq 1 -o "$?" -ne 0 ]; then
   printf "%s" "fzf-dmenu: exited with non 0 exit code, press enter to continue:"
   read -r

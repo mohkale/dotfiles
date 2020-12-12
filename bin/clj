@@ -7,5 +7,5 @@ if [ $# -eq 0 ]; then
         -f "$HOME"/.clj_completions \
          java -cp "$CLOJURE_JAR" clojure.main
 else
-     exec java -cp "$CLOJURE_JAR" clojure.main $1 -- "$@"
+     exec java -cp "$CLOJURE_JAR" clojure.main "$1" -- "$@"
 fi

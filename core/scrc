@@ -1,0 +1,19 @@
+# -*- mode: conf -*- [[https://github.com/koalaman/shellcheck][ShellCheck]] configuration file.
+
+# Look for 'source'd files relative to the checked script,
+# and also look for absolute paths in /mnt/chroot
+source-path=~/.config/autoloads/cmds/
+source-path=/mnt/chroot
+
+# Turn on warnings for unquoted variables with safe values
+enable=quote-safe-variables
+
+# Turn on warnings for unassigned uppercase variables
+# enable=check-unassigned-uppercase
+
+# Allow [ COND -a COND ] rather than [ COND ] && [ COND ]
+disable=SC2166
+# No error when run on none-shell files
+disable=SC1071
+# Allow $vars inside of printf strings (eg. printf "$format" "$arg")
+disable=SC2059

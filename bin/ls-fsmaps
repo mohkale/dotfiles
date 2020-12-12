@@ -48,6 +48,7 @@ if command -v stdbuf >/dev/null 2>&1; then
 fi
 
 . build-aliases
+# shellcheck disable=2046
 read_script $(ls-aliases) |
   awk -v check_exists="$exists_only" \
       -v home_relative="$home_relative" \

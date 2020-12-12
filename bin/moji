@@ -65,6 +65,7 @@ EOF
 )
 
 if [ "${new_term:-0}" -eq 1 ]; then
+    # shellcheck disable=2086
   spawn-term $SPAWN_TERM_ARGS "${SHELL:-bash}" -c "$moji_script"
 else
   eval "$moji_script"
@@ -81,7 +82,7 @@ if [ "${index_count}" -eq 0 ]; then
   exit 1
 fi
 
-cat "$index" |
+< "$index" \
   cut -d $'\t' -f -1 |
   if [ "$index_count" -eq 1 ]; then
     tr -d '\n'

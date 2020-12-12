@@ -1,9 +1,9 @@
-#!/usr/bin/sh
+#!/usr/bin/env bash
 
 set -f -e
 
 print_usage() {
-  echo "Usage: $(basename $0) [-h] FILE [FILE...]"
+  echo "Usage: $(basename "$0") [-h] FILE [FILE...]"
 }
 
 print_help() {

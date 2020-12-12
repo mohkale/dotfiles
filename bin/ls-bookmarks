@@ -46,8 +46,8 @@ while getopts 'hd:p:C' OPTION; do
        c_url_l=''
        c_url_r=''
        ;;
-    *|\?) print_help >&2
-          exit 1 ;;
+    *) print_help >&2
+       exit 1 ;;
   esac
 done
 
@@ -94,17 +94,21 @@ do_firefox() {
   local tempdest=
 
   for arg in "$@"; do
+    # shellcheck disable=2034
     IFS=: read -r browser paths <<< "$arg"
     while read -r it; do
+      # shellcheck disable=SC2086
       [ -f $it ] || continue
 
       # firefox and torbrowser have this weird issue where whenever
       # you're running the browser the entire bookmarks file is locked
       # so you can't even read it. For now I just copy it.
+      # shellcheck disable=SC2086
       if ! sqlite3 $it "BEGIN IMMEDIATE" >/dev/null 2>&1; then
         # make the temp directory for db copies.
         if [ -z "$tempdest" ]; then
           tempdest=$(mktemp -d)
+          # shellcheck disable=SC2064
           trap "rm -rf $tempdest" EXIT
         fi
         cp -f $it "$tempdest/db"
@@ -122,6 +126,7 @@ do_firefox() {
       # NOTE: moz_places and moz_bookmarks both store a title field, but the bookmarks
       # one seems to be the one used in the browser window so that's the one I'm using
       # here.
+      # shellcheck disable=2086
       sqlite3 -separator "$d" $it '
 SELECT url, (
   SELECT group_concat(z, "/") FROM (

@@ -125,7 +125,7 @@ while [ "$#" -gt 0 ]; do
 done
 
 if [ -z "$filelist" ] && [ "${#files[@]}" -eq 0 ]; then
-    print_help
+    # print_help
     exit 0
 fi
 

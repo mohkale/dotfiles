@@ -40,7 +40,7 @@ while getopts 'hn:f:' OPTION; do
             exit 1 ;;
     esac
 done
-shift $(("$OPTIND"-1))
+shift $((OPTIND - 1))
 
 read -r -d '' renum_script <<EOF
 awk -F=/ \

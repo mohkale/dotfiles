@@ -1,5 +1,5 @@
 #!/bin/sh
-dir="$@"
+dir="$*"
 if [ -z "$dir" ]; then
   dir="$(pwd)"
 fi

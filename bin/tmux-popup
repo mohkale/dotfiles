@@ -179,6 +179,7 @@ argsf="${TMPDIR:-/tmp}/tmux-popup-args-$id"  # will be sourced in the new tmux p
 fifo1="${TMPDIR:-/tmp}/tmux-popup-fifo1-$id"
 fifo2="${TMPDIR:-/tmp}/tmux-popup-fifo2-$id"
 fifo3="${TMPDIR:-/tmp}/tmux-popup-fifo3-$id"
+# shellcheck disable=SC2207
 tmux_win_opts=( $(tmux show-window-options remain-on-exit \; show-window-options synchronize-panes |
                     sed '/ off/d; s/^/set-window-option /; s/$/ \\;/') )
 
@@ -229,6 +230,7 @@ if [[ "$opt" =~ "-K -E" ]]; then
     cat <<< "$opts < $fifo1 | tee $fifo2; out=\$? $close; exit \$out" >> "$argsf"
     cat <&0 > "$fifo1" &
   fi
+  # shellcheck disable=SC2086
   tmux popup -d "$PWD" "${tmux_args[@]}" $opt -R "bash $argsf" > /dev/null 2>&1
   exit $?
 fi
@@ -240,6 +242,7 @@ else
   cat <<< "$opts < $fifo1 | tee $fifo2; echo \$? > $fifo3 $close" >> "$argsf"
   cat <&0 > "$fifo1" &
 fi
+# shellcheck disable=SC2086
 tmux set-window-option synchronize-panes off \;\
      set-window-option remain-on-exit off \;\
      split-window -c "$PWD" $opt "${tmux_args[@]}" "bash $argsf" $swap \

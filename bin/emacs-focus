@@ -38,6 +38,7 @@ get_next_emacs_frame() { #(active_window_wid)
     # last known window when the end or beginning is reached.
 
     if [ "$toggle_backwards" -eq 1 ]; then
+        # shellcheck disable=2016
         awk_script='{ print prev; exit }; { prev=$0 }'
         wraparound_command="tail -n 1" # back to bottom when top of list reached
     else

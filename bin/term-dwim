@@ -57,6 +57,7 @@ else
   }
 }')
 
+    # shellcheck disable=SC2076
     if [[ "$(<<< "$windows" cut -d ' ' -f3)" =~ "$active_window_pid" ]]; then # shellcheck disable=2076
         # currently on a terminal, try to select the next terminal in the list.
 

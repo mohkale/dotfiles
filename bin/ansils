@@ -63,9 +63,9 @@ number_to_attribute() { # NUMBER
 8bit_list() {
     # list all the 8/16 bit colors in order, line by line
     for i in {0..2} 4 5 7 {30..37} {40..47} {90..97} {100..107}; do
-        value=$(number_to_attribute $i)
+        value=$(number_to_attribute "$i")
 
-        if [ ! -z "$value" ]; then
+        if [ -n "$value" ]; then
             printf "%-6s \e[${i}m$value$reset\n" "^[${i}m"
         fi
     done
@@ -87,7 +87,7 @@ number_to_attribute() { # NUMBER
     for fg_or_bg in 38 48 ; do # 38 for foreground, 48 for background
         for color in {0..255} ; do # colors in the range of 256 bits
             printf "%-6s \e[${fg_or_bg};5;%sm  %3s  $reset\n" "\e[${fg_or_bg};5;${color}m" "$color" "$color"
-            [ $((($color + 1) % 6)) == 4 ] && echo # \n every 6 colors
+            [ $(((color + 1) % 6)) == 4 ] && echo # \n every 6 colors
         done
     done
 }
@@ -95,8 +95,8 @@ number_to_attribute() { # NUMBER
 256bit_matrix() {
     for fg_or_bg in 38 48 ; do # 38 for foreground, 48 for background
         for color in {0..255} ; do # colors in the range of 256 bits
-            printf "\e[${fg_or_bg};5;%sm  %3s  \e[0m" $color $color
-            [ $((($color + 1) % 6)) == 4 ] && echo # \n every 6 colors
+            printf "\e[${fg_or_bg};5;%sm  %3s  \e[0m" "$color" "$color"
+            [ $(((color + 1) % 6)) == 4 ] && echo # \n every 6 colors
         done
     done
 }
@@ -137,7 +137,7 @@ while getopts 8ximh option; do
 done
 
 if [ "$eight_bit" -eq 1 ]; then
-    if [ $inline -eq 0 ]; then 8bit_matrix; else 8bit_list; fi
+    if [ "$inline" -eq 0 ]; then 8bit_matrix; else 8bit_list; fi
 else
-    if [ $inline -eq 0 ]; then 256bit_matrix; else 256bit_list; fi
+    if [ "$inline" -eq 0 ]; then 256bit_matrix; else 256bit_list; fi
 fi

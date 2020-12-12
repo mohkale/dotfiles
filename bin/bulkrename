@@ -119,7 +119,7 @@ while [ "$#" -gt 0 ]; do
 done
 
 function line_count {
-    cat "$1" | wc -l
+    wc -l < "$1"
 }
 
 function file_hash {
@@ -130,7 +130,7 @@ function quote {
     printf "%q" "$1"
 }
 
-[ $(line_count "$index") -eq 0 ] && exit 0
+[ "$(line_count "$index")" -eq 0 ] && exit 0
 
 if [ "${verify:-1}" -eq 1 ]; then
     # write to a temporary sponge to prevent
@@ -150,6 +150,7 @@ fi
 
 # make absolute paths relative
 if [ "${prettify:-1}" -eq 1 ]; then
+    # shellcheck disable=SC2016
     awk_pattern='
 {
     # when line has cwd as a substring at start of string.
@@ -193,11 +194,13 @@ if [ -n "$select" ]; then
     fi
 fi
 
+# shellcheck disable=2086
 if ! $editor $editor_flags "$index_edit"; then
     echo "bulkrename: error: editor exited with $?" >&2
     exit 1
 fi
 
+# shellcheck disable=SC2016
 function scratch_template {
     echo "# This file will be executed when you close the editor."
     echo "# Please double check everything, clear the file to abort."

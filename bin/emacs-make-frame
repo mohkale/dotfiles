@@ -5,7 +5,7 @@ server_running() {
 }
 
 emacs_running() {
-    [ ! -z "$(app-windows Emacs)" ]
+    [ -n "$(app-windows Emacs)" ]
 }
 
 ignore_client=1

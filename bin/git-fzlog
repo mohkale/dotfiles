@@ -17,4 +17,4 @@ git_fzlog() {
                     xargs -r -d '\n' -I % sh -c 'git show --color=always % | ${PAGER}'"
 }
 
-git_fzlog
+git_fzlog "$@"
