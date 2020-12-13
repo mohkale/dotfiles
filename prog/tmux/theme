@@ -13,11 +13,11 @@ set -g status-left-style  default
 set -g status-right-style default
 
 # an-old-hope Colors
-very_light_grey="#CBCDD2"
+very_light_grey="#cbcdd2"
 light_grey="#848794"
-grey="#686B78"
-dark_grey="#45474F"
-very_dark_grey="#1C1D21"
+grey="#686b78"
+dark_grey="#45474f"
+very_dark_grey="#1c1d21"
 
 black="#3b3d45"
 red="#eb3d54"
@@ -43,18 +43,19 @@ bg="#18181b"
 
 highlight_color=$blue
 
-# colors for the block at the start of the status bar.
-copying_color=$yellow
-visual_color=$yellow
-prefix_color=$green
-session_color=$highlight_color
+# Colors associated with the current tmux state.
+copying_color=$yellow                                                                              # tmux when selecting regions to copy
+visual_color=$yellow                                                                               # tmux when paging content
+search_color=$magenta                                                                              # tmux when searching index
+prefix_color=$green                                                                                # prefix-key indicator
+session_color=$highlight_color                                                                     # session name background
 
-# whether to show the last window flag.
-hide_last_window=1
-# which character to use to seperate window numbers from names.
-winum_seperator=":"
-# whether to attach the window number to the current window
-number_current_window=1
+hide_last_window=1                                                                                 # whether to show the last window flag
+winum_seperator=":"                                                                                # substring inserted between window number and name
+number_current_window=1                                                                            # whether to attach the window number to the current window
+flag_surround_left='['; flag_surround_right=']'                                                    # seperators around window flags
+command_limit=30                                                                                   # maximum length of command on status line
+pane_title_limit=50                                                                                # maximum length of pane title on status line
 
 # default statusbar colors
 set-option -g status-style fg=$fg,bg=$bg,default
@@ -81,21 +82,36 @@ set-option -g display-panes-active-colour $cyan
 set-option -g display-panes-colour $grey
 
 # status bar contents - updates depending on tmux state.
+status_color='#{?selection_present,'$copying_color',#{?search_present,'$search_color',#{?pane_in_mode,'$visual_color',}}}'
+status_label='#{?selection_present, COPY ,#{?search_present, FIND ,#{?pane_in_mode, META ,}}}'
 set -g status-left "\
-#[fg=$bg,bg=#{?selection_present,$copying_color,$visual_color},bright]#{?pane_in_mode, #{?selection_present,COPY,META} ,}#[default]\
+#[fg=$bg,bg=$status_color,bright]$status_label#[default]\
 #[fg=$bg,bg=$prefix_color,bright]#{?client_prefix, TMUX ,}#[default]\
 #[fg=$bg,bg=$session_color,bright] #S #[default] "
 
 # reverse engineer the default window flags so that you can modify indicators and add
-# a linked-window indicator.
-window_flags='#{?window_linked,L,}#{?window_activity_flag,##,}#{?window_bell_flag,!,}#{?window_silence_flag,~,}#{?window_marked_flag,M,}#{?window_zoomed_flag,Z,}'
-window_flags_suffix="#{?#{==:$window_flags,},,[#[bright,fg=$red]$window_flags#[default]]}"
+# indicators for as of yet unsupported window flag indicators.
+#
+# NOTE: last_window_flag isn't included in this list, it suffixes the program name.
+window_flags='\
+#{?pane_pipe,|,}\
+#{?window_activity_flag,##,}\
+#{?window_bell_flag,!,}\
+#{?window_silence_flag,~,}\
+#{?window_linked,L,}\
+#{?window_marked_flag,M,}\
+#{?window_zoomed_flag,Z,}\
+'
+
+# Appends formatting and borders to the flags only when their not empty.
+window_flags_suffix="#{?#{==:$window_flags,},,$flag_surround_left#[bright,fg=$red]$window_flags#[default]$flag_surround_right}"
+
 set -g window-status-format         "#I$winum_seperator#W#{?#{==:$hide_last_window,1},,#{?window_last_flag,-,}}$window_flags_suffix"
 set -g window-status-current-format "#{?#{==:$number_current_window,1},#I$winum_seperator,}#W$window_flags_suffix"
 set -g window-status-activity-style ""
 set -g window-status-bell-style ""
 
-status_host="#[default,fg=$fg]#{?#{==:#{host},#{pane_title}},,#{=/50/...:pane_title} | }#{host}(#{=30:pane_current_command})"
+status_host="#[default,fg=$fg]#{?#{==:#{host},#{pane_title}},,#{=/$pane_title_limit/...:pane_title} | }#{host}(#{=$command_limit:pane_current_command})"
 status_date="#[default,bg=$highlight_color,fg=$bg] %d-%b-%Y %H:%M "
 set -g status-right "\
 $status_host \

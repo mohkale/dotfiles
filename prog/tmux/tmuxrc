@@ -52,7 +52,8 @@ bind m   select-pane -m                                                         
 bind M-r source "$TMUX_HOME/tmuxrc" \; display-message "Config reloaded..."                        # reload my tmux configuration from conf sources
 bind e   new-window "$EDITOR $TMUX_HOME/tmuxrc"                                                    # open my tmux config in users EDITOR
 
-bind    Tab switch-client -l                                                                       # jump between this and the last active session
+bind -r Tab last-window
+bind -r C-Tab switch-client -l                                                                       # jump between this and the last active session
 bind -r "'" select-window -T -t '{marked}'                                                         # jump between the current window and the marked window. sadly only works for windows in the same session. :cry:.
 
 bind ! break-pane                                                                                  # move current pane into its own tab
@@ -60,6 +61,10 @@ bind @ join-pane                                                                
 bind £ move-window -a -s '{marked}'                                                                # move marked window to current session
 bind $ link-window -a -s '{marked}'                                                                # link marked window to current session
 bind % swap-pane                                                                                   # swap current pane with the marked pane
+
+bind s command-prompt -p "Query:" "find-window -Z -CNTi '%%'"                                      # Show list of windows matching a GLOB pattern
+
+bind | command-prompt -p "Pipe:" "pipe-pane -o '%%'"
 
 bind b   choose-tree -Zs
 bind B   choose-tree -Zw
@@ -162,16 +167,22 @@ bind 8 select-window -t 8
 bind 9 select-window -t 9
 
 # visual mode. selection, yanking and pasting
-bind                 p   paste-buffer
-bind                 P   choose-buffer
-bind                 V   copy-mode \; send-keys -X begin-selection
+bind p paste-buffer -p
+bind P choose-buffer
+
 bind                 v   copy-mode
-bind                 u   copy-mode \; send-keys -X halfpage-up
+bind                 V   copy-mode \; send-keys V
+bind                 /   copy-mode \; send-keys /
+bind                 ?   copy-mode \; send-keys ?
+bind                 H   copy-mode \; send-keys H
+bind                 L   copy-mode \; send-keys L
+bind                 M   copy-mode \; send-keys M
 bind                 C-u copy-mode \; send-keys -X halfpage-up
+bind                 C-d copy-mode \; send-keys -X halfpage-down
 bind -T copy-mode-vi C-g send-keys -X cancel
 bind -T copy-mode-vi v   send-keys -X begin-selection
-bind -T copy-mode-vi y   send-keys -X copy-selection-and-cancel
-bind -T copy-mode-vi Y   send-keys -X copy-end-of-line
+bind -T copy-mode-vi y   send-keys -X copy-pipe-and-cancel clip
+bind -T copy-mode-vi Y   send-keys v$ \; send-keys -X copy-pipe-and-cancel clip
 bind -T copy-mode-vi C-y send-keys -X append-selection
 
 # curtesy of [[https://gist.github.com/samoshkin/05e65f7f1c9b55d3fc7690b59d678734][samoshkin]]. let's you nest tmux sessions safely (kind-of)
