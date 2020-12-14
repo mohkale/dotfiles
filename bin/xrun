@@ -44,6 +44,7 @@ def run_desktop(desktop, urls, **_):
 
 if __name__ == '__main__':
     import argparse
+    from mohkale.logging import zerolog
 
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description="""
@@ -68,10 +69,8 @@ than find the a program to open a URL.
     pargs = parser.parse_args()
     vargs = vars(pargs)
 
-    color = color_map.get(vargs.pop('color'), False)
-
     xopen = load_xopen()
     if pargs.logging_level is None:
         pargs.logging_level = xopen.default_logging_level()
-    xopen.setup_logger(vargs.pop('logging_level'), color)
+    zerolog(vargs.pop('logging_level'), color=color_map.get(vargs.pop('color'), False))
     sys.exit(0 if run_desktop(**vargs) else 1)

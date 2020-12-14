@@ -35,16 +35,7 @@ import pathlib
 import tempfile
 import subprocess
 
-def open_tty():
-    try:
-        tty = os.ttyname(2)
-    except: tty = '/dev/tty'
-
-    try:
-        return io.TextIOWrapper(io.FileIO(os.open(tty, os.O_NOCTTY | os.O_RDWR), "r+"))
-    except:
-        logging.fatal('failed to open tty: %s', tty)
-        exit(1)
+from mohkale.terminal import open_tty
 
 def get_editor():
     return shlex.split(

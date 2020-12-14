@@ -5,3 +5,4 @@ setup/dotty.exe
 .ccls-cache/
 *.~*
 .git/
+__pycache__/

@@ -1,0 +1,12 @@
+<!-- -*- mode: markdown -*- -->
+
+# lib - library
+Here goes shared code for other files/scripts. This is mostly to remove the hassle
+of re-defining core logic (eg. logging setup functions) in multiple places.
+
+The only rule here is that each of these should link to a module that can be accessed
+through the mohkale package. That's it. Maybe I'll share it out at some point but for
+now this is good enough :)
+
+NOTE: Personally I'm not sure how I feel about the /bin/lib/ path here. It's kind
+of backwards. When I get a chance I move it out to the root of my dotfile directory.
