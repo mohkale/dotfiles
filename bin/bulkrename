@@ -1,272 +1,331 @@
-#!/usr/bin/env bash
-# a script to automate the bulkrenaming of files/dirs inspired by
-# [[https://github.com/ranger/ranger][ranger]] and [[https://github.com/alexherbo2/batch][batch]].
-#
-# See also [[https://github.com/gokcehan/lf/issues/149][lf#149]].
+#!/usr/bin/env python3
+# pylint: disable=line-too-long, subprocess-run-check, redefined-outer-name, C0103
 
-set -e # stop execution when something fails
+"""
+A script to automate the bulkrenaming of files/dirs inspired by [[https://github.com/ranger/ranger][ranger]] and [[https://github.com/alexherbo2/batch][batch]].
+See also [[https://github.com/gokcehan/lf/issues/149][lf#149]].
 
-function print_usage {
-    echo "Usage: bulkrename [-h] [-e EDITOR] [-p|-P] [-v|-V] [-s FILE]"
-    echo "                  [-m SCRIPT] [-t SCRIPT] [-y] [-c DIR]"
-    echo "                  [-f FILE] [-] FILE [...FILE]"
-}
+At a high level what this script does is accept a list of paths from the command
+line (either as positional arguments or as other files from which we can read paths
+instead) and then it opens this *index* of files in your editor. Once the editor is
+finished editing the index we compare the original index and the edited index to
+produce a *scratch* shell script which executes the required changes to the filesystem.
 
-function print_help {
-    print_usage
-    echo ""
-    echo "file-lists:"
-    echo "  -           read file paths from STDIN"
-    echo "  -f FILE, --file FILE"
-    echo "              read file paths from FILE"
-    echo ""
-    echo "optional arguments:"
-    echo "  -h, --help  show this help message and exit"
-    echo "  -e EDITOR, --editor EDITOR"
-    echo "              set the editor used for modifying existing file paths"
-    echo "  -s FILE, --select FILE"
-    echo "              preselect FILE in EDITOR when possible."
-    echo "  -c DIR, --cd DIR"
-    echo "              change to DIR before processing."
-    echo "  -p/-P, --[no]-prettify"
-    echo "              prettify files before processing them. prettifying involves"
-    echo "              converting absolute paths to paths relative to the CWD"
-    echo "              (enabled by default)."
-    echo "  -v/-V, --[no-]verify"
-    echo "              verify any bulkrename files exist before processing them."
-    echo "              any non-existant files will be removed from the change list."
-    echo "              (enabled by default)."
-    echo "  -y, --no-confirm"
-    echo "              don't confirm operations before executing them."
-    echo "  -x, --pre-command"
-    echo "              automatically run pre-command on script before opening editor"
-    echo ""
-    echo "Scripts:"
-    echo "  -m SCRIPT, --move-script SCRIPT"
-    echo "              override the default rename command with this bash script"
-    echo "  -t SCRIPT, --trash-script SCRIPT"
-    echo "              override the default trash command with this bash script"
-}
+There're 2 modifications which we take into account:
+  1. del - the edited index has completely truncated the original file to "".
+  2. map - the filepath has been modified, we map from the original to the new value.
 
-function cleanup {
-    [ -n "$index" ]      && rm "$index"
-    [ -n "$index_edit" ] && rm "$index_edit"
-    [ -n "$scratch" ]    && rm "$scratch"
-}
-trap cleanup EXIT
+NOTE: This script was [[https://github.com/mohkale/dotfiles/blob/b6b5ea34b8bd2beb7b1aa5f940508c66a1e20cfa/bin/bulkrename][originally]] written in bash script but due to performance
+      issues with large edit lists I ended up migrating to python. Python is
+      decently performant for large scale text processing needs ＼（＾ ＾）／.
+"""
 
-function get_temp {
-    # create a temporary file for bulkrenames use.
-    mktemp /tmp/bulkrename-"${1:-misc}".XXXXXXXXXX
-}
+import re
+import os
+import sys
+import shlex
+import atexit
+import fnmatch
+import pathlib
+import logging
+import tempfile
+import subprocess
 
-editor="${VISUAL:-$EDITOR:-vi}" # a sane choice
-index=$(get_temp index)
-move_script=''
-trash_script=''
-pre_command=''
+from mohkale.terminal import open_tty
 
-if [ "$#" -eq 0 ]; then
-    print_help
-    exit 0
-fi
+TRASH_SCRIPT = 'condemn -- "$1"'
+MOVE_SCRIPT = 'mv -vi -- "$1" "$2"'
 
-while [ "$#" -gt 0 ]; do
-    key="$1"
-    shift
+# Magic variables to trigger editor syntaxes.
+EDITOR_MAGIC = """
+# Local Variables:
+# mode: sh
+# End:
+# vim:syntax=sh filetype=sh\
+"""
 
-    case "$key" in
-        -h) print_usage
-            exit 0 ;;
-        --help) print_help
-                exit 0 ;;
-        # options
-        -e|--editor) editor="$1"
-                     shift
-                     ;;
-        -p|--prettify)    prettify=1 ;;
-        -P|--no-prettify) prettify=0 ;;
+def scratch_template(*scripts: [ [str, str, str] ]) -> str:
+    """Generate template for a shell script that can be used for
+    the bulk-renaming files.
 
-        -v|--verify)    verify=1 ;;
-        -V|--no-verify) verify=0 ;;
+    Parameters
+    ----------
+    scripts
+        An array of tuples defining the parameters of a script. The tuple
+        should contain three values the name of the command, the script
+        for it and the default script in case the 2nd script is missing.
 
-        -s|--select) select="$1"
-                     shift ;;
-        -c|--cd) cd "$1"
-                 shift ;;
-        -y|--no-confirm) confirm=0 ;;
-        # scripts
-        -m|--move-script)
-            move_script="$1"
-            shift ;;
-        -t|--trash-script)
-            trash_script="$1"
-            shift ;;
-        -x|--pre-command)
-            pre_command="$1"
-            shift ;;
-        # file lists
-        -) cat >> "$index"
-           ;;
-        -f) cat "$1" >> "$index"
-            shift
-            ;;
-        -*) echo "bulkrename: error: unrecognised argument: $key" >&2
-            exit 1 ;;
-        *) echo "$key" >> "$index"
-           ;;
-    esac
-done
+        NOTE: We keep the default and the argument one seperate because
+              the default one can be inlined whereas the others cannot.
+    """
+    value = "# This file will be executed when you close the editor.\n" \
+            "# Please double check everything, clear the file to abort.\n\n"
+    for name, script, default in scripts:
+        if script:
+            # Indent script just to make it look nicer inside function
+            script = re.sub(r'^(?!$)', '    ', script, flags=re.MULTILINE)
+            value += name + "() {\n" + script + "\n}\n"
+        else:
+            value += name + "() { " + default + "; }\n"
+    value += "\n"
+    return value
 
-function line_count {
-    wc -l < "$1"
-}
+def mktemp(prefix: str) -> pathlib.Path:
+    """Create and return the path to a temporary file.
 
-function file_hash {
-    sha256sum "$1" | cut -d' ' -f1
-}
+    A handler will be set-up to automatically unlink the file when this
+    process exits.
+    """
+    _, index = tempfile.mkstemp(prefix='bulkrename-'+(prefix or 'misc')+'.', text=True)
+    index = pathlib.Path(index)
+    atexit.register(lambda x: x.unlink(), index)
+    return index
 
-function quote {
-    printf "%q" "$1"
-}
+def open_editor(cmd: str, path: pathlib.Path, preselect: int=None):
+    """Open an editor on a given file.
 
-[ "$(line_count "$index")" -eq 0 ] && exit 0
+    Parameters
+    ----------
+    cmd
+        The shell command to open the editor, this should be composable such that
+        you can append the path to a file and the editor will open it. The command
+        should exit when the editor is finished.
+    path
+        The path to a file that should be opened with the editor.
+    preselect
+        When given (and supported by the editor) the editor should be opened with
+        focus on this line.
+    """
+    cmdline = cmd + ' ' + shlex.quote(str(path))
+    if preselect:
+        if fnmatch.fnmatch(cmd, 'vi*') or \
+           fnmatch.fnmatch(cmd, 'nvim*') or \
+           fnmatch.fnmatch(cmd, 'emacs*'):
+            cmdline += f' +{preselect}'
+        else:
+            logging.warning("Pre-select is none-empty but editor doesn't support it")
 
-if [ "${verify:-1}" -eq 1 ]; then
-    # write to a temporary sponge to prevent
-    # index being truncated prematurely.
-    sponge=$(get_temp sponge)
-    # filters out any files that don't exist
-    xargs -d '\n' -a "$index" -r ls -d -- > "$sponge" || true
+    with open_tty() as tty:
+        logging.debug('Running shell command: %s', cmdline)
+        res = subprocess.run(cmdline, stdin=tty, stdout=tty, shell=True)
+        return res.returncode == 0
 
-    # do some cleanup.
-    cat "$sponge" > "$index"; rm "$sponge"
+def wc_l(path: pathlib.Path) -> int:
+    """Count the number of lines in a file.
 
-    if [ -n "$select" ] && ! [ -e "$select" ]; then
-        # can't preselect a non-existant file.
-        unset select
-    fi
-fi
+    Parameters
+    ----------
+    path
+        The file to open and count the lines in.
+    """
+    count = 0
+    with path.open('r', encoding='utf-8') as fd:
+        for _ in fd:
+            count += 1
+    return count
 
-# make absolute paths relative
-if [ "${prettify:-1}" -eq 1 ]; then
-    # shellcheck disable=SC2016
-    awk_pattern='
-{
-    # when line has cwd as a substring at start of string.
-    if (index($0, cwd) == 1) {
-         print substr($0, length(cwd)+1)
-    } else if ($0 ~ /^.\//) {
-         print substr($0, 3)
-    } else {
-         print $0
-    }
-}'
+def zip_fd(path1: pathlib.Path, path2: pathlib.Path):
+    """Enumerate and zip lines from both input files
+    """
+    with path1.open('r', encoding='utf-8') as fd1, \
+         path2.open('r', encoding='utf-8') as fd2:
+        yield from zip(map(str.strip, fd1), map(str.strip, fd2))
 
-    awk --assign cwd="$(pwd)/" -i inplace -e "$awk_pattern" "$index"
+# pylint: disable=too-many-arguments, too-many-locals, too-many-return-statements
+def bulkrename(index, preselect, editor,
+               move_script, trash_script, confirm,
+               pre_command, index_pre_command, **_) -> bool:
+    """Run the bulkrename process and return whether it succeeded or not
+    """
+    if index_pre_command:
+        logging.info('Running pre-command on index')
+        index_pre_command = ['sh', '-c', '--', index_pre_command, 'precmd', shlex.quote(str(index))]
+        logging.debug('Running shell command: %s', shlex.join(index_pre_command))
+        if subprocess.run(index_pre_command).returncode != 0:
+            logging.critical('Pre-command exited with non-0 exit code')
+            return False
 
-    if [ -n "$select" ]; then
-        select=$(awk --assign cwd="$(pwd)/" -e "$awk_pattern" <<< "$select")
-    fi
+    logging.debug('Copying index to edit-index')
+    index_edit = mktemp('edit')
+    with index_edit.open('w', encoding='utf-8') as fd:
+        fd.write(index.open('r', encoding='utf-8').read())
 
-    unset awk_pattern
-fi
+    if pre_command:
+        logging.info('Running pre-command on edit-index')
+        pre_command = ['sh', '-c', '--', pre_command, 'precmd', shlex.quote(str(index_edit))]
+        logging.debug('Running shell command: %s', shlex.join(pre_command))
+        if subprocess.run(pre_command).returncode != 0:
+            logging.critical('Pre-command exited with non-0 exit code')
+            return False
 
-index_edit=$(get_temp edit)
-cat "$index" > "$index_edit"
+    logging.debug('Opening editor on edit-index')
+    if not open_editor(editor, index_edit, preselect):
+        logging.fatal('Index edit exited with non-0 exit code')
+        return False
 
-if [ -n "$pre_command" ]; then
-    if ! sh -c -- "$pre_command" "precom" "$index_edit"; then
-        echo "bulkrename: error: pre command failed" >&2
-        exit 1
-    fi
-fi
+    logging.debug('Checking index and edited-index size')
+    index_count = wc_l(index)
+    index_edit_count = wc_l(index_edit)
+    if index_count != index_edit_count:
+        logging.fatal("Edited index size doesn't match original index size: %d / %d",
+                      index_count, index_edit_count)
+        return False
 
-editor_flags=""
-if [ -n "$select" ]; then
-    line=$(grep -m 1 -x -n "$index" -F -e "$select" | cut -d':' -f1)
-    if [ "${line:-1}" -ne 1 ]; then
-        case "$editor" in
-            vi*|nvim*|emacs*)
-                editor_flags="+$line"
-                ;;
-        esac
-    fi
-fi
+    logging.debug('Generating scratch script for bulkrename')
+    scratch = mktemp('scratch')
+    changes_exist = False
+    with scratch.open('w', encoding='utf-8') as fd:
+        scratch_header = scratch_template(('del', trash_script, TRASH_SCRIPT),
+                                          ('map', move_script, MOVE_SCRIPT))
+        fd.write(scratch_header)
+        for original, edited in zip_fd(index, index_edit):
+            if edited == "":
+                fd.write('del ' + shlex.quote(original) + '\n')
+                changes_exist = True
+            elif original != edited:
+                fd.write('map ' + shlex.quote(original) + ' ' + shlex.quote(edited) + '\n')
+                changes_exist = True
+        fd.write(EDITOR_MAGIC + '\n')
 
-# shellcheck disable=2086
-if ! $editor $editor_flags "$index_edit"; then
-    echo "bulkrename: error: editor exited with $?" >&2
-    exit 1
-fi
+    if not changes_exist:
+        logging.info('Skipping bulkrename because no files have been modified')
+        return True
 
-# shellcheck disable=SC2016
-function scratch_template {
-    echo "# This file will be executed when you close the editor."
-    echo "# Please double check everything, clear the file to abort."
-    echo ""
-    if [ -n "$trash_script" ]; then
-        echo 'function trash {'
-        echo "$trash_script" | awk '{ printf("  %s\n", $0) }'
-        echo '}'
-        echo ""
-    else
-        echo 'function trash { condemn -- "$1"; }'
-    fi
+    logging.debug('Opening editor on scratch')
+    scratch_line = None if (trash_script is not None or move_script is not None) else (scratch_header.count('\n')+1)
+    if confirm and not open_editor(editor, scratch, scratch_line):
+        logging.fatal('Scratch edit exited with non-0 exit code')
+        return False
 
-    if [ -n "$move_script" ]; then
-        echo 'function rename {'
-        echo "$move_script" | awk '{ printf("  %s\n", $0) }'
-        echo '}'
-    else
-        echo 'function rename { mv -vi -- "$1" "$2"; }'
-    fi
-    echo ""
-}
+    logging.info('Running bulkrename script')
+    if subprocess.run(['sh', scratch]).returncode != 0:
+        logging.warning('Bulkrename script exited with non-0 exit code')
+        return False
+    return True
 
-# magic comments to make certain editors recognise file
-# syntaxes.
-function editor_magic {
-    echo ""
-    # emacs
-    echo "# Local Variables:"
-    echo "# mode: sh"
-    echo "# End:"
-    # vim
-    echo "# vim:syntax=sh filetype=sh"
-}
+if __name__ == '__main__':
+    import signal
+    import argparse
+    from mohkale.logging import zerolog
 
-if [ "$(line_count "$index")" -ne "$(line_count "$index_edit")" ]; then
-    echo "line number mismatch." >&2
-else
-    scratch=$(get_temp scratch)
+    signal.signal(signal.SIGINT, lambda: sys.exit(1)) # for ctrl+c
 
-    scratch_template >> "$scratch"
-    scratch_hash=$(file_hash "$scratch")
+    def read_paths(fd: pathlib.Path):
+        """Read paths from a file-descriptor, skipping over any empty entries.
+        """
+        yield from map(pathlib.Path, filter(lambda x: x.strip() != '', fd.read(-1).split('\n')))
 
-    # delimit src from dest using backspace character.
-    # I highly doubt I'll ever have a file with this
-    # character in it... and paste doesn't let you use
-    # the null character (\0) as a delimeter.
-    paste -d '' "$index" "$index_edit" |
-      while IFS='' read -r src dest; do
-          if [ "$src" = "$dest" ]; then
-              :
-          elif [ "$dest" = "" ]; then
-              echo "trash $(quote "$src")" >> "$scratch"
-          elif [ -e "$dest" ]; then
-              echo "File exists: $dest" >&2
-          else
-              echo "rename $(quote "$src") $(quote "$dest")" >> "$scratch"
-          fi
-      done
+    def enumerate_paths(paths: [pathlib.Path], stdin: bool, files: [pathlib.Path]):
+        """Enumerate paths from multiple sources, including applying any pre-processing
+        steps.
 
-    # let user inspect script and then run it.
-    # only runs when at least one file is to be acted on.
-    if [ "$(file_hash "$scratch")" != "$scratch_hash" ]; then
-        editor_magic >> "$scratch"
-        if [ "${confirm:-1}" -eq 0 ] || $editor "$scratch"; then
-            sh "$scratch"
-        fi
-    fi
-fi
+        The first argument is a list of paths that should be immeadiately returned.
+        When stdin is true we read paths from stdin as well. The last argument is a
+        list of files to read paths from (like stdin).
+        """
+        if len(paths) > 0:
+            logging.info('Supplied %d path from the command line', len(paths))
+            yield from map(pathlib.Path, paths)
+
+        if stdin:
+            logging.info('Reading paths from stdin')
+            yield from read_paths(sys.stdin)
+
+        for f in files:
+            with f.open('r', encoding='utf-8') as fd:
+                logging.info('Reading paths from file: %s', f)
+                yield from read_paths(fd)
+
+    def paths_equal(p1, p2):
+        """Assert whether p1 and p2 both point to the same file.
+        """
+        # KLUDGE: Expensive but easy comparison
+        return p1.absolute() == p2.absolute()
+
+    def parse_args():
+        """Parse command line arguments.
+        """
+        parser = argparse.ArgumentParser()
+
+        source_group = parser.add_argument_group('Sources')
+        source_group.add_argument('paths', nargs='*', default=[], help='Include file in session')
+        source_group.add_argument('-', '--read-stdin', action='store_true',
+                                help='Read filenames from stdin')
+        source_group.add_argument('-f', '--file', dest='files', metavar='FILE',
+                                default=[], type=pathlib.Path,
+                                action='append', help='Read filenames from FILE')
+
+        conf_group = parser.add_argument_group('Config')
+        conf_group.add_argument('-l', '--logging', dest='logging_level',
+                                metavar='LEVEL', default=logging.DEBUG,
+                                type=lambda x: getattr(logging, x.upper()),
+                                help='Set verbosity of logging output')
+        conf_group.add_argument('-e', '--editor', metavar='CMD',
+                                default=os.getenv('VISUAL', os.getenv('EDITOR', 'vi')),
+                                help='Specify command line for EDITOR')
+        conf_group.add_argument('-c', '--cd', metavar='PATH', type=pathlib.Path,
+                                help='Change to PATH before doing anything')
+        conf_group.add_argument('-V', '--no-verify', dest='verify', action='store_false',
+                                help='Verify any session files exist before processing')
+        conf_group.add_argument('-P', '--no-prettify', dest='prettify', action='store_false',
+                                help='Prettify paths before opening bulkrename session')
+        conf_group.add_argument('-Y', '--no-confirm', dest='confirm', action='store_false',
+                                help="Don't confirm operation before executing them")
+        conf_group.add_argument('-x', '--pre-command', metavar='CMD',
+                                help="Run CMD before opening EDITOR on edit-index")
+        conf_group.add_argument('-X', '--index-pre-command', metavar='CMD',
+                                help="Run CMD on original index before creating edit-index")
+        conf_group.add_argument('-s', '--select', metavar='FILE', type=pathlib.Path,
+                                help='Preselect FILE in index if editor supports this')
+
+        scripts_group = parser.add_argument_group('Scripts')
+        scripts_group.add_argument('-m', '--move', dest='move_script', metavar='CMD',
+                                help='Override the default rename command')
+        scripts_group.add_argument('-t', '--trash', dest='trash_script', metavar='CMD',
+                                help='Override the default trash command')
+
+        args = parser.parse_args()
+        vargs = vars(args)
+
+        zerolog(vargs.pop('logging_level'))
+
+        return args, vargs
+
+    args, vargs = parse_args()
+
+    if args.cd:
+        os.chdir(args.cd)
+    cwd = os.getcwd()
+
+    if vargs.pop('prettify'):
+        def prettify(path):
+            """Reduce extra verbose paths by making them relative when possible.
+            """
+            if path.is_absolute():
+                path_s = str(path.resolve(strict=False))
+                if path_s.startswith(cwd):
+                    return pathlib.Path(path_s[len(cwd)+1:])
+            return path
+    else:
+        prettify = lambda x: x
+
+    main_index = mktemp('index')
+    preselect_line = None # line number of file to pre-select
+    wrote_path = False # whether at least one path has been saved
+    with main_index.open('w', encoding='utf-8') as index_fd:
+        it = enumerate_paths(vargs.pop('paths'),
+                             vargs.pop('read_stdin'),
+                             vargs.pop('files'))
+        for i, path in enumerate(it, start=1):
+            if args.verify and not path.exists():
+                logging.warning("Skipping path because it doesn't exist: %s", path)
+                continue
+            if not preselect_line and args.select and paths_equal(path, args.select):
+                logging.debug('Found pre-select path at index %d in input', i)
+                preselect_line = i
+            index_fd.write(str(prettify(path)) + '\n')
+            wrote_path = True
+
+    if not wrote_path:
+        sys.exit(0)
+    sys.exit(0 if bulkrename(index=main_index, preselect=preselect_line, **vargs) else 1)

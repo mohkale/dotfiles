@@ -3,7 +3,7 @@
 # command to open selected files in a bulkrename session alongside both
 # hex and human readable file permissions. You can modify the permissions
 # in the session and then the associated files will recieve updated
-# permissions.
+# permissions. Paths must be supplied through stdin.
 #
 # NOTE Numerical permissions take precedence over human readable ones,
 # changes to filenames don't do anything.
@@ -31,15 +31,18 @@ print_help() {
   echo "     preselect PRESELECT in the session"
 }
 
-while getopts 'hs:' option; do
+dir="$(pwd)"
+while getopts 'hs:c:' option; do
   case "$option" in
     h) print_help
        exit 0 ;;
     \?) print_help >&2
         exit 1 ;;
     s) preselect="$OPTARG" ;;
+    c) dir="$OPTARG" ;;
   esac
 done
+shift $((OPTIND - 1))
 
 move_script=$(cat <<- 'EOF'
 	IFS=':' read perms_dec1 perms1 file <<< "$1"
@@ -81,7 +84,10 @@ trash_script=$(cat <<- 'EOF'
 EOF
 )
 
-stat_format='%a:%A:%n\n'
-[ -n "$preselect" ] &&  preselect=$(stat --printf "$stat_format" "$preselect" 2>/dev/null)
-xargs -r -d '\n' stat --printf "$stat_format" |
-  bulkrename -P -V -s "$preselect" -m "$move_script" -t "$trash_script" -
+stat_format='%a:%A:%n'
+[ -n "$preselect" ] &&
+    preselect=$(stat --printf "$stat_format\n" "$preselect" 2>/dev/null)
+# shellcheck disable=SC2016
+bulkrename - -V -c "$dir" -s "$preselect" \
+           -m "$move_script" -t "$trash_script" \
+           -X 'xargs -r -d "\n" -a "$1" stat --printf '"$stat_format""'"'\n'"'"' | sponge "$1"'

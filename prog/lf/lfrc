@@ -737,7 +737,7 @@ cmd bulkchmod ${{
         find -L "$dir" -type f |
             if [ "$lf_hidden" = "false" ]; then filter-globs -v -p "$lf_hiddenfiles"; else cat; fi
     fi |
-        bulkchmod -s "$f"
+        bulkchmod -s "$f" -c "$dir"
 
     lf -remote "send $id reload"
 }}
