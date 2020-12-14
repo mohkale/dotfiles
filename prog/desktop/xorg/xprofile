@@ -1,3 +1,6 @@
 # -*- mode: sh -*-
+# Make caps-lock work like ctrl-key
 setxkbmap -option caps:ctrl_modifier
+
+# Load desktop-agnostic keybinding configuration
 xbindkeys -f "$XDG_CONFIG_HOME/xbindkeys/config"

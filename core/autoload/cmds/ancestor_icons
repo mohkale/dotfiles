@@ -26,11 +26,11 @@ ancestor_icons() {
         -e '$0 ~ /^-/ { $0 = substr($0, 2) }' \
         -e '$0 ~ /lf/ { print; getline; next }' \
         -e '{ print $0 }' |
-      awk -F=/ \
+      awk -F / \
           -v prog_icons_pattern="$fallback" \
           $(printf " -v %s" "${colors[@]}") \
           -e '$NF ~ /zsh/ { printf("%s ", blue " " reset); next }' \
           -e '$NF ~  /lf/ { printf("%s ", yellow " " reset); next }' \
-          -e '{ print $0 | ("prog-icons -f -x " prog_icons_pattern) }'
+          -e '{ print $NF | ("prog-icons -f -x " prog_icons_pattern) }'
   fi
 }

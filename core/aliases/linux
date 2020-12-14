@@ -5,3 +5,7 @@ enf        emacs-new-frame.sh
 pdf        zathura
 open       xdg-open
 ywd        pwd | tee /dev/tty | tr -d '\n' | clip
+xres@file  ~/.Xresources
+
+jctl              journalctl
+jctl-errors       journalctl -p 3 -xb

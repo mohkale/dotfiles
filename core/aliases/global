@@ -23,6 +23,35 @@ s       $SHELL
 x       fzf-dmenu
 z       select_fsmap
 
+g          git
+gs         g status
+gconf@file ~/.config/git/config
+
+R       rake
+Rl      rake -T
+
+T       thor
+Tl      thor list
+Th      thor help
+
+l       ls -CF
+ls      ls --color=auto --group-directories-first
+ll      ls -l
+lal     ls -al
+la      ls -A
+l1      \ls -1 --quoting-style=literal
+
+t      tmux
+tt     tmuxinator
+ta     $TMUX_HOME/cmds/attach-session
+t?     t show-options -g
+tM     t display-message
+tm     t show-messages
+tls    t ls
+tn     t new-session
+tx     t kill-session
+tprint t display-message -p
+
 cls     clear
 
 wai     whoami
@@ -38,16 +67,6 @@ touchx  sh -c 'touch "$@" && chmod +x "$@"' touchx
 noout   >/dev/null 2>&1 sh -c '"$@"' run
 nojob   >/dev/null 2>&1 nohup sh -c '"$@"' run
 
-g       git
-gs      g status
-
-R       rake
-Rl      rake -T
-
-T       thor
-Tl      thor list
-Th      thor help
-
 par     parallel
 parx    par -X
 pard    par --dry-run
@@ -61,13 +80,6 @@ egrep   egrep --color=auto
 python  python3
 py      python
 pip     py -m pip
-
-l       ls -CF
-ls      ls --color=auto --group-directories-first
-ll      ls -l
-lal     ls -al
-la      ls -A
-l1      \ls -1 --quoting-style=literal
 
 gD      fzf_cd_all
 gF      fzf_select_all
@@ -96,22 +108,12 @@ et      sh -c 'cd $EMACS_HOME && ./bin/tangle -i -d hydras.org -d etc/snippets.o
 we      with-evi
 emf     emacs-make-frame
 
-# TMUX
-t      tmux
-tt     tmuxinator
-ta     $TMUX_HOME/cmds/attach-session
-t?     tmux show-options -g
-tM     tmux display-message
-tm     tmux show-messages
-tls    tmux ls
-tn     tmux new-session
-tx     tmux kill-session
-tprint tmux display-message -p
-# NOTE you can attach to an existing session with a new
-# name if you don't want to follow it. See [[https://unix.stackexchange.com/a/152280][here]].
-
 # dotfiles
 dot@dirx $DOTFILES
+dotf f $DOTFILES
+dotF F $DOTFILES
+dotd d $DOTFILES
+dotD D $DOTFILES
 
 dotg    g --git-dir=$DOTFILES/.git --work-tree=$DOTFILES
 # istats every file within my dotfiles repository.
@@ -162,6 +164,7 @@ shenv@file       $XDG_CONFIG_HOME/shenv
 shenvl@file      $XDG_CONFIG_HOME/shenv.local
 al@file          $XDG_CONFIG_HOME/aliases
 alg@file         $XDG_CONFIG_HOME/aliases/global
+all@file         $XDG_CONFIG_HOME/aliases/linux
 au@file          $XDG_CONFIG_HOME/autoloads/cmds
 vimrc@file       $XDG_CONFIG_HOME/vim
 lfrc@file        $XDG_CONFIG_HOME/lf/lfrc

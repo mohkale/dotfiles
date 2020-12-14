@@ -4,6 +4,8 @@
 
  (:mkdirs
   "~/downloads"
+  "~/OS/desktop"
+  "~/user/documents"
   "~/multi"
   ("~/media"
    ("games" "images" "videos" "music"))

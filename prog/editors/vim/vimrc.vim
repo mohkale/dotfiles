@@ -36,7 +36,7 @@ set splitright                                                                 "
 set encoding=utf8
 set hidden                                                                     " change buffers even when current one is modified
 set nostartofline                                                              " prevent column changing on scroll
-set wildmode=longest,list:full                                                 " make vim completion work like bash
+set wildmode=list:longest,list:full                                            " make vim completion work like bash
 set wildmenu                                                                   " jump through completion candidates with tab/shift-tab
 set autoread                                                                   " automatically read changes in unmodified buffers
 set hidden                                                                     " hide files in the background instead of closing them

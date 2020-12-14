@@ -1,10 +1,48 @@
+# -*- mode: gitignore -*- vim:syntax=conf filetype=conf
+prog/temp/
+multi/temp/
+downloads/incomplete/
+
+# Home Directories
+.git/
 .cache/
 .dropbox/
-.DRopbox-dist/
+.dropbox-dist/
 .gnome/
 .mozilla/
 .pki/
 .steam/
 .wine/
+.Upwork/
+.vscode-oss/
+.tor-browser/
+
+# Library Files
 __pycache__/
-.local/share/gradle/caches
+**/node_modules/*
+**/.ccls_cache/*
+.config/poetry/lib/
+.config/hyper/.hyper_plugins/
+
+# XDG Roots
+.local/lib/
+.local/share/
+
+# Noisy XDG Config Directories
+.config/Slack/
+.config/BraveSoftware/Brave-Browser/
+.config/libreoffice/
+.config/unity3d/
+.config/Code - OSS/
+.config/transmission-daemon/resume/*
+.config/transmission-daemon/torrents/*
+
+.config/VSCodium/logs/
+.config/VSCodium/Cache*/
+.config/VSCodium/User/
+
+prog/.modules/go/
+prog/.modules/ruby/doc/
+prog/.modules/ruby/gems/
+prog/.modules/ruby/cache/
+prog/.modules/ruby/extensions/
