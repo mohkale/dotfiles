@@ -1,0 +1,10 @@
+# -*- mode: sh -*-
+
+bind -x '"\C-x\C-f": f'
+bind -x '"\C-x\C-d": d'
+
+bind -x '"\C-x\C-a": a'
+bind -x '"\C-x\C-b": b'
+bind -x '"\C-x\C-x": gx'
+bind -x '"\C-x\C-p": p'
+bind -x '"\C-x\C-e": e'

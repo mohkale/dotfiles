@@ -46,3 +46,5 @@ done
 if [ "$INSIDE_EMACS" = 'vterm' ]; then
     PS1=$PS1'\[$(vterm_prompt_end)\]'
 fi
+
+[ -r "$XDG_CONFIG_HOME/bindings/bash" ] && . "$XDG_CONFIG_HOME/bindings/bash"

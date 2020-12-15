@@ -110,6 +110,39 @@ bindkey -s '^[xe' 'emacsclient -nw'
 bindkey "^i"  complete-word
 bindkey "^[i" expand-word
 
+# Autoload bindings
+# Taken from [[https://www.reddit.com/r/zsh/comments/96asgu/how_to_bindkey_shell_commands_a_quick_guide/][here]], let's you run a command inbetween entering
+# something to your shell (  ⚆ _ ⚆ ).
+function zle_eval {
+    # echo -en "\e[2K\r"
+    echo
+    eval "$@"
+    zle redisplay
+    zle reset-prompt
+    true
+}
+
+zle_f() { zle_eval f; }
+zle -N zle_f; bindkey "^x^f" zle_f
+
+zle_d() { zle_eval d; }
+zle -N zle_d; bindkey "^x^D" zle_d
+
+zle_a() { zle_eval a; }
+zle -N zle_a; bindkey "^x^a" zle_a
+
+zle_b() { zle_eval b; }
+zle -N zle_b; bindkey "^x^b" zle_b
+
+zle_p() { zle_eval p; }
+zle -N zle_p; bindkey "^x^p" zle_p
+
+zle_gx() { zle_eval gx; }
+zle -N zle_gx; bindkey "^x^x" zle_gx
+
+zle_ge() { zle_eval ge; }
+zle -N zle_ge; bindkey "^x^e" zle_ge
+
 # # menuselect
 # ## offers interactive completion selection
 # zmodload -i zsh/complist
