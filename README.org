@@ -64,7 +64,7 @@ My dotfile repository, happily brought to you by [[https://github.com/mohkale/do
 #+HTML: </div>
 
 * Installation
-  =git clone https://github.com/mohkale/dotfiles ~/.dotfiles && cd ~/.dotfiles && ./manage install=.
+  =git clone https://github.com/mohkale/dotfiles ~/.config/dotfiles && cd ~/.config/dotfiles && ./manage install=.
 
   For a list of available subconfigurations that can be instaled, run =./manage list-bots=. Install
   a config by running =./manage install -b prog1,prog2,...=.

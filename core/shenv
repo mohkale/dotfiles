@@ -61,7 +61,7 @@ fi
 export VISUAL="$EDITOR"
 export PAGER=less
 export LESS="-R -S -i --save-marks -x4"
-export DOTFILES=$HOME/.dotfiles
+export DOTFILES=$XDG_CONFIG_HOME/dotfiles
 export TMUX_HOME=$XDG_CONFIG_HOME/tmux
 export TMUX_TMPDIR=$XDG_CACHE_HOME/tmux
 export LANG=en_GB.UTF-8 LC_MESSAGES="C"
@@ -345,6 +345,26 @@ esac
 [ -e "$XDG_CONFIG_HOME/shenv.local" ] && . "$XDG_CONFIG_HOME/shenv.local"
 
 unset shell
+
+if [ "${interactive:-0}" -ne 0 \
+    -a "${show_banner:-0}" -gt 0 \
+    -a -n "$COLUMNS" \
+    -a -d "$XDG_CONFIG_HOME/banners" \
+    -a -r "$XDG_CONFIG_HOME/banners" ] \
+    && command -v "show-banners" >/dev/null 2>&1; then
+    banner=$(find -L "$XDG_CONFIG_HOME/banners" -type f -or -type l |
+        sort -R |
+        while read -r b; do
+            IFS=: read -r width _ < "$b"
+            if [ "$width" -le "$COLUMNS" ]; then
+                echo "$b"
+                break
+            fi
+        done)
+    [ -n "$banner" ] && show-banners -c "$COLUMNS" "$banner"
+    unset banner
+fi
+
 sourced_shenv=1
 
 # vim:syntax=sh filetype=sh

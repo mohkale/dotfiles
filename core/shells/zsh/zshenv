@@ -1,7 +1,5 @@
 # -*- mode: sh -*-
-if [ -f "$HOME/.profile" ]; then
-    . "$HOME/.profile"
-fi
+[ -r "$HOME/.config/shenv" ] && . "$HOME/.config/shenv"
 
 export ZDOTDIR="$XDG_CONFIG_HOME/zshell"
 #export ZPLUG_HOME="$ZDOTDIR/zplug"

@@ -3,7 +3,7 @@
 # this script is sourced when bash is run interactively in a login
 # shell.
 
-. ~/.profile
+[ -r "$HOME/.config/shenv" ] && . "$HOME/.config/shenv"
 
 shopt -s checkwinsize # keep LINES & COLUMNS upto date after every command
 shopt -s globstar # enable **/* in shell globing

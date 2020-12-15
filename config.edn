@@ -3,15 +3,13 @@
  (:clean "~")
 
  (:mkdirs
+  "~/documents"
   "~/downloads"
-  "~/OS/desktop"
-  "~/user/documents"
-  "~/multi"
   ("~/media"
    ("games" "images" "videos" "music"))
-  "~/prog/repos"
-  ("~/.local/share"
-   ("man" "info")))
+  ("~/multi"
+   ("share" "templates" "desktop"))
+  "~/prog/repos")
 
  (:import "core")
 
