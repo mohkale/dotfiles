@@ -1,0 +1,33 @@
+#!/bin/sh
+# A tiny script to let you toggle between the marked window and your
+# current window. This works effectively the same as the tmux command
+# `select-window -T -t '{marked}'` except this works across sessions.
+
+# The environment variable where we keep track of the last window
+# from which we jumped.
+MEM=TMUX_LAST_MARKED_JUMP
+
+if [ -z "$TMUX" ]; then
+  echo "jump-marked: error: can only be run from within tmux" >&2
+  exit 1
+fi
+
+current=$(tmux display-message -p '#{window_id}')
+if ! marked=$(tmux display-message -p -t '{marked}' '#{window_id}'); then
+  tmux display-message "No marked target"
+  exit 1
+fi
+
+if [ "$current" != "$marked" ]; then
+  # Store current position then jump to the marked pane
+  tmux set-environment -g "$MEM" "$current" \; switch-client -t "$marked"
+else
+  last=$(tmux show-environment -g "$MEM")
+  last="${last#*=}" # strip leading prefix
+  if [ -z "$last" ]; then
+    tmux display-message "No last jump target exists, skipping marked jump"
+  else
+    # Erase memory variable and then jump to the previous point
+    tmux set-environment -gu "$MEM" \; switch-client -t "$last"
+  fi
+fi

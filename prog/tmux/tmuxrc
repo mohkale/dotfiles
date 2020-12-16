@@ -53,8 +53,8 @@ bind M-r source "$TMUX_HOME/tmuxrc" \; display-message "Config reloaded..."     
 bind e   new-window "$EDITOR $TMUX_HOME/tmuxrc"                                                    # open my tmux config in users EDITOR
 
 bind -r Tab last-window
-bind -r C-Tab switch-client -l                                                                       # jump between this and the last active session
-bind -r "'" select-window -T -t '{marked}'                                                         # jump between the current window and the marked window. sadly only works for windows in the same session. :cry:.
+bind -r C-Tab switch-client -l                                                                     # jump between this and the last active session
+bind "'" run -b "$TMUX_HOME/cmds/jump-marked || true"                                              # jump between the current window and the marked window.
 
 bind ! break-pane                                                                                  # move current pane into its own tab
 bind @ join-pane                                                                                   # join marked pane onto current window
