@@ -16,9 +16,18 @@ set -g set-titles on                                                 # update th
 set -g base-index 1                                                  # windows start counting from 1
 set -g pane-base-index 1                                             # panes start counting from 1
 set -g history-limit 10000                                           # a lot of history is a good thing
-set -g default-terminal "screen-256color"                            # improve color display for tmux session
 set -g set-titles-string 'tmux@#H [#S:#I] #W'                        # title of terminal when running tmux
 set -sg escape-time 10                                               # small enough for nvim and alt-keys :smile:.
+set -ga terminal-overrides ",*256col*:Tc"                            # enable true-color
+
+# Assign the TERM environment variable depending on the current
+# terminal. I'll add support for other true-color terms as I use
+# them.
+%if '#{==:#{TERM},st-256color}'
+set -g default-terminal "screen-24bit"
+%else
+set -g default-terminal "screen-256color"
+%endif
 
 # Detect events in windows and mark appropriately. Supported events include:
 # activity - refers to any new content being written to the terminal on the window.
