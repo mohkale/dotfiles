@@ -103,6 +103,7 @@ bindkey -s "^[[109;5u" "^M"
 # Macros
 bindkey -s '^[xp' "\C-p^[xl"
 bindkey -s '^[xl' "\C-e | less"
+bindkey -s '^[xc' "\C-e | clip"
 bindkey -s '^[xs' "\C-p\C-asd \C-a"
 bindkey -s '^[x`' '\C-e`\C-a`\C-a'
 bindkey -s '^[xe' 'emacsclient -nw'

@@ -54,7 +54,7 @@ def is_duplicate(f1, f2):
           filecmp.cmp(f1, f2, shallow=False)
 
 _get_hash_type = collections.namedtuple('HashType', ['hash', 'time'])
-def get_hash(fp, mem={}):
+def get_hash(fp, buf_size=8192, mem={}):
     """Get the hash for the file at `fp'.
     Employs a caching mechanism to avoid recalculating the
     hash for a file you've already supplied. The cache is
@@ -65,11 +65,13 @@ def get_hash(fp, mem={}):
     mtime = os.stat(fp).st_mtime
     if fp not in mem or mtime != mem[fp].time:
         logging.debug('Hash not in memory, generating from file path')
+        m = hashlib.md5()
         with open(fp, 'rb') as fd:
-            hasher = hashlib.md5()
-            for chunk in iter(lambda: fd.read(4096), b""):
-                hasher.update(chunk)
-            fp_hash = hasher.hexdigest()
+            data = fd.read(buf_size)
+            while data:
+                m.update(data)
+                data = fd.read(buf_size)
+            fp_hash = m.hexdigest()
         mem[fp] = _get_hash_type(fp_hash, mtime)
 
     return mem[fp].hash

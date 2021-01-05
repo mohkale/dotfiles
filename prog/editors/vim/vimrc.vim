@@ -60,6 +60,8 @@ if has('nvim')
   set inccommand=nosplit
 endif
 
+autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o " suppress automatic comment insertion
+
 autocmd BufEnter    * silent! lcd %:p:h                                        " like autochdir except for any buffer, not just files
 silent! au TermOpen * setlocal listchars= nonumber norelativenumber            " disable line numbers in vims builtin terminal emulator
 

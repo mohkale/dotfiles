@@ -22,7 +22,7 @@ set ifs "\n"
 # set relativenumber
 set icons
 set iconsdir
-set hiddenfiles .*:__pycache__:*.pyc:*.o:node_modules
+set hiddenfiles .*:__pycache__:*.pyc:*.o:node_modules:*.elc
 set info size
 
 # show number of files in directory, not size of directory inode.
@@ -142,6 +142,7 @@ map dT trash
 map x     :push :chmod<space>
 map cp    bulkchmod
 map cw    bulkrename
+map cx    bulkchmod
 map <a-e> bulkrename
 map cr    bulkrename-all
 

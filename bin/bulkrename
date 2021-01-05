@@ -257,7 +257,7 @@ if __name__ == '__main__':
 
         conf_group = parser.add_argument_group('Config')
         conf_group.add_argument('-l', '--logging', dest='logging_level',
-                                metavar='LEVEL', default=logging.DEBUG,
+                                metavar='LEVEL', default=logging.CRITICAL,
                                 type=lambda x: getattr(logging, x.upper()),
                                 help='Set verbosity of logging output')
         conf_group.add_argument('-e', '--editor', metavar='CMD',
@@ -304,7 +304,9 @@ if __name__ == '__main__':
             if path.is_absolute():
                 path_s = str(path.resolve(strict=False))
                 if path_s.startswith(cwd):
-                    return pathlib.Path(path_s[len(cwd)+1:])
+                    new_path = pathlib.Path(path_s[len(cwd)+1:])
+                    if new_path.name != '':
+                        return new_path
             return path
     else:
         prettify = lambda x: x

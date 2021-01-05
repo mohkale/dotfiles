@@ -164,7 +164,7 @@ prompt_python() {
   local py_exec='python'
   if [ -n "$PIPENV_ACTIVE" -o -f "Pipfile" -o -f "Pipfile.lock" ] && prompt::exists pipenv; then
     py_exec=$(pipenv --py)
-  elif [ "${POETRY_ACTIVE:-0}" -eq 1 -o -f "requirements.txt" ] && prompt::exists "$py_exec"; then
+  elif [ "${POETRY_ACTIVE:-0}" -eq 1 -o -f "poetry.lock" -o -f "requirements.txt" ] && prompt::exists "$py_exec"; then
     :
   else
     return
@@ -173,7 +173,7 @@ prompt_python() {
   python_version="${python_version#* }"
   [ -z "$python_version" ] && return
 
-  print -n '%F{yellow}'" (v${python_version})"
+  print -n '%F{yellow}'" v${python_version}"
 }
 
 # see [[https://github.com/denysdovhan/spaceship-prompt/blob/master/sections/ruby.zsh][spaceship-prompt/ruby]].

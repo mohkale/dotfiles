@@ -46,9 +46,11 @@ STICKY_OTHER_WRITABLE 41;33
 *.mkv 36
 *.png 36
 *.jpg 36
+*.jpeg 36
 *.svg 36
 *.gif 36
 *.ico 36
+*.webp 36
 
 # Documents
 *.pdf  31

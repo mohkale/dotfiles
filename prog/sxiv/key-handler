@@ -2,8 +2,9 @@
 # custom key handler for sxiv.
 
 case "$1" in
-    "C-c") xclip -d '\n' -i -selection clipboard ;;
+    "C-c") clip ;;
     "C-d") xargs -d '\n' -r condemn -- ;;
     "C-e") xargs -d '\n' -r gimp ;;
+    "C-g") ;;
     *) notify-send "unknown keybinding: $1" ;;
 esac

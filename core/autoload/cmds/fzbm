@@ -7,7 +7,7 @@ fzbm() {
 
   ls-bookmarks -p '' |
     sed '/^javascript:/d' |
-    FZF_DEFAULT_OPTS="$FZF_SHELL_OPTS" fzf "${fzf_args[@]}" |
+    FZF_DEFAULT_OPTS="$FZF_SHELL_OPTS" fzf --no-hscroll "${fzf_args[@]}" |
     cut -d $'\t' -f 1 |
     xargs -d '\n' -r xopen
 }

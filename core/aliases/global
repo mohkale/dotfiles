@@ -66,6 +66,13 @@ lc      lfcd
 touchx  sh -c 'touch "$@" && chmod +x "$@"' touchx
 noout   >/dev/null 2>&1 sh -c '"$@"' run
 nojob   >/dev/null 2>&1 nohup sh -c '"$@"' run
+# generate a password hash from /dev/urandom. Optional first arg specifies length of password
+passgen sh -c 'cat /dev/urandom | tr -d -c '"'"'[:alnum:]'"'"' | head -c "${1:-50}"' 'passgen'
+
+rm      rm -v
+mv      mv -v
+cp      cp -v
+ln      ln -v
 
 par     parallel
 parx    par -X
@@ -104,7 +111,10 @@ ec      emacsclient
 ee      ec --no-wait --suppress-output # emacs dispatch
 ex      emacs
 sx      smacs
-et      sh -c 'cd $EMACS_HOME && ./bin/tangle -i -d hydras.org -d etc/snippets.org'
+et      sh -c 'cd $EMACS_HOME && ./bin/tangle -i "$@"' ''
+etc     et -c
+etd     et -l -
+etcd    etd -c
 we      with-evi
 emf     emacs-make-frame
 
@@ -146,17 +156,20 @@ cd8@dir     ../../../../../../../../
 cd9@dir     ../../../../../../../../../
 cd10@dir    ../../../../../../../../../../
 
-# temporary file-system
-ctemp       cd    $(mktemp -d)
-ct          cd    $(mktemp -d)
-qtemp       pushd $(mktemp -d)
-qt          pushd $(mktemp -d)
-etemp@file        $(mktemp)
 cswap       cd -
 cs          cd -
 cdd         cd -
 qswap       pushd -
 qs          pushd -
+
+# Temporary File-system
+ctemp       cd    $(mktemp -d)
+ct          cd    $(mktemp -d)
+qtemp       pushd $(mktemp -d)
+qt          pushd $(mktemp -d)
+# None-volatile local temp, uses timestamps rather than hash-checks
+ltemp       mcd   "$(date +"$HOME/multi/temp/%Y%m%d.%H%M%S")"
+lt          mcd   "$(date +"$HOME/multi/temp/%Y%m%d.%H%M%S")"
 
 # filesystem-shortcuts
 profile@file     ~/.profile

@@ -15,6 +15,7 @@ IFS=$'\n'
 FILE_PATH="$1"
 X="${4:-0}"
 Y="${5:-0}"
+# NOTE: you can echo -e 'colors\ncols\nlines\n' | tput -S
 COLS="${3:-$(tput cols  || echo -n 100)}"
 ROWS="${2:-$(tput lines || echo -n 100)}"
 TRUE_COLOR="$([ "$(tput colors)" -ge 256 ] && echo -n 1 || echo -n 0)"
@@ -101,6 +102,7 @@ do_xlsx() {
 do_json() {
     jq --color-output . "$1"    && exit
     python -m json.tool -- "$1" && exit
+    highlight_bat -l json -- "$1"
 }
 
 do_html() {
