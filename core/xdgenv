@@ -93,6 +93,9 @@ export TERMINFO_DIRS="$XDG_DATA_HOME/terminfo:/usr/share/terminfo"
 ## wget
 export WGETRC="$XDG_CONFIG_HOME/wgetrc"
 
+## curl
+# export CURL_HOME="$XDG_CONFIG_HOME" # only required for versions older than 7.73.0
+
 ## Wine
 export WINEPREFIX="$XDG_DATA_HOME"/wine/prefixes/default
 
