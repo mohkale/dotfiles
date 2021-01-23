@@ -25,6 +25,12 @@ set iconsdir
 set hiddenfiles .*:__pycache__:*.pyc:*.o:node_modules:*.elc
 set info size
 
+# mouse
+map <m-up>    up
+map <m-down>  down
+map <m-left>  up
+map <m-right> down
+
 # show number of files in directory, not size of directory inode.
 set dircounts
 
