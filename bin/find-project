@@ -7,7 +7,7 @@
 set -e # auto exit on a failed command
 
 function print_usage {
-    echo "Usage: ls-project [-h] [-d|-f] [-z] [-c|-C] [DIR]"
+    echo "Usage: find-project [-h] [-d|-f] [-z] [-c|-C] [DIR]"
 }
 
 function print_help {

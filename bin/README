@@ -26,6 +26,7 @@ in ruby. Generally whatever works for whatever I'm trying to do.
 | [extract](./extract)                   | A quick and dirty multipurpose archive extracter. Takes only one arg (the path to extract). |
 | [fdupes](./fdupes)                     | Pass a list of files and print back out any duplicates (based on file content).             |
 | [file-path](./file-path)               | Print paths back to stdout in a way that can be substituted back into the shell.            |
+| [find-project](./find-project)         | List all files in the current (git) code repository.                                        |
 | [filter-globs](./filter-globs)         | Filter all paths from stdin which match (or don't match) a glob pattern.                    |
 | [fzf-dmenu](./fzf-dmenu)               | Open a fzf window with executables that can be spawned (see [here][fzf-dmenu]).             |
 | [git-prompt](./git-prompt)             | Outputs version control information for use in my shell prompt.                             |
@@ -37,7 +38,6 @@ in ruby. Generally whatever works for whatever I'm trying to do.
 | [ls-exec](./ls-exec)                   | List executables which can be accessed from your PATH.                                      |
 | [ls-fsmaps](./ls-fsmaps)               | List aliases (from `ls-aliases`) that point to dirs/files (used for file-system jumps).     |
 | [ls-platform](./ls-platform)           | List the current platform (Unix, MacOS, Windows).                                           |
-| [ls-project](./ls-project)             | List all files in the current (git) code repository.                                        |
 | [ls-repos](./ls-repos)                 | List all code repositories found through the `REPO_PATH` environment variable.              |
 | [ls-mount](./ls-mount)                 | List mounted devices alongside the file-system path where they've been mounted.             |
 | [magit](./magit)                       | Run emacs magit directly from your shell.                                                   |

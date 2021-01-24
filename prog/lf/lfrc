@@ -21,8 +21,7 @@ set ifs "\n"
 
 # set relativenumber
 set icons
-set iconsdir
-set hiddenfiles .*:__pycache__:*.pyc:*.o:node_modules:*.elc
+set hiddenfiles .*:__pycache__:*.pyc:*.o:node_modules:*.elc:*~
 set info size
 
 # mouse

@@ -146,6 +146,12 @@ bind j select-pane -D
 bind k select-pane -U
 bind l select-pane -R
 
+### Remove repeat prefix
+bind Left  select-pane -L
+bind Down  select-pane -D
+bind Up    select-pane -U
+bind Right select-pane -R
+
 ### repeatable variants
 bind -r C-h select-pane -L
 bind -r C-j select-pane -D

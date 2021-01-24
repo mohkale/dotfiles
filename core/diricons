@@ -20,6 +20,7 @@ README         
 LICENSE        
 .DS_Store      
 .Dockerfile    
+*.cmake        
 CMakeLists.txt 
 .gitlab-ci.yml 
 
@@ -62,7 +63,7 @@ CMakeLists.txt 
 *.clj    
 *.py     
 *.rb     
-*.go     
+*.go     
 *.html   
 *.java   
 *.md     

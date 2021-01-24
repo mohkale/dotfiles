@@ -25,10 +25,8 @@ imap     <C-y>  <C-o>p
 
 " Make $ not include eol
 nnoremap Y  y$
-nnoremap $  g_
-nnoremap g_ $
-vnoremap $  g_
-vnoremap g_ $
+vnoremap $  g$
+vnoremap g$ $
 
 " Make s surround, not substitue
 vmap s S

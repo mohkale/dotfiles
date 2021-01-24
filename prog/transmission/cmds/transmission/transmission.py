@@ -1,7 +1,11 @@
 import json
 import socket
 import logging
+import pathlib as p
 from requests import Session
+
+CONFIG_DIR   = p.Path('~/.config/transmission-daemon').expanduser()
+CONFIG_FILE  = CONFIG_DIR / 'settings.json'
 
 class Transmission(object):
     """Simple interface to the transmission RPC API"""
@@ -14,6 +18,20 @@ class Transmission(object):
         self.path = path
 
         self.session = Session()
+
+    @classmethod
+    def from_conf(cls, conf: object):
+        """Create a Transmission instance from a transmission-daemon JSON config file.
+        """
+        return cls(conf.get('rpc-bind-address', 'localhost'),
+                   conf.get('rpc-port', 9091),
+                   conf.get('rpc-url', '/transmission/') + 'rpc')
+
+    @classmethod
+    def from_conf_file(cls, conf: p.Path = CONFIG_FILE):
+        """Alis for `self.from_conf` which automatically opens and reads `conf`.
+        """
+        return cls.from_conf(json.loads(conf.open().read()))
 
     def check(self):
         return self._socket_active(self.host, self.port)

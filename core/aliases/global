@@ -73,6 +73,7 @@ rm      rm -v
 mv      mv -v
 cp      cp -v
 ln      ln -v
+mkdir   mkdir -v
 
 par     parallel
 parx    par -X
@@ -111,12 +112,14 @@ ec      emacsclient
 ee      ec --no-wait --suppress-output # emacs dispatch
 ex      emacs
 sx      smacs
-et      sh -c 'cd $EMACS_HOME && ./bin/tangle -i "$@"' ''
+et      sh -c 'cd $EMACS_HOME && ./bin/tangle -i -d lisp/+config.el "$@"' ''
 etc     et -c
 etd     et -l -
 etcd    etd -c
 we      with-evi
 emf     emacs-make-frame
+
+tremote transmission-remote
 
 # dotfiles
 dot@dirx $DOTFILES
@@ -186,6 +189,7 @@ diricons@file    $XDG_CONFIG_HOME/diricons
 dircolors@file   $XDG_CONFIG_HOME/dircolors
 progicons@file   $XDG_CONFIG_HOME/progicons
 prompt@file      $XDG_CONFIG_HOME/prompt
+emacsrc@file     $EMACS_HOME/lisp/+config.el
 
 dl@dirx           $XDG_DOWNLOAD_DIR
 em@dirx           $EMACS_HOME

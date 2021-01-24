@@ -1,6 +1,6 @@
 # -*- mode: sh -*-
 fzf_cd_all() {
-    local dest=$(ls-project -adz |
+    local dest=$(find-project -adz |
       FZF_DEFAULT_OPTS="$FZF_SHELL_OPTS" fzf --read0 --no-multi --preview 'preview {}' --preview-window=25%)
     cd "$dest" || echo "error: failed to cd: $dest" >&2
 }

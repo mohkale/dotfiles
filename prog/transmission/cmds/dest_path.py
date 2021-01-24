@@ -5,7 +5,6 @@ Determine the approriate destination for a completed transmission torrent downlo
 See the [[file:~/.dotfiles/programs/transmission/README.org][README]].
 """
 
-import os
 import sys
 import json
 import logging
@@ -13,12 +12,15 @@ import pathlib as p
 
 from watch_config import WatchConfig
 
+
 def Path(path):
     return p.Path(path).expanduser()
+
 
 def relative_p(path, parent):
     # TODO switch to optimised
     return parent in path.parents
+
 
 def normal_download_directory(location, incomplete):
     if not incomplete:
@@ -27,6 +29,7 @@ def normal_download_directory(location, incomplete):
         return False
 
     return relative_p(location, incomplete)
+
 
 def check_watch_hirearchy(torrent: p.Path, config) -> str:
     """check a users watch directory configuration to determine where a
@@ -58,6 +61,7 @@ def check_watch_hirearchy(torrent: p.Path, config) -> str:
         if watch_dir.exists() and relative_p(torrent, watch_dir):
             return torrent.parent.relative_to(watch_dir)
 
+
 def check_incomplete_hirearchy(location: p.Path, incomplete: p.Path) -> str:
     """check the current location (where it was downloaded) to determine
     where a torrent should be placed.
@@ -74,12 +78,15 @@ def check_incomplete_hirearchy(location: p.Path, incomplete: p.Path) -> str:
     """
     if relative_p(location, incomplete):
         relative = location.parent.relative_to(incomplete)
-        if str(relative) != '.': return relative
+        if str(relative) != '.':
+            return relative
+
 
 def check_hirearchy(args):
     return \
         check_incomplete_hirearchy(args.location, args.incomplete) or \
         check_watch_hirearchy(args.torrent, args.watch)
+
 
 def get_dest_directory(args):
     """determine where a torrent should be placed."""
@@ -98,6 +105,7 @@ def get_dest_directory(args):
         dest = None  # keep download in it's current, non-normal, location
 
     return dest
+
 
 if __name__ == '__main__':
     import argparse
@@ -134,4 +142,5 @@ if __name__ == '__main__':
         stream=vargs.pop('log_file'))
 
     dest = get_dest_directory(args)
-    if dest: print(str(dest))
+    if dest:
+        print(str(dest))

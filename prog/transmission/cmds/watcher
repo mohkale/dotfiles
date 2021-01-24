@@ -9,32 +9,31 @@ watch for torrents.
 """
 
 import re
-import os
 import sys
 import json
 import time
 import logging
 import fnmatch
 import pathlib as p
-from transmission import Transmission, retry, StatusException
+
+from mohkale.logging import zerolog
+from watch_config import WatchConfig
+from transmission import Transmission, retry, StatusException, CONFIG_FILE
 
 import inotify.adapters
 import concurrent.futures
 
-from watch_config import WatchConfig
-
 RETRY_COUNT = 5
 
-CONFIG_DIR   = p.Path('~/.config/transmission-daemon').expanduser()
-CONFIG_FILE  = CONFIG_DIR / 'settings.json'
 
 @retry(RETRY_COUNT)
 def _add_torrent(torrent_file, opts, args):
     resp = args.connection.command(
-        'torrent-add', filename = str(torrent_file), paused = not opts.start)
+        'torrent-add', filename=str(torrent_file), paused=not opts.start)
 
     if resp['result'] != 'success':
         raise StatusException('encountered non-sucess status')
+
 
 def _rename_torrent(torrent_file, relative_path, args):
     """move an added torrent from the watch directory, to the
@@ -44,6 +43,7 @@ def _rename_torrent(torrent_file, relative_path, args):
     torrent_dest.parent.mkdir(parents=True, exist_ok=True)
     logging.info('moving torrent file to: ' + str(torrent_dest))
     torrent_file.rename(torrent_dest)
+
 
 def add_all_recursively(root, opts, args):
     """look through all the torrents in the watched directories, adding
@@ -64,6 +64,7 @@ def add_all_recursively(root, opts, args):
         else:
             _rename_torrent(torrent_file, relative_path, args)
 
+
 def watch(root, opts, args):
     add_all_recursively(root, opts, args)
     i = inotify.adapters.InotifyTree(str(root))
@@ -72,7 +73,8 @@ def watch(root, opts, args):
         logging.info('started watching: ' + str(root))
         for event in i.event_gen(yield_nones=False):
             _, event_types, path, filename = event
-            if not filename: continue  # skip event
+            if not filename:
+                continue
 
             path = p.Path(path) / filename
             relative_path = str(path.relative_to(root))
@@ -100,7 +102,8 @@ def watch(root, opts, args):
                 logging.exception('failed to add torrent')
             else:
                 _rename_torrent(path, relative_path, args)
-    except KeyboardInterrupt: pass
+    except KeyboardInterrupt:
+        pass
     except Exception:
         logging.exception('encountered runtime error, exiting')
 
@@ -127,20 +130,13 @@ if __name__ == '__main__':
     args  = parser.parse_args()
     vargs = vars(args)
 
+    zerolog(vargs.pop('logging_level'), vargs.pop('log_file'))
+
     args.config = WatchConfig(json.load(args.config))
-    args.transmission_config = json.loads(args.transmission_config.open().read())
-
-    logging.basicConfig(
-        level=vargs.pop('log_level'),
-        stream=vargs.pop('log_file'))
-
-    args.connection = Transmission(
-        args.transmission_config['rpc-bind-address'],
-        args.transmission_config['rpc-port'],
-        args.transmission_config['rpc-url'] + 'rpc')
+    args.connection = Transmission.from_conf_file(args.transmission_config)
 
     if not args.connection.check():
-        parser.error('unable to connect to transmission daemon at: ' + args.connection.url)
+        parser.error('Unable to connect to transmission daemon at: ' + args.connection.url)
 
     with concurrent.futures.ThreadPoolExecutor() as pool:
         for rule in args.config.rules:

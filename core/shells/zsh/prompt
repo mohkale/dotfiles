@@ -219,7 +219,7 @@ prompt_rust() {
     fi
 
     [ -z "$rust_version" ] && return
-    echo -n '%F{yellow}'" (v${rust_version})"
+    echo -n '%F{yellow}'" v${rust_version}"
 }
 
 prompt_exit() { #(code)

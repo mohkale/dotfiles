@@ -15,6 +15,9 @@ nnoremap <leader>tn :set relativenumber! number!<cr>
 nnoremap <leader>sc :nohlsearch<cr>
 nnoremap <leader>ff :edit<Space>
 nnoremap <leader>jd :edit .<cr>
+nnoremap <leader>xd gu
+nnoremap <leader>xu gU
+nnoremap <leader>xc gc
 
 " Manipulate This Configuration File
 nnoremap <leader>fet :tabedit ~/.config/vim/vimrc<cr>
@@ -33,11 +36,11 @@ nnoremap <leader>xt  :silent %s/[[:space:]]\+$//e<cr>
 " Easymotions
 map  <Leader>jj <Plug>(easymotion-overwin-f)
 map  <Leader>jJ <Plug>(easymotion-overwin-f2)
-map  <Leader>jml <Plug>(easymotion-lineforward)
-map  <Leader>jmj <Plug>(easymotion-j)
-map  <Leader>jmk <Plug>(easymotion-k)
-map  <Leader>jmh <Plug>(easymotion-linebackward)
-map  <Leader>jmw <Plug>(easymotion-overwin-w)
+map  <Leader>jhl <Plug>(easymotion-lineforward)
+map  <Leader>jhj <Plug>(easymotion-j)
+map  <Leader>jhk <Plug>(easymotion-k)
+map  <Leader>jhh <Plug>(easymotion-linebackward)
+map  <Leader>jhw <Plug>(easymotion-overwin-w)
 map  <Leader>jn <Plug>(easymotion-next)
 map  <Leader>jp <Plug>(easymotion-prev)
 map  <Leader>js <Plug>(easymotion-sn)

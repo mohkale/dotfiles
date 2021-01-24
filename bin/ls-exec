@@ -25,4 +25,4 @@ echo "$PATH" | \
   }
 }' |
   $batch -d '\n' -I {} -r -- \
-    find -L {} -maxdepth 1 -mindepth 1 -type f -executable -printf '%h/%P\n' 2>/dev/null
+    find -L {} -maxdepth 1 -mindepth 1 -type f -executable -printf '%h/%P\n' 2>/dev/null || true
