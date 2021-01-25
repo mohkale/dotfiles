@@ -1,0 +1,9 @@
+#!/bin/sh
+# Print command line arguments (argv) on each line.
+
+i=1
+while [ "$#" -gt 0 ]; do
+  echo "$i: $1"
+  i=$((i+1))
+  shift
+done
