@@ -1,0 +1,299 @@
+#!/usr/bin/env python3
+# tctl - transmission-control
+#
+# Interactively select and run a transmission command.
+
+import enum
+import json
+import logging
+import os
+import shlex
+import subprocess
+import sys
+import tempfile
+
+from mohkale.transmission import CONFIG_FILE, Transmission
+
+try:
+    from hurry.filesize import size
+except ImportError:
+    def size(b):
+        return str(b) + 'B'
+
+
+class Operations(enum.IntEnum):
+    list = enum.auto()
+    query = enum.auto()
+    start = enum.auto()
+    pause = enum.auto()
+    verify = enum.auto()
+    remove = enum.auto()
+
+
+DEFAULT_FZF_ARGS = ['--reverse', '--no-hscroll']
+
+TORRENT_FIELDS = [
+    'id', 'percentDone', 'downloadedEver', 'eta', 'rateDownload',
+    'rateUpload', 'uploadRatio', 'status', 'name',
+]
+
+
+class TransmissionError(Exception):
+    pass
+
+
+def tcmd(conn, action, **kwargs):
+    logging.info('Making request to transmission with action %s', repr(action))
+    logging.debug('Request params are: %s', json.dumps(kwargs))
+
+    resp = conn.command(action, **kwargs)
+
+    if resp.get("result") != "success":
+        logging.error('Transmission responded with non-success result')
+        raise TransmissionError()
+
+    return resp
+
+
+def get_torrents(conn, select=None):
+    resp = tcmd(conn, "torrent-get", fields=TORRENT_FIELDS)
+
+    torrents = resp["arguments"]['torrents']
+    if select:
+        torrents = [t for t in torrents if select(t)]
+
+    return torrents
+
+
+# see tr_torrent_activity in transmission.h
+TORRENT_STATUS = {
+    0: 'Stopped',
+    1: 'Check-Wait',
+    2: 'Checking',
+    3: 'Download-Wait',
+    4: 'Downloading',
+    5: 'Seed-Wait',
+    6: 'Seeding',
+}
+
+
+def process_torrent(torrent, cols: [str]):
+    """Pretty print the various fields of a torrent response.
+    """
+    res = []
+    for col in cols:
+        if col == 'id':
+            res.append(('%4d' % torrent[col]) + ('*' if torrent['percentDone'] == 1 else ' '))
+        elif col == 'percentDone':
+            res.append('%3d%%' % (100 * torrent[col]))
+        elif col == 'status':
+            res.append(TORRENT_STATUS[torrent[col]])
+        elif col == 'downloadedEver':
+            res.append(size(torrent[col]))
+        elif col in ('rateDownload', 'rateUpload'):
+            res.append(size(torrent[col]) + '/s')
+        elif col == 'uploadRatio':
+            ratio = torrent[col]
+            res.append('%.3f' % (0 if ratio == -1 else ratio))
+        else:
+            # Just append the entry from the torrent as a string
+            res.append(str(torrent[col]))
+    return res
+
+
+def format_torrents(torrents, cols=TORRENT_FIELDS, sep='  ',
+                    min_col_width=0, prefix_id=None):
+    """Format a collection of torrents into pretty printed table rows.
+
+    Paramaters
+    ----------
+    torrents : :list:`obj`
+        The collection of transmission torrents to format.
+    cols : :list:`str` optional
+        The subset of fields from the response to include in the table IN
+        the order they're to be included.
+    sep : str
+        The field seperator between multiple torrent rows.
+    min_col_width : int
+        The minimum width each column in `cols` should be given.
+    prefix_id : str optional
+        When given, each returned row is prefixed with the id of the associated
+        torrent with prefix id appended immeadiately after the id.
+    """
+    rows = [process_torrent(t, cols) for t in torrents]
+    if len(rows) == 0:
+        col_widths = [0 for _ in range(len(cols))]
+    else:
+        col_widths = [max(max(len(row[i]) for row in rows), min_col_width) for i in range(len(cols))]
+
+    return [((str(torrents[i]['id']) + prefix_id) if prefix_id else '') + sep.join(rows[i][j].ljust(col_widths[j]) for j in range(len(cols))).rstrip()
+            for i in range(len(rows))]
+
+
+def fzf(cands, *args):
+    """Pass cands interactively to a fzf process and return chosen ones.
+    Adapted from [[https://github.com/nk412/pyfzf/blob/master/pyfzf/pyfzf.py][pyfzf]]."""
+    with tempfile.NamedTemporaryFile() as output_fd:
+        with tempfile.NamedTemporaryFile() as input_fd:
+            input_fd.writelines(map(lambda line: (line + os.linesep).encode(), cands))
+            input_fd.flush()
+            cmd = f"cat {shlex.quote(input_fd.name)} |\
+                    fzf {shlex.join(DEFAULT_FZF_ARGS)} {shlex.join(args)} > {shlex.quote(output_fd.name)}"
+            p = subprocess.run(['sh', '-c', cmd])
+            if not p.returncode == 0:
+                logging.warning('fzf exited with non-zero exit code: %d', p.returncode)
+                return []
+        return [line.decode().strip(os.linesep) for line in output_fd.readlines()]
+
+
+def fzf_torrents(torrents, delimiter, *args):
+    """Variant of fzf which parses and extracts the torrent ids from the output"""
+    return [int(row[:row.find(delimiter)]) for row in
+            fzf(torrents, '--delimiter', delimiter, '--with-nth', '2..', *args)]
+
+
+def act_on_torrents_cmd(conn,
+                        remote_cmd,
+                        prompt,
+                        running_action_msg,
+                        no_torrent_msg,
+                        format_cols=TORRENT_FIELDS,
+                        torrent_filter=None,
+                        request_params={},):
+    """Generic wrapper for commands that ask the user to select a bunch of torrents
+    and then run some remote command on them.
+    """
+    torrents = get_torrents(conn, torrent_filter)
+    if len(torrents) == 0:
+        logging.warning('No active torrents found')
+        return True
+
+    D = ':'
+    ids = fzf_torrents(format_torrents(torrents, format_cols, prefix_id=D), D, '--multi', '--prompt', prompt)
+    if len(ids) == 0:
+        logging.warning('No torrents selected, skipping remaining actions')
+        return True
+
+    logging.info('Attempting to ' + running_action_msg, ', '.join(map(str, ids)))
+
+    try:
+        tcmd(conn, remote_cmd, ids=ids, **request_params)
+        return True
+    except TransmissionError:
+        logging.info('Failed to ' + running_action_msg, ', '.join(map(str, ids)))
+        return False
+
+
+if __name__ == '__main__':
+    import argparse
+
+    from mohkale.logging import zerolog
+
+    def parse_args():
+        parser = argparse.ArgumentParser()
+
+        subparser = parser.add_subparsers(dest='cmd', help='Specify operation to execute')
+        subcmds = {}
+        for op in Operations:
+            subcmds[op] = subparser.add_parser(op.name)
+
+        subcmds[Operations.start].add_argument('-n', '--now',
+                                               action='store_true',
+                                               help='Start the chosen torrents immeadiately')
+
+        subcmds[Operations.remove].add_argument('-f', '--force',
+                                                action='store_true',
+                                                help='Remove the local torrent and associated files')
+
+        subcmds[Operations.query].add_argument('action',
+                                               help='Specify the API endpoint to target from: https://github.com/transmission/transmission/blob/master/extras/rpc-spec.txt')
+
+        class JSONMergeAction(argparse.Action):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                self.nargs = 2
+                self.default = {}
+
+            def __call__(self, parser, namespace, values, option_string):
+                getattr(namespace, self.dest).update([[values[0], json.loads(values[1])]])
+
+        subcmds[Operations.query].add_argument('-a', '--param',
+                                               dest='params',
+                                               action=JSONMergeAction,
+                                               help='Send the given arg with the query')
+
+        subcmds[Operations.query].add_argument('-', '--read-stdin',
+                                               action='store_true',
+                                               help='Read JSON params from stdin')
+
+        logging_group = parser.add_argument_group('Logging')
+        logging_group.add_argument('-l', '--log-level', metavar='LEVEL',
+                                   type=lambda X: getattr(logging, X.upper()),
+                                   default=logging.ERROR, help='Level of logging output.')
+        logging_group.add_argument('-L', '--log-file', metavar='FILE', default=sys.stderr,
+                                   help='File to write log to. defaults to stderr.')
+        logging_group.add_argument('-C', '--no-color', dest='log_color', action='store_false',
+                                   help='Disable coloring of logging output.')
+
+        args  = parser.parse_args()
+        vargs = vars(args)
+
+        if not args.cmd:
+            parser.print_help()
+            sys.exit(0)
+
+        args.cmd = Operations[args.cmd]
+        zerolog(vargs.pop('log_level'), fd=vargs.pop('log_file'), color=vargs.pop('log_color'))
+
+        return args, vargs, parser
+
+    args, vargs, parser = parse_args()
+    conn = Transmission.from_conf_file(CONFIG_FILE)
+
+    if not conn.check():
+        logging.error("Failed to connect to transmission")
+        sys.exit(1)
+
+    if args.cmd == Operations.list:
+        for row in format_torrents(get_torrents(conn)):
+            print(row)
+    elif args.cmd == Operations.pause:
+        act_on_torrents_cmd(conn,
+                            'torrent-stop',
+                            'Pause torrents: ',
+                            'pause torrents with ids: %s',
+                            'No active torrents found',
+                            format_cols=['id', 'percentDone', 'name'],
+                            torrent_filter=lambda x: x['status'] != 0)
+    elif args.cmd == Operations.start:
+        act_on_torrents_cmd(conn,
+                            'torrent-start' + ('-now' if args.now else ''),
+                            'Start torrents' + (' now ' if args.now else '') + ': ',
+                            'start torrents with ids: %s',
+                            'No paused torrents found',
+                            torrent_filter=lambda x: x['status'] == 0)
+    elif args.cmd == Operations.verify:
+        act_on_torrents_cmd(conn,
+                            'torrent-verify',
+                            'Verify torrents: ',
+                            'verify torrents with ids: %s',
+                            'No torrents found',)
+    elif args.cmd == Operations.remove:
+        act_on_torrents_cmd(conn,
+                            'torrent-remove',
+                            'Remove ' + ('& delete ' if args.force else '') + 'torrents: ',
+                            'removing torrents with ids: %s',
+                            'No torrents found',
+                            request_params={'delete-local-data': args.force})
+    elif args.cmd == Operations.query:
+        params = {}
+        if args.read_stdin:
+            params.update(json.load(sys.stdin))
+        if args.params:
+            params.update(args.params)
+        try:
+            print(json.dumps(tcmd(conn, args.action, **params)['arguments']))
+        except TransmissionError:
+            pass
+    else:
+        parser.error('Unknown command %s', repr(args.cmd))
