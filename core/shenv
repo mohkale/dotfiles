@@ -35,7 +35,7 @@ export XDG_CONFIG_HOME XDG_DATA_HOME XDG_CACHE_HOME XDG_DOCUMENTS_DIR \
     XDG_DOWNLOAD_DIR
 
 case "$TERM" in
-    xterm*|rxvt*|eterm*|screen*|cygwin*|emacs*|st*)
+    xterm*|rxvt*|eterm*|screen*|cygwin*|emacs*|st*|alacritty)
         smart_term=1 ;;
     dumb)
         PS1="> " # dumb terminal used by emacs tramp
