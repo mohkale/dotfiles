@@ -71,6 +71,7 @@ $if mode=emacs
 # Macros
 "\M-xp": "\C-p\M-xl"
 "\M-xl": "\C-e | less"
+"\M-xf": "\C-e | fzf"
 "\M-xs": "\C-p\C-asd \C-a"
 "\M-x`": "\C-e`\C-a`"
 

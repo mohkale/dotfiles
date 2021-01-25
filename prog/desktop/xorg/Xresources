@@ -61,3 +61,11 @@ URxvt.color13: #ce64b7
 URxvt.color14: #63e9c7
 URxvt.color15: white
 
+! ------------------------------------------------------------------------------
+! ROFI [[https://comfoxx.github.io/rofi-old-generator/p11-Generator.html][color theme]]
+! ------------------------------------------------------------------------------
+rofi.color-enabled: true
+rofi.color-window: #1c1c1c, #525560, #3b3d45
+rofi.color-normal: #abb2bf, #ffffff, #8e97a9, #21acde, #ffffff
+rofi.color-active: #21acde, #1c1c1c, #21acde, #edcd2c, #1c1c1c
+rofi.color-urgent: #abb2bf, #eb4429, #8e97a9, #eb4429, #ffffff

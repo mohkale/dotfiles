@@ -1,0 +1,8 @@
+[Desktop Entry]
+Charset=
+Hidden=false
+Keys=duckduckgo,dd,dukgo,ddg
+Name=Duck Duck Go
+Query=https://duckduckgo.com/?q=\\{@}&t=kde
+Type=Service
+X-KDE-ServiceTypes=SearchProvider
