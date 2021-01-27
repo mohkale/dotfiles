@@ -4,7 +4,7 @@
 typeset -Ag prompt_data # cache variable
 
 DEFAULT_PROMPT='%F{white}λ%f%b '
-DEFAULT_PROMPT_RHS="$(ancestor_icons)"'%B%F{green}%n@%m%f %F{yellow}%~%f'
+DEFAULT_PROMPT_RHS="$(ancestor_icons)"'%B%F{green}%n@%m%f %F{yellow}%~%f%b'
 
 if ! hash __git_prompt 1>/dev/null 2>&1; then
   git_prompt_path="$HOME/.local/bin/git-prompt"

@@ -130,7 +130,7 @@ if __name__ == '__main__':
     args  = parser.parse_args()
     vargs = vars(args)
 
-    zerolog(vargs.pop('logging_level'), vargs.pop('log_file'))
+    zerolog(vargs.pop('log_level'), fd=vargs.pop('log_file'))
 
     args.config = WatchConfig(json.load(args.config))
     args.connection = Transmission.from_conf_file(args.transmission_config)

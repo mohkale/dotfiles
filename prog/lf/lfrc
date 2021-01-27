@@ -546,18 +546,18 @@ cmd zip-replace ${{
 ## fzf
 # change lf directories using fzf
 cmd fzf-cd ${{
-    res=$(ls-project -dz | fzf --read0 --no-multi --preview-window=25% --preview 'preview {}')
+    res=$(find-project -dz | fzf --read0 --no-multi --preview-window=25% --preview 'preview {}')
     [ -n "$res" ] && lf -remote "send $id cd \"$res\""
 }}
 
 cmd fzf-cd-all ${{
-    res=$(ls-project -adz | fzf --read0 --no-multi --preview-window=25% --preview 'preview {}')
+    res=$(find-project -adz | fzf --read0 --no-multi --preview-window=25% --preview 'preview {}')
     [ -n "$res" ] && lf -remote "send $id cd \"$res\""
 }}
 
 # open a file or cd using fzf.
 cmd fzf ${{
-    res=$(ls-project -z | fzf --read0 --no-multi --preview-window=25% --preview 'preview {}')
+    res=$(find-project -z | fzf --read0 --no-multi --preview-window=25% --preview 'preview {}')
 
     if [ -f "$res" ]; then
       lf -remote "send $id select \"$res\"" &&
@@ -568,7 +568,7 @@ cmd fzf ${{
 }}
 
 cmd fzf-all ${{
-    res=$(ls-project -az | fzf --read0 --no-multi --preview-window=25% --preview 'preview {}')
+    res=$(find-project -az | fzf --read0 --no-multi --preview-window=25% --preview 'preview {}')
 
     if [ -f "$res" ]; then
       lf -remote "send $id select \"$res\"" &&

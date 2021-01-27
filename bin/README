@@ -9,6 +9,7 @@ in ruby. Generally whatever works for whatever I'm trying to do.
 |----------------------------------------|---------------------------------------------------------------------------------------------|
 | [ansils](./ansils)                     | List a bunch of colorcodes. Good for when your double checking what your terminal can do.   |
 | [app-windows](./app-windows)           | List open application windows in XOrg.                                                      |
+| [argv](./argv)                         | Echo out the arguments passed to this command with argument numbers (used for debugging).   |
 | [bang](./bang)                         | Bang a bell.                                                                                |
 | [build-aliases](./build-aliases)       | Build alias declarations from my alias files, see ([here](../core/aliases/)).               |
 | [bulkchmod](./bulkchmod)               | Open a bulkrename session to modify unix file permissions.                                  |
@@ -48,9 +49,10 @@ in ruby. Generally whatever works for whatever I'm trying to do.
 | [project-root](./project-root)         | List the root directory for the current code (git) repository.                              |
 | [prog-icons](./prog-icons)             | Output icons for program names from your [progicons](../core/progicons) configuration.      |
 | [pschain](./pschain)                   | List process information for a given process and all it's parent processes recursively.     |
-| [show-banners](./show-banners)         | Show an ascci art banner (See [banners](../core/banners)).                                  |
+| [show-banners](./show-banners)         | Show an ascii art banner (See [banners](../core/banners)).                                  |
 | [spawn-term](./spawn-term)             | Create a new terminal instance (st, urxvt, etc.).                                           |
 | [sxcv](./sxcv)                         | View archive (cbr, cbz etc.) files using sxiv.                                              |
+| [tctl](./tctl)                         | Interactively select on run commands on torrents controlled by transmission.                |
 | [term-dwim](./term-dwim)               | Create a new terminal, cycle between open terminals, etc.                                   |
 | [tmux-popup](./tmux-popup)             | Create and run a popup command in a tmux window or using the new popup functionality.       |
 | [ttls](./ttls)                         | List tmuxinator config files accessible from the cwd and globally.                          |

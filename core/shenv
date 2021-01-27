@@ -279,6 +279,9 @@ export FZF_DEFAULT_OPTS='
     --bind alt-q:jump
     --bind ctrl-q:jump-accept
 
+    --bind alt-a:select-all
+    --bind alt-x:deselect-all
+
     --bind "ctrl-y:execute-silent(echo {} | clip)"
 
     --bind ctrl-space:toggle+down
