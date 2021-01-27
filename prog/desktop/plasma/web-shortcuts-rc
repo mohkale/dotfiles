@@ -2,5 +2,5 @@
 DefaultWebShortcut=
 EnableWebShortcuts=true
 KeywordDelimiter=\s
-PreferredWebShortcuts=google,mdn,wikit,archpkg,wikipedia,gitlab,archwiki,youtube,duckduckgo,amazon,github,msdn
+PreferredWebShortcuts=archwiki,msdn,wikipedia,youtube,github,archpkg,amazon,gitlab,duckduckgo,mdn,wikit,google
 UsePreferredWebShortcutsOnly=true

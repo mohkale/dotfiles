@@ -1,14 +1,10 @@
-[$Version]
-update_info=filepicker.upd:filepicker-remove-old-previews-entry,fonts_global.upd:Fonts_Global,fonts_global_toolbar.upd:Fonts_Global_Toolbar,icons_remove_effects.upd:IconsRemoveEffects,kwin.upd:animation-speed
-
+# -*- mode: conf -*- Mohkale.colors -- Color configuration file for KDE5 from [[https://store.kde.org/p/1473366/][RedDotBlackDarkColor]]
 [ColorEffects:Disabled]
-ChangeSelectionColor=
 Color=112,111,110
 ColorAmount=0
 ColorEffect=0
 ContrastAmount=0.65
 ContrastEffect=1
-Enable=
 IntensityAmount=0.1
 IntensityEffect=2
 
@@ -47,23 +43,8 @@ ForegroundInactive=128,153,193
 ForegroundLink=176,0,76
 ForegroundNegative=255,85,127
 ForegroundNeutral=255,255,127
-ForegroundNormal=239,240,241
 ForegroundPositive=0,170,127
 ForegroundVisited=61,174,233
-
-[Colors:Header]
-BackgroundAlternate=31,37,47
-BackgroundNormal=34,41,52
-DecorationFocus=134,0,56
-DecorationHover=134,0,56
-ForegroundActive=190,207,210
-ForegroundInactive=168,183,185
-ForegroundLink=176,0,76
-ForegroundNegative=255,85,127
-ForegroundNeutral=26,31,39
-ForegroundNormal=190,207,210
-ForegroundPositive=0,170,127
-ForegroundVisited=127,140,141
 
 [Colors:Selection]
 BackgroundAlternate=31,37,47
@@ -121,81 +102,17 @@ ForegroundNormal=190,207,210
 ForegroundPositive=0,170,127
 ForegroundVisited=127,140,141
 
-[DesktopIcons]
-Size=22
-
-[DirSelect Dialog]
-DirSelectDialog Size=856,602
-History Items[$e]=file:$HOME/multimedia/images
-
 [General]
-BrowserApplication=brave-browser.desktop
-ColorScheme=Mohkale
-Name=Breeze Dark
-Name[en_GB]=Breeze Dark
-TerminalApplication=st
-UseSystemBell=true
-XftHintStyle=hintslight
-XftSubPixel=rgb
-dbfile=/home/mohkale/.mozilla/firefox/trhxj9fg.default/places.sqlite
-fixed=Hack,11,-1,5,50,0,0,0,0,0,Regular
-font=Noto Sans,10,-1,5,50,0,0,0,0,0,Regular
-menuFont=Noto Sans,10,-1,5,50,0,0,0,0,0,Regular
+ColorScheme=RedDotBlackDarkColor
+Name=mohkale
 shadeSortColumn=true
-smallestReadableFont=Noto Sans,10,-1,5,50,0,0,0,0,0,Regular
-toolBarFont=Noto Sans,10,-1,5,50,0,0,0,0,0,Regular
-widgetStyle=kvantum
-
-[Icons]
-Theme=breeze-dark
 
 [KDE]
-ColorScheme=Breeze
-LookAndFeelPackage=org.kde.breezedark.desktop
-ShowDeleteCommand=false
-ShowIconsInMenuItems=true
-ShowIconsOnPushButtons=true
-SingleClick=false
 contrast=4
-widgetStyle=Breeze
-
-[KFileDialog Settings]
-Allow Expansion=false
-Automatically select filename extension=true
-Breadcrumb Navigation=true
-Decoration position=2
-LocationCombo Completionmode=5
-PathCombo Completionmode=5
-Show Bookmarks=false
-Show Full Path=false
-Show Inline Previews=true
-Show Preview=false
-Show Speedbar=true
-Show hidden files=true
-Sort by=Name
-Sort directories first=true
-Sort reversed=false
-Speedbar Width=152
-View Style=Simple
-
-[KScreen]
-ScaleFactor=1
-ScreenScaleFactors=DP-1=1;DP-2=1;DP-3=1;
-
-[KShortcutsDialog Settings]
-Dialog Size=600,480
-
-[PreviewSettings]
-MaximumRemoteSize=0
-
-[Toolbar style]
-ToolButtonStyle=TextBesideIcon
-ToolButtonStyleOtherToolbars=TextBesideIcon
 
 [WM]
 activeBackground=34,41,52
 activeBlend=34,41,52
-activeFont=Noto Sans,9,-1,5,50,0,0,0,0,0
 activeForeground=190,207,210
 inactiveBackground=34,41,52
 inactiveBlend=34,41,52

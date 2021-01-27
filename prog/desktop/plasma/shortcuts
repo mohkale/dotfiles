@@ -29,10 +29,10 @@ display=Display\t,Display\tMeta+P,Switch Display
 
 [khotkeys]
 _k_friendly_name=Custom Shortcuts Service
-{2d694dc0-c77c-4f5d-a27d-472888307739}=Meta+Shift+S,none,screenshot-region
-{4e4d4f9f-1bc7-4c44-9e0e-bb48f5f6eaa6}=Ctrl+Alt+T,none,Launch Konsole
+{2d694dc0-c77c-4f5d-a27d-472888307739}=none,none,screenshot-region
+{4e4d4f9f-1bc7-4c44-9e0e-bb48f5f6eaa6}=none,none,Launch Konsole
 {d03619b6-9b3c-48cc-9d9c-a2aadb485550}=,none,Search
-{fe7e774c-8982-4e8e-891e-aaf9d9347328}=Meta+S,none,screenshot-window
+{fe7e774c-8982-4e8e-891e-aaf9d9347328}=none,none,screenshot-window
 
 [kmix]
 _k_friendly_name=Audio Volume
@@ -49,11 +49,11 @@ _k_friendly_name=KRunner
 _launch=Search\tMeta+Space,none,KRunner
 
 [ksmserver]
-Halt Without Confirmation=Meta+Ctrl+Shift+S,Ctrl+Alt+Shift+PgDown,Halt Without Confirmation
+Halt Without Confirmation=none,Ctrl+Alt+Shift+PgDown,Halt Without Confirmation
 Lock Session=Meta+L,Meta+L\tCtrl+Alt+L\tScreensaver,Lock Session
 Log Out=none,Ctrl+Alt+Del,Log Out
 Log Out Without Confirmation=none,Ctrl+Alt+Shift+Del,Log Out Without Confirmation
-Reboot Without Confirmation=Meta+R,Ctrl+Alt+Shift+PgUp,Reboot Without Confirmation
+Reboot Without Confirmation=none,Ctrl+Alt+Shift+PgUp,Reboot Without Confirmation
 _k_friendly_name=Session Management
 
 [kwin]
@@ -136,8 +136,8 @@ Walk Through Desktops=none,none,Walk Through Desktops
 Walk Through Desktops (Reverse)=none,none,Walk Through Desktops (Reverse)
 Walk Through Window Tabs=none,none,Walk Through Window Tabs
 Walk Through Window Tabs (Reverse)=none,none,Walk Through Window Tabs (Reverse)
-Walk Through Windows=Meta+N\tAlt+Tab,Alt+Tab,Walk Through Windows
-Walk Through Windows (Reverse)=Meta+P\tAlt+Shift+Backtab,Alt+Shift+Backtab,Walk Through Windows (Reverse)
+Walk Through Windows=Alt+Tab,Alt+Tab,Walk Through Windows
+Walk Through Windows (Reverse)=Alt+Shift+Backtab,Alt+Shift+Backtab,Walk Through Windows (Reverse)
 Walk Through Windows Alternative=none,none,Walk Through Windows Alternative
 Walk Through Windows Alternative (Reverse)=none,none,Walk Through Windows Alternative (Reverse)
 Walk Through Windows of Current Application=Alt+`,Alt+`,Walk Through Windows of Current Application
@@ -236,10 +236,10 @@ _k_friendly_name=Emoji Selector
 _launch=,Meta+.,Emoji Selector
 
 [org.kde.spectacle.desktop]
-ActiveWindowScreenShot=Meta+Print,Meta+Print,Capture Active Window
+ActiveWindowScreenShot=Meta+Print\tMeta+S,Meta+Print,Capture Active Window
 CurrentMonitorScreenShot=,none,Capture Current Monitor
 FullScreenScreenShot=Shift+Print,Shift+Print,Capture Entire Desktop
-RectangularRegionScreenShot=Meta+Shift+Print,Meta+Shift+Print,Capture Rectangular Region
+RectangularRegionScreenShot=Meta+Alt+S\tMeta+Shift+Print,Meta+Shift+Print,Capture Rectangular Region
 _k_friendly_name=Spectacle
 _launch=Print,Print,Launch Spectacle
 
@@ -277,11 +277,11 @@ cycleNextAction=none,none,Next History Item
 cyclePrevAction=none,none,Previous History Item
 edit_clipboard=none,none,Edit Contents...
 manage activities=Meta+Q\tMeta+X,Meta+Q,Show Activity Switcher
-next activity=Meta+Tab\tMeta+Alt+N,Meta+Tab,Walk through activities
-previous activity=Meta+Shift+Tab\tMeta+Alt+P,Meta+Shift+Tab,Walk through activities (Reverse)
+next activity=Meta+Tab,Meta+Tab,Walk through activities
+previous activity=Meta+Shift+Tab,Meta+Shift+Tab,Walk through activities (Reverse)
 repeat_action=Ctrl+Alt+R,Ctrl+Alt+R,Manually Invoke Action on Current Clipboard
 show dashboard=Ctrl+F12,Ctrl+F12,Show Desktop
-show-barcode=,none,Show Barcode...
+show-barcode=none,none,Show Barcode...
 show-on-mouse-pos=none,none,Open Klipper at Mouse Position
 stop current activity=,Meta+S,Stop Current Activity
 switch to next activity=none,none,Switch to Next Activity

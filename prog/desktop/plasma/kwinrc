@@ -37,6 +37,9 @@ Top=None
 TopLeft=None
 TopRight=None
 
+[KDE]
+AnimationDurationFactor=0.5
+
 [MouseBindings]
 CommandActiveTitlebar1=Raise
 CommandActiveTitlebar2=Nothing
@@ -55,11 +58,19 @@ CommandWindow2=Activate and pass click
 CommandWindow3=Activate and pass click
 CommandWindowWheel=Scroll
 
+[NightColor]
+LatitudeAuto=53.3678
+LongitudeAuto=-1.5065
+NightTemperature=3200
+
 [Plugins]
+coverswitchEnabled=true
 flipswitchEnabled=true
+highlightwindowEnabled=true
 kwin4_effect_dimscreenEnabled=true
 kwin4_effect_fadeEnabled=false
 kwin4_effect_scaleEnabled=true
+mouseclickEnabled=true
 windowgeometryEnabled=false
 
 [TabBox]
@@ -67,7 +78,7 @@ BorderActivate=9
 BorderAlternativeActivate=9
 DesktopLayout=org.kde.breeze.desktop
 DesktopListLayout=org.kde.breeze.desktop
-LayoutName=org.kde.breeze.desktop
+LayoutName=big_icons
 
 [Windows]
 ActiveMouseScreen=true
@@ -82,7 +93,6 @@ ElectricBorderCornerRatio=0.25
 ElectricBorderDelay=150
 ElectricBorderMaximize=false
 ElectricBorderTiling=false
-ElectricBorders=0
 FocusPolicy=ClickToFocus
 FocusStealingPreventionLevel=1
 GeometryTip=false
@@ -91,7 +101,7 @@ MaximizeButtonLeftClickCommand=Maximize
 MaximizeButtonMiddleClickCommand=Maximize (vertical only)
 MaximizeButtonRightClickCommand=Maximize (horizontal only)
 NextFocusPrefersMouse=false
-Placement=Smart
+Placement=Cascade
 RollOverDesktops=false
 SeparateScreenFocus=false
 ShadeHover=false
