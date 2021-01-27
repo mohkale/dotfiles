@@ -1,4 +1,4 @@
-# -*- mode: conf-space -*- my tmux theme configuration (See [[https://github.com/nicknisi/dotfiles/blob/99b50f3a33c2a2d6ecf73d4f6e94efc8fe36f09a/tmux/base16.sh][base16]])
+# -*- mode: conf-space -*- My tmux theme configuration (See [[https://github.com/nicknisi/dotfiles/blob/99b50f3a33c2a2d6ecf73d4f6e94efc8fe36f09a/tmux/base16.sh][base16]])
 # vim:syntax=tmux filetype=tmux
 
 set -g status on
@@ -25,8 +25,9 @@ green="#78bd65"
 yellow="#e5cd52"
 blue="#4fb4d8"
 magenta="#c46eb1"
+orange="#f39959"
 cyan="#85e0c9"
-white="white"
+white="#ffffff"
 
 bright_grey="#525560"
 bright_red="#f1223e"
@@ -34,14 +35,22 @@ bright_green="#6cc653"
 bright_yellow="#edcd2c"
 bright_blue="#21acde"
 bright_magenta="#ce64b7"
+bright_orange="#ef7c2a"
 bright_cyan="#63e9c7"
-bright_white="white"
+bright_white="#ffffff"
 
 # Theme Vars
 fg="#909090"
 bg="#18181b"
 
-highlight_color=$blue
+# meta_sep=' | '
+
+highlight_color=$blue                                                                              # used for general purpose syntax highlighting
+meta_fg=$fg
+disk_space_color=$bright_blue
+disk_space_full_color=$red
+disk_space_danger_color=$orange
+disk_space_large_color=$yellow
 
 # Colors associated with the current tmux state.
 copying_color=$yellow                                                                              # tmux when selecting regions to copy
@@ -111,9 +120,18 @@ set -g window-status-current-format "#{?#{==:$number_current_window,1},#I$winum_
 set -g window-status-activity-style ""
 set -g window-status-bell-style ""
 
-status_host="#[default,fg=$fg]#{?#{==:#{host},#{pane_title}},,#{=/$pane_title_limit/...:pane_title} | }#{host}(#{=$command_limit:pane_current_command})"
+status_host="\
+#[default,fg=$fg]\
+#{?#{==:#{host},#{pane_title}},,#{=/$pane_title_limit/...:pane_title} | }#{host}\
+(#{=$command_limit:pane_current_command}) \
+#(echo ""; $TMUX_HOME/cmds/tmux-icons -d 0.5 -s '#{client_tty}')"
 status_date="#[default,bg=$highlight_color,fg=$bg] %d-%b-%Y %H:%M "
+status_meta="\
+#(echo ""; $TMUX_HOME/cmds/disk-free -u -s 60 -m '#[default,bold,fg=$disk_space_color]' -r '#[none,fg=$meta_fg]' -t 80 '#[fg=$disk_space_large_color]' -t 90 '#[fg=$disk_space_danger_color]' -t 100 '#[fg=$disk_space_full_color]')\
+#[default]\
+"
 set -g status-right "\
-$status_host \
-#(echo ""; $TMUX_HOME/cmds/tmux-icons -d 0.5 -s '#{client_tty}') \
+$status_host\
+#{?#{==:$meta_sep,}, ,$meta_sep}\
+$status_meta \
 $status_date"

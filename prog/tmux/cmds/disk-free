@@ -1,0 +1,101 @@
+#!/usr/bin/env python3
+# Tmux prompt script to peridically output freely available disk-space.
+
+import os
+import sys
+import time
+import dataclasses
+import shutil
+from pathlib import Path
+
+DEFAULT_CONFIG = Path(os.path.expandvars('$TMUX_HOME/disk-free.conf'))
+
+
+@dataclasses.dataclass
+class ConfigEntry(object):
+    name: str
+    mount: str
+
+
+def read_config(config):
+    res = []
+    with config.open('r', encoding='utf-8') as fd:
+        for line in fd:
+            args = line.rstrip().split(':')
+            args[1] = Path(args[1])
+            res.append(ConfigEntry(*args))
+    return res
+
+
+def format_mount(entry, args):
+    if not entry.mount.exists():
+        return None
+    usage = shutil.disk_usage(str(entry.mount))
+    percent = 100 * usage.used / float(usage.total)
+    res = ''
+    res += args.mount_style + entry.name + args.reset_style
+    res += ':' + args.value_style
+    for threshold, st in args.thresholds:
+        if percent >= threshold:
+            res += st
+            break
+    res += str(round(percent)) + '%'
+    return res
+
+
+def main(args, vargs, parser):
+    while True:
+        cfg = read_config(args.config)
+        fmts = [format_mount(it, args) for it in cfg]
+        print(' '.join(x for x in fmts if x))
+
+        if args.unbuffer:
+            sys.stdout.flush()
+        if args.sleep is None:
+            break
+        time.sleep(args.sleep)
+
+
+if __name__ == '__main__':
+    import argparse
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('-c', '--config', type=Path,
+                        default=DEFAULT_CONFIG,
+                        help='Specify mount map configuration file')
+
+    parser.add_argument('-m', '--mount-style', default='',
+                        help='Specify style for mount points')
+    parser.add_argument('-r', '--reset-style', default='#[none]',
+                        help='Specify style for resetting styles')
+    parser.add_argument('-v', '--value-style', default='',
+                        help='Specify style for value points')
+    parser.add_argument('-t', '--thresholds',
+                        nargs=2, metavar=('PERCENT', 'STYLE'),
+                        action='append', default=[],
+                        help='Specify style thresholds')
+
+    parser.add_argument('-u', '--unbuffer', action='store_true',
+                        help='Immeadiately flush output after writing')
+    parser.add_argument('-s', '--sleep', type=int,
+                        help='When given, wait this duration between outputting')
+
+    args  = parser.parse_args()
+    vargs = vars(args)
+
+    if not args.config.exists():
+        parser.error('Configuration file not found: %s' % args.config)
+    elif not args.config.is_file():
+        parser.error('Configuration file is not a file: %s' % args.config)
+    for it in args.thresholds:
+        try:
+            it[0] = float(it[0])
+        except ValueError:
+            parser.error('Threshold values must be a number, not: %s', it[0])
+    args.thresholds = sorted(args.thresholds, key=lambda x: x[0], reverse=True)
+
+    try:
+        main(args, vargs, parser)
+    except KeyboardInterrupt:
+        pass
