@@ -11,7 +11,7 @@ set -g status-right-length 150
 set -g status-left-style  default
 set -g status-right-style default
 
-# an-old-hope Colors
+# [[https://github.com/mohkale/an-old-hope-theme][an-old-hope]] Colors
 TMUX_AOH_VERY_LIGHT_GREY="#cbcdd2"
 TMUX_AOH_LIGHT_GREY="#848794"
 TMUX_AOH_GREY="#686b78"
@@ -127,7 +127,7 @@ TMUX_FMT_STATUS_HOST="\
 "
 TMUX_FMT_STATUS_META="\
 #[default,bg=$TMUX_HL,fg=$TMUX_BG]\
-#(echo ""; $TMUX_HOME/cmds/disk-free -u -s 60 -m '#[default,bold,fg=$TMUX_DF_MOUNT]' -r '#[none,fg=$TMUX_FG]' -t 80 '#[fg=$TMUX_DF_MEDIUM]' -t 90 '#[fg=$TMUX_DF_LARGE]' -t 100 '#[fg=$TMUX_DF_FULL]')\
+#(echo ""; $TMUX_HOME/cmds/disk-free -u -s 60 -m '#[default,bold,fg=$TMUX_DF_MOUNT]' -r '#[none,fg=$TMUX_FG]' -t 80 '#[fg=$TMUX_DF_MEDIUM]' -t 95 '#[fg=$TMUX_DF_LARGE]' -t 100 '#[fg=$TMUX_DF_FULL]')\
 "
 TMUX_FMT_STATUS_DATE="#[default,bg=$TMUX_HL,fg=$TMUX_BG] %d-%b-%Y %H:%M"
 

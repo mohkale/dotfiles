@@ -8,7 +8,8 @@ import dataclasses
 import shutil
 from pathlib import Path
 
-DEFAULT_CONFIG = Path(os.path.expandvars('$TMUX_HOME/disk-free.conf'))
+DEFAULT_CONFIG = "/:/"
+DEFAULT_CONFIG_PATH = Path(os.path.expandvars('$TMUX_HOME/disk-free.conf'))
 
 
 @dataclasses.dataclass
@@ -19,12 +20,18 @@ class ConfigEntry(object):
 
 def read_config(config):
     res = []
-    with config.open('r', encoding='utf-8') as fd:
-        for line in fd:
+    f_iter = config.open('r', encoding='utf-8') \
+        if config.exists() and config.is_file() else DEFAULT_CONFIG.split('\n')
+
+    try:
+        for line in f_iter:
             args = line.rstrip().split(':')
             args[1] = Path(args[1])
             res.append(ConfigEntry(*args))
-    return res
+        return res
+    finally:
+        if hasattr(f_iter, 'close'):
+            f_iter.close()
 
 
 def format_mount(entry, args):
@@ -44,8 +51,13 @@ def format_mount(entry, args):
 
 
 def main(args, vargs, parser):
+    cfg, last_read_time = None, 0
     while True:
-        cfg = read_config(args.config)
+        if cfg is None or \
+           (args.config.exists() and args.config.stat().st_mtime > last_read_time):
+            cfg = read_config(args.config)
+            last_read_time = time.time()
+
         fmts = [format_mount(it, args) for it in cfg]
         print(' '.join(x for x in fmts if x))
 
@@ -62,7 +74,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     parser.add_argument('-c', '--config', type=Path,
-                        default=DEFAULT_CONFIG,
+                        default=DEFAULT_CONFIG_PATH,
                         help='Specify mount map configuration file')
 
     parser.add_argument('-m', '--mount-style', default='',
@@ -84,10 +96,6 @@ if __name__ == '__main__':
     args  = parser.parse_args()
     vargs = vars(args)
 
-    if not args.config.exists():
-        parser.error('Configuration file not found: %s' % args.config)
-    elif not args.config.is_file():
-        parser.error('Configuration file is not a file: %s' % args.config)
     for it in args.thresholds:
         try:
             it[0] = float(it[0])
