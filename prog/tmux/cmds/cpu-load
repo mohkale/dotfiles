@@ -1,0 +1,69 @@
+#!/usr/bin/env python3
+import sys
+
+try:
+    import psutil
+except ImportError:
+    sys.exit("Failed to import 'psutil'")
+
+
+def format_cpu(percent, args):
+    res = ''
+    percent = round(percent)
+    for threshold, st in args.thresholds:
+        if percent >= threshold:
+            res += st
+            break
+    else:
+        res += args.reset_style
+    res += args.symbol if args.symbol else ('%3d%%' % percent)
+    return res
+
+
+def main(args, vargs, parser):
+    while True:
+        loads = psutil.cpu_percent(args.sleep, percpu=True)
+        print(args.join.join(format_cpu(x, args) for x in loads))
+
+        if args.unbuffer:
+            sys.stdout.flush()
+        if args.sleep is None:
+            break
+
+
+if __name__ == '__main__':
+    import argparse
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('-d', '--symbol',
+                        help='Show symbol instead of percentage per CPU')
+
+    parser.add_argument('-t', '--thresholds',
+                        nargs=2, metavar=('PERCENT', 'STYLE'),
+                        action='append', default=[],
+                        help='Specify style thresholds')
+    parser.add_argument('-j', '--join', default=' ',
+                        help='Specify character to join CPU indicators')
+
+    parser.add_argument('-r', '--reset-style', default='#[none]',
+                        help='Specify style for resetting styles')
+    parser.add_argument('-u', '--unbuffer', action='store_true',
+                        help='Immeadiately flush output after writing')
+    parser.add_argument('-s', '--sleep', type=int,
+                        help='When given, wait this duration between outputting')
+
+    args = parser.parse_args()
+    vargs = vars(args)
+
+    for it in args.thresholds:
+        try:
+            it[0] = float(it[0])
+        except ValueError:
+            parser.error('Threshold values must be a number, not: %s', it[0])
+    args.thresholds = sorted(args.thresholds, key=lambda x: x[0], reverse=True)
+
+    try:
+        main(args, vargs, parser)
+    except KeyboardInterrupt:
+        pass

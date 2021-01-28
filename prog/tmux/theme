@@ -1,4 +1,5 @@
 # -*- mode: conf-space -*- My tmux theme configuration (See [[https://github.com/nicknisi/dotfiles/blob/99b50f3a33c2a2d6ecf73d4f6e94efc8fe36f09a/tmux/base16.sh][base16]]) -- vim:syntax=tmux:filetype=tmux
+# TODO: use `tmux show -gw status-format` to setup status-center
 
 set -g status on
 set -g status-interval 15
@@ -56,6 +57,10 @@ TMUX_DF_MOUNT=$TMUX_AOH_BRIGHT_BLUE                                             
 TMUX_DF_FULL=$TMUX_AOH_RED                                                                         # Color for mounted drives that're full
 TMUX_DF_LARGE=$TMUX_AOH_ORANGE                                                                     # Color for mounted drives that're almost full
 TMUX_DF_MEDIUM=$TMUX_AOH_YELLOW                                                                    # Color for mounted drives that're getting pretty large
+TMUX_CPU_1=$TMUX_AOH_GREEN                                                                         # First CPU level divider (smallest percentage)
+TMUX_CPU_2=$TMUX_AOH_YELLOW
+TMUX_CPU_3=$TMUX_AOH_ORANGE
+TMUX_CPU_4=$TMUX_AOH_RED                                                                           # Last CPU level divider (largest percentage)
 
 TMUX_OPT_HIDE_LAST_WINFLAG=1                                                                       # Whether to show the last window flag
 TMUX_OPT_WINUM_SEP=":"                                                                             # Substring inserted between window number and name
@@ -119,21 +124,23 @@ set -g window-status-current-format "#{?#{==:$TMUX_OPT_WINUM_CURRENT_WINDOW,1},#
 set -g window-status-bell-style     ""
 set -g window-status-activity-style ""
 
-TMUX_FMT_STATUS_HOST="\
+TMUX_FMT_STATUS_PROG="\
 #[default,fg=$TMUX_FG]\
 #{?#{==:#{host},#{pane_title}},,#{=/$TMUX_OPT_NAME_MAX_LEN/...:pane_title} | }#{host}\
 (#{=$TMUX_OPT_CMD_MAX_LEN:pane_current_command}) \
 #(echo ""; $TMUX_HOME/cmds/tmux-icons -d 0.5 -s '#{client_tty}')\
 "
 TMUX_FMT_STATUS_META="\
-#[default,bg=$TMUX_HL,fg=$TMUX_BG]\
-#(echo ""; $TMUX_HOME/cmds/disk-free -u -s 60 -m '#[default,bold,fg=$TMUX_DF_MOUNT]' -r '#[none,fg=$TMUX_FG]' -t 80 '#[fg=$TMUX_DF_MEDIUM]' -t 95 '#[fg=$TMUX_DF_LARGE]' -t 100 '#[fg=$TMUX_DF_FULL]')\
+#[default,bg=$TMUX_BG,fg=$TMUX_FG]\
+#(echo ""; $TMUX_HOME/cmds/cpu-load  -u -s 1  -r '#[none,fg=$TMUX_FG]' -t 30 '#[fg=$TMUX_CPU_1]'  -t 50 '#[fg=$TMUX_CPU_2]'  -t 70 '#[fg=$TMUX_CPU_3]'  -t 90 '#[fg=$TMUX_CPU_4]' -d '•' -j '') \
+#[default,bg=$TMUX_BG,fg=$TMUX_FG]\
+#(echo ""; $TMUX_HOME/cmds/disk-free -u -s 60 -r '#[none,fg=$TMUX_FG]' -m '#[default,bold,fg=$TMUX_DF_MOUNT]' -t 80 '#[fg=$TMUX_DF_MEDIUM]' -t 95 '#[fg=$TMUX_DF_LARGE]' -t 100 '#[fg=$TMUX_DF_FULL]') \
 "
-TMUX_FMT_STATUS_DATE="#[default,bg=$TMUX_HL,fg=$TMUX_BG] %d-%b-%Y %H:%M"
+TMUX_FMT_STATUS_DATE="#[default,bg=$TMUX_HL,fg=$TMUX_BG] %d-%b-%Y %H:%M "
 
 set -g status-right "\
-$TMUX_FMT_STATUS_HOST\
+$TMUX_FMT_STATUS_PROG\
 #{?#{==:$TMUX_OPT_META_SEP,}, ,$TMUX_OPT_META_SEP}\
-$TMUX_FMT_STATUS_META \
-$TMUX_FMT_STATUS_DATE \
+$TMUX_FMT_STATUS_META\
+$TMUX_FMT_STATUS_DATE\
 "
