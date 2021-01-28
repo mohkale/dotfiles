@@ -31,7 +31,7 @@ def format_mount(entry, args):
     if not entry.mount.exists():
         return None
     usage = shutil.disk_usage(str(entry.mount))
-    percent = 100 * usage.used / float(usage.total)
+    percent = round(100 * usage.used / float(usage.total))
     res = ''
     res += args.mount_style + entry.name + args.reset_style
     res += ':' + args.value_style
@@ -39,7 +39,7 @@ def format_mount(entry, args):
         if percent >= threshold:
             res += st
             break
-    res += str(round(percent)) + '%'
+    res += str(percent) + '%'
     return res
 
 
