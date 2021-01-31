@@ -131,6 +131,9 @@ set -g status-right "\
 #(echo ""; $TMUX_HOME/cmds/disk-free -u -s 60 -r '#[none,fg=$TMUX_FG]' -m '#[default,bold,fg=$TMUX_DF_MOUNT]' -t 80 '#[fg=$TMUX_DF_MEDIUM]' -t 95 '#[fg=$TMUX_DF_LARGE]' -t 100 '#[fg=$TMUX_DF_FULL]')\
 \
 #[default,fg=$TMUX_FG]#{?#{==:$TMUX_SEP,}, ,$TMUX_SEP}\
+#(echo ""; $TMUX_HOME/cmds/network-speed  -u -r '#[none,fg=$TMUX_FG]')\
+\
+#[default,fg=$TMUX_FG]#{?#{==:$TMUX_SEP,}, ,$TMUX_SEP}\
 #(echo ""; $TMUX_HOME/cmds/cpu-load  -u -s 1  -r '#[none,fg=$TMUX_FG]' -t 30 '#[fg=$TMUX_CPU_1]'  -t 50 '#[fg=$TMUX_CPU_2]'  -t 70 '#[fg=$TMUX_CPU_3]'  -t 90 '#[fg=$TMUX_CPU_4]' -d '•' -j '')\
 \
 #[default,fg=$TMUX_FG]#{?#{==:$TMUX_SEP,}, ,$TMUX_SEP}\

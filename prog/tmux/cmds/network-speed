@@ -1,0 +1,102 @@
+#!/usr/bin/env python3
+import sys
+import time
+import collections
+
+try:
+    import psutil
+except ImportError:
+    sys.exit("Failed to import 'psutil'")
+
+RATE_DIVISOR = 1000
+
+
+def format_rate(speed, fmt='%7.2f %s', limit=RATE_DIVISOR):
+    # return fmt % (speed * 0.000008, 'MB')
+    for key in (' B', 'KB', 'MB', 'GB', 'TB', 'PB'):
+        if speed < limit:
+            return fmt % (speed, key)
+        speed = speed / RATE_DIVISOR
+    raise ValueError('Unable to determine units for input: %f', speed)
+
+
+class TransferStore(object):
+    def __init__(self, interfaces=None):
+        self.interfaces = interfaces
+
+        self.time = time.time()
+        self.ul_rate = self.dl_rate = 0
+        self.total_dl_bytes = self.total_ul_bytes = 0
+
+    def _network_stats(self):
+        if self.interfaces is None:
+            stats = psutil.net_io_counters()
+            return stats.bytes_recv, stats.bytes_sent
+
+        dl, ul = 0, 0
+        for interface, stats in psutil.net_io_counters(pernic=True).items():
+            if interface in self.interfaces:
+                dl += stats.bytes_recv
+                ul += stats.bytes_sent
+        return dl, ul
+
+    def update(self):
+        # Algorithm adapted from [[https://github.com/xxxserxxx/gotop/blob/master/widgets/net.go#L1][gotop]].
+        total_dl_bytes, total_ul_bytes = self._network_stats()
+
+        if self.total_dl_bytes != 0:  # when this isn't the first update call
+            self.dl_rate = max(0, (total_dl_bytes - self.total_dl_bytes) / (time.time() - self.time))
+            self.ul_rate   = max(0, (total_ul_bytes - self.total_ul_bytes) / (time.time() - self.time))
+            self.time = time.time()
+
+        self.total_dl_bytes = total_dl_bytes
+        self.total_ul_bytes = total_ul_bytes
+
+        # now = time.time()
+        # elapsed = now - self.time
+        # ul, dl = self._network_stats()
+        # if self.total_dl_bytes == 0:
+        #     self.total_ul_bytes, self.total_dl_bytes = ul, dl
+        # elif elapsed > 0 and ((ul, dl) != (self.total_ul_bytes, self.total_dl_bytes) or elapsed >= 10):
+        #     self.ul_rate   = ((ul - self.total_ul_bytes) / elapsed)
+        #     self.dl_rate = ((dl - self.total_dl_bytes) / elapsed)
+        #     if elapsed > 1:
+        #         self.total_ul_bytes, self.total_dl_bytes = ul, dl
+        #         self.time = now
+
+
+def main(args, vargs, parser):
+    store = TransferStore(args.interfaces)
+    while True:
+        store.update()
+        print(format_rate(store.dl_rate, args.download_format, 10),
+              format_rate(store.ul_rate, args.upload_format, 10),)
+        if args.unbuffer:
+            sys.stdout.flush()
+        time.sleep(1)
+
+if __name__ == '__main__':
+    import argparse
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('-i', '--interface', action='append', dest='interfaces',
+                        help='Specify the interfaces to monitor')
+
+    parser.add_argument('-r', '--reset-style', default='#[none]',
+                        help='Specify style for resetting styles')
+    parser.add_argument('-u', '--unbuffer', action='store_true',
+                        help='Immeadiately flush output after writing')
+
+    parser.add_argument('-df', '--download-format', default='↑%5.2f %s',
+                        help='Specify format for the download section')
+    parser.add_argument('-uf', '--upload-format', default='↓%5.2f %s',
+                        help='Specify format for the upload section')
+
+    args = parser.parse_args()
+    vargs = vars(args)
+
+    try:
+        main(args, vargs, parser)
+    except KeyboardInterrupt:
+        pass
