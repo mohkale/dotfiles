@@ -8,6 +8,8 @@ import dataclasses
 import shutil
 from pathlib import Path
 
+from mohkale import hurry
+
 DEFAULT_CONFIG = "/:/"
 DEFAULT_CONFIG_PATH = Path(os.path.expandvars('$TMUX_HOME/disk-free.conf'))
 
@@ -34,10 +36,21 @@ def read_config(config):
             f_iter.close()
 
 
-def format_mount(entry, args):
+def format_percentage(usage, percent):
+    return str(percent) + '%'
+
+
+def format_free_bytes(usage, percent):
+    return '%d%s' % hurry.bytes(usage.free, 1000)
+
+
+def format_mount(entry, fmt, args):
     if not entry.mount.exists():
         return None
-    usage = shutil.disk_usage(str(entry.mount))
+    try:
+        usage = shutil.disk_usage(str(entry.mount))
+    except:
+        return None
     percent = round(100 * usage.used / float(usage.total))
     res = ''
     res += args.mount_style + entry.name + args.reset_style
@@ -46,11 +59,15 @@ def format_mount(entry, args):
         if percent >= threshold:
             res += st
             break
-    res += str(percent) + '%'
+    res += fmt(usage, percent)
     return res
 
 
 def main(args, vargs, parser):
+    fmt = format_percentage
+    if args.show_bytes:
+        fmt = format_free_bytes
+
     cfg, last_read_time = None, 0
     while True:
         if cfg is None or \
@@ -58,7 +75,7 @@ def main(args, vargs, parser):
             cfg = read_config(args.config)
             last_read_time = time.time()
 
-        fmts = [format_mount(it, args) for it in cfg]
+        fmts = [format_mount(it, fmt, args) for it in cfg]
         print(' '.join(x for x in fmts if x))
 
         if args.unbuffer:
@@ -76,6 +93,8 @@ if __name__ == '__main__':
     parser.add_argument('-c', '--config', type=Path,
                         default=DEFAULT_CONFIG_PATH,
                         help='Specify mount map configuration file')
+    parser.add_argument('-b', '--show-bytes', action='store_true',
+                        help='Show bytes remaining instead of percentage used')
 
     parser.add_argument('-m', '--mount-style', default='',
                         help='Specify style for mount points')
