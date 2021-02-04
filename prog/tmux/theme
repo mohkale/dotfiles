@@ -3,7 +3,7 @@
 
 set -g status on
 set -g status-interval 15
-set -g status-justify left
+set -g status-justify  left
 set -g status-position bottom
 
 set -g status-left-length  32
@@ -13,100 +13,106 @@ set -g status-left-style  default
 set -g status-right-style default
 
 # [[https://github.com/mohkale/an-old-hope-theme][an-old-hope]] Colors
-TMUX_AOH_VERY_LIGHT_GREY="#cbcdd2"
-TMUX_AOH_LIGHT_GREY="#848794"
-TMUX_AOH_GREY="#686b78"
-TMUX_AOH_DARK_GREY="#45474f"
-TMUX_AOH_VERY_DARK_GREY="#1c1d21"
+%hidden AOH_VERY_LIGHT_GREY="#cbcdd2"
+%hidden AOH_LIGHT_GREY="#848794"
+%hidden AOH_GREY="#686b78"
+%hidden AOH_DARK_GREY="#45474f"
+%hidden AOH_VERY_DARK_GREY="#1c1d21"
 
-TMUX_AOH_BLACK="#3b3d45"
-TMUX_AOH_RED="#eb3d54"
-TMUX_AOH_GREEN="#78bd65"
-TMUX_AOH_YELLOW="#e5cd52"
-TMUX_AOH_BLUE="#4fb4d8"
-TMUX_AOH_MAGENTA="#c46eb1"
-TMUX_AOH_ORANGE="#f39959"
-TMUX_AOH_CYAN="#85e0c9"
-TMUX_AOH_WHITE="#ffffff"
+%hidden AOH_BLACK="#3b3d45"
+%hidden AOH_RED="#eb3d54"
+%hidden AOH_GREEN="#78bd65"
+%hidden AOH_YELLOW="#e5cd52"
+%hidden AOH_BLUE="#4fb4d8"
+%hidden AOH_MAGENTA="#c46eb1"
+%hidden AOH_ORANGE="#f39959"
+%hidden AOH_CYAN="#85e0c9"
+%hidden AOH_WHITE="#ffffff"
 
-TMUX_AOH_BRIGHT_GREY="#525560"
-TMUX_AOH_BRIGHT_RED="#f1223e"
-TMUX_AOH_BRIGHT_GREEN="#6cc653"
-TMUX_AOH_BRIGHT_YELLOW="#edcd2c"
-TMUX_AOH_BRIGHT_BLUE="#21acde"
-TMUX_AOH_BRIGHT_MAGENTA="#ce64b7"
-TMUX_AOH_BRIGHT_ORANGE="#ef7c2a"
-TMUX_AOH_BRIGHT_CYAN="#63e9c7"
-TMUX_AOH_BRIGHT_WHITE="#ffffff"
+%hidden AOH_BRIGHT_GREY="#525560"
+%hidden AOH_BRIGHT_RED="#f1223e"
+%hidden AOH_BRIGHT_GREEN="#6cc653"
+%hidden AOH_BRIGHT_YELLOW="#edcd2c"
+%hidden AOH_BRIGHT_BLUE="#21acde"
+%hidden AOH_BRIGHT_MAGENTA="#ce64b7"
+%hidden AOH_BRIGHT_ORANGE="#ef7c2a"
+%hidden AOH_BRIGHT_CYAN="#63e9c7"
+%hidden AOH_BRIGHT_WHITE="#ffffff"
 
 # Theme Vars
-TMUX_FG="#909090"
-TMUX_BG="#18181b"
+%hidden TMUX_FG="#909090"
+%hidden TMUX_BG="#18181b"
 
-TMUX_HL=$TMUX_AOH_BLUE                                                                             # Used for general purpose syntax highlighting
+%hidden TMUX_HL=$AOH_BLUE                                                                                  # Used for general purpose syntax highlighting
 
 # Colors associated with the current tmux state.
-TMUX_STATE_COPYING=$TMUX_AOH_YELLOW                                                                # Tmux when selecting regions to copy
-TMUX_STATE_VISUAL=$TMUX_AOH_YELLOW                                                                 # Tmux when paging content
-TMUX_STATE_SEARCH=$TMUX_AOH_MAGENTA                                                                # Tmux when searching index
-TMUX_STATE_PREFIX=$TMUX_AOH_GREEN                                                                  # Prefix-key indicator
-TMUX_STATE_SESSION=$TMUX_HL                                                                        # Session name background
+set -g @theme-state-copying $AOH_YELLOW                                                            # Tmux when selecting regions to copy
+set -g @theme-state-visual $AOH_YELLOW                                                             # Tmux when paging content
+set -g @theme-state-search $AOH_MAGENTA                                                            # Tmux when searching index
+set -g @theme-state-prefix $AOH_GREEN                                                              # Prefix-key indicator
+set -g @theme-state-session $TMUX_HL                                                               # Session name background
 
-TMUX_SEP=' | '                                                                                     # Optional seperator between pane/prog-name and meta-info
-TMUX_DF_MOUNT=$TMUX_AOH_BRIGHT_BLUE                                                                # Color for mount names in status line
-TMUX_DF_FULL=$TMUX_AOH_RED                                                                         # Color for mounted drives that're full
-TMUX_DF_LARGE=$TMUX_AOH_ORANGE                                                                     # Color for mounted drives that're almost full
-TMUX_DF_MEDIUM=$TMUX_AOH_YELLOW                                                                    # Color for mounted drives that're getting pretty large
-TMUX_CPU_1=$TMUX_AOH_GREEN                                                                         # First CPU level divider (smallest percentage)
-TMUX_CPU_2=$TMUX_AOH_YELLOW
-TMUX_CPU_3=$TMUX_AOH_ORANGE
-TMUX_CPU_4=$TMUX_AOH_RED                                                                           # Last CPU level divider (largest percentage)
+set -g @theme-sep ' | '                                                                            # Optional seperator between pane/prog-name and meta-info
+set -g @theme-df-mount $AOH_BRIGHT_BLUE                                                            # Color for mount names in status line
+set -g @theme-df-full $AOH_RED                                                                     # Color for mounted drives that're full
+set -g @theme-df-large $AOH_ORANGE                                                                 # Color for mounted drives that're almost full
+set -g @theme-df-medium $AOH_YELLOW                                                                # Color for mounted drives that're getting pretty large
+set -g @theme-cpu-1 $AOH_GREEN                                                                     # First CPU level divider (smallest percentage)
+set -g @theme-cpu-2 $AOH_YELLOW
+set -g @theme-cpu-3 $AOH_ORANGE
+set -g @theme-cpu-4 $AOH_RED                                                                       # Last CPU level divider (largest percentage)
 
-TMUX_OPT_HIDE_LAST_WINFLAG=1                                                                       # Whether to show the last window flag
-TMUX_OPT_WINUM_SEP=":"                                                                             # Substring inserted between window number and name
-TMUX_OPT_WINUM_CURRENT_WINDOW=1                                                                    # Whether to attach the window number to the current window
-TMUX_OPT_WINFLAG_SEP_LEFT='['; TMUX_OPT_WINFLAG_SEP_RIGHT=']'                                      # Seperators around window flags
-TMUX_OPT_CMD_MAX_LEN=30                                                                            # Maximum length of command on status line
-TMUX_OPT_NAME_MAX_LEN=50                                                                           # Maximum length of pane title on status line
+set -g @theme-hide-last-winflag 1                                                                  # Whether to show the last window flag
+set -g @theme-winum-sep ":"                                                                        # Substring inserted between window number and name
+set -g @theme-winum-current-window 1                                                               # Whether to attach the window number to the current window
+set -g @theme-winflag-sep '[]'                                                                     # Seperators around window flags
+%hidden TMUX_OPT_CMD_MAX_LEN=30                                                                    # Maximum length of command on status line
+%hidden TMUX_OPT_NAME_MAX_LEN=50                                                                   # Maximum length of pane title on status line
 
 # default statusbar colors
-set-option -g status-style fg=$TMUX_FG,bg=$TMUX_BG,default
+set -g status-style fg=$TMUX_FG,bg=$TMUX_BG,default
 
-set-window-option -g window-status-style fg=$TMUX_FG
-set-window-option -g window-status-format " #I #W"
+set -g window-status-style fg=$TMUX_FG
+set -g window-status-format " #I #W"
 
 # active window title colors
-set-window-option -g window-status-current-style fg=$TMUX_HL,bright
-set-window-option -g window-status-current-format " #[bold]#W"
+set -g window-status-current-style fg=$TMUX_HL,bright
+set -g window-status-current-format " #[bold]#W"
 
 # message text
-set-option -g message-style bg=$TMUX_BG,fg=$TMUX_AOH_CYAN
+set -g message-style bg=$TMUX_BG,fg=$AOH_CYAN
 
 # clock
-set-window-option -g clock-mode-colour $TMUX_AOH_CYAN
+set -g clock-mode-colour $AOH_CYAN
 
 # pane border colors
-set-window-option -g pane-active-border-style fg=$TMUX_HL
-set-window-option -g pane-border-style fg=$TMUX_AOH_GREY
+set -g pane-active-border-style fg=$TMUX_HL
+set -g pane-border-style fg=$AOH_GREY
 
 # pane number display
-set-option -g display-panes-active-colour $TMUX_AOH_CYAN
-set-option -g display-panes-colour $TMUX_AOH_GREY
+set -g display-panes-active-colour $AOH_CYAN
+set -g display-panes-colour $AOH_GREY
 
 # Status bar contents - updates depending on tmux state.
-TMUX_FMT_STATE_COLOR='#{?selection_present,'$TMUX_STATE_COPYING',#{?search_present,'$TMUX_STATE_SEARCH',#{?pane_in_mode,'$TMUX_STATE_VISUAL',}}}'
-TMUX_FMT_STATE_LABEL='#{?selection_present, COPY ,#{?search_present, FIND ,#{?pane_in_mode, META ,}}}'
 set -g status-left "\
-#[fg=$TMUX_BG,bg=$TMUX_FMT_STATE_COLOR,bright]$TMUX_FMT_STATE_LABEL#[default]\
-#[fg=$TMUX_BG,bg=$TMUX_STATE_PREFIX,bright]#{?client_prefix, TMUX ,}#[default]\
-#[fg=$TMUX_BG,bg=$TMUX_STATE_SESSION,bright] #S #[default] \
+#[fg=$TMUX_BG,\
+  bg=#{?selection_present,#{@theme-state-copying},#{?search_present,#{@theme-state-search},#{?pane_in_mode,#{@theme-state-visual},}}},\
+  bright]\
+#{?selection_present, COPY ,#{?search_present, FIND ,#{?pane_in_mode, META ,}}}\
+#[default]\
+\
+#[fg=$TMUX_BG,bg=#{@theme-state-prefix},bright]#{?client_prefix, TMUX ,}\
+#[default]\
+\
+#[fg=$TMUX_BG,bg=#{@theme-state-session},bright] #S \
+#[default] \
 "
 
 # reverse engineer the default window flags so that you can modify indicators and add
 # indicators for as of yet unsupported window flag indicators.
 #
-# NOTE: TMUX_OPT_HIDE_LAST_WINFLAG isn't included in this list, it suffixes the program name.
-TMUX_FMT_WINFLAGS='\
+# NOTE: @theme-hide-last-winflag isn't included in this list, it suffixes the program name.
+%hidden TMUX_FMT_WINFLAGS='\
 #{?pane_pipe,|,}\
 #{?window_activity_flag,##,}\
 #{?window_bell_flag,!,}\
@@ -117,23 +123,23 @@ TMUX_FMT_WINFLAGS='\
 '
 
 # Appends formatting and borders to the flags only when their not empty.
-TMUX_FMT_WINFLAGS_FORMATTED="#{?#{==:$TMUX_FMT_WINFLAGS,},,$TMUX_OPT_WINFLAG_SEP_LEFT#[bright,fg=$TMUX_AOH_RED]$TMUX_FMT_WINFLAGS#[default]$TMUX_OPT_WINFLAG_SEP_RIGHT}"
+%hidden TMUX_FMT_WINFLAGS_FORMATTED="#{?#{==:$TMUX_FMT_WINFLAGS,},,#{=1:@theme-winflag-sep}#[bright,fg=$AOH_RED]$TMUX_FMT_WINFLAGS#[default]#{=-1:@theme-winflag-sep}}"
 
-set -g window-status-format         "#I$TMUX_OPT_WINUM_SEP#W#{?#{==:$TMUX_OPT_HIDE_LAST_WINFLAG,1},,#{?window_last_flag,-,}}$TMUX_FMT_WINFLAGS_FORMATTED"
-set -g window-status-current-format "#{?#{==:$TMUX_OPT_WINUM_CURRENT_WINDOW,1},#I$TMUX_OPT_WINUM_SEP,}#W$TMUX_FMT_WINFLAGS_FORMATTED"
+set -g window-status-format         "#I#{@theme-winum-sep}#W#{?#{==:#{@theme-hide-last-winflag},1},,#{?window_last_flag,-,}}$TMUX_FMT_WINFLAGS_FORMATTED"
+set -g window-status-current-format "#{?#{==:#{@theme-winum-current-window},1},#I#{@theme-winum-sep},}#W$TMUX_FMT_WINFLAGS_FORMATTED"
 set -g window-status-bell-style     ""
 set -g window-status-activity-style ""
 
 set -g status-right "\
 #[default,bg=$TMUX_BG,fg=$TMUX_FG]\
-#{?#{==:#{host},#{pane_title}},,#{=/$TMUX_OPT_NAME_MAX_LEN/...:pane_title}#{?#{==:$TMUX_SEP,}, ,$TMUX_SEP}}\
+#{?#{==:#{host},#{pane_title}},,#{=/$TMUX_OPT_NAME_MAX_LEN/...:pane_title}#{?#{==:#{@theme-sep},}, ,#{@theme-sep}}}\
 \
-#(echo ""; $TMUX_HOME/cmds/disk-free -u -s 60 -r '#[none,fg=$TMUX_FG]' -m '#[default,bold,fg=$TMUX_DF_MOUNT]' -t 80 '#[fg=$TMUX_DF_MEDIUM]' -t 95 '#[fg=$TMUX_DF_LARGE]' -t 100 '#[fg=$TMUX_DF_FULL]')\
+#(echo ""; $TMUX_HOME/cmds/disk-free -u -s 60 -b -r '#[none,fg=$TMUX_FG]' -m '#[default,bold,fg=#{@theme-df-mount}]' -t 80 '#[fg=#{@theme-df-medium}]' -t 95 '#[fg=#{@theme-df-large}]' -t 100 '#[fg=#{@theme-df-full}]')\
 \
-#[default,fg=$TMUX_FG]#{?#{==:$TMUX_SEP,}, ,$TMUX_SEP}\
-#(echo ""; $TMUX_HOME/cmds/cpu-load  -u -s 1  -r '#[none,fg=$TMUX_FG]' -t 30 '#[fg=$TMUX_CPU_1]'  -t 50 '#[fg=$TMUX_CPU_2]'  -t 70 '#[fg=$TMUX_CPU_3]'  -t 90 '#[fg=$TMUX_CPU_4]' -d '•' -j '')\
+#[default,fg=$TMUX_FG]#{?#{==:#{@theme-sep},}, ,#{@theme-sep}}\
+#(echo ""; $TMUX_HOME/cmds/cpu-load  -u -s 1  -r '#[none,fg=$TMUX_FG]' -t 30 '#[fg=#{@theme-cpu-1}]'  -t 50 '#[fg=#{@theme-cpu-2}]'  -t 70 '#[fg=#{@theme-cpu-3}]'  -t 90 '#[fg=#{@theme-cpu-4}]' -d '•' -j '')\
 \
-#[default,fg=$TMUX_FG]#{?#{==:$TMUX_SEP,}, ,$TMUX_SEP}\
+#[default,fg=$TMUX_FG]#{?#{==:#{@theme-sep},}, ,#{@theme-sep}}\
 #{host}(#{=$TMUX_OPT_CMD_MAX_LEN:pane_current_command}) \
 #(echo ""; $TMUX_HOME/cmds/tmux-icons -d 0.5 -s '#{client_tty}') \
 \
