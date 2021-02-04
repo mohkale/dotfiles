@@ -21,9 +21,13 @@ def format_cpu(percent, args):
 
 
 def main(args, vargs, parser):
+    prev_out = ''
     while True:
         loads = psutil.cpu_percent(args.sleep, percpu=True)
-        print(args.join.join(format_cpu(x, args) for x in loads))
+        out = args.join.join(format_cpu(x, args) for x in loads)
+        if out != prev_out:
+            print(out)
+            prev_out = out
 
         if args.unbuffer:
             sys.stdout.flush()

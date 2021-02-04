@@ -69,6 +69,7 @@ def main(args, vargs, parser):
         fmt = format_free_bytes
 
     cfg, last_read_time = None, 0
+    prev_out = ''
     while True:
         if cfg is None or \
            (args.config.exists() and args.config.stat().st_mtime > last_read_time):
@@ -77,6 +78,10 @@ def main(args, vargs, parser):
 
         fmts = [format_mount(it, fmt, args) for it in cfg]
         print(' '.join(x for x in fmts if x))
+        out = ' '.join(x for x in fmts if x)
+        if out != prev_out:
+            print(out)
+            prev_out = out
 
         if args.unbuffer:
             sys.stdout.flush()
