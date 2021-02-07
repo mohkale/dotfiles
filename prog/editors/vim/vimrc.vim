@@ -76,7 +76,12 @@ runtime! bindings/*
 " Automatically restore the previous cursor position when entering a
 " new buffer.
 
-set viminfo='250,\"100,:20,%,n$XDG_DATA_HOME/vim/viminfo                        " Save marks to viminfo file on :wq
+" WARN: For some reason nvim and vim viminfo files are [[https://vi.stackexchange.com/q/9987][incompatible]].
+if has('nvim')
+  set viminfo='250,\"100,:20,%,n$XDG_DATA_HOME/nvim/viminfo
+else
+  set viminfo='250,\"100,:20,%,n$XDG_DATA_HOME/vim/viminfo
+endif
 
 " ResCur silently jumps to the previous cursor position saved in mark "
 " without updating the jumplist.
