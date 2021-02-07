@@ -17,17 +17,22 @@ hi CursorLine   ctermfg=NONE ctermbg=236  cterm=NONE guifg=NONE    guibg=#313339
 hi CursorColumn ctermfg=NONE ctermbg=236  cterm=NONE guifg=NONE    guibg=#313339 gui=NONE
 hi ColorColumn  ctermfg=NONE ctermbg=236  cterm=NONE guifg=NONE    guibg=#313339 gui=NONE
 hi Cursor       ctermfg=234  ctermbg=188  cterm=NONE guifg=#1c1d20 guibg=#cbccd1 gui=NONE
-hi Search       ctermfg=234  ctermbg=5    cterm=NONE guifg=NONE    guibg=#4fb3d8 gui=NONE
-hi IncSearch    ctermfg=234  ctermbg=74   cterm=bold guifg=#1c1d20 guibg=#ba78ab gui=bold
+hi Search       ctermfg=234  ctermbg=5    cterm=NONE guifg=NONE    guibg=#ba78ab gui=NONE
+hi IncSearch    ctermfg=234  ctermbg=74   cterm=bold guifg=#1c1d20 guibg=#4fb3d8 gui=bold
 hi Directory    ctermfg=221  ctermbg=NONE cterm=bold guifg=#e5cd52 guibg=NONE    gui=bold
-hi StatusLine   ctermfg=0    ctermbg=15   cterm=bold guifg=#4f5053 guibg=#cbccd1 gui=bold
-hi StatusLineNC ctermfg=0    ctermbg=15   cterm=NONE guifg=#4f5053 guibg=#cbccd1 gui=NONE
 hi VertSplit    ctermfg=12   ctermbg=NONE cterm=NONE guifg=#4fb3d8 guibg=NONE    gui=NONE
 hi LineNr       ctermfg=15   ctermbg=234  cterm=NONE guifg=#cbcdd2 guibg=#1c1d20 gui=NONE
 hi CursorLineNr ctermfg=74   ctermbg=234  cterm=NONE guifg=#4fb3d8 guibg=#ba78ab gui=NONE
 hi Pmenu        ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE    guibg=NONE    gui=NONE
 hi PmenuSel     ctermfg=NONE ctermbg=208  cterm=NONE guifg=NONE    guibg=#ee7b29 gui=NONE
 hi Folded       ctermfg=0    ctermbg=15   cterm=NONE guifg=#4f5053 guibg=#cbccd1 gui=NONE
+
+hi StatusLine       ctermfg=235   ctermbg=252  cterm=NONE guifg=#4f5053 guibg=#cbccd1 gui=NONE
+hi StatusLineBold   ctermfg=235   ctermbg=252  cterm=bold guifg=#4f5053 guibg=#cbccd1 gui=bold
+hi StatusLineMeta   ctermfg=5     ctermbg=252  cterm=NONE guifg=#ba78ab guibg=#cbccd1 gui=NONE
+hi StatusLineNC     ctermfg=252   ctermbg=239  cterm=NONE guifg=#cccccc guibg=#4d4d4d gui=NONE
+hi StatusLineNCBold ctermfg=252   ctermbg=239  cterm=bold guifg=#cccccc guibg=#4d4d4d gui=bold
+hi StatusLineNCMeta ctermfg=5     ctermbg=239  cterm=NONE guifg=#ba78ab guibg=#4d4d4d gui=NONE
 
 hi Normal       ctermfg=NONE ctermbg=NONE cterm=NONE      guifg=#cbccd1 guibg=#18181b gui=NONE
 hi NonText      ctermfg=12   ctermbg=NONE cterm=NONE      guifg=#44464f guibg=#18181b gui=NONE

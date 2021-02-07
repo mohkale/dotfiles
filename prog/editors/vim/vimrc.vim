@@ -17,6 +17,7 @@ let &runtimepath=expand('$XDG_CONFIG_HOME/vim,$VIMRUNTIME,$XDG_CONFIG_HOME/after
 let g:netrw_home=$XDG_CACHE_HOME.'/vim'
 
 source $XDG_CONFIG_HOME/vim/plugins.vim                                        " Load vim plugin configuration
+source $XDG_CONFIG_HOME/vim/statusline.vim                                     " Load custom statusline theme
 
 " Editor Options
 " --------------
@@ -116,3 +117,18 @@ augroup help_splits
   autocmd!
   autocmd! BufEnter * if &ft ==# 'help' | wincmd L | endif
 augroup END
+
+" Taken from [[https://vi.stackexchange.com/a/14521][here]], converts a byte count to a humand readable string
+function! HumanSize(bytes) abort
+    let l:bytes = a:bytes
+    let l:sizes = ['', 'k', 'm', 'g', 't']
+    let l:i = 0
+    while l:bytes >= 1024
+        let l:bytes = l:bytes / 1024.0
+        let l:i += 1
+    endwhile
+    if l:bytes < 0
+        let l:bytes = 0
+    endif
+    return printf('%.0f%s', l:bytes, l:sizes[l:i])
+endfunction
