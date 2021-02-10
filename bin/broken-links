@@ -1,0 +1,6 @@
+#!/bin/sh
+# Script to search for ARGV[1] or the cwd recursively for
+# symlinks that point to non-existant files. The output
+# format is "link:link-dest".
+
+find "${1:-$(pwd)}" -xtype l -not -exec [ -e {} ] ';' -printf "%p:" -exec readlink -m {} ';'
