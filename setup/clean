@@ -1,0 +1,11 @@
+#!/bin/sh
+# Recursively find links in your home directory that point to your
+# dotfiles repository but don't exist and then remove them.
+
+set -e
+
+$DOTFILES/bin/broken-links ~ |
+  awk -F : \
+      -v root="$DOTFILES" \
+      -e '$2 ~ root { print($1) }' |
+  xargs -r -d '\n' rm -v
