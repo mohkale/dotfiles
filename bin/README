@@ -35,6 +35,7 @@ in ruby. Generally whatever works for whatever I'm trying to do.
 | [git-fzlog](./git-fzlog)               | Interactively inspect your repos git log using fzf.                                         |
 | [image2ascii](./image2ascii)           | Convert images to ascii text.                                                               |
 | [img2pdf](./img2pdf)                   | Bulk convert a bunch of input images to a PDF using pillow.                                 |
+| [ignore-exit](./ignore-exit)           | Run a command in a subshell but ignore certain exit codes (treat as non-errors).            |
 | [ls-aliases](./ls-aliases)             | List alias files to use alongside `build-aliases` for your current platform.                |
 | [ls-bookmarks](./ls-bookmarks)         | List system bookmarks. These can come from browsers, buku or any other arbitrary source.    |
 | [ls-exec](./ls-exec)                   | List executables which can be accessed from your PATH.                                      |

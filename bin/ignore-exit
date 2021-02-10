@@ -1,0 +1,14 @@
+#!/bin/sh
+# Run a subcommand but discard the exit code when it equals
+# a certain value.
+if [ "$#" -le 1 ]; then
+  echo "$(basename "$0") CODE[,...CODES] PROG ARGS"
+fi
+
+code="$1"; shift # read acceptable exit codes
+"$@"
+if [ "$?" -eq 0 ] || grep --quiet "$?" <<< "$code"; then
+  exit 0
+else
+  exit "$?"
+fi
