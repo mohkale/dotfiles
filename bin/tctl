@@ -268,10 +268,10 @@ if __name__ == '__main__':
     elif args.cmd == Operations.start:
         act_on_torrents_cmd(conn,
                             'torrent-start' + ('-now' if args.now else ''),
-                            'Start torrents' + (' now ' if args.now else '') + ': ',
+                            'Start torrents' + (' now' if args.now else '') + ': ',
                             'start torrents with ids: %s',
                             'No paused torrents found',
-                            torrent_filter=lambda x: x['status'] == 0)
+                            torrent_filter=lambda x: x['status'] not in [4, 6])
     elif args.cmd == Operations.verify:
         act_on_torrents_cmd(conn,
                             'torrent-verify',

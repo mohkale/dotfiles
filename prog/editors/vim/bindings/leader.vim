@@ -11,6 +11,7 @@ nnoremap <leader>am :Man<Space>
 nnoremap <leader>bk :Bclose<cr>
 nnoremap <leader>ss :Lines<cr>
 nnoremap <leader>tl :set wrap!<cr>
+nnoremap <leader>te :set readonly!<cr>
 nnoremap <leader>tn :set relativenumber! number!<cr>
 nnoremap <leader>sc :nohlsearch<cr>
 nnoremap <leader>ff :edit<Space>
@@ -30,6 +31,7 @@ nnoremap <leader>ss  :BLines<cr>
 nnoremap <leader>sa  :Lines<cr>
 nnoremap <leader>rm  :Marks<cr>
 nnoremap <leader>ww  :Windows<cr>
+nnoremap <leader><tab> <C-^>
 
 nnoremap <leader>xt  :silent %s/[[:space:]]\+$//e<cr>
 

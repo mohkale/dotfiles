@@ -5,7 +5,7 @@
 
 # The environment variable where we keep track of the last window
 # from which we jumped.
-MEM=TMUX_LAST_MARKED_JUMP
+MEM=@TMUX_LAST_MARKED_JUMP
 
 if [ -z "$TMUX" ]; then
   echo "jump-marked: error: can only be run from within tmux" >&2
@@ -22,8 +22,7 @@ if [ "$current" != "$marked" ]; then
   # Store current position then jump to the marked pane
   tmux set-environment -g "$MEM" "$current" \; switch-client -t "$marked"
 else
-  last=$(tmux show-environment -g "$MEM")
-  last="${last#*=}" # strip leading prefix
+  last=$(tmux show-environment -gv "$MEM")
   if [ -z "$last" ]; then
     tmux display-message "No last jump target exists, skipping marked jump"
   else

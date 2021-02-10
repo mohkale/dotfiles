@@ -51,8 +51,13 @@ set backspace=indent,eol,start                                                 "
 set tabstop=4 softtabstop=0 expandtab shiftwidth=4 smarttab                    " use spaces, with default tab width being 4 spaces
 set whichwrap+=<,>,h,l,[,]                                                     " move to previous or next line when moving back at eol
 set nowrap                                                                     " disable lines being wrapped by default
+set guifont=Meslo\ LG\ M\ DZ                                                   " set preffered font for graphical vim displays
 
 let g:netrw_banner=0                                                           " configure netrw to be more dired like
+let g:netrw_fastbrowse=1                                                       " cache directory entries only when remote
+let g:netrw_keepdir=1
+let g:netrw_silent=1
+let g:netrw_special_syntax=1
 let g:netrw_bufsettings = "noma nomod nonu nowrap ro nobl relativenumber"      " Fix relativenumber being unset in netrw buffers
 let g:EasyMotion_startofline=0                                                 " keep cursor column when JK motion
 let g:EasyMotion_smartcase=1                                                   " makes EasyMotion work like smartcase for global searches

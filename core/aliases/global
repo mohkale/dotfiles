@@ -68,6 +68,10 @@ noout   >/dev/null 2>&1 sh -c '"$@"' run
 nojob   >/dev/null 2>&1 nohup sh -c '"$@"' run
 # generate a password hash from /dev/urandom. Optional first arg specifies length of password
 passgen sh -c 'cat /dev/urandom | tr -d -c '"'"'[:alnum:]'"'"' | head -c "${1:-50}"' 'passgen'
+extensions py -c $'import pathlib;\import sys;\nfor path in map(lambda x: pathlib.Path(x.rstrip()), sys.stdin): print(path.suffix)'
+# See [[https://github.com/chubin/wttr.in][wttr.in]]
+weather curl -q -s http://wttr.in/
+suniq   sort | uniq
 
 rm      rm -v
 mv      mv -v
@@ -113,6 +117,7 @@ ee      ec --no-wait --suppress-output # emacs dispatch
 ex      emacs
 sx      smacs
 et      sh -c 'cd $EMACS_HOME && ./bin/tangle -i -d lisp/+config.el "$@"' ''
+etnw    et && emacs -nw
 etc     et -c
 etd     et -l -
 etcd    etd -c

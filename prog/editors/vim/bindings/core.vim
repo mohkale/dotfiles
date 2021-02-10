@@ -7,6 +7,8 @@
 nnoremap <C-s>      :BLines<cr>
 nnoremap <C-w>w     :Windows<cr>
 
+nnoremap gr :edit!<cr>
+
 " Use C-g as an alias for escape - Doesn't work for insert mode
 cnoremap <C-g> <Esc>
 nnoremap <C-g> <Esc>

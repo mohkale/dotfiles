@@ -1,6 +1,6 @@
 # -*- mode: conf-space -*- icon config file for [[https://github.com/gokcehan/lf/wiki/Icons][lf]] using mostly [[https://www.nerdfonts.com/cheat-sheet][nerdfonts]].
 
-## Basic File Types
+# Basic File Types
 tw 
 st 
 ow 
@@ -11,11 +11,11 @@ ln 
 or 
 ex 
 
-## Misc
+# Misc
 .config          
 webpack.config.* 
 
-## Full Matches
+# Full Matches
 README         
 LICENSE        
 .DS_Store      
@@ -24,8 +24,9 @@ LICENSE        
 CMakeLists.txt 
 .gitlab-ci.yml 
 
-## Extension Associations
+# Extension Associations
 *.git     
+*.exe     
 *.edn     
 *.pdf     
 *.db      
@@ -48,7 +49,32 @@ CMakeLists.txt 
 *.nfo     
 *.psb     
 *.psd     
-*.xlsx    
+
+## Microsoft Suite
+*.ppt     
+*.pot     
+*.potx    
+*.ppam    
+*.pps     
+*.ppsm    
+*.pwpt    
+*.pptx    
+*.pptm    
+*.doc     
+*.docx    
+*.docm    
+*.dot     
+*.dotx    
+*.xlsx    
+*.vsd     
+*.vsdx    
+*.vsdm    
+*.vss     
+*.vssm    
+*.vst     
+*.vstm    
+*.vstx    
+
 
 ## Languages
 *.c      
@@ -74,6 +100,7 @@ CMakeLists.txt 
 *.rs     
 *.js     
 *.ts     
+*.tsx    
 *.kts    
 *.gradle 
 *.rss    參
