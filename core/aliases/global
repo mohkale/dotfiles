@@ -43,6 +43,7 @@ l1      \ls -1 --quoting-style=literal
 
 t      tmux
 tt     tmuxinator
+ttt    fztmuxinator
 ta     $TMUX_HOME/cmds/attach-session
 t?     t show-options -g
 tM     t display-message

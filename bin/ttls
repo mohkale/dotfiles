@@ -2,27 +2,59 @@
 # list tmuxinator configs both in the shared config
 # folder and any project local configs (from the cwd).
 
+require 'optparse'
 require 'pathname'
 
 require 'xdg'
 require 'tmuxinator/config'
 
-# yields [argument-to-tmuxinator, name-of-project, path-to-config]
-def each_config(&block)
+begin
+  require 'colorize'
+rescue LoadError
+  String.define_method(:green, ->(*args) { self })
+end
+
+CWD  = Pathname.new('./').expand_path
+HOME = Pathname.new('~/').expand_path
+
+# yields [config_path, project_name, project_path || config_path]
+def each_config(cwd, paths=[])
+  return unless block_given?
   Tmuxinator::Config.directories.map do |directory|
     Dir["#{directory}/**/*.yml"].map(&Pathname.method(:new)).map do |path|
       project_name = path.to_path.gsub("#{directory}/", "").gsub(".yml", "")
-      block.call(project_name, project_name, path.to_path)
+      yield path, project_name, path
     end
   end
 
-  cwd = Pathname.new('.').expand_path
-  local_path = cwd / Tmuxinator::Config::LOCAL_DEFAULT
-  if local_path.readable?
-    block.call('', cwd.basename, local_path.to_path)
+  [cwd, *paths].each do |path|
+    local_path = path / Tmuxinator::Config::LOCAL_DEFAULT
+    if local_path.readable?
+      yield local_path, path.basename.to_path, path
+    end
   end
 end
 
-each_config do |*args|
-  puts(args.join(':'))
+def ls_repos
+  IO.popen('ls-repos') do |fd|
+    fd.each_line.map do |path|
+      Pathname.new(path.chomp)
+    end
+  end
+end
+
+opts = {}
+OptionParser.new do |it|
+  it.banner = 'Usage: tangle [options]'
+
+  it.on('-a', '--[no-]all', 'List configs across all projects, not just the current one.')
+  it.on('-p', '--[no-]pretty', 'Pretty print rows instead of passwd like format.')
+end.parse!(into: opts)
+
+def pretty_print(conf, name, project)
+  "#{conf.to_path}:#{project.directory? ? project.to_path : ''}:#{name} [#{project.to_path.gsub(HOME.to_path+'/', '~/').green}]"
+end
+
+each_config(CWD, opts[:all] && (ls_repos || [])) do |*args|
+  puts(opts[:pretty] ? pretty_print(*args) : args.join(':'))
 end
