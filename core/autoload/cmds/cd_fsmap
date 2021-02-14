@@ -9,7 +9,7 @@ cd_fsmap() {
           # replace the first : (seperator) on each line.
           sed -e 's/\(.\+\):\(.\+\)/\1 \2/'
       fi |
-      FZF_DEFAULT_OPTS="$FZF_SHELL_OPTS" fzf "${fzf_args[@]}" |
+      _fzf "${fzf_args[@]}" |
       sed 's/^[^[:space:]]*[[:space:]]\+//')
     cd "${dest/\~/$HOME}"
 }

@@ -126,7 +126,7 @@ we      with-evi
 emf     emacs-make-frame
 
 trr     echo -e 'list:list\nstart:start\nstart -n:start-now\npause:pause\nverify:verify\nremove:remove\nremove -f:delete' \
-          | FZF_DEFAULT_OPTS=$FZF_SHELL_OPTS fzf --delimiter : --with-nth 2.. --prompt='Transmission: ' \
+          | _fzf --delimiter : --with-nth 2.. --prompt='Transmission: ' \
           | cut -d : -f 1 \
           | xargs -r tctl
 trs     tctl start

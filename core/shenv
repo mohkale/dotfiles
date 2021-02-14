@@ -294,19 +294,6 @@ export FZF_DEFAULT_OPTS='
     --cycle
 '
 
-# The fzf options used for shell commands, eg. fzf_cd.
-# I've seperated this into it's own environment variable because it makes
-# more sense to use a bunch of special options for these situations.
-#
-# This option prevents fzf taking over the entire window (it leaves exactly
-# one line for your shell prompt) and reverses it so it appears as if candidates.
-# are flowing out from your shell prompt.
-FZF_SHELL_OPTS="
-    $FZF_DEFAULT_OPTS
-    --height 99%
-    --reverse
-"
-
 # source autoloads
 autoloads_dir="$XDG_CONFIG_HOME/autoloads"
 [ -f "$autoloads_dir/global" ]                      && . "$autoloads_dir/global"

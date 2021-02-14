@@ -1,5 +1,5 @@
 # -*- mode: sh -*-
 fzf_select_all() {
     select_path "$(find-project -az "$@" |
-                     FZF_DEFAULT_OPTS="$FZF_SHELL_OPTS" fzf --read0 --no-multi --preview 'preview {}' --preview-window=25%)"
+                     _fzf --read0 --no-multi --preview 'preview {}' --preview-window=25%)"
 }

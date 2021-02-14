@@ -1,5 +1,6 @@
 # -*- mode: sh -*-
 cd_project_root() {
-    local dest="$(project-root)"
-    cd "$dest" || echo "error: failed to cd: $dest" >&2
+    if local dest="$(project-root)" && [ -n "$dest" ]; then
+        cd "$dest" || echo "error: failed to cd: $dest" >&2
+    fi
 }

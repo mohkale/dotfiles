@@ -2,7 +2,7 @@
 fztmuxinator() {
   local fzf_args=( -d : --with-nth 3.. --ansi )
   [ -z "$*" ] || fzf_args+=( -q "$*" )
-  if local target=$(ttls -ap | FZF_DEFAULT_OPTS="$FZF_SHELL_OPTS" fzf "${fzf_args[@]}") && [ -n "$target" ]; then
+  if local target=$(ttls -ap | _fzf "${fzf_args[@]}") && [ -n "$target" ]; then
     local conf dir
     IFS=: read conf dir _ <<< "$target"
     sh -c '[ -z "$1" ] || cd $1; tmuxinator start -p $2' start "${dir:-$HOME}" "$conf"

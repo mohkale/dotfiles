@@ -1,8 +1,8 @@
 # -*- mode: sh -*-
 cd_repo() {
-    local fzf_args=( -d '/' --with-nth -1 --preview 'INCLUDE_DIR=1 preview {}' )
-    [ -z "$*" ] || fzf_args+=( -q "$*" )
-    local dest=$(ls-repos |
-      FZF_DEFAULT_OPTS="$FZF_SHELL_OPTS" fzf "${fzf_args[@]}")
-    cd "$dest" || echo "error: failed to cd: $dest" >&2
+  local fzf_args=( -d '/' --with-nth -1 --preview 'INCLUDE_DIR=1 preview {}' )
+  [ -z "$*" ] || fzf_args+=( -q "$*" )
+  if local dest=$(ls-repos | _fzf "${fzf_args[@]}") && [ -n "$dest" ]; then
+    cd "$dest"
+  fi
 }

@@ -2,7 +2,7 @@
 edit_executables() {
     local fzf_args=( -d / --with-nth '-1' --multi --preview 'preview {}' )
     [ -z "$*" ] || fzf_args+=( -q "$*" )
-    paths=$(ls-exec | FZF_DEFAULT_OPTS="$FZF_SHELL_OPTS" fzf "${fzf_args[@]}")
+    paths=$(ls-exec | _fzf "${fzf_args[@]}")
     if [ "$?" -eq 0 -o -n "$paths" ]; then
         xargs -a <(echo "$paths") -r -d '\n' $EDITOR
     fi
