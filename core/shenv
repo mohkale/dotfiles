@@ -25,6 +25,7 @@
 # | PATH          | The : delimited list of directories bash/zsh/sh looks for executables.             |
 # | DOTFILES      | Path to where user dotfiles repository can be found. Should always be ~/.dotfiles. |
 # | REPO_PATH     | PATH like for variable for looking up code repositories (see [[file:.local/bin/ls-repos][ls-repos]]).            |
+# | GAME_PATH     | Path to look for installed games (eg. GBA or actual executables etc.)              |
 
 # don't source this script if you've already sourced it.
 [ -z "$sourced_shenv" ] || return
@@ -69,6 +70,7 @@ export MANPATH=$XDG_DATA_HOME/man:$MANPATH
 export MANPAGER='less -s -M +Gg'
 export MAN_KEEP_FORMATTING=1
 export INFOPATH=$XDG_DATA_HOME/info:$INFOPATH
+export GAME_PATH=$HOME/media/games/:$GAME_PATH
 # shell used by emacs for various shell like purposes
 export ESHELL="$(command -v bash 2>/dev/null || echo /bin/sh)"
 export OPENER='xopen' # command used to open files/URLs

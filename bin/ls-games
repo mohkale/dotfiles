@@ -1,0 +1,138 @@
+#!/usr/bin/env python3
+
+import re
+import os
+import vdf
+import json
+import stat
+import logging
+import configparser
+import itertools
+import collections
+import pathlib as p
+
+Game = collections.namedtuple('Game', ['name', 'url', 'meta'])
+
+def pretty_print_game(g):
+    return f'{g.url}:{g.name}' + (f' [\033[0;32m{g.meta}\033[0m]' if g.meta else '')
+
+
+# List of directories that may be the root of the steam configuration
+STEAM_DIRS = [p.Path('~/.local/share/Steam').expanduser()]
+
+def _steam_dir():
+    for d in STEAM_DIRS:
+        logging.debug('Checking for steam root at: %s', d)
+        if d.exists() and d.is_dir():
+            return d
+
+def _steam_minutes_played(entries):
+    for key, obj in entries:
+        if key == 'friends':
+            my_data = obj.get('data', {}).get('your_info', {})
+            return my_data.get('minutes_played_forever', my_data.get('minutes_played', None))
+    return None
+
+def list_steam():
+    """List games installed on your system through Steam.
+    """
+    logging.info('Looking for installed steam games')
+    steam_dir = _steam_dir()
+    if not steam_dir:
+        logging.warning('Failed to find steam root, skipping steam games check')
+        return []
+
+    library_cache = steam_dir.glob('userdata/*/config/librarycache/*.json')
+    for lc in filter(lambda x: x.name[:-len(x.suffix)].isdigit(), library_cache):
+        s_id = lc.name[:-len(lc.suffix)]
+        manifest = steam_dir / 'steamapps' / f'appmanifest_{s_id}.acf'
+        if not manifest.exists():
+            logging.debug('Missing manifest for steamapp with id: %s', s_id)
+            continue
+        stats = json.load(lc.open('r'))
+        manifest = vdf.load(manifest.open('r'))
+
+        name = manifest.get('AppState', {}).get('name')
+        played = _steam_minutes_played(stats)
+        yield Game(name, f'steam://run/{s_id}', f'Played {played} minutes' if played else None)
+
+
+GAME_EXTENSIONS = ['', '.gba', '.exe']
+
+def game_meta(p, fallback=None):
+    "Get meta entry for game at path `p'"
+    if p.suffix.lower() == '.gba':
+        return 'Gameboy (Advance)'
+    return fallback
+
+def get_game(path, recurse=True):
+    if path.is_file():
+        return Game(path.name, f'file://{path}', game_meta(path, str(path)))
+    if recurse and path.is_dir():
+        for subpath in map(lambda ext: path / (path.name + ext), GAME_EXTENSIONS):
+            if get_game(subpath, False):
+                return Game(path.name, f'file://{subpath}', game_meta(path, str(path)))
+        # Also check for URL files in directories describing how to run a game indirectly.
+        for url_file in filter(p.Path.exists, [path / 'game.url', path / (path.name + '.url')]):
+            conf = configparser.ConfigParser()
+            conf.read(url_file)
+            url = conf['InternetShortcut']['URL']
+            if url:
+                return Game(path.name, url, game_meta(path, str(path)))
+
+def list_game_path():
+    """List games accessible from your GAME_PATH environment.
+
+    Games are defined as executables or files with certain properties (a known
+    game extension eg gba) or directories containing either of these (matching
+    the directory name).
+
+    For practicality reasons (and because some games generally have a deeply
+    nested directory structure) we only check one directory down. If you want
+    to search any deeper you must add it GAME_PATH directly.
+
+    GAME_PATH itself is a PATH like variable which can point to files (which're
+    treated as games themselves if they exist) or directories in which case all
+    the files in each pointed to directory is checked to see whether it's a game.
+    """
+    logging.info('Looking for games from GAME_PATH')
+    gp = os.environ.get('GAME_PATH', '').split(':')
+    for f in (p.Path(x) for x in gp if not (len(x) == 0 or x.isspace())):
+        logging.debug('Checking for GAME_PATH entry at: %s', f)
+        if not f.exists():
+            continue
+
+        if f.is_file():
+            game = get_game(f)
+            if game:
+                yield game
+            continue
+        for f in f.iterdir():
+            game = get_game(f)
+            if game:
+                yield game
+    return []
+
+
+def main(args, vargs, parser):
+    for g in itertools.chain(list_steam(), list_game_path()):
+        print(args.output(g))
+
+
+if __name__ == '__main__':
+    import argparse
+    from mohkale.logging import zerolog
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-p', '--prettify', dest='output',
+                        action='store_const', const=pretty_print_game,
+                        help='Pretty print output rather than using json')
+    parser.add_argument('-l', '--logging_level',
+                        metavar='LEVEL', default=logging.INFO,
+                        type=lambda x: getattr(logging, x.upper()),
+                        help='Set verbosity of logging output')
+
+    args = parser.parse_args()
+    zerolog(args.logging_level)
+    args.output = args.output or (lambda x: json.dumps(x._asdict()))
+    main(args, vars(args), parser)

@@ -73,6 +73,7 @@ extensions py -c $'import pathlib;\import sys;\nfor path in map(lambda x: pathli
 # See [[https://github.com/chubin/wttr.in][wttr.in]]
 weather curl -q -s http://wttr.in/
 suniq   sort | uniq
+og      open_game
 
 rm      rm -v
 mv      mv -v
