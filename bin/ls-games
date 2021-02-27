@@ -1,122 +1,268 @@
 #!/usr/bin/env python3
+"""ls-games -- List playable games available on this host
 
-import re
+This script uses an [[https://github.com/edn-format/edn][edn]] style configuration file to list available games.
+The default output of this script is a list of JSON objects including the
+name of a game and a URL you can run to play the game. It also supports a
+*prettier* PASSWD style output format with ANSI colors (beginning with the
+URL).
+
+WARN: The pretty output format begins with the URL and uses : as a delimter
+so the URL is actually the first two fields of the output.
+eg: "file://foo/:Foo" has a first field of "file" and a second of "//foo/"
+whereas the URL to run the game Foo is "file://foo/".
+
+The configuration file should contain a hash containing a :env key for the
+list of environment variables you can substitute into various paths and
+:games for the list of games available.
+The following EDN tags are available to make configuration more straightforward:
++------------------+----------+----------------------------------+
+|       Tag        | Argument | Description                      |
++------------------+----------+----------------------------------+
+|  #game/set-env   |   MAP    | Assign all the environment       |
+|                  |          | variables in MAP to the current  |
+|                  |          | processes environment.           |
++------------------+----------+----------------------------------+
+|   #game/expand   |   STR    | Replace STR with the value of    |
+|                  |          | string after sending through     |
+|                  |          | envsubst.                        |
++------------------+----------+----------------------------------+
+| #game/load-games |   STR    | Load games from the file at STR. |
+|                  |          | This file should contain a list  |
+|                  |          | of :games entries.               |
++------------------+----------+----------------------------------+
+|    #game/find    |   GLOB   | Run GLOB from the cwd to find a  |
+|                  |          | list of game files.              |
++------------------+----------+----------------------------------+
+
+Each :game entry should be a map containing a:
++--------+--------------------+-------------------------------+
+|  Key   |        Type        |          Description          |
++--------+--------------------+-------------------------------+
+| :name  |        str         | The name of this game         |
++--------+--------------------+-------------------------------+
+| :cover |  str or list[str]  | Path to cover images for the  |
+|        |                    |             game              |
++--------+--------------------+-------------------------------+
+| :meta  |  str or list[str]  | Misc meta-data about the game |
++--------+--------------------+-------------------------------+
+
+Alongside this each :game entry should contain one or more of the following
+keys so that ls-games knows how to build a URL to run the game.
+* :file (str) the path to a file you can open (eg: using xopen)
+* :epic (str) the epic games ID (url slug) for this game
+* :gog (str) the GOG games id (url slug) for this game
+* :steam (str) the steam application id for this game
+
+NOTE: Because :epic and :gog clients don't have URL openers, you must also
+specify a :file field for them pointing to where they've been installed.
+Otherwise ls-games will just give you the URL to open the game page.
+
+Furthermore each of the above can be defined as a map, in which case each
+entry in the map will get a copy of the current games config with the
+appropriate field (:file/:steam etc.) being replaced with the value of a
+map entry and the key of the map entry being added to :meta.
+For example:
+  {:name "Foo"
+   :file {:main "file1"
+          :bar "file2"}}
+results in the following entries being produced:
+  {:name "Foo" :file "file1"}
+  {:name "Foo" :file "file2" :meta ("bar")}
+"""
+
 import os
-import vdf
+import sys
+import glob
 import json
-import stat
 import logging
-import configparser
-import itertools
-import collections
-import pathlib as p
+import pathlib
+import dataclasses
+import functools
+import typing as t
+import edn_format as edn
+from mohkale.edn import process_edn
 
-Game = collections.namedtuple('Game', ['name', 'url', 'meta'])
-
-def pretty_print_game(g):
-    return f'{g.url}:{g.name}' + (f' [\033[0;32m{g.meta}\033[0m]' if g.meta else '')
+DEFAULT_CONFIG = pathlib.Path(os.environ.get('XDG_CONFIG_HOME', os.path.expanduser('~/.config'))) / 'games.edn'
 
 
-# List of directories that may be the root of the steam configuration
-STEAM_DIRS = [p.Path('~/.local/share/Steam').expanduser()]
+class Steam(object):
+    @functools.lru_cache()
+    def root() -> t.Optional[pathlib.Path]:
+        """Get the path to the root steam configuration directory of this platform
+        if it exists.
+        """
+        # List of directories that may be the root of the steam configuration
+        for d in (pathlib.Path('~/.local/share/Steam').expanduser(),):
+            logging.debug('Checking for steam root at: %s', d)
+            if d.exists() and d.is_dir():
+                return d
 
-def _steam_dir():
-    for d in STEAM_DIRS:
-        logging.debug('Checking for steam root at: %s', d)
-        if d.exists() and d.is_dir():
-            return d
-
-def _steam_minutes_played(entries):
-    for key, obj in entries:
-        if key == 'friends':
+    @classmethod
+    def minutes_played(cls, steam_id) -> t.Optional[str]:
+        root = cls.root()
+        if not root:
+            return None
+        lc = root.glob(f'userdata/*/config/librarycache/{steam_id}.json')
+        try:
+            lc = next(lc)
+        except StopIteration:
+            return None
+        try:
+            stats = json.load(lc.open('r'))
+        except json.decoder.JSONDecodeError:
+            return None
+        for key, obj in stats:
+            if key != 'friends':
+                continue
             my_data = obj.get('data', {}).get('your_info', {})
-            return my_data.get('minutes_played_forever', my_data.get('minutes_played', None))
-    return None
+            minutes = my_data.get('minutes_played_forever', my_data.get('minutes_played', None))
+            if minutes:
+                return f'{minutes} minutes played'
+        return None
 
-def list_steam():
-    """List games installed on your system through Steam.
+
+@dataclasses.dataclass
+class Game(object):
+    """A game.
+
+    Includes enough information about a game to list it and produce a URL
+    that can open or install the game.
     """
-    logging.info('Looking for installed steam games')
-    steam_dir = _steam_dir()
-    if not steam_dir:
-        logging.warning('Failed to find steam root, skipping steam games check')
+
+    name: str
+    cover: t.List[str] = dataclasses.field(default_factory=list)
+    _meta: t.List[str] = dataclasses.field(default_factory=list)
+    # Specify how to run game
+    file: t.Optional[str] = None
+    gog: t.Optional[str] = None
+    epic: t.Optional[str] = None
+    steam: t.Optional[id] = None
+
+    def __post_init__(self):
+        """Update the fields of the current game by expanding any path variables
+        and converting any standalone fields that should be collections into a
+        list containing that single entry.
+        """
+        if not isinstance(self._meta, list):
+            self._meta = [self._meta]
+        if not isinstance(self.cover, list):
+            self.cover = [self.cover]
+        if self.file:
+            self.file = os.path.expandvars(self.file)
+        self.cover = [os.path.expandvars(x) for x in self.cover]
+
+    @property
+    def url(self):
+        # These each don't have a predictable install location and the client doesn't support
+        # a run-this-game URL so we have to keep both a source slug and a file URL for it.
+        #
+        # When the file does not exist all we can do is open the store page for the game so
+        # the user can then install it (and maybe then tell us where to find it).
+        for url_f, field in {'https://www.gog.com/game/%s': self.gog,
+                             'https://www.epicgames.com/store/en-US/product/%s/home': self.epic}.items():
+            if field and (not self.file or os.path.exists(self.file)):
+                return url_f.format(field)
+        if self.file:
+            return f'file://{self.file}'
+        if self.steam:
+            return f'steam://run/{self.steam}'
+        raise ValueError('Game %s initialised with no method to run', repr(self.name))
+
+    def pretty(self):
+        meta = ' '.join(self.meta) if self.meta else ''
+        return f'{self.url}:{self.name}' + (f' [\033[0;32m{meta}\033[0m]' if meta else '')
+
+    @property
+    def meta(self):
+        m = self._meta
+        if self.steam:
+            sm = Steam.minutes_played(self.steam)
+            if sm:
+                m = [*m, sm]
+        return m
+
+    @classmethod
+    def enumerate_games(cls, obj):
+        """Enumerate a :games configuration, yielding Game insance.
+        """
+        if isinstance(obj, tuple) or isinstance(obj, list):
+            for subobj in obj:
+                yield from filter(lambda x: x is not None, cls.enumerate_games(subobj))
+        else:
+            props = None
+            for key in ('epic', 'gog', 'file', 'steam'):  # possible permutation attributes
+                if key in obj:
+                    props = obj.pop(key)
+                    break
+            else:
+                logging.warning('Encountered game with no file or steam field')
+                return None
+            if not isinstance(props, dict):
+                props = {'main': props}
+
+            meta = obj.pop('meta', [])
+            for new_meta, value in props.items():
+                yield cls(**obj,
+                          **{key: value},
+                          _meta=meta if new_meta == 'main' else [*meta, new_meta])
+
+
+def _edntag_find(pattern):
+    arr = []
+    for path in glob.glob(pattern):
+        _, ext = os.path.splitext(path)
+        arr.append({'name': os.path.basename(path)[:-len(ext)],
+                    'file': os.path.join(os.getcwd(), path)})
+    return arr
+
+
+def _edntag_load(path):
+    if not os.path.exists(path):
+        logging.error('Failed to load games from file at path: %s', path)
         return []
 
-    library_cache = steam_dir.glob('userdata/*/config/librarycache/*.json')
-    for lc in filter(lambda x: x.name[:-len(x.suffix)].isdigit(), library_cache):
-        s_id = lc.name[:-len(lc.suffix)]
-        manifest = steam_dir / 'steamapps' / f'appmanifest_{s_id}.acf'
-        if not manifest.exists():
-            logging.debug('Missing manifest for steamapp with id: %s', s_id)
-            continue
-        stats = json.load(lc.open('r'))
-        manifest = vdf.load(manifest.open('r'))
-
-        name = manifest.get('AppState', {}).get('name')
-        played = _steam_minutes_played(stats)
-        yield Game(name, f'steam://run/{s_id}', f'Played {played} minutes' if played else None)
+    cwd = os.getcwd()
+    _dir = os.path.dirname(path)
+    try:
+        if _dir != '':
+            os.chdir(_dir)
+        with open(path, 'r') as fd:
+            return edn.loads(fd.read(), debug=False)
+    finally:
+        os.chdir(cwd)
 
 
-GAME_EXTENSIONS = ['', '.gba', '.exe']
-
-def game_meta(p, fallback=None):
-    "Get meta entry for game at path `p'"
-    if p.suffix.lower() == '.gba':
-        return 'Gameboy (Advance)'
-    return fallback
-
-def get_game(path, recurse=True):
-    if path.is_file():
-        return Game(path.name, f'file://{path}', game_meta(path, str(path)))
-    if recurse and path.is_dir():
-        for subpath in map(lambda ext: path / (path.name + ext), GAME_EXTENSIONS):
-            if get_game(subpath, False):
-                return Game(path.name, f'file://{subpath}', game_meta(path, str(path)))
-        # Also check for URL files in directories describing how to run a game indirectly.
-        for url_file in filter(p.Path.exists, [path / 'game.url', path / (path.name + '.url')]):
-            conf = configparser.ConfigParser()
-            conf.read(url_file)
-            url = conf['InternetShortcut']['URL']
-            if url:
-                return Game(path.name, url, game_meta(path, str(path)))
-
-def list_game_path():
-    """List games accessible from your GAME_PATH environment.
-
-    Games are defined as executables or files with certain properties (a known
-    game extension eg gba) or directories containing either of these (matching
-    the directory name).
-
-    For practicality reasons (and because some games generally have a deeply
-    nested directory structure) we only check one directory down. If you want
-    to search any deeper you must add it GAME_PATH directly.
-
-    GAME_PATH itself is a PATH like variable which can point to files (which're
-    treated as games themselves if they exist) or directories in which case all
-    the files in each pointed to directory is checked to see whether it's a game.
-    """
-    logging.info('Looking for games from GAME_PATH')
-    gp = os.environ.get('GAME_PATH', '').split(':')
-    for f in (p.Path(x) for x in gp if not (len(x) == 0 or x.isspace())):
-        logging.debug('Checking for GAME_PATH entry at: %s', f)
-        if not f.exists():
-            continue
-
-        if f.is_file():
-            game = get_game(f)
-            if game:
-                yield game
-            continue
-        for f in f.iterdir():
-            game = get_game(f)
-            if game:
-                yield game
-    return []
+def _edntag_setenv(obj):
+    os.environ.update(obj)
+    return obj
 
 
-def main(args, vargs, parser):
-    for g in itertools.chain(list_steam(), list_game_path()):
+edn.add_tag('game/load-games', _edntag_load)
+edn.add_tag('game/set-env', _edntag_setenv)
+edn.add_tag('game/find', _edntag_find)
+edn.add_tag('game/expand', os.path.expandvars)
+
+
+def main(args, vargs, parse):
+    conf = process_edn(_edntag_load(str(args.config)))
+    games = Game.enumerate_games(conf.get('games', []))
+
+    ok = True
+    if args.cmd == 'doctor':
+        for game in games:
+            if game.file and not os.path.exists(game.file):
+                ok = True
+                logging.error('Failed to find file for game %s: %s', repr(game.name), game.file)
+            for cover in game.cover:
+                if not os.path.exists(cover):
+                    ok = True
+                    logging.error('Missing cover image for game %s: %s', repr(game.name), cover)
+        return ok
+
+    for g in games:
         print(args.output(g))
+    return ok
 
 
 if __name__ == '__main__':
@@ -124,15 +270,25 @@ if __name__ == '__main__':
     from mohkale.logging import zerolog
 
     parser = argparse.ArgumentParser()
+
+    sp_gen = parser.add_subparsers(dest='cmd')
+    sp_gen.add_parser('doctor', help='Check your current configuration is upto date')
+
     parser.add_argument('-p', '--prettify', dest='output',
-                        action='store_const', const=pretty_print_game,
+                        action='store_const', const=Game.pretty,
                         help='Pretty print output rather than using json')
+    parser.add_argument('-c', '--config',
+                        type=pathlib.Path, default=DEFAULT_CONFIG,
+                        help='Specify local game configuration file')
     parser.add_argument('-l', '--logging_level',
                         metavar='LEVEL', default=logging.INFO,
                         type=lambda x: getattr(logging, x.upper()),
                         help='Set verbosity of logging output')
 
     args = parser.parse_args()
+    args.output = args.output or (lambda g: json.dumps({'name': g.name, 'url': g.url, 'meta': g.meta}))
     zerolog(args.logging_level)
-    args.output = args.output or (lambda x: json.dumps(x._asdict()))
-    main(args, vars(args), parser)
+    if not args.config.exists():
+        parser.error('Failed to find config file: %s' % args.config)
+    logging.getLogger('edn_format').setLevel(logging.ERROR)
+    sys.exit(0 if main(args, vars(args), parser) else 1)

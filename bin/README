@@ -43,7 +43,7 @@ in ruby. Generally whatever works for whatever I'm trying to do.
 | [ls-platform](./ls-platform)           | List the current platform (Unix, MacOS, Windows).                                           |
 | [ls-repos](./ls-repos)                 | List all code repositories found through the `REPO_PATH` environment variable.              |
 | [ls-mount](./ls-mount)                 | List mounted devices alongside the file-system path where they've been mounted.             |
-| [ls-games](./ls-games)                 | List games installed in your Steam library or findable through `GAME_PATH`.                 |
+| [ls-games](./ls-games)                 | List available games to play (either through steam,EGS,GOG,natively or with an emulator).   |
 | [magit](./magit)                       | Run emacs magit directly from your shell.                                                   |
 | [magnet2torrent](./magnet2torrent)     | Convert magnet files to torrent files using python libtorrent bindings.                     |
 | [moji](./moji)                         | Open a list of kaomojis in a fzf session.                                                   |
