@@ -225,5 +225,6 @@ bind A run -b "$TMUX_HOME/cmds/attach-session"
 # bind M-w run -b "$TMUX_HOME/cmds/manage-windows"
 # bind W run -b "$TMUX_HOME/cmds/manage-windows -i"
 # bind X run -b "$TMUX_HOME/cmds/run-command"
+bind x run -b "$TMUX_HOME/cmds/fztmuxinator"
 
 source $TMUX_HOME/theme
