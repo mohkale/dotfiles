@@ -125,8 +125,8 @@ ForegroundVisited=127,140,141
 Size=22
 
 [DirSelect Dialog]
-DirSelectDialog Size=856,602
-History Items[$e]=file:$HOME/multimedia/images
+DirSelectDialog Size=835,596
+History Items[$e]=file:$HOME/media/images,file:$HOME/multimedia/images
 
 [General]
 BrowserApplication=brave-browser.desktop
@@ -147,7 +147,7 @@ toolBarFont=Noto Sans,10,-1,5,50,0,0,0,0,0,Regular
 widgetStyle=kvantum
 
 [Icons]
-Theme=breeze-dark
+Theme=Breeze-LaCapitaine-apps
 
 [KDE]
 ColorScheme=Breeze

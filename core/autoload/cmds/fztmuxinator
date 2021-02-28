@@ -4,7 +4,7 @@ fztmuxinator() {
   [ -z "$*" ] || fzf_args+=( -q "$*" )
   if local target=$(ttls -ap | _fzf "${fzf_args[@]}") && [ -n "$target" ]; then
     local conf dir
-    IFS=: read conf dir _ <<< "$target"
+    IFS=: read -r conf dir _ <<< "$target"
     sh -c '[ -z "$1" ] || cd $1; tmuxinator start -p $2' start "${dir:-$HOME}" "$conf"
   fi
 }

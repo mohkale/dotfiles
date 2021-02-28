@@ -20,13 +20,13 @@ fi
 
 if [ "$current" != "$marked" ]; then
   # Store current position then jump to the marked pane
-  tmux set-environment -g "$MEM" "$current" \; switch-client -t "$marked"
+  tmux set -g "$MEM" "$current" \; switch-client -t "$marked"
 else
-  last=$(tmux show-environment -gv "$MEM")
+  last=$(tmux show -gv "$MEM")
   if [ -z "$last" ]; then
     tmux display-message "No last jump target exists, skipping marked jump"
   else
     # Erase memory variable and then jump to the previous point
-    tmux set-environment -gu "$MEM" \; switch-client -t "$last"
+    tmux set -gu "$MEM" \; switch-client -t "$last"
   fi
 fi

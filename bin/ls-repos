@@ -14,7 +14,7 @@
 # as the number of possible repo containers increase.
 batch=(  )
 if command -v parallel >/dev/null 2>&1; then
-    batch+=( parallel -d '\n' -X -I% --line-buffer --quote )
+    batch+=( parallel -d '\n' -X -I% --line-buffer --quote -N 1000 )
 else
     batch+=( xargs -d '\n' -I% )
 fi

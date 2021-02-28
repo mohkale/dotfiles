@@ -26,3 +26,5 @@
 	fzlog = !git_fzlog
 	g = fzlog
     undo = reset HEAD~
+[init]
+	defaultBranch = master

@@ -55,6 +55,7 @@ tprint t display-message -p
 
 cls     clear
 
+clamp   cut -b 1-$COLUMNS
 wai     whoami
 bang    echo -ne '\a'
 bell    echo -ne '\a'
@@ -93,6 +94,7 @@ egrep   egrep --color=auto
 
 python  python3
 py      python
+ipy     ipython
 pip     py -m pip
 
 gD      fzf_cd_all

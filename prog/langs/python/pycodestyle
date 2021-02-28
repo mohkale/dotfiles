@@ -1,4 +1,4 @@
 # -*- mode: conf-unix -*- pycodestyle [[https://pycodestyle.pycqa.org/en/latest/intro.html#configuration][configuration]] file
 [pycodestyle]
 max-line-length = 150
-ignore = E221,E704
+ignore = E221,E704,E302

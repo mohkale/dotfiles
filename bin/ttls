@@ -55,6 +55,7 @@ def pretty_print(conf, name, project)
   "#{conf.to_path}:#{project.directory? ? project.to_path : ''}:#{name} [#{project.to_path.gsub(HOME.to_path+'/', '~/').green}]"
 end
 
+$stdout.sync = true
 each_config(CWD, opts[:all] && (ls_repos || [])) do |*args|
   puts(opts[:pretty] ? pretty_print(*args) : args.join(':'))
 end

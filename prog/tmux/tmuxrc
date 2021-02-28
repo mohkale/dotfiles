@@ -79,6 +79,7 @@ bind b   choose-tree -Zs
 bind B   choose-tree -Zw
 bind C-b choose-client -Z
 
+bind C-S-w kill-session
 bind C-w kill-pane
 bind M-w unlink-window -k                                                                          # keeps the window alive in any other sessions if it exists there.
 
@@ -219,7 +220,7 @@ bind -T off F12 \
   refresh-client -S
 
 # script bindings
-bind A run -b "$TMUX_HOME/cmds/attach-session"
+bind a run -b "$TMUX_HOME/cmds/attach-session"
 # bind B run -b "$TMUX_HOME/cmds/run-binding -rpv"
 # bind M-a run -b "$TMUX_HOME/cmds/manage-windows -s"
 # bind M-w run -b "$TMUX_HOME/cmds/manage-windows"

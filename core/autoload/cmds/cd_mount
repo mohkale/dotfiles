@@ -9,5 +9,3 @@ cd_mount() {
 
     cd "$dest" || echo "error: failed to cd: $dest" >&2
 }
-
-

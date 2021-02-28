@@ -1,10 +1,16 @@
 [$Version]
-update_info=kwin.upd:replace-scalein-with-scale,kwin.upd:port-minimizeanimation-effect-to-js,kwin.upd:port-scale-effect-to-js,kwin.upd:port-dimscreen-effect-to-js,kwin.upd:auto-bordersize,kwin.upd:animation-speed
+update_info=kwin.upd:replace-scalein-with-scale,kwin.upd:port-minimizeanimation-effect-to-js,kwin.upd:port-scale-effect-to-js,kwin.upd:port-dimscreen-effect-to-js,kwin.upd:auto-bordersize,kwin.upd:animation-speed,kwin.upd:desktop-grid-click-behavior,kwin.upd:no-swap-encourage
 
 [Compositing]
 OpenGLIsUnsafe=false
 
 [Desktops]
+Id_1=128161c9-b85d-440b-90f4-a1f4ed7cf116
+Id_2=1b8f9d55-0551-4876-b3b4-2c6c623e2ee6
+Id_3=a4dd51a9-de26-425e-9a37-ebfc1ba0a452
+Id_4=4be569cb-6e8d-4550-8422-2ed336db6d52
+Id_5=5a7b1c60-d78f-4edf-9339-ab759f57e498
+Id_6=6c0c68c0-0d09-4d91-8b3c-cb280f2aa25e
 Name_1=__main__
 Name_2=editor
 Name_3=browser
@@ -59,9 +65,11 @@ CommandWindow3=Activate and pass click
 CommandWindowWheel=Scroll
 
 [NightColor]
+Active=true
 LatitudeAuto=53.3678
 LongitudeAuto=-1.5065
-NightTemperature=3200
+Mode=Constant
+NightTemperature=2500
 
 [Plugins]
 coverswitchEnabled=true
@@ -95,7 +103,6 @@ ElectricBorderMaximize=false
 ElectricBorderTiling=false
 FocusPolicy=ClickToFocus
 FocusStealingPreventionLevel=1
-GeometryTip=false
 HideUtilityWindowsForInactive=true
 MaximizeButtonLeftClickCommand=Maximize
 MaximizeButtonMiddleClickCommand=Maximize (vertical only)

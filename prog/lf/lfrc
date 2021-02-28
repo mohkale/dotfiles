@@ -121,6 +121,7 @@ map go goto-documents
 map gu goto-project-root
 map gt cd /tmp/
 map g/ cd /
+map ~ cd ~/
 map ga goto-fsmap
 map gj goto-link-dest
 map ge goto-environment

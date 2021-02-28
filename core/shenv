@@ -70,7 +70,6 @@ export MANPATH=$XDG_DATA_HOME/man:$MANPATH
 export MANPAGER='less -s -M +Gg'
 export MAN_KEEP_FORMATTING=1
 export INFOPATH=$XDG_DATA_HOME/info:$INFOPATH
-export GAME_PATH=$HOME/media/games/:$GAME_PATH
 # shell used by emacs for various shell like purposes
 export ESHELL="$(command -v bash 2>/dev/null || echo /bin/sh)"
 export OPENER='xopen' # command used to open files/URLs

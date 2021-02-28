@@ -77,7 +77,6 @@ def main(args, vargs, parser):
             last_read_time = time.time()
 
         fmts = [format_mount(it, fmt, args) for it in cfg]
-        print(' '.join(x for x in fmts if x))
         out = ' '.join(x for x in fmts if x)
         if out != prev_out:
             print(out)

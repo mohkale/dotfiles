@@ -77,9 +77,9 @@ do_7z() { 7z l -p -- "$1" && exit; }
 
 do_pdf() {
     # Preview as text conversion
-    pdftotext -l 10 -nopgbrk -q -- "$1" - | fmt -w "$PV_WIDTH" && exit
-    mutool draw -F txt -i -- "$1" 1-10    | fmt -w "$PV_WIDTH" && exit
-    exiftool "$1"                                              && exit
+    pdftotext -l 10 -nopgbrk -q -- "$1" - | fmt -w "$COLS" && exit
+    mutool draw -F txt -i -- "$1" 1-10    | fmt -w "$COLS" && exit
+    exiftool "$1"                                          && exit
 }
 
 do_torrent() {
@@ -100,7 +100,7 @@ do_xlsx() {
 }
 
 do_json() {
-    jq --color-output . "$1"    && exit
+    jq --color-output . -- "$1" && exit
     python -m json.tool -- "$1" && exit
     highlight_bat -l json -- "$1"
 }
@@ -158,6 +158,10 @@ do_video() {
     if mediainfo "$1" && exiftool  "$1"; then exit; fi
 }
 
+do_sqlite3() {
+    sqlite3 "$1" '.dump' | highlight_bat -l sql && exit 0
+}
+
 handle_extension() {
     case "$FILE_EXTENSION_LOWER" in
         a|ace|alz|arc|arj|bz|bz2|cab|cpio|deb|gz|jar|lha|lz|lzh|lzma|lzo|\
@@ -179,6 +183,7 @@ handle_extension() {
         htm|html|xhtml)  do_html    "$FILE_PATH"; exit 0 ;;
         json|ipynb*)     do_json    "$FILE_PATH"; exit 0 ;;
         dff|dsf|wv|wvc)  do_DSDIFF  "$FILE_PATH"; exit 0 ;;
+        sqlite|sqlite3)  do_sqlite3 "$FILE_PATH"; exit 0 ;;
     esac
 }
 
@@ -194,6 +199,7 @@ handle_mime() {
             exit 0 ;;
         image/*)      do_img  "$FILE_PATH"; exit 0 ;;
         text/*|*/xml) do_text "$FILE_PATH"; exit 0 ;;
+        *sqlite3)     do_sqlite3 "$FILE_PATH"; exit 0 ;;
     esac
 }
 
