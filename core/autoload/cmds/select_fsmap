@@ -1,8 +1,8 @@
 # -*- mode: sh -*-
 select_fsmap() {
-    local fzf_args=( --no-multi -d ' ' --preview 'p={2..}; preview "${p/\~/$HOME}"' --preview-window=25% )
+    local fzf_args=( --multi -d ' ' --preview 'p={2..}; preview "${p/\~/$HOME}"' --preview-window=25% )
     [ -z "$*" ] || fzf_args+=( -q "$*" )
-    local dest=$(ls-fsmaps -re |
+    ls-fsmaps -re |
       if command -v column >/dev/null 2>&1; then
           column -s : -t
       else
@@ -10,8 +10,7 @@ select_fsmap() {
           sed -e 's/\(.\+\):\(.\+\)/\1 \2/'
       fi |
       _fzf "${fzf_args[@]}" |
-      sed 's/^[^[:space:]]*[[:space:]]\+//')
-    if [ -n "$dest" ]; then
-        select_path "${dest//\~/$HOME}"
-    fi
+      sed -e 's/^[^[:space:]]*[[:space:]]\+//' \
+          -e "s ^~ $HOME " |
+      select_path
 }

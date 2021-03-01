@@ -235,29 +235,29 @@ bind -Tm-commands s run -b "$TMUX_HOME/cmds/attach-session"
 # Opens a new tmux window at a projects directory
 bind -Tm-commands p run -b '\
   _fzf() { tmux-popup -h 80% -w 80% -- fzf --reverse "$@"; };\
+  . $HOME/.config/tmux/cmds/select_path;\
   . $HOME/.config/autoloads/cmds/cd_repo;\
-  cd() { tmux new-window -c "$*"; };\
   cd_repo\
 '
 
 bind -Tm-commands a run -b '\
   _fzf() { tmux-popup -h 80% -w 80% -- fzf --reverse "$@"; };\
+  . $HOME/.config/tmux/cmds/select_path;\
   . $HOME/.config/autoloads/cmds/cd_fsmap;\
-  cd() { tmux new-window -c "$*"; };\
   cd_fsmap\
 '
 
 bind -Tm-commands z run -b '\
   _fzf() { tmux-popup -h 80% -w 80% -- fzf --reverse "$@"; };\
-  . $HOME/.config/autoloads/cmds/select_fsmap;\
   . $HOME/.config/tmux/cmds/select_path;\
+  . $HOME/.config/autoloads/cmds/select_fsmap;\
   select_fsmap\
 '
 
 bind -Tm-commands e run -b '\
   _fzf() { tmux-popup -h 80% -w 80% -- fzf --reverse "$@"; };\
-  . $HOME/.config/autoloads/cmds/cd_env;\
   . $HOME/.config/tmux/cmds/select_path;\
+  . $HOME/.config/autoloads/cmds/cd_env;\
   cd_env\
 '
 
@@ -269,8 +269,8 @@ bind -Tm-commands b run -b -C '\
 
 bind -Tm-commands m run -b '\
   _fzf() { tmux-popup -h 80% -w 80% -- fzf --reverse "$@"; };\
+  . $HOME/.config/tmux/cmds/select_path;\
   . $HOME/.config/autoloads/cmds/cd_mount;\
-  cd() { tmux new-window -c "$*"; };\
   cd_mount\
 '
 

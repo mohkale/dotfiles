@@ -1,5 +1,6 @@
 # -*- mode: sh -*-
 fzf_select() {
-    select_path "$(find-project -z "$@" |
-                     _fzf --read0 --no-multi --preview 'preview {}' --preview-window=25%)"
+    find-project -z "$@" |
+        _fzf --read0 --no-multi --preview 'preview {}' --preview-window=25% |
+        select_path
 }

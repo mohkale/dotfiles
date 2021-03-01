@@ -1,22 +1,40 @@
 # -*- mode: sh -*-
-# try to handle the path at $1 in the best way possible, this could
+# Try to handle one or more paths in the best way possible, this could
 # mean changing the cwd or opening your EDITOR on the path.
-select_path() {
-    selected="$1"
-    [ -z "$selected" ] && return
+#
+# WARN: Because you can only have one cwd active at a time and this cmd
+# accepts multiple paths that can involve one or more directories, only
+# the last-most directory passed will be changed to.
+# If you supply both files and directories (which you SHOULDN'T do) the
+# files will be handled first and then the directory.
 
-    if ! local dest="$(readlink -e "$selected")"; then
-        echo "error: failed to read symlink: $selected" >&2
-        exit
+select_path() {
+    local newdir
+    local files
+    files=()
+    while read -r p; do
+        if [ -d "$p" ]; then
+            newdir="$p"
+        elif [  -f "$p" ]; then
+            files+=( "$p" )
+        else
+            echo "error: can't handle unknown or non-existant path type: $p" >&2
+        fi
+    done < <(if [ "$#" -gt 0 ]; then printf "%s\n" "$@"; else cat; fi | xargs -r -d '\n' readlink -m)
+
+    # Edit any given files
+    if [ "${#files[@]}" -gt 0 ]; then
+       printf "%s\n" "${files[@]}" |
+           if [ -n "$SELECT_PATH_EDIT_FILE_CMD" ]; then
+               $SELECT_PATH_EDIT_FILE_CMD
+           else
+               # with -r, this only runs if at least one file is found
+               xargs -r -d '\n' ${VISUAL-${$EDITOR-vi}}
+           fi
     fi
 
-    if [ -d "$dest" ]; then
-        # shellcheck disable=SC2164
-        cd "$dest" || echo "error: failed to cd: $dest" >&2
-    elif [ -f "$dest" ]; then
-        ${VISUAL:-${EDITOR:-vi}} "$dest"
-    else
-        echo "error: don't know how to handle: $dest" >&2
+    # Change to any new directories.
+    if [ -n "$newdir" ]; then
+        cd "$newdir"
     fi
 }
-

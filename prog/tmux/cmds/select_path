@@ -1,20 +1,15 @@
 #!/usr/bin/env sh
 # Variant of [[~/.config/dotfiles/core/autoload/cmds/select_path][select_path]] designed for interactive use with tmux.
-select_path() {
-    selected=$1
-    [ -z "$selected" ] && return
-
-    if ! local dest="$(readlink -e "$selected")"; then
-        echo "error: failed to read symlink: $selected"
-        exit 1
-    fi
-    [ -z "$dest" ] && dest="$selected"
-
-    if [ -d "$dest" ]; then
-        tmux new-window -c "$dest"
-    elif [ -f "$dest" ]; then
-        tmux new-window "${VISUAL:-${EDITOR:-vi}} $dest"
-    else
-        echo "error: don't know how to handle: $dest"
-    fi
+cd() {
+    tmux new-window -c "$*"
 }
+
+_edit_files_in_new_tmux_window() {
+    # WARN: Will probably crash with really long paths, maybe I
+    # should save to a temp file, read and then restore it :?
+    local files=$(xargs -r -d '\n' printf "%q ")
+    tmux new-window "${VISUAL:-${EDITOR:-vi}} $files"
+}
+export SELECT_PATH_EDIT_FILE_CMD=_edit_files_in_new_tmux_window
+
+. $HOME/.config/autoloads/cmds/select_path
