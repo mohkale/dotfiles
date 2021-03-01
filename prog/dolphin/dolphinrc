@@ -1,0 +1,57 @@
+DP-1 Height 1920x1080=1051
+DP-1 Width 1920x1080=993
+DP-1 XPosition 1920x1080=927
+DP-1 YPosition 1920x1080=29
+MenuBar=Disabled
+State=AAAA/wAAAAD9AAAAAgAAAAAAAAC4AAAD6/wCAAAAA/sAAAAWAGYAbwBsAGQAZQByAHMARABvAGMAawAAAAAA/////wAAAAoBAAAD+wAAABQAcABsAGEAYwBlAHMARABvAGMAawEAAAAwAAACVAAAAF0BAAAD+wAAABAAaQBuAGYAbwBEAG8AYwBrAQAAAoUAAAGWAAABDwEAAAMAAAADAAAAAAAAAAD8AQAAAAH7AAAAGAB0AGUAcgBtAGkAbgBhAGwARABvAGMAawAAAAAA/////wAAAAoBAAADAAADKAAAA+sAAAAEAAAABAAAAAgAAAAI/AAAAAEAAAACAAAAAQAAABYAbQBhAGkAbgBUAG8AbwBsAEIAYQByAQAAAAD/////AAAAAAAAAAA=
+
+[CompactMode]
+FontWeight=50
+PreviewSize=16
+
+[DetailsMode]
+FontWeight=50
+
+[General]
+ConfirmClosingMultipleTabs=false
+RememberOpenedTabs=false
+Version=200
+ViewPropsTimestamp=2021,2,28,17,27,2.598
+
+[IconsMode]
+FontWeight=50
+IconSize=176
+PreviewSize=160
+
+[KFileDialog Settings]
+Recent Files[$e]=file:$HOME/dolphin.shortcuts,file:$HOME/dolphin.shortcuts
+Recent URLs[$e]=file:$HOME/,file:$HOME/documents/
+iconViewIconSize=43
+
+[KPropertiesDialog]
+DP-1 Height 1920x1080=486
+DP-1 Width 1920x1080=438
+
+[MainWindow]
+DP-1 Height 1920x1080=1051
+DP-1 Width 1920x1080=993
+DP-1 XPosition 1920x1080=927
+DP-1 YPosition 1920x1080=29
+MenuBar=Disabled
+RestorePositionForNextInstance=false
+State=AAAA/wAAAAD9AAAAAgAAAAAAAAC4AAAD6/wCAAAAA/sAAAAWAGYAbwBsAGQAZQByAHMARABvAGMAawAAAAAA/////wAAAAoBAAAD+wAAABQAcABsAGEAYwBlAHMARABvAGMAawEAAAAwAAACSwAAAF0BAAAD+wAAABAAaQBuAGYAbwBEAG8AYwBrAQAAAnwAAAGfAAABDwEAAAMAAAADAAAAAAAAAAD8AQAAAAH7AAAAGAB0AGUAcgBtAGkAbgBhAGwARABvAGMAawAAAAAA/////wAAAAoBAAADAAADKAAAA+sAAAAEAAAABAAAAAgAAAAI/AAAAAEAAAACAAAAAQAAABYAbQBhAGkAbgBUAG8AbwBsAEIAYQByAQAAAAD/////AAAAAAAAAAA=
+ToolBarsMovable=Disabled
+
+[Open-with settings]
+CompletionMode=1
+History=zath
+
+[PreviewSettings]
+Plugins=appimagethumbnail,audiothumbnail,comicbookthumbnail,cursorthumbnail,djvuthumbnail,ebookthumbnail,exrthumbnail,directorythumbnail,fontthumbnail,imagethumbnail,jpegthumbnail,kraorathumbnail,windowsexethumbnail,windowsimagethumbnail,opendocumentthumbnail,svgthumbnail
+
+[Search]
+Location=Everywhere
+
+[SettingsDialog]
+DP-1 Height 1920x1080=440
+DP-1 Width 1920x1080=593

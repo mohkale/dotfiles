@@ -26,5 +26,6 @@
 	fzlog = !git_fzlog
 	g = fzlog
     undo = reset HEAD~
+	permission-reset = !git diff -p -R | grep -E \"^(diff|(old|new) mode)\" | git apply
 [init]
 	defaultBranch = master

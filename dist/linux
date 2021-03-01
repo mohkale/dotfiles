@@ -11,8 +11,11 @@
                   "noto-fonts"
                   "bdf-unifont"
                   "ttf-nerd-fonts-symbols"
+                  "ttf-meslo"
                   "s-nail"
+                  "moreutils"
                   "nmap"
+                  "pv"
                   "fzf"
                   "xclip"
                   "trash-cli"))

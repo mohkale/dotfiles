@@ -1,6 +1,7 @@
 [ActivityManager]
 _k_friendly_name=Activity Manager
 switch-to-activity-4036ca79-f3ca-4905-804a-1ad3d3461bfa=none,none,Switch to activity "Main"
+switch-to-activity-53965751-b407-4f41-b55d-f7396ee40545=none,none,Switch to activity "Default"
 switch-to-activity-7f312640-b765-4f55-915f-c562aad56307=none,none,Switch to activity "Default"
 switch-to-activity-e696e87b-62e2-43bd-ac71-39650afd5a46=none,none,Switch to activity "Work"
 switch-to-activity-fe6f3aa6-fe7e-4f16-87cb-65aa14970923=none,none,Switch to activity "Default"
@@ -29,10 +30,8 @@ display=Display\t,Display\tMeta+P,Switch Display
 
 [khotkeys]
 _k_friendly_name=Custom Shortcuts Service
-{2d694dc0-c77c-4f5d-a27d-472888307739}=none,none,screenshot-region
-{4e4d4f9f-1bc7-4c44-9e0e-bb48f5f6eaa6}=none,none,Launch Konsole
+{6c6420dc-5132-41a9-b382-f150147e8320}=Ctrl+Alt+T,none,Launch Konsole
 {d03619b6-9b3c-48cc-9d9c-a2aadb485550}=,none,Search
-{fe7e774c-8982-4e8e-891e-aaf9d9347328}=none,none,screenshot-window
 
 [kmix]
 _k_friendly_name=Audio Volume
@@ -158,10 +157,10 @@ Window Minimize=Alt+Esc\tMeta+PgDown,Meta+PgDown,Minimize Window
 Window Move=none,none,Move Window
 Window No Border=none,none,Hide Window Border
 Window On All Desktops=,none,Keep Window on All Desktops
-Window One Desktop Down=Meta+Ctrl+Alt+Down\tMeta+Ctrl+Alt+J,none,Window One Desktop Down
-Window One Desktop Up=Meta+Ctrl+Alt+Up\tMeta+Ctrl+Alt+K,none,Window One Desktop Up
-Window One Desktop to the Left=Meta+Ctrl+Alt+Left\tMeta+Ctrl+Alt+H,none,Window One Desktop to the Left
-Window One Desktop to the Right=Meta+Ctrl+Alt+Right\tMeta+Ctrl+Alt+L,none,Window One Desktop to the Right
+Window One Desktop Down=Meta+Ctrl+Alt+Down\tMeta+Ctrl+Alt+J,Meta+Ctrl+Shift+Down,Window One Desktop Down
+Window One Desktop Up=Meta+Ctrl+Alt+Up\tMeta+Ctrl+Alt+K,Meta+Ctrl+Shift+Up,Window One Desktop Up
+Window One Desktop to the Left=Meta+Ctrl+Alt+Left\tMeta+Ctrl+Alt+H,Meta+Ctrl+Shift+Left,Window One Desktop to the Left
+Window One Desktop to the Right=Meta+Ctrl+Alt+Right\tMeta+Ctrl+Alt+L,Meta+Ctrl+Shift+Right,Window One Desktop to the Right
 Window Operations Menu=Alt+F3,Alt+F3,Window Operations Menu
 Window Pack Down=Meta+Ctrl+Shift+Down,none,Pack Window Down
 Window Pack Left=Meta+Ctrl+Shift+Left,none,Pack Window to the Left
@@ -201,9 +200,9 @@ Window to Desktop 7=none,none,Window to Desktop 7
 Window to Desktop 8=none,none,Window to Desktop 8
 Window to Desktop 9=none,none,Window to Desktop 9
 Window to Next Desktop=none,none,Window to Next Desktop
-Window to Next Screen=none,none,Window to Next Screen
+Window to Next Screen=none,Meta+Shift+Right,Window to Next Screen
 Window to Previous Desktop=none,none,Window to Previous Desktop
-Window to Previous Screen=none,none,Window to Previous Screen
+Window to Previous Screen=none,Meta+Shift+Left,Window to Previous Screen
 Window to Screen 0=none,none,Window to Screen 0
 Window to Screen 1=none,none,Window to Screen 1
 Window to Screen 2=none,none,Window to Screen 2
@@ -223,6 +222,8 @@ _k_friendly_name=Media Controller
 mediavolumedown=none,none,Media volume down
 mediavolumeup=none,none,Media volume up
 nextmedia=Media Next,Media Next,Media playback next
+pausemedia=Media Pause,Media Pause,Pause media playback
+playmedia=none,none,Play media playback
 playpausemedia=Media Play,Media Play,Play/Pause media playback
 previousmedia=Media Previous,Media Previous,Media playback previous
 stopmedia=Media Stop,Media Stop,Stop media playback
@@ -270,7 +271,7 @@ activate task manager entry 8=Meta+8,Meta+8,Activate Task Manager Entry 8
 activate task manager entry 9=Meta+9,Meta+9,Activate Task Manager Entry 9
 activate widget 27=none,none,Activate Hard Disk Activity Widget
 activate widget 3=Alt+F1,none,Activate Application Launcher Widget
-activate widget 5=none,none,Activate Task Manager Widget
+activate widget 5=none,none,Activate Icons-only Task Manager Widget
 clear-history=none,none,Clear Clipboard History
 clipboard_action=Ctrl+Alt+X,Ctrl+Alt+X,Enable Clipboard Actions
 cycleNextAction=none,none,Next History Item

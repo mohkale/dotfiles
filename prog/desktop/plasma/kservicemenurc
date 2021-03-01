@@ -1,0 +1,9 @@
+[Show]
+installFont=true
+kactivitymanagerd_fileitem_linking_plugin=true
+openTerminalHere=true
+plasmavaultfileitemaction=true
+runInKonsole=false
+runRanger=true
+sharefileitemaction=true
+tagsfileitemaction=true
