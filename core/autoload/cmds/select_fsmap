@@ -11,5 +11,7 @@ select_fsmap() {
       fi |
       _fzf "${fzf_args[@]}" |
       sed 's/^[^[:space:]]*[[:space:]]\+//')
-    select_path "$dest"
+    if [ -n "$dest" ]; then
+        select_path "${dest//\~/$HOME}"
+    fi
 }

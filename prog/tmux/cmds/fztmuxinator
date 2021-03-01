@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-# tmux clone of [[/home/mohkale/.config/dotfiles/core/autoload/cmds/fztmuxinator][fztmuxinator]].
-if target=$(ttls -ap | tmux-popup -- fzf -d : --with-nth 3.. --ansi --reverse) && [ -n "$target" ]; then
-  IFS=: read -r conf dir _ <<< "$target"
-  sh -c '[ -z "$1" ] || cd $1; tmuxinator start -p $2' start "${dir:-$HOME}" "$conf"
-fi

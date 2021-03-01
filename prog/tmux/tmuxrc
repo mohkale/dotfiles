@@ -219,13 +219,65 @@ bind -T off F12 \
   set -u escape-time \;\
   refresh-client -S
 
-# script bindings
-bind a run -b "$TMUX_HOME/cmds/attach-session"
+# Script Bindings
+bind x switch-client -Tm-commands                                              # Custom key-table prefix
+
+# Proxy to [[/home/mohkale/.config/dotfiles/core/autoload/cmds/fztmuxinator][fztmuxinator]] using a tmux popup.
+bind -Tm-commands x run -b '\
+  _fzf() { tmux-popup -w 80% -h 80% -- fzf --reverse "$@"; };\
+  . $HOME/.config/autoloads/cmds/fztmuxinator;\
+  fztmuxinator\
+'
+
+# Attach to a session interactively using fzf
+bind -Tm-commands s run -b "$TMUX_HOME/cmds/attach-session"
+
+# Opens a new tmux window at a projects directory
+bind -Tm-commands p run -b '\
+  _fzf() { tmux-popup -h 80% -w 80% -- fzf --reverse "$@"; };\
+  . $HOME/.config/autoloads/cmds/cd_repo;\
+  cd() { tmux new-window -c "$*"; };\
+  cd_repo\
+'
+
+bind -Tm-commands a run -b '\
+  _fzf() { tmux-popup -h 80% -w 80% -- fzf --reverse "$@"; };\
+  . $HOME/.config/autoloads/cmds/cd_fsmap;\
+  cd() { tmux new-window -c "$*"; };\
+  cd_fsmap\
+'
+
+bind -Tm-commands z run -b '\
+  _fzf() { tmux-popup -h 80% -w 80% -- fzf --reverse "$@"; };\
+  . $HOME/.config/autoloads/cmds/select_fsmap;\
+  . $HOME/.config/tmux/cmds/select_path;\
+  select_fsmap\
+'
+
+bind -Tm-commands e run -b '\
+  _fzf() { tmux-popup -h 80% -w 80% -- fzf --reverse "$@"; };\
+  . $HOME/.config/autoloads/cmds/cd_env;\
+  . $HOME/.config/tmux/cmds/select_path;\
+  cd_env\
+'
+
+bind -Tm-commands b run -b -C '\
+  _fzf() { tmux-popup -h 80% -w 80% -- fzf --reverse "$@"; };\
+  . $HOME/.config/autoloads/cmds/fzbm;\
+  fzbm\
+'
+
+bind -Tm-commands m run -b '\
+  _fzf() { tmux-popup -h 80% -w 80% -- fzf --reverse "$@"; };\
+  . $HOME/.config/autoloads/cmds/cd_mount;\
+  cd() { tmux new-window -c "$*"; };\
+  cd_mount\
+'
+
 # bind B run -b "$TMUX_HOME/cmds/run-binding -rpv"
 # bind M-a run -b "$TMUX_HOME/cmds/manage-windows -s"
 # bind M-w run -b "$TMUX_HOME/cmds/manage-windows"
 # bind W run -b "$TMUX_HOME/cmds/manage-windows -i"
 # bind X run -b "$TMUX_HOME/cmds/run-command"
-bind x run -b "$TMUX_HOME/cmds/fztmuxinator"
 
 source $TMUX_HOME/theme

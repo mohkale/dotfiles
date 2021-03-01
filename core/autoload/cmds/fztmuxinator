@@ -1,6 +1,6 @@
 # -*- mode: sh -*-
 fztmuxinator() {
-  local fzf_args=( -d : --with-nth 3.. --ansi )
+  local fzf_args=( -d : --with-nth 3.. --ansi --preview 'preview {1}' --preview-window=50%)
   [ -z "$*" ] || fzf_args+=( -q "$*" )
   if local target=$(ttls -ap | _fzf "${fzf_args[@]}") && [ -n "$target" ]; then
     local conf dir

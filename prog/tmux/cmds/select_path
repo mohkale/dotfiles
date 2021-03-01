@@ -1,0 +1,20 @@
+#!/usr/bin/env sh
+# Variant of [[~/.config/dotfiles/core/autoload/cmds/select_path][select_path]] designed for interactive use with tmux.
+select_path() {
+    selected=$1
+    [ -z "$selected" ] && return
+
+    if ! local dest="$(readlink -e "$selected")"; then
+        echo "error: failed to read symlink: $selected"
+        exit 1
+    fi
+    [ -z "$dest" ] && dest="$selected"
+
+    if [ -d "$dest" ]; then
+        tmux new-window -c "$dest"
+    elif [ -f "$dest" ]; then
+        tmux new-window "${VISUAL:-${EDITOR:-vi}} $dest"
+    else
+        echo "error: don't know how to handle: $dest"
+    fi
+}

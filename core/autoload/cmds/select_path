@@ -6,7 +6,8 @@ select_path() {
     [ -z "$selected" ] && return
 
     if ! local dest="$(readlink -e "$selected")"; then
-        echo "error: failed to read symlink: $selected"
+        echo "error: failed to read symlink: $selected" >&2
+        exit
     fi
 
     if [ -d "$dest" ]; then
