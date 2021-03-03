@@ -267,11 +267,21 @@ bind -Tm-commands b run -b -C '\
   fzbm\
 '
 
-bind -Tm-commands m run -b '\
+bind -Tm-commands M run -b '\
   _fzf() { tmux-popup -h 80% -w 80% -- fzf --reverse "$@"; };\
   . $HOME/.config/tmux/cmds/select_path;\
   . $HOME/.config/autoloads/cmds/cd_mount;\
   cd_mount\
+'
+
+bind -Tm-commands m run -b '\
+  _fzf() { tmux-popup -h 80% -w 80% -- fzf --reverse "$@"; };\
+  . $HOME/.config/autoloads/cmds/fzman;\
+  fzman_cmd() {\
+    local targets=$(xargs -r -d "\n" printf "%q ");\
+    tmux new-window "LESSOPEN='"'"'|man %s'"'"' ${MANPAGER:-less} -is $targets";\
+  };\
+  FZMAN_CMD=fzman_cmd fzman\
 '
 
 # bind B run -b "$TMUX_HOME/cmds/run-binding -rpv"

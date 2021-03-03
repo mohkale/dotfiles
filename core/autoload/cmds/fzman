@@ -1,6 +1,6 @@
 # -*- mode: sh -*-
 # Present all manual pages in a fzf session and choose
-# one or more manual entries to open in less.
+# one or more manual entries to open in your PAGER.
 
 fzman() {
     local fzf_args=( --reverse --multi --no-hscroll )
@@ -13,6 +13,11 @@ fzman() {
         _fzf "${fzf_args[@]}" |
         sed 's/^\([^[:space:]]\+\) \([^[:space:]]\+\).*/\1\2/')
     [ -z "$targets" ] && return
+
     # see [[https://unix.stackexchange.com/questions/396397/open-multiple-man-pages-in-less][here]] for how the multi-man command works.
-    LESSOPEN='|man %s' xargs -r -d '\n' ${MANPAGER:-less} -is <<< "$targets"
+    if [ -n "$FZMAN_CMD" ]; then
+        $FZMAN_CMD
+    else
+        LESSOPEN='|man %s' xargs -r -d '\n' ${MANPAGER:-less} -is
+    fi <<< "$targets"
 }
