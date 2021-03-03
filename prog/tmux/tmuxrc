@@ -1,7 +1,7 @@
 # -*- mode: conf-space -*-
 # vim:syntax=tmux filetype=tmux
 
-run-shell 'tmux setenv -g TMUX_VERSION $(tmux -V | sed -En "s/^tmux[^0-9]*([.0-9]+).*/\1/p")'
+run 'tmux setenv -g TMUX_VERSION $(tmux -V | sed -En "s/^tmux[^0-9]*([.0-9]+).*/\1/p")'
 
 set -g mouse on        # Tmux >= 2.1
 # set -g mode-mouse on # Tmux < 2.1
@@ -19,6 +19,8 @@ set -g history-limit 10000                                           # a lot of 
 set -g set-titles-string 'tmux@#H [#S:#I] #W'                        # title of terminal when running tmux
 set -sg escape-time 10                                               # small enough for nvim and alt-keys :smile:.
 set -ga terminal-overrides ",*256col*:Tc"                            # enable true-color
+set -s extended-keys on                                              # support [[https://github.com/tmux/tmux/wiki/Modifier-Keys#extended-keys][xterm]] extension keys
+set -as terminal-features 'st*:extkeys'                              # allow extended-keys with st just like xterm
 
 # Assign the TERM environment variable depending on the current
 # terminal. I'll add support for other true-color terms as I use
@@ -50,6 +52,7 @@ bind C-q send-prefix
 
 bind \# set-window-option monitor-activity\; display-message "#{?monitor-activity,Monitoring,Ignoring} activity in current window"
 bind \~ run "tmux command-prompt -I #{?monitor-silence,#{monitor-silence},10} -p 'Set silence interval (seconds):' 'set monitor-silence %%'"
+bind M show-messages
 
 bind T set -w status #{?#{==:#{status},on},on,off}                                                 # toggle whether to show the status-bar or not
 bind t set status-position #{?#{==:#{status-position},top},bottom,top}                             # toggle the position of the status-bar
@@ -79,7 +82,9 @@ bind b   choose-tree -Zs
 bind B   choose-tree -Zw
 bind C-b choose-client -Z
 
+bind Z     kill-session
 bind C-S-w kill-session
+
 bind C-w kill-pane
 bind M-w unlink-window -k                                                                          # keeps the window alive in any other sessions if it exists there.
 
@@ -141,23 +146,25 @@ bind -r C-M-p previous-window -a
 bind -r [ swap-window -d -t -1
 bind -r ] swap-window -d -t +1
 
+set -g @switch-pane-clamp 0                                                                        # when true, switching a window to the right/left/up/down will wrap around
+
 ## move between panes
-bind h select-pane -L
-bind j select-pane -D
-bind k select-pane -U
-bind l select-pane -R
+bind h if -F '#{&&:#{@switch-pane-clamp},#{pane_at_left}}'   '' 'select-pane -L'
+bind j if -F '#{&&:#{@switch-pane-clamp},#{pane_at_bottom}}' '' 'select-pane -D'
+bind k if -F '#{&&:#{@switch-pane-clamp},#{pane_at_top}}'    '' 'select-pane -U'
+bind l if -F '#{&&:#{@switch-pane-clamp},#{pane_at_right}}'  '' 'select-pane -R'
 
 ### Remove repeat prefix
-bind Left  select-pane -L
-bind Down  select-pane -D
-bind Up    select-pane -U
-bind Right select-pane -R
+bind Left  if -F '#{&&:#{@switch-pane-clamp},#{pane_at_left}}'   '' 'select-pane -L'
+bind Down  if -F '#{&&:#{@switch-pane-clamp},#{pane_at_bottom}}' '' 'select-pane -D'
+bind Up    if -F '#{&&:#{@switch-pane-clamp},#{pane_at_top}}'    '' 'select-pane -U'
+bind Right if -F '#{&&:#{@switch-pane-clamp},#{pane_at_right}}'  '' 'select-pane -R'
 
 ### repeatable variants
-bind -r C-h select-pane -L
-bind -r C-j select-pane -D
-bind -r C-k select-pane -U
-bind -r C-l select-pane -R
+bind -r C-h if -F '#{&&:#{@switch-pane-clamp},#{pane_at_left}}'   '' 'select-pane -L'
+bind -r C-j if -F '#{&&:#{@switch-pane-clamp},#{pane_at_bottom}}' '' 'select-pane -D'
+bind -r C-k if -F '#{&&:#{@switch-pane-clamp},#{pane_at_top}}'    '' 'select-pane -U'
+bind -r C-l if -F '#{&&:#{@switch-pane-clamp},#{pane_at_right}}'  '' 'select-pane -R'
 
 ## Numerical jumps
 bind M-0 command-prompt -p "index: " "select-pane -t ':%%'"
@@ -190,9 +197,9 @@ bind                 v   copy-mode
 bind                 V   copy-mode \; send-keys V
 bind                 /   copy-mode \; send-keys /
 bind                 ?   copy-mode \; send-keys ?
-bind                 H   copy-mode \; send-keys H
-bind                 L   copy-mode \; send-keys L
-bind                 M   copy-mode \; send-keys M
+# bind                 H   copy-mode \; send-keys H
+# bind                 L   copy-mode \; send-keys L
+# bind                 M   copy-mode \; send-keys M
 bind                 C-u copy-mode \; send-keys -X halfpage-up
 bind                 C-d copy-mode \; send-keys -X halfpage-down
 bind -T copy-mode-vi C-g send-keys -X cancel
@@ -272,6 +279,12 @@ bind -Tm-commands M run -b '\
   . $HOME/.config/tmux/cmds/select_path;\
   . $HOME/.config/autoloads/cmds/cd_mount;\
   cd_mount\
+'
+
+bind -Tm-commands g run -b '\
+  _fzf() { tmux-popup -h 80% -w 80% -- fzf --reverse "$@"; };\
+  . $HOME/.config/autoloads/cmds/open_game;\
+  open_game\
 '
 
 bind -Tm-commands m run -b '\

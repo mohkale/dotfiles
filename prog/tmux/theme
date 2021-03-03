@@ -43,7 +43,7 @@ set -g status-right-style default
 %hidden TMUX_FG="#909090"
 %hidden TMUX_BG="#18181b"
 
-%hidden TMUX_HL=$AOH_BLUE                                                                                  # Used for general purpose syntax highlighting
+%hidden TMUX_HL=$AOH_BLUE                                                                          # Used for general purpose syntax highlighting
 
 # Colors associated with the current tmux state.
 set -g @theme-state-copying $AOH_YELLOW                                                            # Tmux when selecting regions to copy
@@ -114,7 +114,7 @@ set -g status-left "\
 # NOTE: @theme-hide-last-winflag isn't included in this list, it suffixes the program name.
 %hidden TMUX_FMT_WINFLAGS='\
 #{?pane_pipe,|,}\
-#{?window_activity_flag,##,}\
+#{?window_activity_flag,####,}\
 #{?window_bell_flag,!,}\
 #{?window_silence_flag,~,}\
 #{?window_linked,L,}\
@@ -130,7 +130,7 @@ set -g window-status-current-format "#{?#{==:#{@theme-winum-current-window},1},#
 set -g window-status-bell-style     ""
 set -g window-status-activity-style ""
 
-set -g status-right "\
+set -g status-right " \
 #[default,bg=$TMUX_BG,fg=$TMUX_FG]\
 #{?#{==:#{host},#{pane_title}},,#{=/$TMUX_OPT_NAME_MAX_LEN/...:pane_title}#{?#{==:#{@theme-sep},}, ,#{@theme-sep}}}\
 \
