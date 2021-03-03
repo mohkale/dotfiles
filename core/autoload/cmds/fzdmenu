@@ -1,0 +1,81 @@
+# -*- mode: sh -*-
+# interactively select program to execute using fzf. [[https://github.com/oem/dotfiles/blob/master/launch/cmdlist][source]].
+
+fzdmenu() {
+  local USAGE
+  read -r -d '' USAGE <<-EOF
+Usage: fzdmenu [-h] [-a] [-d] [-H]
+
+  Interactively select and execute (multiple) programs with fzf
+
+Options:
+ -h    Print this help message and exit
+ -a    Offer to complete all executables in PATH
+       not just those with know .desktop entries
+ -V    Hide extrenuous details from candidates
+ -p    Show previews for each candidate program
+ -b    Wrap the tmux session with a border
+EOF
+
+  local list_cmd=_fzdmenu_list list_all=0 \
+        hide_details=0 show_preview=0 \
+        show_border=0
+  while getopts 'haVpb' OPTION; do
+    case "$OPTION" in
+      h) echo "$USAGE"
+         return 0 ;;
+      a) list_all=1 ;;
+      V) hide_details=1 ;;
+      p) show_preview=1 ;;
+      b) show_border=1 ;;
+      \?) echo "$USAGE" >&2
+          return 1 ;;
+    esac
+  done
+  shift "$((OPTIND-1))"
+
+  local FZF_ARGS
+  FZF_ARGS=( -d : --with-nth 2.. --reverse --multi --ansi --query "$*" )
+  if [ "$show_preview" -ne 0 ]; then
+    FZF_ARGS+=( --preview 'preview {1}' )
+  fi
+  if [ "$show_border" -ne 0 ]; then
+    FZF_ARGS+=( --border )
+  fi
+
+  if [ "$list_all" -eq 0 ]; then
+    # List all desktop files and the program names associated with them.
+    # in a PATH like format (: delimeted).
+    # shellcheck disable=SC2038
+    find "${XDG_DATA_HOME:-$HOME/.local/share}/applications"       \
+         "/usr/share/applications"                                 \
+         "/usr/local/share/applications"                           \
+         -iname '*.desktop' -exec grep -l 'Type=Application' {} + 2>/dev/null |
+      xargs -r -d '\n' grep -m1 -io '^name=\(.\+\)$' |
+      sed -e 's/:Name=/:/' -e 's/\(.\+\):\(.\+\)/\1:\2/'
+  else
+    echo "$PATH" | 2>/dev/null \
+      xargs -d: -I {} -r -- \
+        find -L {} -maxdepth 1 -mindepth 1 -type f -executable -printf '%p:%f\n'
+  fi |
+    if [ "$hide_details" -eq 0 ]; then
+      awk -F: \
+          -v green="$(printf '\e[32m')" \
+          -v reset="$(printf '\e[0m')" \
+          -v home="$HOME" \
+          -e '{
+  path=$1
+  sub("^"home, "~", path)
+  printf("%s:%s [%s]\n", $1, $2, green path reset)
+}'
+    else
+      cat
+    fi |
+    if command -v _fzf >/dev/null 2>&1; then
+      _fzf "${FZF_ARGS[@]}"
+    else
+      fzf "${FZF_ARGS[@]}"
+    fi |
+    awk -F: -e '{ printf("xrun %s\n", $1); }' |
+    lnch
+}

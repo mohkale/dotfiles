@@ -1,0 +1,10 @@
+# -*- mode: sh -*-
+# Format a command line to be run asynchronously and not be interrupted
+# when it's parent process group exits. Like [[https://github.com/oem/lnch/blob/master/main.go][lnch]] except written in pure
+# shell and with no external dependencies.
+
+# shellcheck disable=SC2039
+lnch() {
+  silent_bg xargs -d '\n' -r --max-procs 0 -n1 nohup sh -c >/dev/null 2>&1
+  disown
+}

@@ -1,0 +1,14 @@
+# -*- mode: sh -*-
+# Taken from [[https://unix.stackexchange.com/a/452568][here]], this autoload runs a command in the background
+# without producing any undesired output.
+
+silent_bg() {
+  if [[ -n $ZSH_VERSION ]]; then  # zsh:  https://superuser.com/a/1285272/365890
+    setopt local_options no_notify no_monitor
+    "$@" &
+  elif [[ -n $BASH_VERSION ]]; then  # bash: https://stackoverflow.com/a/27340076/5353461
+    { 2>&3 "$@"& } 3>&2 2>/dev/null
+  else  # Unknownness - just background it
+    "$@" &
+  fi
+}

@@ -20,7 +20,7 @@ m       fzman
 o       xopen
 p       cd_repo
 s       $SHELL
-x       fzf-dmenu
+x       fzdmenu
 z       select_fsmap
 
 g          git
