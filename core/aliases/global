@@ -132,6 +132,7 @@ trr     echo -e 'list:list\nstart:start\nstart -n:start-now\npause:pause\nverify
           | _fzf --delimiter : --with-nth 2.. --prompt='Transmission: ' \
           | cut -d : -f 1 \
           | xargs -r tctl
+tra     tctl add
 trs     tctl start
 trp     tctl pause
 trd     tctl remove

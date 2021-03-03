@@ -11,6 +11,7 @@ import shlex
 import subprocess
 import sys
 import tempfile
+import itertools
 
 from mohkale.transmission import CONFIG_FILE, Transmission
 
@@ -22,6 +23,7 @@ except ImportError:
 
 
 class Operations(enum.IntEnum):
+    add = enum.auto()
     list = enum.auto()
     query = enum.auto()
     start = enum.auto()
@@ -30,6 +32,7 @@ class Operations(enum.IntEnum):
     remove = enum.auto()
 
 
+FZF_COMMAND = 'fzf'
 DEFAULT_FZF_ARGS = ['--reverse', '--no-hscroll']
 
 TORRENT_FIELDS = [
@@ -138,7 +141,7 @@ def fzf(cands, *args):
             input_fd.writelines(map(lambda line: (line + os.linesep).encode(), cands))
             input_fd.flush()
             cmd = f"cat {shlex.quote(input_fd.name)} |\
-                    fzf {shlex.join(DEFAULT_FZF_ARGS)} {shlex.join(args)} > {shlex.quote(output_fd.name)}"
+                    {FZF_COMMAND} {shlex.join(DEFAULT_FZF_ARGS)} {shlex.join(args)} > {shlex.quote(output_fd.name)}"
             p = subprocess.run(['sh', '-c', cmd])
             if not p.returncode == 0:
                 logging.warning('fzf exited with non-zero exit code: %d', p.returncode)
@@ -192,6 +195,8 @@ if __name__ == '__main__':
     def parse_args():
         parser = argparse.ArgumentParser()
 
+        parser.add_argument('--fzf', metavar='CMD', help='Specify command line for fzf')
+
         subparser = parser.add_subparsers(dest='cmd', help='Specify operation to execute')
         subcmds = {}
         for op in Operations:
@@ -226,6 +231,26 @@ if __name__ == '__main__':
                                                action='store_true',
                                                help='Read JSON params from stdin')
 
+        subcmds[Operations.add].add_argument('-', '--read-stdin',
+                                             action='store_true',
+                                             help='Read magnet links to add from stdin')
+
+        subcmds[Operations.add].add_argument('url', nargs='*',
+                                             help='Add magnet link to transmission')
+
+        subcmds[Operations.add].add_argument('-o', '--output', metavar='DIR',
+                                             help='Specify output directory')
+
+        _ = subcmds[Operations.add].add_mutually_exclusive_group()
+        _.add_argument('-p', '--pause',
+                       dest='paused',
+                       action='store_const', const=True,
+                       help='Start added torrents paused')
+        _.add_argument('-P', '--no-pause',
+                       dest='paused',
+                       action='store_const', const=False,
+                       help='Start added torrents unpaused')
+
         logging_group = parser.add_argument_group('Logging')
         logging_group.add_argument('-l', '--log-level', metavar='LEVEL',
                                    type=lambda X: getattr(logging, X.upper()),
@@ -249,6 +274,9 @@ if __name__ == '__main__':
 
     args, vargs, parser = parse_args()
     conn = Transmission.from_conf_file(CONFIG_FILE)
+
+    if args.fzf:
+        FZF_COMMAND = args.fzf
 
     if not conn.check():
         logging.error("Failed to connect to transmission")
@@ -295,5 +323,30 @@ if __name__ == '__main__':
             print(json.dumps(tcmd(conn, args.action, **params)['arguments']))
         except TransmissionError:
             pass
+    elif args.cmd == Operations.add:
+        args.url = iter(args.url)
+        if args.read_stdin:
+            logging.debug('Reading magnet-link list from STDIN')
+            args.url = itertools.chain(args.url,
+                                       (x for x in map(str.strip, sys.stdin) if not x == ''))
+        download_params = {}
+        if args.paused is not None:
+            download_params['paused'] = args.paused
+        if args.output:
+            download_params['download-dir'] = args.output
+        logging.debug('Download parameters set to: %s', download_params)
+
+        is_empty = True
+        try:
+            for url in args.url:
+                try:
+                    tcmd(conn, 'torrent-add', filename=url, **download_params)
+                except TransmissionError:
+                    logging.warning('Failed to add torrent: %s', url)
+                is_empty = False
+        except KeyboardInterrupt:
+            pass
+        if is_empty:
+            logging.warning('No url/s supplied, no torrents added')
     else:
         parser.error('Unknown command %s', repr(args.cmd))
