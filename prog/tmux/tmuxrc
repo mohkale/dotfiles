@@ -58,8 +58,8 @@ bind r command-prompt -I "#W" "rename-window -- '%%'"
 bind R command-prompt -I "#S" "rename-session -- '%%'"
 
 bind m   select-pane -m                                                                            # toggle the marked status of the current pane
-bind M-r source "$TMUX_HOME/tmuxrc" \; display-message "Config reloaded..."                        # reload my tmux configuration from conf sources
-bind e   new-window "$EDITOR $TMUX_HOME/tmuxrc"                                                    # open my tmux config in users EDITOR
+bind M-r source "$TMUX_HOME/tmux.conf" \; display-message "Config reloaded..."                     # reload my tmux configuration from conf sources
+bind e   new-window "$EDITOR $TMUX_HOME/tmux.conf"                                                 # open my tmux config in users EDITOR
 
 bind -r Tab last-window
 bind -r C-Tab switch-client -l                                                                     # jump between this and the last active session
@@ -281,3 +281,7 @@ bind -Tm-commands m run -b '\
 # bind X run -b "$TMUX_HOME/cmds/run-command"
 
 source $TMUX_HOME/theme
+
+if-shell '[ -e "$TMUX_HOME/tmux-local.conf" ]' {
+  source $TMUX_HOME/tmux-local.conf
+}
