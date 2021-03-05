@@ -1,28 +1,31 @@
 #!/bin/sh
+# Create a virtual tmux client which follows a given client (or stays
+# in the currently active session) and continually outputs the active
+# pane-command.
+#
+# This script then pipes that program name through to [[file:~/.config/dotfiles/bin/prog-icons][prog-icons]] to show
+# an icon that can be substituted into your tmux status-line.
 
 print_usage() {
-  echo "Usage: $(basename "$0") [-h] [-d DELAY] [-s SESSION]"
+  echo "Usage: $(basename "$0") [-h] [-c CLIENT]"
 }
 
 print_help() {
   print_usage
   echo "Optional Arguments:"
   echo "  -h    Show this help message and exit"
-  echo "  -d DELAY"
-  echo "     Specify the delay between outputs"
-  echo "  -s SESSION"
-  echo "     Specify the tmux session to query"
+  echo "  -c CLIENT"
+  echo "     Specify the tmux client to follow"
 }
 
-delay=1 session=''
-while getopts hd:s: OPTION; do
+client=''
+while getopts hd:c: OPTION; do
   case "$OPTION" in
     h) print_help
        exit 0 ;;
     \?) print_help >&2
         exit 1 ;;
-    d) delay="$OPTARG" ;;
-    s) session="$OPTARG" ;;
+    c) client="$OPTARG" ;;
   esac
 done
 
@@ -35,7 +38,31 @@ elif command -v unbuffer >/dev/null 2>&1; then
   unbuffer_cmd='unbuffer'
 fi
 
-while true; do
-  tmux display -t "$session" -p '#{pane_current_command}'
-  sleep "$delay"
-done | $unbuffer_cmd prog-icons -f
+# Subscribe and track changes to the pane monitored by $client.
+gawk \
+    -v client="$client" \
+    -v subscription="refresh-client -B icon-tail::'#{pane_current_command}'" \
+    -e 'BEGIN {
+  cmd = sprintf("tmux -C attach-session -t '"'"'%s'"'"' -fno-output,read-only", client)
+  print subscription |& cmd # kick start the tmux command-mode coprocess
+  while (cmd |& getline out) {
+    count = split(out, a)
+    switch (out) {
+    case /^%subscription-changed/:
+      print a[count]
+      fflush(stdout) # no buffering when in the status-line :P
+      break
+    case /^%client-session-changed/:
+      # Make sure our icon-tracker tracks the same session as as our clients
+      if (client == a[2]) {
+        print ("switch-client -t " a[3]) |& cmd
+      }
+      break
+    default:
+      print out > "/dev/stderr"
+      break
+    }
+  }
+}' \
+    -e 'END { close(cmd) }' |
+    $unbuffer_cmd prog-icons -f

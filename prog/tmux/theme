@@ -141,7 +141,7 @@ set -g status-right " \
 \
 #[default,fg=$TMUX_FG]#{?#{==:#{@theme-sep},}, ,#{@theme-sep}}\
 #{host}(#{=$TMUX_OPT_CMD_MAX_LEN:pane_current_command}) \
-#(echo ""; $TMUX_HOME/cmds/tmux-icons -d 0.5 -s '#{client_tty}') \
+#(echo ""; $TMUX_HOME/cmds/tmux-icons -c '#{client_tty}') \
 \
 #[default,bg=$TMUX_HL,fg=$TMUX_BG]\
  %d-%b-%Y %H:%M \
