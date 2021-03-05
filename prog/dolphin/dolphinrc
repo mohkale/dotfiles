@@ -14,6 +14,7 @@ FontWeight=50
 
 [General]
 ConfirmClosingMultipleTabs=false
+GlobalViewProps=false
 RememberOpenedTabs=false
 Version=200
 ViewPropsTimestamp=2021,2,28,17,27,2.598
@@ -34,17 +35,17 @@ DP-1 Width 1920x1080=438
 
 [MainWindow]
 DP-1 Height 1920x1080=1051
-DP-1 Width 1920x1080=993
-DP-1 XPosition 1920x1080=927
+DP-1 Width 1920x1080=1006
+DP-1 XPosition 1920x1080=914
 DP-1 YPosition 1920x1080=29
 MenuBar=Disabled
 RestorePositionForNextInstance=false
-State=AAAA/wAAAAD9AAAAAgAAAAAAAAC4AAAD6/wCAAAAA/sAAAAWAGYAbwBsAGQAZQByAHMARABvAGMAawAAAAAA/////wAAAAoBAAAD+wAAABQAcABsAGEAYwBlAHMARABvAGMAawEAAAAwAAACSwAAAF0BAAAD+wAAABAAaQBuAGYAbwBEAG8AYwBrAQAAAnwAAAGfAAABDwEAAAMAAAADAAAAAAAAAAD8AQAAAAH7AAAAGAB0AGUAcgBtAGkAbgBhAGwARABvAGMAawAAAAAA/////wAAAAoBAAADAAADKAAAA+sAAAAEAAAABAAAAAgAAAAI/AAAAAEAAAACAAAAAQAAABYAbQBhAGkAbgBUAG8AbwBsAEIAYQByAQAAAAD/////AAAAAAAAAAA=
+State=AAAA/wAAAAD9AAAAAgAAAAAAAAC4AAAD6/wCAAAAA/sAAAAWAGYAbwBsAGQAZQByAHMARABvAGMAawAAAAAA/////wAAAAoBAAAD+wAAABQAcABsAGEAYwBlAHMARABvAGMAawEAAAAwAAACNwAAAF0BAAAD+wAAABAAaQBuAGYAbwBEAG8AYwBrAQAAAmgAAAGzAAABDwEAAAMAAAADAAAAAAAAAAD8AQAAAAH7AAAAGAB0AGUAcgBtAGkAbgBhAGwARABvAGMAawAAAAAA/////wAAAAoBAAADAAADNQAAA+sAAAAEAAAABAAAAAgAAAAI/AAAAAEAAAACAAAAAQAAABYAbQBhAGkAbgBUAG8AbwBsAEIAYQByAQAAAAD/////AAAAAAAAAAA=
 ToolBarsMovable=Disabled
 
 [Open-with settings]
 CompletionMode=1
-History=zath
+History=neovim,zath
 
 [PreviewSettings]
 Plugins=appimagethumbnail,audiothumbnail,comicbookthumbnail,cursorthumbnail,djvuthumbnail,ebookthumbnail,exrthumbnail,directorythumbnail,fontthumbnail,imagethumbnail,jpegthumbnail,kraorathumbnail,windowsexethumbnail,windowsimagethumbnail,opendocumentthumbnail,svgthumbnail

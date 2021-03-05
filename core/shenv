@@ -114,7 +114,7 @@ fi
 # Prevents Error Message with Python Encoding
 export PYTHONIOENCODING="utf-8"
 
-SAVEHIST=1000 HISTSIZE=1000 HISTFILESIZE=2000
+SAVEHIST=1000000 HISTSIZE=1000000 HISTFILESIZE=1000000
 
 # set terminal used by i3
 export TERMINAL="st"

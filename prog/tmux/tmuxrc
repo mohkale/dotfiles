@@ -247,14 +247,14 @@ bind -Tm-commands p run -b '\
   cd_repo\
 '
 
-bind -Tm-commands a run -b '\
+bind -Tm-commands z run -b '\
   _fzf() { tmux-popup -h 80% -w 80% -- fzf --reverse "$@"; };\
   . $HOME/.config/tmux/cmds/select_path;\
   . $HOME/.config/autoloads/cmds/cd_fsmap;\
   cd_fsmap\
 '
 
-bind -Tm-commands z run -b '\
+bind -Tm-commands a run -b '\
   _fzf() { tmux-popup -h 80% -w 80% -- fzf --reverse "$@"; };\
   . $HOME/.config/tmux/cmds/select_path;\
   . $HOME/.config/autoloads/cmds/select_fsmap;\

@@ -17,6 +17,7 @@
                   "nmap"
                   "pv"
                   "fzf"
+                  "ark"
                   "xclip"
                   "trash-cli"))
 )

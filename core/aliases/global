@@ -99,7 +99,8 @@ pip     py -m pip
 
 gD      fzf_cd_all
 gF      fzf_select_all
-ga      cd_fsmap
+gz      cd_fsmap
+ga      select_fsmap
 gd      fzf_cd
 ge      cd_env
 gf      fzf_select
@@ -107,7 +108,7 @@ gm      cd_mount
 gp      cd_repo
 gu      cd_project_root
 gx      edit_executables
-gz      select_fsmap
+oe      select_path
 
 # vi stuff
  q      exit
@@ -139,6 +140,10 @@ trd     tctl remove
 trl     tctl list
 trv     tctl verify
 tremote transmission-remote
+
+## jupyter
+jupyter-repl jupyter console --existing
+jupyter-note jupyter notebook
 
 # dotfiles
 dot@dirx $DOTFILES
