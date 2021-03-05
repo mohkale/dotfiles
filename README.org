@@ -23,7 +23,7 @@
 
 My dotfile repository, happily brought to you by [[https://github.com/mohkale/dotty][dotty]] :book:.
 
-[[file:./.github/main.png]].
+[[file:./.github/main.png]]
 
 * Powered By
 #+HTML: <div align="left" style="display: flex; justify-content: flex-start">
@@ -87,6 +87,8 @@ My dotfile repository, happily brought to you by [[https://github.com/mohkale/do
   - [[https://chocolatey.org/][chocolatey]] fails when stderr is the null device.
 
 * Screenshots
-  [[file:./.github/gotop.png]]
+  [[file:.github/gotop.png]]
 
-  [[file:./.github/lf.png]]
+  [[file:.github/lf.png]]
+
+  [[file:.github/emacs.png]]
