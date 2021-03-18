@@ -1,9 +1,10 @@
 # -*- mode: sh -*-
 fzbm() {
-  local fzf_args=( -d $'\t' --ansi --with-nth '2..' --multi \
-                      --bind 'alt-return:execute-silent(xopen {1} &)+down' \
+  local fzf_args=( -d $'\t' --ansi --with-nth '2..' --multi
+                      --bind 'alt-return:execute-silent(xopen {1} &)+down'
                       --bind 'ctrl-y:execute-silent(echo {1} | clip)'
-                      --no-hscroll)
+                      --no-hscroll
+                      --history "${XDG_DATA_HOME:-$HOME/.locale/share}"/fzf/history/bookmarks )
   [ -z "$*" ] || fzf_args+=( -q "$*" )
 
   ls-bookmarks -p '' |

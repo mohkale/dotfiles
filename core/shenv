@@ -288,6 +288,11 @@ export FZF_DEFAULT_OPTS='
     --bind ctrl-space:toggle+down
     --bind ctrl-o:top
 
+    --history '"${XDG_DATA_HOME:-$HOME/.local/share}"'/fzf/history/default
+    --history-size 1000000
+    --bind alt-j:next-history
+    --bind alt-k:previous-history
+
     --color dark
     --color fg:-1,bg:-1,fg+:-1,bg+:-1,hl+:#e93c58,hl:#df5273
     --color info:#af87ff,prompt:#5fff87,pointer:#ff87d7,marker:#ff87d7,spinner:#ff87d7

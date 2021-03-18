@@ -1,6 +1,7 @@
 # -*- mode: sh -*-
 open_game() {
-    local fzf_args=( -d : --with-nth 3.. --ansi --prompt 'Run game: ' )
+    local fzf_args=( -d : --with-nth 3.. --ansi --prompt 'Run game: '
+                     --history "${XDG_DATA_HOME:-$HOME/.locale/share}"/fzf/history/games )
     [ -z "$*" ] || fzf_args+=( -q "$*" )
     if local target=$(ls-games -p 2>/dev/null | _fzf "${fzf_args[@]}") && [ -n "$target" ]; then
         local protocol url

@@ -1,6 +1,7 @@
 # -*- mode: sh -*-
 fzf_cd() {
     local dest=$(find-project -dz "$@" |
-      _fzf --read0 --no-multi --preview 'preview {}' --preview-window=25%)
+      _fzf --read0 --no-multi --preview 'preview {}' --preview-window=25% \
+           --history "${XDG_DATA_HOME:-$HOME/.locale/share}"/fzf/history/paths )
     cd "$dest" || echo "error: failed to cd: $dest" >&2
 }

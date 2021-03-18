@@ -1,6 +1,7 @@
 # -*- mode: sh -*-
 fztmuxinator() {
-  local fzf_args=( -d : --with-nth 3.. --ansi --preview 'preview {1}' --preview-window=50%)
+  local fzf_args=( -d : --with-nth 3.. --ansi --preview 'preview {1}' --preview-window=50%
+                   --history "${XDG_DATA_HOME:-$HOME/.locale/share}"/fzf/history/tmuxinator )
   [ -z "$*" ] || fzf_args+=( -q "$*" )
   if local target=$(ttls -ap | _fzf "${fzf_args[@]}") && [ -n "$target" ]; then
     local conf dir

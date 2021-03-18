@@ -1,6 +1,7 @@
 # -*- mode: sh -*-
 cd_repo() {
-  local fzf_args=( -d '/' --with-nth -1 --preview 'INCLUDE_DIR=1 preview {}' )
+  local fzf_args=( -d '/' --with-nth -1 --preview 'INCLUDE_DIR=1 preview {}' --preview-window '~2'
+                   --history "${XDG_DATA_HOME:-$HOME/.locale/share}"/fzf/history/paths )
   [ -z "$*" ] || fzf_args+=( -q "$*" )
   if local dest=$(ls-repos | _fzf "${fzf_args[@]}") && [ -n "$dest" ]; then
     cd "$dest"

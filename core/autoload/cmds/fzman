@@ -3,7 +3,8 @@
 # one or more manual entries to open in your PAGER.
 
 fzman() {
-    local fzf_args=( --reverse --multi --no-hscroll )
+    local fzf_args=( --reverse --multi --no-hscroll
+                     --history "${XDG_DATA_HOME:-$HOME/.locale/share}"/fzf/history/man )
     [ -z "$*" ] || fzf_args+=( -q "$*" )
 
     delimiter=£

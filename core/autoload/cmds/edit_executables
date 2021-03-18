@@ -1,6 +1,7 @@
 # -*- mode: sh -*-
 edit_executables() {
-    local fzf_args=( -d / --with-nth '-1' --multi --preview 'preview {}' )
+    local fzf_args=( -d / --with-nth '-1' --multi --preview 'preview {}'
+                     --history "${XDG_DATA_HOME:-$HOME/.locale/share}"/fzf/history/paths )
     [ -z "$*" ] || fzf_args+=( -q "$*" )
     ls-exec |
         _fzf "${fzf_args[@]}" |
