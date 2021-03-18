@@ -129,7 +129,7 @@ etcd    etd -c
 we      with-evi
 emf     emacs-make-frame
 
-trr     echo -e 'list:list\nstart:start\nstart -n:start-now\npause:pause\nverify:verify\nremove:remove\nremove -f:delete' \
+trr     echo -e 'list:list\nplay:play\nstart:start\nstart -n:start-now\npause:pause\nverify:verify\nremove:remove\nremove -f:delete' \
           | _fzf --delimiter : --with-nth 2.. --prompt='Transmission: ' \
           | cut -d : -f 1 \
           | xargs -r tctl
