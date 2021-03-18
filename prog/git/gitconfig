@@ -8,6 +8,7 @@
 	required = true
 [core]
 	autocrlf = input
+	excludesfile = ~/.config/git/gitignore
 [alias]
 	c = commit
 	s = status
