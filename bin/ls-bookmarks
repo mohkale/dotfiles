@@ -6,21 +6,23 @@ print_usage() {
 
 print_help() {
   print_usage
-  echo "Optional Arguments:"
-  echo "  -d SEP"
-  echo "     Specify seperator for the URL, tags, and output"
-  echo "  -p FORMAT"
-  echo "     Pretty print parsed output for use in fzbm."
-  echo "     FORMAT should be a string containing the following"
-  echo "     to include them in the output: {h: host, #: tags, t: title}"
-  echo "  -C"
-  echo "     Remove color codes from pretty-printed output"
+  cat <<-EOF
+Optional Arguments:
+  -d SEP
+     Specify seperator for the URL, tags, and output
+  -p FORMAT
+     Pretty print parsed output for use in fzbm.
+     FORMAT should be a string containing the following
+     to include them in the output: {h: host, #: tags, t: title}
+  -C
+     Remove color codes from pretty-printed output
+EOF
 }
 
-# delimiter for outputted fields.
+# Delimiter for outputted fields.
 d=$'\t'
 
-# color codes for pretty printed output
+# Color codes for pretty printed output
 c_tag_l=$'\e[1m'
 c_tag_r=$'\e[0m'
 c_title_l=""
@@ -66,10 +68,12 @@ do_chromium() { # ([browser:path1:path2...]...)
   # We cat out all the paths to avoid spawning more than
   # one jq process when working with multiple browsers.
   for arg in "$@"; do
+    local browser paths
+    local IFS=
     IFS=: read -r browser paths <<< "$arg"
     while read -r it; do
-      if [ -e "$it" ]; then
-        cat "$it"; break
+      if [ -e $it ]; then
+        cat $it; break
       fi
     done <<< "${paths//:/$'\n'}"
   done |
@@ -146,14 +150,33 @@ INNER JOIN moz_bookmarks as bm ON places.id == bm.fk;'
 
 do_buku() {
   command -v buku >/dev/null 2>&1 || return 1
-  buku -p -f 4 -j 2>/dev/null |
+  # Honestly I'm not a big fan of some parts of buku. The fact it automatically starts
+  # an interactive session by default, when for all intents and purposes it's a bookmark
+  # query engine, is one of the most annoying parts to me. But an even more annoying gripe
+  # is it doesn't maintain sanitary output control. Even when you ask it to output JSON it
+  # up and decides to include a message "Waiting for input" before that when standard input
+  # isn't a terminal.
+  #
+  # Set aside the fact that what STDIN is shouldn't change the behaviour of the program, it
+  # just makes bukus ouptut completely unusable in a JSON pipeline. The suggested workaround
+  # is to just [[https://github.com/jarun/buku/issues/447][dump to a file]] and read from there but I'm not about to introduce temporary file management
+  # to this script.
+  #
+  # Instead for now I'll detect whether stdin is a tty or not and delete the
+  # first line of output appropriately. It's an ugly hack but it works.
+
+  [ -t 0 ]
+  local is_tty=$?
+  buku --print --format 4 --json --np 2>/dev/null |
+    if [ "$is_tty" -eq 0 ]; then cat; else sed '1d'; fi |
     jq --arg sep "$d" -r \
        '.[]
         | [.uri, .tags, .title]
-        | join ($sep)'
+        | join ($sep)' 2>&1
 }
 
 pretty_print() {
+    cat return 0
   # prettify the bookmarks list for use in fzbm.
   gawk -F "$d" \
        -v sep="$d" \
