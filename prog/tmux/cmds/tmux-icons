@@ -52,6 +52,11 @@ gawk \
       print a[count]
       fflush(stdout) # no buffering when in the status-line :P
       break
+    case /^%client-detached/:
+      if (client == a[2]) {
+        close(cmd);
+      }
+      break
     case /^%client-session-changed/:
       # Make sure our icon-tracker tracks the same session as as our clients
       if (client == a[2]) {
@@ -63,6 +68,6 @@ gawk \
       break
     }
   }
-}' \
-    -e 'END { close(cmd) }' |
+  exit 0
+}' |
     $unbuffer_cmd prog-icons -f

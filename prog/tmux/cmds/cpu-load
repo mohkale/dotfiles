@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import sys
+import time
 
 try:
     import psutil
@@ -19,20 +20,27 @@ def format_cpu(percent, args):
     res += args.symbol if args.symbol else ('%3d%%' % percent)
     return res
 
-
-def main(args, vargs, parser):
-    prev_out = ''
+def load_loop(args):
     while True:
-        loads = psutil.cpu_percent(args.sleep, percpu=True)
-        out = args.join.join(format_cpu(x, args) for x in loads)
-        if out != prev_out:
-            print(out)
-            prev_out = out
-
-        if args.unbuffer:
-            sys.stdout.flush()
-        if args.sleep is None:
+        try:
+            loads = psutil.cpu_percent(percpu=True)
+            yield args.join.join(format_cpu(x, args) for x in loads)
+        except GeneratorExit:
             break
+        except:
+            yield ''
+
+def print_loop(it, unbuffer, sleep):
+    last_output = None
+    for line in it:
+        if line != last_output:
+            print(line)
+            last_output = line
+            if unbuffer:
+                sys.stdout.flush()
+        if not sleep:
+            break
+        time.sleep(sleep)
 
 
 if __name__ == '__main__':
@@ -68,6 +76,6 @@ if __name__ == '__main__':
     args.thresholds = sorted(args.thresholds, key=lambda x: x[0], reverse=True)
 
     try:
-        main(args, vargs, parser)
+        print_loop(load_loop(args), args.unbuffer, args.sleep)
     except KeyboardInterrupt:
         pass

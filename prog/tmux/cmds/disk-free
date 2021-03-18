@@ -10,7 +10,7 @@ from pathlib import Path
 
 from mohkale import hurry
 
-DEFAULT_CONFIG = "/:/"
+DEFAULT_CONFIG = ["/:/"]
 DEFAULT_CONFIG_PATH = Path(os.path.expandvars('$TMUX_HOME/disk-free.conf'))
 
 
@@ -19,21 +19,44 @@ class ConfigEntry(object):
     name: str
     mount: str
 
+def _should_read_config(config):
+    """Closure around config which continually checks
+    whether config is out of date and can be read since
+    a previous reading.
+    """
+    while True:
+        last_read_time = 0
+        try:
+            # Config must exist, be a file and be have a modification time
+            # newer than the last time we returned true
+            readp = config.exists() and \
+                config.is_file() and \
+                args.config.stat().st_mtime > last_read_time
+            yield readp
+            if readp:
+                last_read_time = time.time()
+        except GeneratorExit:
+            break
+        except:
+            yield False
 
-def read_config(config):
+def parse_config(body):
+    """Parse an iterable over the contents of a configuration file
+    into a collection fo ConfigEntry entries.
+
+    If body is a file like object it'll automatically be closed on
+    exit.
+    """
     res = []
-    f_iter = config.open('r', encoding='utf-8') \
-        if config.exists() and config.is_file() else DEFAULT_CONFIG.split('\n')
-
     try:
-        for line in f_iter:
+        for line in body:
             args = line.rstrip().split(':')
             args[1] = Path(args[1])
             res.append(ConfigEntry(*args))
         return res
     finally:
-        if hasattr(f_iter, 'close'):
-            f_iter.close()
+        if hasattr(body, 'close'):
+            body.close()
 
 
 def format_percentage(usage, percent):
@@ -45,9 +68,9 @@ def format_free_bytes(usage, percent):
 
 
 def format_mount(entry, fmt, args):
-    if not entry.mount.exists():
-        return None
     try:
+        if not entry.mount.exists():
+            return None
         usage = shutil.disk_usage(str(entry.mount))
     except:
         return None
@@ -62,31 +85,38 @@ def format_mount(entry, fmt, args):
     res += fmt(usage, percent)
     return res
 
-
-def main(args, vargs, parser):
+def mount_loop(args):
     fmt = format_percentage
     if args.show_bytes:
         fmt = format_free_bytes
 
-    cfg, last_read_time = None, 0
-    prev_out = ''
+    cfg = None
+    reread_p = _should_read_config(args.config)
     while True:
-        if cfg is None or \
-           (args.config.exists() and args.config.stat().st_mtime > last_read_time):
-            cfg = read_config(args.config)
-            last_read_time = time.time()
+        try:
+            # Load configuration if it's changed or we haven't yet.
+            should_read_conf = next(reread_p)
+            if cfg is None or should_read_conf:
+                cfg = parse_config(
+                    args.config.open('r', encoding='utf-8')
+                    if should_read_conf else DEFAULT_CONFIG)
 
-        fmts = [format_mount(it, fmt, args) for it in cfg]
-        out = ' '.join(x for x in fmts if x)
-        if out != prev_out:
-            print(out)
-            prev_out = out
-
-        if args.unbuffer:
-            sys.stdout.flush()
-        if args.sleep is None:
+            formatted = (format_mount(it, fmt, args) for it in cfg)
+            yield ' '.join(x for x in formatted if x)
+        except GeneratorExit:
             break
-        time.sleep(args.sleep)
+
+def print_loop(it, unbuffer, sleep):
+    last_output = None
+    for line in it:
+        if line != last_output:
+            print(line)
+            last_output = line
+            if unbuffer:
+                sys.stdout.flush()
+        if not sleep:
+            break
+        time.sleep(sleep)
 
 
 if __name__ == '__main__':
@@ -127,6 +157,6 @@ if __name__ == '__main__':
     args.thresholds = sorted(args.thresholds, key=lambda x: x[0], reverse=True)
 
     try:
-        main(args, vargs, parser)
+        print_loop(mount_loop(args), args.unbuffer, args.sleep)
     except KeyboardInterrupt:
         pass
