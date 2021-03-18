@@ -148,7 +148,7 @@ done
 
 if [ "${#args[@]}" -eq 0 ]; then
   echo "tmux-popup: warn: no command to spawn found. defaulting to sh" >&2
-  args=( sh -i )
+  args=( "${SHELL:-sh}" )
 fi
 
 if [ -z "$TMUX" ]; then
@@ -209,6 +209,9 @@ trap 'cleanup 1' SIGUSR1
 trap 'cleanup' EXIT
 
 envs="export TERM=$TERM "
+[[ "$opt" =~ "-K -E" ]] && FZF_DEFAULT_OPTS="--margin 0,1 $FZF_DEFAULT_OPTS"
+[[ -n "$FZF_DEFAULT_OPTS"    ]] && envs="$envs FZF_DEFAULT_OPTS=$(printf %q "$FZF_DEFAULT_OPTS")"
+[[ -n "$FZF_DEFAULT_COMMAND" ]] && envs="$envs FZF_DEFAULT_COMMAND=$(printf %q "$FZF_DEFAULT_COMMAND")"
 echo "$envs;" > "$argsf"
 
 # Build command that's to be processed in popup.
@@ -230,8 +233,16 @@ if [[ "$opt" =~ "-K -E" ]]; then
     cat <<< "$opts < $fifo1 | tee $fifo2; out=\$? $close; exit \$out" >> "$argsf"
     cat <&0 > "$fifo1" &
   fi
+  # tmux dropped the support for `-K`, `-R` to popup command
+  #   TODO: We can remove this once tmux 3.2 is released
+  if [[ ! "$(tmux popup --help 2>&1)" =~ '-R shell-command' ]]; then
+    opt="${opt/-K/}"
+  else
+    opt="${opt} -R"
+  fi
+
   # shellcheck disable=SC2086
-  tmux popup -d "$PWD" "${tmux_args[@]}" $opt -R "bash $argsf" > /dev/null 2>&1
+  tmux popup -d "$PWD" "${tmux_args[@]}" $opt "bash $argsf" > /dev/null 2>&1
   exit $?
 fi
 mkfifo -m o+w "$fifo3"
