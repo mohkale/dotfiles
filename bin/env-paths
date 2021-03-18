@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/usr/bin/env bash
 print_usage() {
   echo "Usage: $(basename "$0") [-h] [-d|-f]"
 }
@@ -29,14 +29,28 @@ done
 printenv -0 |
   tr -d '\n' |
   tr '\0' '\n' |
+  awk -F = -e '$0 ~ /([^=]+)=([^:]*):/ {
+  value=$2
+  for (i=3; i <= NF; i++) {
+    value = value "=" $i
+  }
+
+  count = split(value, entries, ":")
+  delete mem # reset from previous loop
+  k = 0
+  for (j=1; j <= count; j++) {
+    if (entries[j] && !mem[entries[j]]++) {
+      printf("%s[%d]=%s\n", $1, k++, entries[j])
+    }
+  }
+  next
+}' \
+    -e '$0' |
   while IFS='=' read -r key value; do
     [ -e "$value" ] || continue
 
-    if [ "$files_only" -eq 1 ]; then
-      [ -f "$value" ]
-    elif [ "$dirs_only" -eq 1 ]; then
-      [ -d "$value" ]
-    else
-      true
-    fi && echo "$key=$value"
+    if [ "$files_only" -eq 1 ]; then [ -f "$value" ];
+    elif [ "$dirs_only" -eq 1 ]; then [ -d "$value" ];
+    else true; fi &&
+      echo "$key=$value"
   done
