@@ -1,0 +1,86 @@
+# -*- mode: conf-space; eval: (display-line-numbers-mode +1) -*- GNU info configuration -- vim:syntax=conf:filetype=conf
+
+# Default bindings, extended form the [[https://www.gnu.org/software/texinfo/manual/info-stnd/html_node/infokey-format.html][vi-keys]] template
+
+#info
+ga      first-node
+ge      last-node
+gg      beginning-of-node
+G       end-of-node
+\mb     beginning-of-node
+\me     end-of-node
+j       next-line
+k       prev-line
+
+f       scroll-forward-page-only
+^f      scroll-forward-page-only
+\m\     scroll-forward-page-only
+z       scroll-forward-page-only-set-window
+
+b       scroll-backward-page-only
+^b      scroll-backward-page-only
+w       scroll-backward-page-only-set-window
+
+\kd     down-line
+^e      down-line
+^j      down-line
+\ku     up-line
+^y      up-line
+^k      up-line
+
+d       scroll-half-screen-down
+u       scroll-half-screen-up
+^d      scroll-half-screen-down
+^u      scroll-half-screen-up
+
+gj next-node
+gk prev-node
+gh up-node
+gl next-node
+
+^xn     next-node
+^xp     prev-node
+^xu     up-node
+'       last-node
+\mt     top-node
+\md     dir-node
+
+^xg     goto-node
+I       goto-invocation-node
+
+n       search-next
+N       search-previous
+
+\mf     xref-item
+^xr     xref-item
+
+\mg     select-reference-this-line
+^x^j    select-reference-this-line
+^x^m    select-reference-this-line
+
+^c      abort-key
+
+\mh     get-info-help-node
+
+:q      quit
+ZZ      quit
+
+#echo-area
+\mh     echo-area-backward
+\ml     echo-area-forward
+\m0     echo-area-beg-of-line
+\m$     echo-area-end-of-line
+\mw     echo-area-forward-word
+\mx     echo-area-delete
+\mu     echo-area-abort
+^v      echo-area-quoted-insert
+\mX     echo-area-kill-word
+
+#var
+cursor-movement-scrolls=Off
+highlight-searches=On
+mouse=normal-tracking
+nodeline=print
+scroll-last-node=Top
+link-style=blue,bold
+active-link-style=blue,bold,underline

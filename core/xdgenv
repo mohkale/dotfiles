@@ -139,6 +139,9 @@ export TEXINPUTS="$XDG_DATA_HOME"/texmf:"$TEXINPUTS"
 ## vscode
 export VSCODE_PORTABLE="$XDG_DATA_HOME"/vscode
 
+## GNU info
+alias info='info --init-file "$XDG_CONFIG_HOME/infokey"'
+
 ## GDB
 alias gdb='gdb --silent -nh -x "$XDG_CONFIG_HOME"/gdb/init'
 
