@@ -24,7 +24,6 @@ in ruby. Generally whatever works for whatever I'm trying to do.
 | [emacs-focus](./emacs-focus)           | Switch focus to any open emacs frames (only works on linux).                                |
 | [emacs-make-frame](./emacs-make-frame) | Create a new emacs frame.                                                                   |
 | [env-paths](./env-paths)               | List environment variables which points to an existing filepath.                            |
-| [ern](./ern)                           | enumerate-rename. Open a bulkrename session with paths suffixed with ascending numbers.     |
 | [extract](./extract)                   | A quick and dirty multipurpose archive extracter. Takes only one arg (the path to extract). |
 | [fdupes](./fdupes)                     | Pass a list of files and print back out any duplicates (based on file content).             |
 | [file-path](./file-path)               | Print paths back to stdout in a way that can be substituted back into the shell.            |
@@ -47,7 +46,6 @@ in ruby. Generally whatever works for whatever I'm trying to do.
 | [magit](./magit)                       | Run emacs magit directly from your shell.                                                   |
 | [magnet2torrent](./magnet2torrent)     | Convert magnet files to torrent files using python libtorrent bindings.                     |
 | [moji](./moji)                         | Open a list of kaomojis in a fzf session.                                                   |
-| [nfc](./nfc)                           | Copy numbered folders in a range while predictably increasing numbers.                      |
 | [preview](./preview)                   | Preview files/directories.                                                                  |
 | [project-root](./project-root)         | List the root directory for the current code (git) repository.                              |
 | [prog-icons](./prog-icons)             | Output icons for program names from your [progicons](../core/progicons) configuration.      |

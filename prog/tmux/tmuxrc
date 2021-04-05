@@ -79,6 +79,8 @@ bind s command-prompt -p "Query:" "find-window -Z -CNTi '%%'"                   
 
 bind | command-prompt -p "Pipe:" "pipe-pane -o '%%'"
 
+bind M-h command-prompt -k -p key "list-keys -1N "%%%""                                            # Inspect the key-symbol bound by tmux
+
 bind b   choose-tree -Zs
 bind B   choose-tree -Zw
 bind C-b choose-client -Z

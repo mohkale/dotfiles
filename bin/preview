@@ -283,7 +283,6 @@ case "$FILE_EXTENSION" in
   *) false ;;
 esac && exit 0
 
-
 # ┌───────────────────────┐
 # │ Mimetype Associations │
 # └───────────────────────┘
