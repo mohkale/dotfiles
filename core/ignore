@@ -1,7 +1,7 @@
 # -*- mode: gitignore -*- vim:syntax=conf filetype=conf
 prog/temp/
 multi/temp/
-downloads/incomplete/
+files/incomplete/
 
 # Home Directories
 .git/

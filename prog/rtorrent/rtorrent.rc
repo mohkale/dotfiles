@@ -15,7 +15,7 @@ method.insert = cfg.session,    private|const|string, (cat,(cfg.basedir),"/sessi
 method.insert = cfg.logs,       private|const|string, (cat,(cfg.basedir),"/logs")
 method.insert = cfg.logfile,    private|const|string, (cat,(cfg.logs),"/rtorrent-",(system.time),".log")
 
-method.insert = cfg.downloads,      private|const|string, (cat,(cfg.home),"downloads")
+method.insert = cfg.downloads,      private|const|string, (cat,(cfg.home),"files")
 method.insert = cfg.downloads_new,  private|const|string, (cat,(cfg.downloads),"/incomplete")
 method.insert = cfg.downloads_done, private|const|string, (cat,(cfg.downloads),"/random")
 method.insert = cfg.watch,          private|const|string, (cat,(cfg.downloads),"/torrents")

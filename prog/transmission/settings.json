@@ -12,13 +12,13 @@
     "blocklist-url": "http://www.example.com/blocklist",
     "cache-size-mb": 4,
     "dht-enabled": true,
-    "download-dir": "/home/mohkale/downloads/incomplete",
+    "download-dir": "/home/mohkale/files/incomplete",
     "download-queue-enabled": true,
     "download-queue-size": 20,
     "encryption": 1,
     "idle-seeding-limit": 30,
     "idle-seeding-limit-enabled": false,
-    "incomplete-dir": "/home/mohkale/downloads",
+    "incomplete-dir": "/home/mohkale/files",
     "incomplete-dir-enabled": false,
     "lpd-enabled": false,
     "message-level": 3,
@@ -65,6 +65,6 @@
     "umask": 18,
     "upload-slots-per-torrent": 14,
     "utp-enabled": true,
-    "watch-dir": "/home/mohkale/downloads/torrents",
     "watch-dir-enabled": true
+    "watch-dir": "/home/mohkale/files/torrents",
 }

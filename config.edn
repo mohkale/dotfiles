@@ -3,8 +3,8 @@
  (:clean "~")
 
  (:mkdirs
-  "~/documents"
-  "~/downloads"
+  "~/docs"
+  "~/files"
   ("~/media"
    ("games" "images" "videos" "music"))
   ("~/multi"

@@ -14,7 +14,6 @@ D       fzf_cd_all
 e       sh --norc -c '$EDITOR "$@"' edit
 f       fzf_select
 F       fzf_select_all
-h@dirx  ~
 i       sh -c 'if [ $# -gt 0 ]; then preview "$@" | less; fi' inspect
 m       fzman
 o       xopen
@@ -24,15 +23,10 @@ x       fzdmenu
 z       select_fsmap
 
 g          git
-gs         g status
-gconf@file ~/.config/git/config
-
-R       rake
-Rl      rake -T
-
-T       thor
-Tl      thor list
-Th      thor help
+gs         git status
+gistat     git ls-tree --full-tree --full-name -r --name-only HEAD \
+           | awk -v home="$DOTFILES" '{ printf("%s/%s\0", home, $1) }' \
+           | xargs -r0 stat -c "%A %08s %n"
 
 l       ls -CF
 ls      ls --color=auto --group-directories-first
@@ -45,36 +39,27 @@ t      tmux
 tt     tmuxinator
 ttt    fztmuxinator
 ta     $TMUX_HOME/cmds/attach-session
-t?     t show-options -g
-tM     t display-message
-tm     t show-messages
-tls    t ls
-tn     t new-session
-tx     t kill-session
-tprint t display-message -p
+t?     tmux show-options -g
+tM     tmux display-message
+tm     tmux show-messages
+tls    tmux ls
+tn     tmux new-session
+tx     tmux kill-session
+tprint tmux display-message -p
 
 cls     clear
 
 clamp   cut -b 1-$COLUMNS
 wai     whoami
-bang    echo -ne '\a'
-bell    echo -ne '\a'
-beep    echo -ne '\a'
 nv      nvim
 netcat  ncat
 chksum  cksum
 unmount umount
-lc      lfcd
 touchx  sh -c 'touch "$@" && chmod +x "$@"' touchx
 noout   >/dev/null 2>&1 sh -c '"$@"' run
 nojob   >/dev/null 2>&1 nohup sh -c '"$@"' run
-# generate a password hash from /dev/urandom. Optional first arg specifies length of password
-passgen sh -c 'cat /dev/urandom | tr -d -c '"'"'[:alnum:]'"'"' | head -c "${1:-50}"' 'passgen'
-extensions py -c $'import pathlib;\import sys;\nfor path in map(lambda x: pathlib.Path(x.rstrip()), sys.stdin): print(path.suffix)'
-# See [[https://github.com/chubin/wttr.in][wttr.in]]
-weather curl -q -s http://wttr.in/
 suniq   sort | uniq
-og      open_game
+card    curl -sL kisara.moe/~mohkale/card
 
 rm      rm -v
 mv      mv -v
@@ -110,8 +95,24 @@ gu      cd_project_root
 gx      edit_executables
 oe      select_path
 fp      fzpass
+cw      bulkrename
+lc      lfcd
+og      open_game
 
-# vi stuff
+dotf    f $DOTFILES
+dotF    F $DOTFILES
+dotd    d $DOTFILES
+dotD    D $DOTFILES
+
+# Quick Scripts
+## generate a password hash from /dev/urandom. Optional first arg specifies length of password
+passgen sh -c 'cat /dev/urandom | tr -d -c '"'"'[:alnum:]'"'"' | head -c "${1:-50}"' 'passgen'
+## Strip all but the file extensions from all the files passed through stdin.
+extensions py -c $'import pathlib;\import sys;\nfor path in map(lambda x: pathlib.Path(x.rstrip()), sys.stdin): print(path.suffix)'
+## See [[https://github.com/chubin/wttr.in][wttr.in]]
+weather curl -q -s http://wttr.in/
+
+# Vi stuff
  q      exit
 :q      exit
 :wq     exit
@@ -122,7 +123,7 @@ ec      emacsclient
 ee      ec --no-wait --suppress-output # emacs dispatch
 ex      emacs
 sx      smacs
-et      sh -c 'cd $EMACS_HOME && ./bin/tangle -i -d lisp/+config.el "$@"' ''
+et      sh -c 'cd $XDG_CONFIG_HOME/emacs && ./bin/tangle -i -d lisp/+config.el "$@"' ''
 etnw    et && emacs -nw
 etc     et -c
 etd     et -l -
@@ -130,9 +131,11 @@ etcd    etd -c
 we      with-evi
 emf     emacs-make-frame
 
+# Buku
 buku      buku --np
 buku-tags buku -t
 
+# Transmission
 trr     echo -e 'list:list\nplay:play\nstart:start\nstart -n:start-now\npause:pause\nverify:verify\nremove:remove\nremove -f:delete' \
           | _fzf --delimiter : --with-nth 2.. --prompt='Transmission: ' \
           | cut -d : -f 1 \
@@ -149,18 +152,8 @@ tremote transmission-remote
 jupyter-repl jupyter console --existing
 jupyter-note jupyter notebook
 
-# dotfiles
-dot@dirx $DOTFILES
-dotf f $DOTFILES
-dotF F $DOTFILES
-dotd d $DOTFILES
-dotD D $DOTFILES
-
-dotg    g --git-dir=$DOTFILES/.git --work-tree=$DOTFILES
-# istats every file within my dotfiles repository.
-distat  dotg ls-tree --full-tree --full-name -r --name-only HEAD \
-        | awk -v home="$DOTFILES" '{ printf("%s/%s\0", home, $1) }' \
-        | xargs -r0 stat -c "%A %08s %n"
+# fzf stuff, see [[https://paweldu.dev/posts/fzf-live-repl/][fzf-live-repl]]
+fzawk _fzf --disabled --print-query --preview 'awk -e {q} -- {}'
 
 # directory-stack
 qa      pushd
@@ -187,23 +180,17 @@ cd8@dir     ../../../../../../../../
 cd9@dir     ../../../../../../../../../
 cd10@dir    ../../../../../../../../../../
 
-cswap       cd -
-cs          cd -
 cdd         cd -
-qswap       pushd -
-qs          pushd -
+qdd         pushd -
 
 # Temporary File-system
-ctemp       cd    $(mktemp -d)
 ct          cd    $(mktemp -d)
-qtemp       pushd $(mktemp -d)
 qt          pushd $(mktemp -d)
-# None-volatile local temp, uses timestamps rather than hash-checks
-ltemp       mcd   "$(date +"$HOME/multi/temp/%Y%m%d.%H%M%S")"
-lt          mcd   "$(date +"$HOME/multi/temp/%Y%m%d.%H%M%S")"
+lt          mcd   "$(date +"${XDG_TEMP_DIR:-$HOME/.local/temp}/%Y%m%d.%H%M%S")"
 
 # filesystem-shortcuts
 profile@file     ~/.profile
+gconf@file       ~/.config/git/config
 shenv@file       $XDG_CONFIG_HOME/shenv
 shenvl@file      $XDG_CONFIG_HOME/shenv.local
 al@file          $XDG_CONFIG_HOME/aliases
@@ -217,22 +204,26 @@ diricons@file    $XDG_CONFIG_HOME/diricons
 dircolors@file   $XDG_CONFIG_HOME/dircolors
 progicons@file   $XDG_CONFIG_HOME/progicons
 prompt@file      $XDG_CONFIG_HOME/prompt
-emacsrc@file     $EMACS_HOME/lisp/+config.el
+emacsrc@file     $XDG_CONFIG_HOME/lisp/+config.el
+tmuxrc@file      $TMUX_HOME/tmux.conf
 
-dl@dirx           $XDG_DOWNLOAD_DIR
-em@dirx           $EMACS_HOME
-org@dirx          $EMACS_HOME/org
-rp@dirx           ~/prog/repos
-sc@dirx           ~/prog/scripts
-bin@dirx          ~/.local/bin
-dbin@dirx         $DOTFILES/bin
-box@dirx          ~/Dropbox
-docs@dirx         ~/user
-conf@dirx         $XDG_CONFIG_HOME
-tmuxrc@file       $TMUX_HOME/tmux.conf
-img@dirx          $XDG_PICTURES_DIR
-games@dirx        ~/media/games
-music@dirx        $XDG_MUSIC_DIR
-vid@dirx          $XDG_VIDEOS_DIR
-desktop@dirx      $XDG_DESKTOP_DIR
-docs@dirx         $XDG_DOCUMENTS_DIR
+h@dirx           ~
+rp@dirx          ~/prog/repos
+sc@dirx          ~/prog/scripts
+bin@dirx         ~/.local/bin
+box@dirx         ~/Dropbox
+dot@dirx         $DOTFILES
+dbin@dirx        $DOTFILES/bin
+em@dirx          $XDG_CONFIG_HOME/emacs
+org@dirx         $XDG_CONFIG_HOME/emacs/org
+
+dl@dirx          $XDG_DOWNLOAD_DIR
+docs@dirx        $XDG_DOCUMENTS_DIR
+conf@dirx        $XDG_CONFIG_HOME
+img@dirx         $XDG_PICTURES_DIR
+games@dirx       $XDG_GAMES_DIR
+music@dirx       $XDG_MUSIC_DIR
+vid@dirx         $XDG_VIDEOS_DIR
+desktop@dirx     $XDG_DESKTOP_DIR
+docs@dirx        $XDG_DOCUMENTS_DIR
+ltemp@dirx       $XDG_TEMP_DIR
