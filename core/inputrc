@@ -69,11 +69,11 @@ $if mode=emacs
 "\e[1;3C": vi-fWord
 
 # Macros
-"\M-xp": "\C-p\M-xl"
-"\M-xl": "\C-e | less"
-"\M-xf": "\C-e | fzf"
-"\M-xs": "\C-p\C-asd \C-a"
+"\M-xl": "| less"
+"\M-xh": "| head -n "
+"\M-xc": "| clip"
 "\M-x`": "\C-e`\C-a`"
+"\M-xe": "emacsclient -nw"
 
 # Compatibility
 ## allow the use of the Home/End keys

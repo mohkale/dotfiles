@@ -129,6 +129,9 @@ etcd    etd -c
 we      with-evi
 emf     emacs-make-frame
 
+buku      buku --np
+buku-tags buku -t
+
 trr     echo -e 'list:list\nplay:play\nstart:start\nstart -n:start-now\npause:pause\nverify:verify\nremove:remove\nremove -f:delete' \
           | _fzf --delimiter : --with-nth 2.. --prompt='Transmission: ' \
           | cut -d : -f 1 \
@@ -225,6 +228,7 @@ dbin@dirx         $DOTFILES/bin
 box@dirx          ~/Dropbox
 docs@dirx         ~/user
 conf@dirx         $XDG_CONFIG_HOME
+tmuxrc@file       $TMUX_HOME/tmux.conf
 img@dirx          $XDG_PICTURES_DIR
 games@dirx        ~/media/games
 music@dirx        $XDG_MUSIC_DIR

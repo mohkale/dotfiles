@@ -164,10 +164,20 @@ class Game(object):
             if field and (not self.file or os.path.exists(self.file)):
                 return url_f.format(field)
         if self.file:
+            for path in self._iter_file_paths():
+                if os.path.exists(path):
+                    return f'file://{path}'
+            logging.warning('File for game not found: %s', self.file)
             return f'file://{self.file}'
         if self.steam:
             return f'steam://run/{self.steam}'
         raise ValueError('Game %s initialised with no method to run', repr(self.name))
+
+    def _iter_file_paths(self):
+        yield self.file
+        for p in pathlib.Path(self.file).parents:
+            for ftype in ('.7z', ):
+                yield p.parent / (p.name + ftype)
 
     def pretty(self):
         meta = ' '.join(self.meta) if self.meta else ''

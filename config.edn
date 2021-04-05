@@ -9,7 +9,8 @@
    ("games" "images" "videos" "music"))
   ("~/multi"
    ("share" "templates" "desktop"))
-  "~/prog/repos")
+  ("~/prog/"
+    ("repos" "scripts" "conf" "logs")))
 
  (:import "core")
 

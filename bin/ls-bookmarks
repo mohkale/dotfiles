@@ -176,7 +176,6 @@ do_buku() {
 }
 
 pretty_print() {
-    cat return 0
   # prettify the bookmarks list for use in fzbm.
   gawk -F "$d" \
        -v sep="$d" \

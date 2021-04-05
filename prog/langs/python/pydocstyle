@@ -1,4 +1,4 @@
 # -*- mode: conf-unix -*- pydocstyle [[http://www.pydocstyle.org/en/2.1.1/usage.html#cli-usage][configuration]] file
 [pydocstyle]
-ignore = D107,D105,E302
+ignore = D107,D105,E302,D213,D203
 inherit = false

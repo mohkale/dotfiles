@@ -24,9 +24,15 @@
 	p = push
 	f = pull
 	unstage = reset HEAD --
-	fzlog = !git_fzlog
-	g = fzlog
+	fzlog = !git-fzlog
+	z = !git-fzlog
     undo = reset HEAD~
 	permission-reset = !git diff -p -R | grep -E \"^(diff|(old|new) mode)\" | git apply
 [init]
 	defaultBranch = master
+[github]
+	user = mohkale
+[gitlab]
+	user = mohkale
+[diff "gpg"]
+	textconv = gpg --no-tty --decrypt

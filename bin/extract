@@ -42,7 +42,7 @@ while read -r path; do
     *.tar.bz|*.tar.bz2|*.tbz|*.tbz2) tar xjvf   "$path" ;;
     *.tar.gz|*.tgz)                  tar xzvf   "$path" ;;
     *.tar.xz|*.txz)                  tar xJvf   "$path" ;;
-    *.tar|*.tar.*|*.cbt)             tar xvf    "$path" ;;
+    *.tar|*.tar.*|*.cbt|*.gem)       tar xvf    "$path" ;;
     *.zip|*.cbz)                     unzip      "$path" ;;
     *.jar)                           jar xf     "$path" ;;
     *.rar|*.cbr)                     unrar x    "$path" ;;

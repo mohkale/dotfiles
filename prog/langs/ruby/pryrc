@@ -13,3 +13,6 @@ if ENV["INSIDE_EMACS"]
     Pry.config.input = Emacsable
     Pry.color = true
 end
+
+Pry.config.commands.alias_command 'cls', '.clear'
+Pry.config.commands.alias_command 'wai', 'whereami'

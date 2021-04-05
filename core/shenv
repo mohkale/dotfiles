@@ -133,50 +133,63 @@ export \
     AUTOMATEDLAB_TELEMETRY_OPTOUT=1       \
     POWERSHELL_TELEMETRY_OPTOUT=1
 
-lines_to_path() { #([:]PATH_VAR)
-    # converts a list of paths into a PATH like string sequence,
-    # with support for comments and auto removal of empty lines.
+lines_to_path() {
+    # A helper to quickly declare a bunch of PATH variables from
+    # a basic INI like configuration format (supplied through stdin).
     #
-    # Supply the variable name as the first argument and supply
-    # new paths through stdin. If the path variable is prefixed
-    # with a :, this function won't extend the existing PATH and
-    # will instead overwrite it with stdin.
+    # An environment variable is a section beginning contained in [],
+    # comments are specified bash style, and can be interspersed any-
+    # where. Any line that's neither a comment nor a section starter
+    # is seen as a PATH in the last-most defined section.
+    #
+    # By default this script checks whether an existing variable matching
+    # a section is defined and appends it to the PATH string. You can
+    # prefix the variable with a : (eg: [:PATH]) to prevent appending the
+    # existing variable.
 
-    local existing var="$1"
-    [ -z "$var" ] && return
+    # I'm too inexperienced with sed to use only one sed process
+    # once I get some more familirarity with it I'll optimise this.
+    local conf=$(sed -e 's/ *#.*$//g'             \
+                     -e '/^ *$/d'                 \
+                     -e 's!^~/!'"${HOME}"/'!g'    \
+                     -e '/^\[.\+\]$/!s/.\+$/\0:/' \
+                     -e '/^\[.\+\]$/s/.\+/\n\0/' |
+                 sed -e '/^$/d' \
+                     -e ': again; /:$/ { N; /\[.\+\]$/!s/:\n/:/; t again }' |
+                 sed -e '/\[.\+\]/ { N; s/\[\(.\+\)\]\n/\1 / }')
 
-    if [ "${var:0:1}" = ":" ]; then
-        var="${var:1}" # strip out : prefix.
-    else
-        case "$shell" in
-            zshell) existing="${(P)1}" ;;
-            bash)   existing="${!1}" ;;
-            # POSIX compliant but ugly and vulnerable
-            *)      existing=$(eval "echo \${$1}") ;;
-        esac
-
-        if [ -n "$existing" ]; then
-            # print existing path variables when given in linux path format.
-            # printf ":" # delimit the existing
-            case "$OSTYPE" in
-                *cygwin|*msys) existing=:$(printf "%s:" "$(cygpath --path "$existing")") ;;
-                *)             existing=:$(printf "%s:" "$existing") ;;
+    local var paths existing
+    while IFS=' ' read -r var paths; do
+        if [ "${var:0:1}" = ":" ]; then
+            var="${var:1}" # strip out : prefix.
+        else
+            case "$shell" in
+                zshell) existing="${(P)var}" ;;
+                bash)   existing="${!var}" ;;
+                # POSIX compliant but ugly and vulnerable
+                *)      existing=$(eval "echo \${$var}") ;;
             esac
-        fi
-    fi
 
-    # strip out empty lines, comments, replace ~/ with users home directory &
-    # join paths with a :.
-    # NOTE trailing whitespace is automatically removed with inline comments.
-    local p=$(sed -e 's/ *#.*$//g'          \
-                  -e '/^ *$/d'              \
-                  -e 's ^~/ '"${HOME}"/' g' \
-                  -e 's/$/:/')
-    p="${p//$'\n'/}$existing" # remove newlines and concat existing
-    export "$var"="${p//::/:}"
+            if [ -n "$existing" ]; then
+                # print existing path variables when given in linux path format.
+                # printf ":" # delimit the existing
+                case "$OSTYPE" in
+                    *cygwin|*msys) existing=:$(printf "%s:" "$(cygpath --path "$existing")") ;;
+                    *)             existing=:$(printf "%s:" "$existing") ;;
+                esac
+            fi
+
+            paths=$paths:$existing
+        fi
+
+        export "$var"="${paths}"
+    done <<< "$conf"
 }
 
-lines_to_path PATH <<EOF
+export GEM_HOME="$HOME"/prog/.modules/ruby
+
+lines_to_path <<EOF
+[PATH]
 ~/.local/bin/
 ~/prog/scripts
 ~/prog/.modules/ruby/bin
@@ -184,9 +197,8 @@ lines_to_path PATH <<EOF
 $XDG_DATA_HOME/npm/bin
 ~/.rvm/bin
 ${POETRY_HOME:-$HOME/.poetry}/bin
-EOF
 
-lines_to_path CLASSPATH <<EOF
+[CLASSPATH]
 .
 # WARN you need to specify both the directory with
 #      wildcards to reference JARs and without them
@@ -196,29 +208,22 @@ lines_to_path CLASSPATH <<EOF
 #      when you pass the -cp argument.
 ~/prog/.modules/java/
 ~/prog/.modules/java/*
-EOF
 
-lines_to_path PYTHONPATH <<EOF
+[PYTHONPATH]
 ~/prog/.modules/python
-EOF
 
-export GEM_HOME="$HOME"/prog/.modules/ruby
-lines_to_path GEM_PATH <<EOF
+[GEM_PATH]
 $GEM_HOME
-EOF
 
-lines_to_path GOPATH <<EOF
+[GOPATH]
 ~/prog/.modules/go
-EOF
 
-lines_to_path NODE_PATH <<EOF
+[NODE_PATH]
 ~/prog/.modules/node
 /usr/lib/nodejs
 /usr/share/nodejs
-EOF
 
-# Where to look for code repositories
-lines_to_path :REPO_PATH <<EOF
+[:REPO_PATH]
 ~/prog/repos/
 ~/prog/upwork/
 $DOTFILES
@@ -226,34 +231,35 @@ $DOTFILES
 ~/prog/.modules/ruby/gems/
 EOF
 
+unset -f lines_to_path # thank you, good bye
+
 platform="$(ls-platform)"
 [ -z "$platform" ] && echo "warning: shenv: unknown OS type: $OSTYPE" >&2
 
 if [ "$platform" = "windows" ]; then
-    for path_var in CLASSPATH PYTHONPATH; do
-        # for programs that don't care about the environment,
+    for var in CLASSPATH PYTHONPATH; do
+        # For programs that don't care about the environment,
         # only about the OS, convert paths back to a windows
         # like path.
 
-        export $path_var="$(cygpath --windows --path "${!path_var}")"
+        export $var="$(cygpath --windows --path "${!var}")"
     done
+    unset var
 
     export GEM_HOME="$(cygpath --mixed "$GEM_HOME")"
 
-    # assume it's the only platform using the TCP file.
+    # Assume it's the only platform using the TCP file.
     export EMACS_SERVER_FILE="$EMACS_HOME/var/server/server"
 
-    # proper symlinks, not that wibbly wobbley copy paste
+    # Proper symlinks, not that wibbly wobbley copy paste
     export MSYS=winsymlinks:nativestrict
 
-    # fix annoying issues with chocolatey mixing up windows
+    # Fix annoying issues with chocolatey mixing up windows
     # temp variables and msys ones.
     unset tmp temp
 fi
 
-unset -f lines_to_path # thank you, good bye
-
-# uses darcula theme from fzf color schemes wiki
+# Uses darcula theme from fzf color schemes wiki
 export FZF_DEFAULT_OPTS='
     --bind ctrl-j:down
     --bind ctrl-k:up
@@ -264,6 +270,8 @@ export FZF_DEFAULT_OPTS='
     --bind alt-d:preview-page-down
     --bind ctrl-n:preview-down
     --bind ctrl-p:preview-up
+    --bind ctrl-i:toggle-preview
+    --bind alt-i:toggle-preview
 
     --bind shift-left:backward-word
     --bind shift-right:forward-word
@@ -284,6 +292,8 @@ export FZF_DEFAULT_OPTS='
     --bind alt-x:deselect-all
 
     --bind "ctrl-y:execute-silent(echo {} | clip)"
+
+    --bind ctrl-s:toggle-search
 
     --bind ctrl-space:toggle+down
     --bind ctrl-o:top
@@ -314,28 +324,27 @@ if [ "$smart_term" -eq 1 ]; then
 fi
 
 # source aliases
+interactive=0
 case "$-" in
     *i*)
+        interactive=1
+
         if command -v thefuck >/dev/null 2>&1; then
-            # honestly I doubt I'll really be using 'the-fuck' but
+            # Honestly I doubt I'll really be using 'the-fuck' but
             # lazy loading it is a near effortless task so why not
 
-            # lazy load 'the fuck' using an alias which evaluates
+            # Lazy load 'the fuck' using an alias which evaluates
             # it removes the alias and then runs it for the first
             # time
 
-            alias='fx' # alias under which 'the-fuck' will be invoked... actually a function
+            alias='fx' # Alias under which 'the-fuck' will be invoked... actually a function
             alias $alias='eval $(thefuck --alias '$alias') && unalias '$alias' && '$alias
-            unset alias # remove a basically uselass environment variable from the shell
+            unset alias # Remove a basically uselass environment variable from the shell
         fi
 
         load-aliases() { eval "$(ls-aliases | xargs -d '\n' -r build-aliases -1 -e e)"; }
         load-aliases
-
-        interactive=1
         ;;
-    *) interactive=0
-       ;;
 esac
 
 [ -e "$XDG_CONFIG_HOME/shenv.local" ] && . "$XDG_CONFIG_HOME/shenv.local"

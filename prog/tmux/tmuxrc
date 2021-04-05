@@ -15,12 +15,13 @@ set -g renumber-windows on                                           # automatic
 set -g set-titles on                                                 # update the title of my terminal
 set -g base-index 1                                                  # windows start counting from 1
 set -g pane-base-index 1                                             # panes start counting from 1
-set -g history-limit 10000                                           # a lot of history is a good thing
+set -g history-limit 100000                                          # a lot of history is a good thing
 set -g set-titles-string 'tmux@#H [#S:#I] #W'                        # title of terminal when running tmux
 set -sg escape-time 10                                               # small enough for nvim and alt-keys :smile:.
 set -ga terminal-overrides ",*256col*:Tc"                            # enable true-color
 set -s extended-keys on                                              # support [[https://github.com/tmux/tmux/wiki/Modifier-Keys#extended-keys][xterm]] extension keys
 set -as terminal-features 'st*:extkeys'                              # allow extended-keys with st just like xterm
+set -gq message-limit 10000                                          # Store upto this many messages in the log
 
 # Assign the TERM environment variable depending on the current
 # terminal. I'll add support for other true-color terms as I use
@@ -215,7 +216,7 @@ bind -T root F12  \
   set prefix None \;\
   set key-table off \;\
   set status off \;\
-  set escape-time 0 \;\
+  set escape-time 10 \;\
   if -F '#{pane_in_mode}' 'send-keys -X cancel' \;\
   refresh-client -S \;\
 
@@ -268,10 +269,10 @@ bind -Tm-commands e run -b '\
   cd_env\
 '
 
-bind -Tm-commands b run -b -C '\
+bind -Tm-commands b run -b '\
   _fzf() { tmux-popup -h 80% -w 80% -- fzf --reverse "$@"; };\
   . $HOME/.config/autoloads/cmds/fzbm;\
-  fzbm\
+  fzbm >/dev/null 2>&1\
 '
 
 bind -Tm-commands M run -b '\

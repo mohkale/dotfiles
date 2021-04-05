@@ -101,11 +101,9 @@ bindkey -s '^[[105;5u' "	" # <C-i>
 bindkey -s "^[[109;5u" "^M"
 
 # Macros
-bindkey -s '^[xp' "\C-p^[xl"
-bindkey -s '^[xl' "\C-e | less"
-bindkey -s '^[xc' "\C-e | clip"
-bindkey -s '^[xf' "\C-e | fzf"
-bindkey -s '^[xs' "\C-p\C-asd \C-a"
+bindkey -s '^[xh' "| head -n "
+bindkey -s '^[xl' "| less"
+bindkey -s '^[xc' "| clip"
 bindkey -s '^[x`' '\C-e`\C-a`\C-a'
 bindkey -s '^[xe' 'emacsclient -nw'
 
