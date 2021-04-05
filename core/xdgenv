@@ -139,6 +139,9 @@ export TEXINPUTS="$XDG_DATA_HOME"/texmf:"$TEXINPUTS"
 ## vscode
 export VSCODE_PORTABLE="$XDG_DATA_HOME"/vscode
 
+## GDB
+alias gdb='gdb --silent -nh -x "$XDG_CONFIG_HOME"/gdb/init'
+
 # Path Management
 if [ "$platform" = "windows" ]; then
     # fix unconverted msys paths which crash some programs

@@ -23,3 +23,6 @@
 [submodule "prog/sxiv/sxiv"]
 	path = prog/sxiv/sxiv
 	url = git@github.com:mohkale/sxiv.git
+[submodule "prog/gdb/mammon"]
+	path = prog/gdb/mammon
+	url = git@github.com:mohkale/Gdbinit.git

@@ -1,0 +1,9 @@
+# -*- mode: conf-space -*- GNU GDB Initialisation File -- vim:syntax=conf:filetype=conf
+
+# A bunch of neat color extensions to the base gdb configuration
+source ~/.config/gdb/mammon
+
+# Disable the builtin pager... wish they'd let me use less
+set height 0
+
+set logging file ~/.local/share/gdb.log
