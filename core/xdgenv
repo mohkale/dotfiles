@@ -75,7 +75,7 @@ export IPYTHONDIR="$XDG_CONFIG_HOME"/jupyter
 export JUPYTER_CONFIG_DIR="$XDG_CONFIG_HOME"/jupyter
 
 ## Vim
-export VIMINIT=":source $XDG_CONFIG_HOME/vim/vimrc"
+export VIMINIT=":source $XDG_CONFIG_HOME/vim/init.vim"
 
 ## GTK
 export GTK_RC_FILES="$XDG_CONFIG_HOME/gtk-1.0/gtkrc"

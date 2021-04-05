@@ -52,6 +52,7 @@ set tabstop=4 softtabstop=0 expandtab shiftwidth=4 smarttab                    "
 set whichwrap+=<,>,h,l,[,]                                                     " move to previous or next line when moving back at eol
 set nowrap                                                                     " disable lines being wrapped by default
 set guifont=Meslo\ LG\ M\ DZ                                                   " set preffered font for graphical vim displays
+set selection=old                                                              " Fix bizarre eol behaviour in visual mode. See [[https://vi.stackexchange.com/questions/12607/extend-visual-selection-til-the-last-character-on-the-line-excluding-the-new-li][here]]
 
 let g:netrw_banner=0                                                           " configure netrw to be more dired like
 let g:netrw_fastbrowse=1                                                       " cache directory entries only when remote
@@ -122,18 +123,3 @@ augroup help_splits
   autocmd!
   autocmd! BufEnter * if &ft ==# 'help' | wincmd L | endif
 augroup END
-
-" Taken from [[https://vi.stackexchange.com/a/14521][here]], converts a byte count to a humand readable string
-function! HumanSize(bytes) abort
-    let l:bytes = a:bytes
-    let l:sizes = ['', 'k', 'm', 'g', 't']
-    let l:i = 0
-    while l:bytes >= 1024
-        let l:bytes = l:bytes / 1024.0
-        let l:i += 1
-    endwhile
-    if l:bytes < 0
-        let l:bytes = 0
-    endif
-    return printf('%.0f%s', l:bytes, l:sizes[l:i])
-endfunction

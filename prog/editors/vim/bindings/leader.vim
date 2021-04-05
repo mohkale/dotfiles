@@ -6,9 +6,11 @@ let mapleader       = ' '
 let maplocalleader  = '<leader>m'
 let g:which_key_map = {}
 
-nnoremap <silent><leader> :WhichKey '<Space>'<cr>
+nnoremap <silent> <leader> :silent <c-u> :silent WhichKey '<Space>'<CR>
+vnoremap <silent> <leader> :silent <c-u> :silent WhichKeyVisual '<Space>'<CR>
 nnoremap <leader>am :Man<Space>
 nnoremap <leader>bk :Bclose<cr>
+nnoremap <leader>bn :new<cr>
 nnoremap <leader>ss :Lines<cr>
 nnoremap <leader>tl :set wrap!<cr>
 nnoremap <leader>te :set readonly!<cr>
@@ -21,11 +23,11 @@ nnoremap <leader>xu gU
 nnoremap <leader>xc gc
 
 " Manipulate This Configuration File
-nnoremap <leader>fet :tabedit ~/.config/vim/vimrc<cr>
-nnoremap <leader>fec :edit ~/.config/vim/vimrc<cr>
-nnoremap <leader>fer :source ~/.config/vim/vimrc<cr>
+nnoremap <leader>fet :tabedit ~/.config/vim/init.vim<cr>
+nnoremap <leader>fec :edit ~/.config/vim/init.vim<cr>
+nnoremap <leader>fer :source ~/.config/vim/init.vim<cr>
 nnoremap <leader>bb  :Buffers<cr>
-nnoremap <leader>fa  :Files<cr>
+nnoremap <leader>fsf :Files<cr>
 nnoremap <leader>fr  :History<cr>
 nnoremap <leader>ss  :BLines<cr>
 nnoremap <leader>sa  :Lines<cr>

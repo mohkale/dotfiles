@@ -108,10 +108,13 @@ hi javaScriptFunction      ctermfg=107  ctermbg=NONE cterm=NONE guifg=#78bd65 gu
 hi javaScriptRailsFunction ctermfg=221  ctermbg=NONE cterm=NONE guifg=#fedd38 guibg=NONE gui=NONE
 hi javaScriptBraces        ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE    guibg=NONE gui=NONE
 
-hi yamlKey            ctermfg=221  ctermbg=NONE cterm=NONE guifg=#fedd38 guibg=NONE gui=NONE
-hi yamlAnchor         ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE    guibg=NONE gui=NONE
-hi yamlAlias          ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE    guibg=NONE gui=NONE
-hi yamlDocumentHeader ctermfg=74   ctermbg=NONE cterm=NONE guifg=#4fb3d8 guibg=NONE gui=NONE
+hi yamlKey               ctermfg=221  ctermbg=NONE cterm=NONE guifg=#fedd38 guibg=NONE gui=NONE
+hi yamlKeyValueDelimiter ctermfg=221  ctermbg=NONE cterm=NONE guifg=#fedd38 guibg=NONE gui=NONE
+hi yamlBlockMappingKey   ctermfg=221  ctermbg=NONE cterm=NONE guifg=#fedd38 guibg=NONE gui=NONE
+hi yamlmappingKeyStart   ctermfg=221  ctermbg=NONE cterm=NONE guifg=#fedd38 guibg=NONE gui=NONE
+hi yamlAnchor            ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE    guibg=NONE gui=NONE
+hi yamlAlias             ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE    guibg=NONE gui=NONE
+hi yamlDocumentHeader    ctermfg=74   ctermbg=NONE cterm=NONE guifg=#4fb3d8 guibg=NONE gui=NONE
 
 hi cssURL           ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE    guibg=NONE gui=NONE
 hi cssFunctionName  ctermfg=221  ctermbg=NONE cterm=NONE guifg=#fedd38 guibg=NONE gui=NONE

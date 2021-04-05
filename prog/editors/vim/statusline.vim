@@ -49,6 +49,21 @@ function! StsLineFileFormat()
   return toupper(l:ff)
 endfunction
 
+" Taken from [[https://vi.stackexchange.com/a/14521][here]], converts a byte count to a humand readable string
+function! HumanSize(bytes) abort
+    let l:bytes = a:bytes
+    let l:sizes = ['', 'k', 'm', 'g', 't']
+    let l:i = 0
+    while l:bytes >= 1024
+        let l:bytes = l:bytes / 1024.0
+        let l:i += 1
+    endwhile
+    if l:bytes < 0
+        let l:bytes = 0
+    endif
+    return printf('%.0f%s', l:bytes, l:sizes[l:i])
+endfunction
+
 " Define active statusline
 function! ActivateStatusline()
   setlocal statusline=%#StsVimMode#\ %{StslineMode()}\ %#StatusLine#\ %{HumanSize(line2byte('$')\ +\ len(getline('$')))}\ [%{&readonly?\"%\":&modified?\"*\":\"-\"}]\ %#StatusLineBold#%f%#StatusLine#%(%{get(b:,'coc_git_status',get(b:,'gitbranch',''))}%{get(b:,'coc_git_blame','')}%)%=%#StatusLineMeta#%a%(\ %h%w%)%#StatusLine#\ %{StsLineFileFormat()}\ %{toupper(&encoding)}\ %l:%v\ %p%%\ %#StatusLineBold#%(%{&filetype}\ %)%#StatusLine#
