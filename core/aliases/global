@@ -109,6 +109,7 @@ gp      cd_repo
 gu      cd_project_root
 gx      edit_executables
 oe      select_path
+fp      fzpass
 
 # vi stuff
  q      exit
