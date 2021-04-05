@@ -1,219 +1,310 @@
 #!/usr/bin/env bash
-# Usage: preview [path] [height] [width] [x] [y]
-# Script to preview files/dirs in your terminal. Original source [[https://github.com/gokcehan/lf/wiki/Ranger][here]].
+# Preview files and directories, originally sourced from [[https://github.com/gokcehan/lf/wiki/Ranger][rifle]] -*- +indent: 2 -*-
 
-set -C -f -u -o pipefail
 IFS=$'\n'
+set -o pipefail -o noclobber -o noglob -o nounset
 
-# Supress debug output (especially when piping to a PAGER).
-[ -z "${DEBUG:-}" ] && exec 2>/dev/null
+# ┌───────────────────────────────────────────────┐
+# │ Parse Command Line Arguments and Setup Script │
+# └───────────────────────────────────────────────┘
 
-# ANSI color codes are supported.
-# STDIN is disabled, so interactive scripts won't work properly
+read -r -d '' USAGE <<EOF
+Usage: preview [-h] [-v] [-l LANGUAGE] [-x POS] [-y POS] [-c COLS] [-r ROWS] PATH
+EOF
 
-# Script arguments
-FILE_PATH="$1"
-X="${4:-0}"
-Y="${5:-0}"
-# NOTE: you can echo -e 'colors\ncols\nlines\n' | tput -S
-COLS="${3:-$(tput cols  || echo -n 100)}"
-ROWS="${2:-$(tput lines || echo -n 100)}"
-TRUE_COLOR="$([ "$(tput colors)" -ge 256 ] && echo -n 1 || echo -n 0)"
+read -r -d '' HELP <<EOF
+$USAGE
 
-FILE_EXTENSION="${FILE_PATH##*.}"
-FILE_EXTENSION_LOWER=$(tr '[:upper:]' '[:lower:]' <<< "$FILE_EXTENSION")
+A script inspired by rangers rifle that can preview files/directories
+in your terminal.
 
-# Settings
-HIGHLIGHT_SIZE_MAX=262143  # 256KiB                                             # Don't try to highlight files larger than this many bytes
-HIGHLIGHT_TABWIDTH=4                                                            # Set the width of tabs when syntax highlighting a file
-HTML_IS_PLAINTEXT=1                                                             # When 1 don't try to convert html to plaintext (eg. md)
-INCLUDE_DIR="${INCLUDE_DIR:-0}"                                                 # When 1, include the directory path when previewing directories
+Positional Arguments:
+  PATH
+    The path to the file/directory that's to be previewed. You can set
+    this to - to force previewing of standard input.
 
-# early cancel switch when previewing directories. this isn't done
-# by ranger/lf, but my fzf scripts might use this script for previews.
-if [ -d "$FILE_PATH" ]; then
-    if [ "$INCLUDE_DIR" -eq 1 ]; then
-        ls -d --color=always "$FILE_PATH"
-        echo "${FILE_PATH//?/-}"
-    fi
-    list=$(ls "$FILE_PATH" --color=always --group-directories-first -1)
-    if [ -n "$list" ]; then echo "$list"; else echo -e "\e[7mEmpty\e[27m"; fi
-    exit 0
+Optional Arguments:
+  -h
+    Show this help message and exit.
+  -l LANGUAGE
+    Specify the language used for syntax highlighting PATH.
+  -v
+    Don't suppress intermediate program output while running.
+  -r ROWS
+    Set the expected number of rows in the output display to ROWS.
+  -c ROWS
+    Set the expected number of columns in the output display to COLUMNS.
+  -x POS, -y POS
+    Specify the X, Y coordinates when performing an image preview using
+    kitty.
+
+Environment Variables:
+  COLS, ROWS
+    Defaults for the -c and -r optional arguments.
+  TERM
+    IF it ends in color, preview assumes we have at least 8-bit
+    color support.
+  MIMETYPE
+    The mimetype of the file/stream we're trying to preview.
+  INCLUDE_DIR
+    When set to 1, directory previews include the directory path
+    as a prefix to the directory contents.
+EOF
+
+verbose=0 language='' cols="${COLS:-}" rows="${ROWS:-}" X=0 Y=0
+color=
+case "$TERM" in
+  # Assert whether curren terminal is true-color.
+  *-color|*-256color|*-24bit) color=1 ;;
+esac
+
+while getopts 'hvl:x:y:r:c:' OPT; do
+  case "$OPT" in
+    h) echo "$HELP"
+       exit 0 ;;
+    l) language="$OPTARG" ;;
+    v) verbose=1 ;;
+    c) cols="$OPTARG" ;;
+    r) rows="$OPTARG" ;;
+    x) X="$OPTARG" ;;
+    y) Y="$OPTARG" ;;
+    \?) echo "$USAGE" >&2
+        exit 1 ;;
+  esac
+done
+shift $((OPTIND-1))
+
+# Extract the PATH that we're trying to preview or fail.
+if [ -z "$*" ]; then
+  echo "error: preview: Must supply a path to preview." >&2
+  echo "$USAGE" >&2
+  exit 1
+fi
+FILE_PATH="$*"
+
+[ -z "$verbose" ] && exec 2>/dev/null                                           # Redirect standard error to null device.
+
+# Detect display environment properties unless supplied by parent.
+if [ -z "$cols" ] || [ -z "$rows" ] || [ -z "$color" ]; then
+  read -d '' -r DCOLOR DCOLS DROWS <<< "$(echo -e 'colors\ncols\nlines\n' | tput -S)"
+  if [ -z "$color" ]; then
+     if [ "${DCOLOR:-0}" -ge 256 ]; then color=1; else color=0; fi
+  fi
+  [ -z "$cols" ] && cols="$DCOLS"
+  [ -z "$cols" ] && rows="$DROWS"
 fi
 
-# Syntax highlighters
+# ┌───────────────────────────────────────────┐
+# │ Configure Preview Environment and Options │
+# └───────────────────────────────────────────┘
+
+PREVIEW_TABWIDTH=4                                                              # Set the width of tabs when syntax highlighting a file
+HTML_IS_PLAINTEXT=1                                                             # When 1, don't try to convert html to plaintext (eg. md)
+INCLUDE_DIR="${INCLUDE_DIR:-0}"                                                 # When 1, include the directory path when previewing directories
+
+# ┌───────────────────────────────────┐
+# │ Generic Previewers for File Nodes │
+# └───────────────────────────────────┘
+
+preview_dir() {
+  if [ "$INCLUDE_DIR" -eq 1 ]; then
+    ls -d --color=always "$FILE_PATH"
+    echo "${FILE_PATH//?/-}"
+  fi
+
+  list=$(ls "$FILE_PATH" --color=always --group-directories-first -1)
+  if [ -n "$list" ]; then
+    echo "$list"
+  elif [ -n "$color" ]; then
+    echo -e "\e[7mEmpty\e[27m"
+  else
+    echo "Empty"
+  fi
+}
+
+[ -d "$FILE_PATH" ] && preview_dir && exit 0
+
+# ┌────────────────────────────┐
+# │ Syntax Highlighter Proxies │
+# └────────────────────────────┘
+
+# The only supported syntax highlighter.
+# The language argument mentioned above is meant to be the kind taken
+# by bat, and you should assume if any later syntax highlighters are
+# ever supported bat, $language will only worth with bat.
 highlight_bat() {
-    bat -p --color always --paging never --tabs "$HIGHLIGHT_TABWIDTH" \
-        --theme 'an-old-hope' "$@"
+  bat -p \
+      --color "$(if [ "$color" -eq 1 ]; then echo always; else echo never; fi)" \
+      --paging never \
+      --tabs "$PREVIEW_TABWIDTH" \
+      --theme 'an-old-hope' \
+      "$@"
 }
 
-highlight_pygmentize() {
-    local format='terminal'
-    [ "$TRUE_COLOR" -eq 1 ] && format='terminal256'
-    pygmentize -f "$format" -O "style=autumn" "$@"
-}
+if [ -n "$language" ]; then
+  # When given we assume bat has someway of handling FILE_PATH.
+  highlight_bat -l "$language" -- "$FILE_PATH"
+elif [ "$FILE_PATH" = '-' ]; then
+  # Support for stdin is too varied to properly handle. I could
+  # redirect it to a temporary file and then perform the remaining
+  # checks on it but it's simpler just to hope bat has some way
+  # of handling it.
+  echo "warning: preview: It's recommended to supply the language type when FILE_PATH is stdin" >&2
+  highlight_bat -- "$FILE_PATH"
+else
+  false
+fi && exit 0
 
-highlight_highlight() {
-    local format='ansi'
-    [ "$TRUE_COLOR" -eq 1 ] && format='xterm256'
-    highlight --replace-tabs="$HIGHLIGHT_TABWIDTH" --out-format="$format" \
-              --style="pablo" --force "$@"
-}
+# ┌──────────────────────┐
+# │ File Type Previewers │
+# └──────────────────────┘
 
-# Previewers
 do_archive() {
-    if [ "$#" -gt 1 ]; then
-        atool  --list --format "$2" -- "$1"
-    else
-        atool  --list -- "$1"
-    fi && exit
-    bsdtar --list --file "$1" && exit
+  if [ "$#" -gt 1 ]; then
+    atool  --list --format "$2" -- "$1"
+  else
+    atool  --list -- "$1"
+  fi && return 0
+  bsdtar --list --file "$1"
 }
 
-# Avoid password prompt by providing empty password
-do_rar() { unrar lt -p- -- "$1" && exit; }
-# Avoid password prompt by providing empty password
-do_7z() { 7z l -p -- "$1" && exit; }
+do_rar() { unrar lt -p- -- "$1"; }                                              # Avoid password prompt by providing empty password
+do_7z() { 7z l -p -- "$1"; }                                                    # Avoid password prompt by providing empty password
 
 do_pdf() {
-    # Preview as text conversion
-    pdftotext -l 10 -nopgbrk -q -- "$1" - | fmt -w "$COLS" && exit
-    mutool draw -F txt -i -- "$1" 1-10    | fmt -w "$COLS" && exit
-    exiftool "$1"                                          && exit
+  pdftotext -l 10 -nopgbrk -q -- "$1" - | fmt -w "$cols" && return
+  mutool draw -F txt -i -- "$1" 1-10    | fmt -w "$cols" && return
+  exiftool "$1"
 }
 
 do_torrent() {
-    transmission-show -- "$1" && exit
+  transmission-show -- "$1" && return
 }
 
-# open documents
 do_opendoc() {
-    ## Preview as text conversion
-    odt2txt "$1" && exit
-    ## Preview as markdown conversion
-    pandoc -s -t markdown -- "$1" && exit
+  odt2txt "$1" && return                                                        # Preview as text conversion
+  pandoc -s -t markdown -- "$1" && return                                       # Preview as markdown conversion
 }
 
 do_xlsx() {
-    # Preview as csv conversion using [[https://github.com/dilshod/xlsx2csv][xlsx2csv]].
-    xlsx2csv -- "$1" && exit
+  xlsx2csv -- "$1" && return                                                    # Preview as csv conversion using [[https://github.com/dilshod/xlsx2csv][xlsx2csv]].
 }
 
 do_json() {
-    jq --color-output . -- "$1" && exit
-    python -m json.tool -- "$1" && exit
-    highlight_bat -l json -- "$1"
-}
-
-do_html() {
-    if [ "$HTML_IS_PLAINTEXT" -eq 1 ]; then
-        do_text "$1"
-    else
-        w3m -dump "$1"     && exit
-        lynx -dump -- "$1" && exit
-        elinks -dump "$1"  && exit
-        pandoc -s -f html -t markdown -- "$1" |
-            if   command -v bat        >/dev/null 2>&1; then highlight_bat -l md - "$@"
-            elif command -v highlight  >/dev/null 2>&1; then highlight_highlight --src-lang markdown "$@"
-            elif command -v pygmentize >/dev/null 2>&1; then highlight_pygmentize -l md "$@"
-            else cat "$@"; fi && exit
-    fi
-}
-
-## Direct Stream Digital/Transfer (DSDIFF) and wavpack aren't detected
-## by file(1).
-do_DSDIFF() {
-    mediainfo "$1" && exit
-    exiftool  "$1" && exit
-}
-
-# Preview as text conversion
-[ -n "${KITTY:-}" ] && kitty +kitten icat --clear --transfer-mode file --silent
-do_img() {
-    if [ -n "${KITTY:-}" ]; then
-        local dest="${COLS}x${ROWS}@${X}x${Y}"
-        kitty +kitten icat --transfer-mode file --silent --place "$dest" "$1" && exit
-    fi
-    # viu -- "$FILE_PATH" && exit
-    # img2txt --gamma=0.6 -- "$FILE_PATH" && exit
-    exiftool "$1" && exit
+  if [ "$color" -eq 1 ]; then
+    jq --color-output . -- "$1"
+  else
+    jq -- "$1"
+  fi && return 0
+  highlight_bat -l json -- "$1"
+  python -m json.tool -- "$1" && return
 }
 
 do_text() {
-    # Skip highlighting when the file is way too large
-    [ "$FILESIZE" -gt "$HIGHLIGHT_SIZE_MAX" ] && cat "$1" && exit
+  highlight_bat -- "$1" && return
+  cat "$1"
+}
 
-    highlight_bat -- "$1" && exit
-    highlight_highlight -- "$1" && exit
-    highlight_pygmentize -- "$1" && exit
-    cat "$1" && exit
+do_html() {
+  if [ "$HTML_IS_PLAINTEXT" -eq 1 ]; then
+    do_text "$1"
+  else
+    w3m -dump "$1"     && return
+    lynx -dump -- "$1" && return
+    elinks -dump "$1"  && return
+    pandoc -s -f html -t markdown -- "$1" |
+      if command -v bat >/dev/null 2>&1; then
+        highlight_bat -l md - "$@"
+      else
+        cat "$@"
+      fi
+  fi
+}
+
+do_DSDIFF() {
+  # WARN Direct Stream Digital/Transfer (DSDIFF) and wavpack aren't detected
+  # by file(1).
+  mediainfo "$1" && return
+  exiftool  "$1"
+}
+
+[ -n "${KITTY:-}" ] && kitty +kitten icat --clear --transfer-mode file --silent
+do_img() {
+  if [ -n "${KITTY:-}" ]; then
+    kitty +kitten icat --transfer-mode file --silent --place "${COLS}x${ROWS}@${X}x${Y}" "$1"
+  fi && return
+  exiftool "$1" && return
+  viu -- "$1" && return
+  img2txt --gamma=0.6 -- "$1"
 }
 
 do_epub() {
-    pandoc -f epub -t plain "$1" && exit
-    einfo -p "$1" && exit
+  pandoc -f epub -t plain "$1" && return
+  einfo -p "$1"
 }
 
 do_video() {
-    if mediainfo "$1" && exiftool  "$1"; then exit; fi
+  mediainfo "$1" && exiftool "$1"
 }
 
 do_sqlite3() {
-    sqlite3 "$1" '.dump' | highlight_bat -l sql && exit 0
+  sqlite3 "$1" '.dump' |
+    highlight_bat -l sql
 }
 
-handle_extension() {
-    case "$FILE_EXTENSION_LOWER" in
-        a|ace|alz|arc|arj|bz|bz2|cab|cpio|deb|gz|jar|lha|lz|lzh|lzma|lzo|\
-        rpm|rz|t7z|tar|tbz|tbz2|tgz|tlz|txz|tZ|tzo|war|xpi|xz|Z|zip)
-            do_archive "$FILE_PATH"
-            exit 0 ;;
-        # Many archive programs don't seem to recognise these extensions.
-        cbz)        do_archive "$FILE_PATH" zip; exit 0 ;;
-        cbt)        do_archive "$FILE_PATH" tar; exit 0 ;;
-        cba)        do_archive "$FILE_PATH" ace; exit 0 ;;
-        rar|cbr)    do_rar     "$FILE_PATH";     exit 0 ;;
-        cb7|c7z|7z) do_7z      "$FILE_PATH";     exit 0 ;;
+# ┌────────────────────────┐
+# │ Extension Associations │
+# └────────────────────────┘
 
-        pdf)             do_pdf     "$FILE_PATH"; exit 0 ;;
-        torrent)         do_torrent "$FILE_PATH"; exit 0 ;;
-        odt|ods|odp|sxw) do_opendoc "$FILE_PATH"; exit 0 ;;
-        xlsx)            do_xlsx    "$FILE_PATH"; exit 0 ;;
-        epub)            do_epub    "$FILE_PATH"; exit 0 ;;
-        htm|html|xhtml)  do_html    "$FILE_PATH"; exit 0 ;;
-        json|ipynb*)     do_json    "$FILE_PATH"; exit 0 ;;
-        dff|dsf|wv|wvc)  do_DSDIFF  "$FILE_PATH"; exit 0 ;;
-        sqlite|sqlite3)  do_sqlite3 "$FILE_PATH"; exit 0 ;;
-    esac
-}
+FILE_EXTENSION="${FILE_PATH##*.}"
+FILE_EXTENSION=$(tr '[:upper:]' '[:lower:]' <<< "$FILE_EXTENSION")
 
-handle_mime() {
-    case "$MIMETYPE" in
-        # Mime file types
-        */json) do_json "$FILE_PATH"; exit 0 ;;
-        */html) do_html "$FILE_PATH"; exit 0 ;;
+case "$FILE_EXTENSION" in
+  a|ace|alz|arc|arj|bz|bz2|cab|cpio|deb|gz|jar|lha|lz|lzh|lzma|lzo|\
+    rpm|rz|t7z|tar|tbz|tbz2|tgz|tlz|txz|tZ|tzo|war|xpi|xz|Z|zip)
+    do_archive "$FILE_PATH" ;;
+  rar|cbr)    do_rar     "$FILE_PATH";    ;;
+  cb7|c7z|7z) do_7z      "$FILE_PATH";    ;;
+  # Many archive programs don't seem to recognise comic book extensions.
+  cbz)        do_archive "$FILE_PATH" zip ;;
+  cbt)        do_archive "$FILE_PATH" tar ;;
+  cba)        do_archive "$FILE_PATH" ace ;;
 
-        # Generic classifications
-        video/*|audio/*|application/octet-stream)
-            do_video "$FILE_PATH"
-            exit 0 ;;
-        image/*)      do_img  "$FILE_PATH"; exit 0 ;;
-        text/*|*/xml) do_text "$FILE_PATH"; exit 0 ;;
-        *sqlite3)     do_sqlite3 "$FILE_PATH"; exit 0 ;;
-    esac
-}
+  pdf)             do_pdf     "$FILE_PATH" ;;
+  torrent)         do_torrent "$FILE_PATH" ;;
+  odt|ods|odp|sxw) do_opendoc "$FILE_PATH" ;;
+  xlsx)            do_xlsx    "$FILE_PATH" ;;
+  epub)            do_epub    "$FILE_PATH" ;;
+  htm|html|xhtml)  do_html    "$FILE_PATH" ;;
+  json|ipynb*)     do_json    "$FILE_PATH" ;;
+  dff|dsf|wv|wvc)  do_DSDIFF  "$FILE_PATH" ;;
+  sqlite|sqlite3)  do_sqlite3 "$FILE_PATH" ;;
 
-handle_fallback() {
-    echo '----- File Type Classification -----'
-    file --dereference --brief -- "$FILE_PATH"
-    exit 1
-}
+  *) false ;;
+esac && exit 0
 
-MIMETYPE=$(file --dereference --brief --mime-type -- "$FILE_PATH")
-FILESIZE=$(stat --printf='%s' -- "$FILE_PATH" || echo -n 0)
 
-handle_extension
-handle_mime
-handle_fallback
+# ┌───────────────────────┐
+# │ Mimetype Associations │
+# └───────────────────────┘
 
-exit 1
+[ -n "${MIMETYPE:-}" ] || MIMETYPE=$(file --dereference --brief --mime-type -- "$FILE_PATH")
+case "$MIMETYPE" in
+  */json) do_json "$FILE_PATH" ;;
+  */html) do_html "$FILE_PATH" ;;
+
+  # Generic classifications
+  video/*|audio/*) do_video   "$FILE_PATH" ;;
+  image/*)         do_img     "$FILE_PATH" ;;
+  text/*|*/xml)    do_text    "$FILE_PATH" ;;
+  *sqlite3)        do_sqlite3 "$FILE_PATH" ;;
+
+  *) false ;;
+esac && exit 0
+
+# ┌──────────────────┐
+# │ Fallback Preview │
+# └──────────────────┘
+
+echo '----- File Type Classification -----'
+file --dereference --brief -- "$FILE_PATH"

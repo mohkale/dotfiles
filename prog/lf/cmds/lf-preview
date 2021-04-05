@@ -1,0 +1,6 @@
+#!/bin/sh
+# usage: lf-preview PATH WIDTH HEIGHT X-POS Y-POS
+#
+# lf previewer which proxies my actual [[file:~/.config/dotfiles/bin/preview][preview]] script.
+
+preview -r "$3" -c "$2" "$1"
