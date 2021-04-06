@@ -33,23 +33,25 @@ fzf="tmux-popup -- fzf"
 
 _select_window() {
     # select a window, output format is "session_id:window_id"
-    local input=$(cat)
+    local input
+    input=$(cat)
 
-    local name_width=$(cut -d: -f1-2 <<< "$input" | wc -L)
-    local wid_width=$(cut -d: -f3 <<< "$input" | wc -L)
+    local name_width wid_width
+    name_width=$(cut -d: -f1-2 <<< "$input" | wc -L)
+    wid_width=$(cut -d: -f3 <<< "$input" | wc -L)
 
     awk -F ':' -e '{
         session_id=$1
         session_name=$2
 
         if (session_id == session_name) {
-            printf("%s,%'$wid_width'd:", session_id, $3)
+            printf("%s,%'"$wid_width"'d:", session_id, $3)
             session_width = length(session_id) + 1
         } else {
-            printf("%s@%s,%'$wid_width'd:", session_name, session_id, $3)
+            printf("%s@%s,%'"$wid_width"'d:", session_name, session_id, $3)
             session_width = length(session_id) + length(session_name) + 2
         }
-        for (c=0; c < '$name_width' + '$wid_width' + 1 - session_width; c++) printf " "
+        for (c=0; c < '"$name_width"' + '"$wid_width"' + 1 - session_width; c++) printf " "
 
         printf("%s\n", $4)
     }' <<< "$input" | $fzf --prompt="${PROMPT:-select window: }" "$@" | grep -Eo '[0-9]+,[0-9]+' | tr ',' ':'
@@ -58,12 +60,16 @@ select_window() {
     _select_window "$@" <<< "$windows"
 }
 # select a window, excluding the current window
+# shellcheck disable=SC2120,SC2086
 select_another_window() {
-    local current=$(current_window)
+    local current
+    current=$(current_window)
 
-    if [ ! -z "$current" ]; then
-        local current_match=$(sed -Ee 's/^([0-9]+):([0-9]+)$/^\1:[^:]*:\2:/' <<< $current)
-        local other_window_list=$(grep -v -- "$current_match" <<< "$windows")
+    if [ -n "$current" ]; then
+        local current_match
+        current_match=$(sed -Ee 's/^([0-9]+):([0-9]+)$/^\1:[^:]*:\2:/' <<< "$current")
+        local other_window_list
+        other_window_list=$(grep -v -- "$current_match" <<< "$windows")
     else
         local other_window_list="$windows"
     fi
@@ -78,16 +84,16 @@ select_another_window() {
 current_window() {
     if [ "${choose_current_window_interactively:-0}" -eq 1 ]; then
         current_window=$(PROMPT="select the current window: " select_window)
-    elif [ ! -z "$TMUX" ]; then
+    elif [ -n "$TMUX" ]; then
         current_window=$(tmux display-message -p -F "#{session_id}:#I" | cut -c 2-)
         # TODO maybe check current_window is in the same session as $session_id?
     fi
 
-    echo $current_window
+    echo "$current_window"
 }
 
 __root__() {
-    echo "$(dirname "$0")"/"$@"
+    echo "$(dirname "$0")"/"$*"
 }
 
 windows=$(tmux list-windows -a -F "#{session_id}:#S:#I:#{window_name}" | cut -c 2-)
@@ -102,7 +108,7 @@ case $action in
     switch)
         next_window=$(select_another_window)
         [ -z "$next_window" ] && exit
-        read next_session next_window __ <<< $(tr ':' ' ' <<< "$next_window")
+        read -r next_session next_window _ <<< "$(tr ':' ' ' <<< "$next_window")"
         tmux switch-client -t "\$$next_session" && tmux select-window -t "$next_window"
         ;;
     link|move)
@@ -111,7 +117,7 @@ case $action in
         dest_session=$("$(__root__ attach-session)" -d)
         [ -z "$dest_session" ] && exit # cancelled
         command=$(if [ "$action" == "link" ]; then link-window; else move-window; fi)
-        tmux $command link-window -a -s "\$$src" -t "\$$dest_session:"
+        tmux "$command" link-window -a -s "\$$src" -t "\$$dest_session:"
         ;;
     swap)
         # TODO implement unlink
@@ -119,12 +125,12 @@ case $action in
         [ -z "$src" ] && exit
         dest=$(PROMPT="select destination window for '\$$src': " select_another_window)
         [ -z "$dest" ] && exit
-        tmux swap-window -s "\$$src" -t "\$$dest" $swap_args
+        tmux swap-window -s "\$$src" -t "\$$dest"
         ;;
     rename)
         window=$(current_window)
         [ -z "$window" ] && exit
-        read session window __ <<< $(tr ':' ' ' <<< "$window")
+        read -r session window _ <<< "$(tr ':' ' ' <<< "$window")"
         tmux command-prompt -p "new name:" "rename-window -t \$$session:$window \"%%\""
         ;;
     kill)

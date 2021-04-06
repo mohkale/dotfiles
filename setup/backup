@@ -60,25 +60,32 @@ PATHS = ('~/prog/.modules/python',
 # └───────────┘
 
 def run(*args, **kwargs):
+    """Run a subcommand, hiding output depending on the log level.
+    """
     pipe = (
         None if logging.getLogger(__name__).getEffectiveLevel() <= logging.DEBUG
         else subprocess.DEVNULL)
     return subprocess.run(*args, **kwargs, stdin=pipe, stderr=pipe, stdout=pipe).returncode == 0
 
 def and_all(it):
+    """Conditionally and all the booleans in `it`.
+    """
     return functools.reduce(lambda x, y: x and y, it, True)
 
 def read_bool(query):
+    """Interactively ask the user to answer the boolean query `query`.
+    """
     while True:
         choice = input(f'{query} (y/n)? ')
         if choice.lower() in ('no', 'n'):
             return False
-        elif choice.lower() in ('yes', 'y'):
+        if choice.lower() in ('yes', 'y'):
             return True
-        else:
-            logging.warn('Must enter yes or no, not %s', repr(choice))
+        logging.warning('Must enter yes or no, not %s', repr(choice))
 
 def move_path_dest(args, path):
+    """The path to where `move_path` would move `path`.
+    """
     return args.output / 'files' / path.relative_to(path.anchor)
 
 def move_path(args, it):
@@ -90,7 +97,7 @@ def move_path(args, it):
         if not path.absolute():
             raise ValueError('Moving paths requires all paths to be absolute', path)
         dest = move_path_dest(args, path)
-        logging.trace('Moved %s -> %s', repr(str(path)), repr(str(dest)))
+        logging.trace('Moved %s -> %s', repr(str(path)), repr(str(dest)))  # pylint: disable=E1101
         dest.parent.mkdir(parents=True, exist_ok=True)
         shutil.move(path, dest)
 
@@ -99,6 +106,8 @@ def move_path(args, it):
 # └─────────────────┘
 
 def backup_gpg(args):
+    """Backup GPG secret and public keys.
+    """
     if not shutil.which('gpg'):
         logging.warning('GPG executable not found, skipping GPG keyring backup')
         return True
@@ -114,6 +123,10 @@ def backup_gpg(args):
                     ))
 
 def backup_pass(args):
+    """Backup passwords in the pass password manager.
+
+    WARN: This method doesn't save passwords that haven't been comitted.
+    """
     if not shutil.which('pass'):
         logging.warning('pass executable not found, skipping pass backup')
         return True
@@ -123,6 +136,8 @@ def backup_pass(args):
     return run(['pass', 'git', 'push', 'origin', 'master'])
 
 def backup_paths(args):
+    """Backup paths related to `PATHS`.
+    """
     logging.info('Backing up arbitrary paths')
     it = itertools.chain.from_iterable(
         glob.glob(os.path.expanduser(p), recursive=True) for p in PATHS)
@@ -130,7 +145,7 @@ def backup_paths(args):
         logging.debug('Found backup path: %s', path)
         if args.dry_run:
             continue
-        move_path(args, pathlib.Path(path), it)
+        move_path(args, pathlib.Path(path))
 
 def backup_repos(args):
     """Compress any repositories into archives and then move the compressed
@@ -178,6 +193,9 @@ BACKUP_FUNCTIONS = (backup_gpg,
 # └────────────────────┘
 
 def main(args, vargs, parser):
+    """Run backup.
+    """
+    # pylint: disable=W0613
     logging.info('Creating backup at %s', args.output)
 
     # If backup directory exists ask user to proceed.

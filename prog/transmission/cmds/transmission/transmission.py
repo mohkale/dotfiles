@@ -1,3 +1,7 @@
+"""
+Client implementation for the transmission daemon.
+"""
+
 import json
 import socket
 import logging
@@ -34,10 +38,13 @@ class Transmission(object):
         return cls.from_conf(json.loads(conf.open().read()))
 
     def check(self):
+        """
+        Assert whether the current transmission daemon is running.
+        """
         return self._socket_active(self.host, self.port)
 
     def _make_request(self, url, data):
-        logging.debug('making request to method with body: ' + data)
+        logging.debug('making request to method with body: %s', data)
 
         response = self.session.post(url, data=data)
 
@@ -75,7 +82,7 @@ class Transmission(object):
 
         resp_json = resp.json()
         if resp_json['result'] != 'success':
-            logging.error('request failed with status: ' + resp_json['result'])
+            logging.error('request failed with status: %s', resp_json['result'])
         resp.raise_for_status()
         return resp_json
 
@@ -96,6 +103,7 @@ class Transmission(object):
     def _socket_active(host, port):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             try:
-                s.connect((host, port)) == 0
+                s.connect((host, port))
                 return True
-            except: return False
+            except: # pylint: disable=W0702
+                return False

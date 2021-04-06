@@ -1,3 +1,7 @@
+"""
+Ranger command configuration file.
+"""
+
 import re
 import os
 import subprocess
@@ -66,6 +70,8 @@ class fzf(Command):
 
     @property
     def find_cmd(self):
+        """Return a command line to list files recursively.
+        """
         query_flags = '-mindepth 1'
 
         if self.dirs_only:
@@ -73,7 +79,7 @@ class fzf(Command):
         if self.quantifier:
             query_flags += f' -maxdepth {self.quantifier}'
 
-        cmd = f"find -L . \( -path '*/\.*' -o -fstype 'dev' -o -fstype 'proc' \) -prune \
+        cmd = fr"find -L . \( -path '*/\.*' -o -fstype 'dev' -o -fstype 'proc' \) -prune \
         -o \( {query_flags} -print \) 2>/dev/null"
 
         return cmd
@@ -81,7 +87,7 @@ class fzf(Command):
     def execute(self):
         command = '%s | fzf --no-multi' % self.find_cmd
         fzf = self.fm.execute_command(command, universal_newlines=True, stdout=subprocess.PIPE)
-        stdout, stderr = fzf.communicate()
+        stdout, _stderr = fzf.communicate()
 
         if fzf.returncode == 0:
             fzf_file = os.path.abspath(stdout.rstrip('\n'))

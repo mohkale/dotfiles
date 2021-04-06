@@ -11,7 +11,6 @@
 print_usage() { echo "$0 [-h] [-r]"; }
 
 run_only=0 # only check whether rtorrent is running, if not spawn it.
-attach=1 # whether to attach to the tmux session after spawning it.
 
 while getopts 'hr' OPTION; do
     case "$OPTION" in
@@ -28,7 +27,7 @@ done
 session_name='rtorrent'
 
 function session_exists() {
-    while read id name; do
+    while read -r id name; do
         if [ "$name" = "$session_name" ]; then
             echo "$id"
             return 0
@@ -50,7 +49,7 @@ function create_session() {
 # failed to create session for rtorrent process
 if ! session_exists >/dev/null && ! create_session; then exit 1; fi
 
-session_id="$(session_exists)"
+# session_id="$(session_exists)"
 
 rtorrent_dir="$HOME/.config/rtorrent"
 rtorrent_session_file="$rtorrent_dir/session/rtorrent.pid"

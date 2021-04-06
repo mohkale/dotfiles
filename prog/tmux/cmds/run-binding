@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
-print_usage() { echo "$0 [-r] [-v] [-p] [-c]"; }
+print_usage() { echo "$0 [-h] [-r] [-v] [-p] [-c]"; }
 
 [ $# -eq 0 ] && set -- '-rpvc'
 
 maps=(  )
 
-while getopts 'rpvc' option; do
+while getopts 'hrpvc' option; do
     case "$option" in
         r) maps+=( root )
            ;;
@@ -16,10 +16,10 @@ while getopts 'rpvc' option; do
            ;;
         v) maps+=( copy-mode-vi )
            ;;
-        [h|?]) print_usage >&2
-               exit 0
-               ;;
-        *) print_usage >&2
+        h) print_usage
+           exit 0
+           ;;
+        \?) print_usage >&2
             exit 1
             ;;
     esac
@@ -28,6 +28,7 @@ done
 fzf="tmux-popup -- fzf"
 
 # bindings format is "key map values"
+# shellcheck disable=SC2046
 bindings=$(tmux list-keys |
                awk -e 'match($0, "'$(echo "${maps[@]}" | tr " " "|")'") { print $0 }' |
                sed -E -e 's/bind-key +(-r *)?-T *//' |
@@ -36,12 +37,14 @@ bindings=$(tmux list-keys |
 tabulated_columns=$(cut -d ' ' -f 1-2 <<< "$bindings" | column -t) # key and map columns
 # pad key and map columns to max width then push the binding as the final unpadded column
 bindings=$(paste -d' ' \
-           <(awk -e '{ printf("%-'$(wc -L <<< "$tabulated_columns")'s \n",$0); }' <<< "$tabulated_columns") \
+           <(awk -e '{ printf("%-'"$(wc -L <<< "$tabulated_columns")"'s \n",$0); }' <<< "$tabulated_columns") \
            <(cut -d' ' -f3- <<< "$bindings") | sort)
 
 binding=$($fzf --prompt="binding: " <<< "$bindings")
 [ -z "$binding" ] && exit 1 # fzf session cancelled by user
 
-read key map binding <<< "$binding"
+# shellcheck disable=SC2034
+read -r key map binding <<< "$binding"
 
+# shellcheck disable=SC2086
 tmux $binding

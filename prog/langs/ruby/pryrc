@@ -1,17 +1,20 @@
-# -*- mode: ruby -*-
+# -*- mode: ruby: +indent: 2 -*-
+# frozen_string_literal: true
+
 ENV['LESS'] = '-R -i --save-marks -x4'
-if ENV["INSIDE_EMACS"]
-    Pry.config.pager = false
+if ENV['INSIDE_EMACS']
+  Pry.config.pager = false
 
-    class Emacsable
-       def self.readline(prompt)
-           print prompt
-           (gets || '').chomp
-       end
+  # Emacs supported read line class.
+  class Emacsable
+    def self.readline(prompt)
+      print prompt
+      (gets || '').chomp
     end
+  end
 
-    Pry.config.input = Emacsable
-    Pry.color = true
+  Pry.config.input = Emacsable
+  Pry.color = true
 end
 
 Pry.config.commands.alias_command 'cls', '.clear'

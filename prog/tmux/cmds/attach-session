@@ -26,7 +26,7 @@ fi
 name_width=$(echo "$sessions" | cut -d: -f1-2 | wc -L)
 
 sessions=$(echo "$sessions" | awk -F':'         \
-           -e 'BEGIN { begin = '$(date +%s)' }' \
+           -e 'BEGIN { begin = '"$(date +%s)"' }' \
            -e '{
     age = begin - $3;
     session_id = substr($2,2)
@@ -38,7 +38,7 @@ sessions=$(echo "$sessions" | awk -F':'         \
         printf("%s@%s:", $1, session_id)
         session_width = length($1) + length(session_id) + 1
     }
-    for (c=0; c < '$name_width' - session_width; c++) printf " "
+    for (c=0; c < '"$name_width"' - session_width; c++) printf " "
 
     if ($4 > 1) {
         printf(" %d windows (made ", $4)
@@ -73,7 +73,7 @@ sessions=$(echo "$sessions" | awk -F':'         \
 
 choice=$(echo "$sessions" | $fzf -1 --reverse --exact --prompt="${PROMPT:-choose a session: }")
 
-if [ ! -z "$choice" ]; then
+if [ -n "$choice" ]; then
     # extract the session id from choice name
     choice=$(echo "$choice" | cut -d: -f1)
     if __=$(echo "$choice" | grep -oP '@\d+$'); then

@@ -4,7 +4,7 @@
 
 set -e
 
-$DOTFILES/bin/broken-links ~ |
+"${DOTFILES:-${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles}"/bin/broken-links ~ |
   awk -F : \
       -v root="$DOTFILES" \
       -e '$2 ~ root { print($1) }' |

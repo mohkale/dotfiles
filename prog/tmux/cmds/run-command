@@ -12,18 +12,21 @@ command=$(echo "$commands"                              \
 command_help=$(grep -- "$command" <<< "$commands")
 command_help_count=$(wc -l <<< "$command_help")
 
-if [ $command_help_count -eq 0 ]; then
+if [ "$command_help_count" -eq 0 ]; then
     echo "unable to find help for command: %s" >&2
     exit 1
-elif [ $command_help_count -gt 1 ]; then
+elif [ "$command_help_count" -gt 1 ]; then
     # this should be impossible, but best account for it all the same :)
     command_help=$($fzf -- --exact --prompt="ambiguous command, choose one: " <<< "$command_help")
 fi
 
 command_help=$(sed -E -e 's/\(.+\) ?//g' <<< "$command_help" | cut -d' ' -f2-)
 
-[ -z "$command_help" ] || flags=$($fzf -d1 -- --print-query --info=hidden --prompt="$command $command_help: " < /dev/null)
+[ -z "$command_help" ] ||
+    flags=$($fzf -d1 -- --print-query --info=hidden --prompt="$command $command_help: " < /dev/null)
+# shellcheck disable=SC2181
 if [ $? -eq 0 -o $? -eq 1 ]; then
     # exit code 1 when no choice from stdin given to fzf
+    # shellcheck disable=SC2046
     tmux "$command" $(head -n1 <<< "$flags")
 fi

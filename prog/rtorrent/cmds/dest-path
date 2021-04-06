@@ -16,12 +16,14 @@ destination for a torrent.
 - put in our default destination folder.
 """
 
-import os
 import argparse
 import pathlib as p
 
 def relative_p(path: p.Path, parent: p.Path):
+    """Assert wherther `path` is relative to `parent`.
+    """
     return parent in path.parents
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -70,7 +72,10 @@ the directory to which the torrent should be moved.
     dest = str(default_dest)
 
     # if torrent is a watch directory torrent, within a subdirectory of the watch directory
-    watched_torrent_p = lambda torrent, watch_dir: relative_p(torrent, watch_dir) and torrent.parent != watch_dir
+    def watched_torrent_p(torrent, watch_dir):
+        """Assert whether `torrent` is in the `watch_dir`.
+        """
+        return relative_p(torrent, watch_dir) and torrent.parent != watch_dir
 
     if not relative_p(download, downloading_dir):
         # download isn't in our default download directory, leave it where it is.

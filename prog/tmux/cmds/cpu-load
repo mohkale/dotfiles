@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+"""
+A tmux script to periodically inspect the CPU load on the current system
+and to print it out in a form that can be substituted back into the tmux
+status-line.
+"""
+
 import sys
 import time
 
@@ -9,6 +15,8 @@ except ImportError:
 
 
 def format_cpu(percent, args):
+    """Format a CPU percentage into a string conforming to `args`.
+    """
     res = ''
     percent = round(percent)
     for threshold, st in args.thresholds:
@@ -21,16 +29,21 @@ def format_cpu(percent, args):
     return res
 
 def load_loop(args):
+    """Generator continually fetching and yielding the string to be output.
+    """
     while True:
         try:
             loads = psutil.cpu_percent(percpu=True)
             yield args.join.join(format_cpu(x, args) for x in loads)
         except GeneratorExit:
             break
-        except:
+        except:  # pylint: disable=W0702
             yield ''
 
 def print_loop(it, unbuffer, sleep):
+    """Generator continually reading lines to output from `it` only outputting
+    when the output has changed from the previous output.
+    """
     last_output = None
     for line in it:
         if line != last_output:
@@ -72,7 +85,7 @@ if __name__ == '__main__':
         try:
             it[0] = float(it[0])
         except ValueError:
-            parser.error('Threshold values must be a number, not: %s', it[0])
+            parser.error('Threshold values must be a number, not: %s' % it[0])
     args.thresholds = sorted(args.thresholds, key=lambda x: x[0], reverse=True)
 
     try:

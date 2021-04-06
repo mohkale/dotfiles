@@ -4,21 +4,30 @@
 
 set -e
 
-print_usage() { echo "Usage: $(basename "$0") [-h] PATH"; }
+print_usage() {
+    echo "Usage: $(basename "$0") [-h] [-v] [-d] PATH"
+}
 print_help() {
   print_usage
-  echo ""
-  echo "Optional Arguments:"
-  echo "  -h    Show this help message and exit"
+  cat <<-EOF
+
+Optional Arguments:
+  -h    Show this help message and exit
+  -v    Include debugging output for unmatched mimetypes.
+  -d    Don't run linters, just output the cmd lines that
+        would be run.
+EOF
 }
 
-root="$DOTFILES"
-while getopts 'h' OPTION; do
+root="$DOTFILES" verbose=0 dry_run=0
+while getopts 'hvd' OPTION; do
   case "$OPTION" in
     \?) print_usage >&2
         exit 1 ;;
     h) print_usage
        exit 0 ;;
+    v) verbose=1 ;;
+    d) dry_run=1 ;;
   esac
 done
 shift $((OPTIND - 1))
@@ -32,46 +41,40 @@ elif ! [ -e "$root" -a -r "$root" ]; then
   exit 1
 fi
 
-batch=(  )
 if command -v parallel >/dev/null 2>&1; then
-  batch+=( parallel -d '\n' -X -I% --line-buffer --quote )
-  batch_str="parallel -d '\n' -X -I% --line-buffer --quote"
+    batch_str="parallel -d '\n' -X -I% --line-buffer --quote"
+    [ "$dry_run" -eq 1 ] && batch_str="$batch_str --dry-run"
 else
-  batch+=( xargs -d '\n' -I% )
-  batch_str="xargs -d '\n' -I%"
+    batch_str="xargs -d '\n' -I%"
+    [ "$dry_run" -eq 1 ] && batch_str="$batch_str echo"
 fi
 
-cd "$root"
-files=$(./bin/ls-project -fu |
-  "${batch[@]}" find % -executable |
-  "${batch[@]}" file --dereference --mime-type -- % |
-  awk -F : '$2 ~ /text/' |
-  cut -d : -f 1)
 
-# WARN: Assumes each file contains at least 1 line of content.
-paste -d: \
-  <(echo "$files") \
-  <(xargs -r -d '\n' head -n1 -q <<< "$files") |
-  sed -e '/:#!/!d' \
-      -e 's_:#!/usr/bin/env *\([^ ]\+\)_:\1_' \
-      -e 's_:#!.*/\([^/ ]\+\)_:\1_' |
-  awk -F : \
+cd "$root"
+./bin/find-project -fu |
+  xargs -r -d '\n' file --dereference --mime-type -- |
+  awk -F ': *' \
       -v shell_lint="$batch_str shellcheck -f gcc %" \
-      -v python_lint="$batch_str pylint --msg-template='{path}:{line}:{column}: {category}: {msg} [{msg_id}({symbol})]' -r n -s n %" \
+      -v python_lint="$batch_str pylint --msg-template='{path}:{line}:{column}: {category}: {msg} [{msg_id}({symbol})]' --disable C0103,R0801 --rcfile prog/langs/python/pylintrc --reports n --score n %" \
       -v ruby_lint="$batch_str rubocop -f emacs %" \
+      -v json_lint="$batch_str jsonlint --quiet %" \
+      -v verbose="$verbose" \
       -e '{
   switch ($2) {
-  case /^(bash|zsh|sh)$/:
+  case /x-sh(ellscript)?/:
     print $1 | shell_lint
     break
-  case /^(py$|python)/:
+  case /x-.*python/:
     print $1 | python_lint
     break
-  case /^ruby$/:
+  case /x-ruby$/:
     print $1 | ruby_lint
     break
-  case /^perl$/: break
+  case /json$/:
+    print $1 | json_lint
+    break
   default:
-    print("lint: error: unknown interpreter for linting (" $2 ") at path: " $1)
+    if (verbose)
+      print("lint: error: unknown interpreter for linting (" $2 ") at path: " $1)
   }
 }'

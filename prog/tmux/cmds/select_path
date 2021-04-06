@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 # Variant of [[~/.config/dotfiles/core/autoload/cmds/select_path][select_path]] designed for interactive use with tmux.
 cd() {
     tmux new-window -c "$*"
@@ -7,9 +7,11 @@ cd() {
 _edit_files_in_new_tmux_window() {
     # WARN: Will probably crash with really long paths, maybe I
     # should save to a temp file, read and then restore it :?
-    local files=$(xargs -r -d '\n' printf "%q ")
+    local files
+    files=$(xargs -r -d '\n' printf "%q ")
     tmux new-window "${VISUAL:-${EDITOR:-vi}} $files"
 }
 export SELECT_PATH_EDIT_FILE_CMD=_edit_files_in_new_tmux_window
 
-. $HOME/.config/autoloads/cmds/select_path
+# shellcheck disable=SC1090
+. ~/.config/autoloads/cmds/select_path

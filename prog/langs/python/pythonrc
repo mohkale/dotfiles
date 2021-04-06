@@ -1,4 +1,7 @@
 # -*- mode: python -*- python startup file
+"""
+Top level python repl configuration file.
+"""
 
 import os
 import sys
@@ -26,7 +29,7 @@ finally:
 
 _COLORED_TERMS = (
     'xterm', 'xterm-color', 'xterm-256color',
-    'screen', 'screen-color', 'screen-256color',
+    'screen', 'screen-color', 'screen-256color', 'screen-24bit',
     'st', 'st-color', 'st-256color',
     'linux', 'screen-bce')
 
@@ -37,10 +40,13 @@ def _generate_color(code):
         def generate_color(*strings):
             return code + ' '.join(strings) + reset
         return generate_color
-    else:
-        return lambda *strings: ' '.join(strings)
+    return lambda *strings: ' '.join(strings)
 
 class colors:
+    """Container for a bunch of methods to color code strings.
+    """
+    # pylint: disable=R0903
+
     # use a psuedo namespace for colors
     black       = _generate_color("0;30")
     red         = _generate_color("0;31")
@@ -66,6 +72,7 @@ del _COLORED_TERMS
 def _pretty_print_display_hook(value):
     if value is not None:
         # assigned by the [[https://docs.python.org/3/library/sys.html#sys.displayhook][default display hook]].
+        # pylint: disable=C0415
         try:
             try:
                 import __builtin__

@@ -14,15 +14,20 @@ from watch_config import WatchConfig
 
 
 def Path(path):
+    """Convert to a path and expand any ~user calls."""
     return p.Path(path).expanduser()
 
 
 def relative_p(path, parent):
+    """Assert whether `path` is relative to `parent`."""
     # TODO switch to optimised
     return parent in path.parents
 
 
 def normal_download_directory(location, incomplete):
+    """Assert whether `location` is in the directory it's normally
+    supposed to be downloaded in.
+    """
     if not incomplete:
         logging.warning('no incomplete downloads directory supplied')
         # don't know where you normally download to, so not normal dir
@@ -60,6 +65,7 @@ def check_watch_hirearchy(torrent: p.Path, config) -> str:
     for watch_dir in (config.added / x['directory'] for x in config.rules):
         if watch_dir.exists() and relative_p(torrent, watch_dir):
             return torrent.parent.relative_to(watch_dir)
+    return None
 
 
 def check_incomplete_hirearchy(location: p.Path, incomplete: p.Path) -> str:
@@ -80,9 +86,12 @@ def check_incomplete_hirearchy(location: p.Path, incomplete: p.Path) -> str:
         relative = location.parent.relative_to(incomplete)
         if str(relative) != '.':
             return relative
+    return None
 
 
 def check_hirearchy(args):
+    """Proxy for `check_incomplete_hirearchy` and `check_watch_hirearchy`.
+    """
     return \
         check_incomplete_hirearchy(args.location, args.incomplete) or \
         check_watch_hirearchy(args.torrent, args.watch)

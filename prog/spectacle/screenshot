@@ -20,7 +20,6 @@ while getopts 'ho:wsr' OPTION; do
         \?) print_usage >&2
             exit 1 ;;
         o) dest=$OPTARG
-           output_changed=1
            ;;
         w) args="$args --activewindow" ;;
         r) args="$args --region" ;;
@@ -29,4 +28,5 @@ while getopts 'ho:wsr' OPTION; do
 done
 
 output=$(date +"%Y%m%d-%M-%S.png")
+# shellcheck disable=SC2086
 spectacle -b $args -o "$dest/$output"

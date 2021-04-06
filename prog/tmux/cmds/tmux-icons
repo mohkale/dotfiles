@@ -19,7 +19,7 @@ print_help() {
 }
 
 client=''
-while getopts hd:c: OPTION; do
+while getopts hc: OPTION; do
   case "$OPTION" in
     h) print_help
        exit 0 ;;

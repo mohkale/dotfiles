@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 # Tmux prompt script to peridically output freely available disk-space.
+"""
+A tmux script to periodically inspect the amount of freely available disk-space
+at various mount-points on your file-system and output the results in a form that
+can be substituted a form that can be substituted back into the tmux status-line.
+"""
 
 import os
 import sys
@@ -16,6 +21,8 @@ DEFAULT_CONFIG_PATH = Path(os.path.expandvars('$TMUX_HOME/disk-free.conf'))
 
 @dataclasses.dataclass
 class ConfigEntry(object):
+    """Struct containing fields from a config file.
+    """
     name: str
     mount: str
 
@@ -37,7 +44,7 @@ def _should_read_config(config):
                 last_read_time = time.time()
         except GeneratorExit:
             break
-        except:
+        except:  # pylint: disable=W0702
             yield False
 
 def parse_config(body):
@@ -60,19 +67,27 @@ def parse_config(body):
 
 
 def format_percentage(usage, percent):
+    """Format a usage amount as a percentage value.
+    """
+    # pylint: disable=unused-argument
     return str(percent) + '%'
 
 
 def format_free_bytes(usage, percent):
+    """Format a usage amount as a byte count (eg: 1MB).
+    """
+    # pylint: disable=unused-argument
     return '%d%s' % hurry.bytes(usage.free, 1000)
 
 
 def format_mount(entry, fmt, args):
+    """Format a mount points usage value as a string.
+    """
     try:
         if not entry.mount.exists():
             return None
         usage = shutil.disk_usage(str(entry.mount))
-    except:
+    except:  # pylint: disable=W0702
         return None
     percent = round(100 * usage.used / float(usage.total))
     res = ''
@@ -86,6 +101,8 @@ def format_mount(entry, fmt, args):
     return res
 
 def mount_loop(args):
+    """Generator continually fetching and yielding the string to be output.
+    """
     fmt = format_percentage
     if args.show_bytes:
         fmt = format_free_bytes
@@ -95,7 +112,7 @@ def mount_loop(args):
     while True:
         try:
             # Load configuration if it's changed or we haven't yet.
-            should_read_conf = next(reread_p)
+            should_read_conf = next(reread_p)  # pylint: disable=R1708
             if cfg is None or should_read_conf:
                 cfg = parse_config(
                     args.config.open('r', encoding='utf-8')
@@ -107,6 +124,9 @@ def mount_loop(args):
             break
 
 def print_loop(it, unbuffer, sleep):
+    """Generator continually reading lines to output from `it` only outputting
+    when the output has changed from the previous output.
+    """
     last_output = None
     for line in it:
         if line != last_output:
@@ -153,7 +173,7 @@ if __name__ == '__main__':
         try:
             it[0] = float(it[0])
         except ValueError:
-            parser.error('Threshold values must be a number, not: %s', it[0])
+            parser.error('Threshold values must be a number, not: %s' % it[0])
     args.thresholds = sorted(args.thresholds, key=lambda x: x[0], reverse=True)
 
     try:
