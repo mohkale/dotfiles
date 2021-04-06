@@ -1,0 +1,237 @@
+#!/usr/bin/env python3
+"""
+Script to prepare backup current host for a new installation.
+
+The backups created by this script aren't reproducable. You can't take a backup
+directory and restore your system to it's working state. Instead the backups act
+as a reference for all the important or meaningful files you have on your system
+and may need when moving to a new system.
+"""
+
+import functools
+import glob
+import itertools
+import logging
+import os
+import pathlib
+import shutil
+import subprocess
+import sys
+
+# ┌───────────┐
+# │ Constants │
+# └───────────┘
+
+# Specify the individual paths you'd like to be backed up
+# as a chain of [[https://docs.python.org/3/library/glob.html][globs]].
+#
+# If any of the globs don't expand to a valid path, they
+# won't be backed up (simple as).
+PATHS = ('~/prog/.modules/python',
+         '~/prog/conf',
+         '~/prog/logs',
+         '~/media',
+         '~/docs',
+         # TODO: crontab
+         '~/.config/aliases/*.private',
+         '~/.config/shenv.local',
+         # Browser bookmarks
+         '~/.config/google-chrome',
+         '~/.config/BraveSoftware/Brave-Browser/Default/Bookmarks',
+         '~/.mozilla/firefox/*/places.sqlite',
+         '~/.tor-browser/app/Browser/TorBrowser/Data/Browser/*/places.sqlite',
+         # Tmux
+         '~/.config/tmux/disk-free.conf',
+         '~/.config/tmux/tmux-local.conf',
+         '~/.config/tmuxinator',
+         # Transmission torrent database
+         '~/.config/transmission*',
+         # Vim shared data (undo history)
+         '~/.local/share/vim',
+         '~/.local/share/nvim',
+         # My local temporary files directory
+         '~/.local/temp',
+         # System files (may require sudo)
+         '/etc/ssh/',
+         )
+
+# ┌───────────┐
+# │ Utilities │
+# └───────────┘
+
+def run(*args, **kwargs):
+    pipe = (
+        None if logging.getLogger(__name__).getEffectiveLevel() <= logging.DEBUG
+        else subprocess.DEVNULL)
+    return subprocess.run(*args, **kwargs, stdin=pipe, stderr=pipe, stdout=pipe).returncode == 0
+
+def and_all(it):
+    return functools.reduce(lambda x, y: x and y, it, True)
+
+def read_bool(query):
+    while True:
+        choice = input(f'{query} (y/n)? ')
+        if choice.lower() in ('no', 'n'):
+            return False
+        elif choice.lower() in ('yes', 'y'):
+            return True
+        else:
+            logging.warn('Must enter yes or no, not %s', repr(choice))
+
+def move_path_dest(args, path):
+    return args.output / 'files' / path.relative_to(path.anchor)
+
+def move_path(args, it):
+    """Copy each absolute path in it to the backup directory.
+    """
+    out = args.output / 'files'
+    out.mkdir(exist_ok=True)
+    for path in it:
+        if not path.absolute():
+            raise ValueError('Moving paths requires all paths to be absolute', path)
+        dest = move_path_dest(args, path)
+        logging.trace('Moved %s -> %s', repr(str(path)), repr(str(dest)))
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        shutil.move(path, dest)
+
+# ┌─────────────────┐
+# │ Backup Routines │
+# └─────────────────┘
+
+def backup_gpg(args):
+    if not shutil.which('gpg'):
+        logging.warning('GPG executable not found, skipping GPG keyring backup')
+        return True
+    logging.info('Backing up GPG keyring')
+    dest_dir = args.output / 'gpg'
+    dest_dir.mkdir(exist_ok=True)
+
+    if args.dry_run:
+        return True
+    return and_all((run(['gpg', '--export', '--armor', '--output', str(dest_dir / 'keys.gpg')]),
+                    run(['gpg', '--export-secret-keys', '--armor', '--output', str(dest_dir / 'private-keys.gpg')]),
+                    run(['gpg', '--export-ownertrust', '--output', str(dest_dir / 'armor.gpg')]),
+                    ))
+
+def backup_pass(args):
+    if not shutil.which('pass'):
+        logging.warning('pass executable not found, skipping pass backup')
+        return True
+    logging.info('Pushing pass password store to remote')
+    if args.dry_run:
+        return True
+    return run(['pass', 'git', 'push', 'origin', 'master'])
+
+def backup_paths(args):
+    logging.info('Backing up arbitrary paths')
+    it = itertools.chain.from_iterable(
+        glob.glob(os.path.expanduser(p), recursive=True) for p in PATHS)
+    for path in it:
+        logging.debug('Found backup path: %s', path)
+        if args.dry_run:
+            continue
+        move_path(args, pathlib.Path(path), it)
+
+def backup_repos(args):
+    """Compress any repositories into archives and then move the compressed
+    archives over to the backup directory. The repos are compressed beforehand
+    because otherwise we end up moving a lot of tiny files from one directory
+    to another and that slows down the backup process immensely.
+    """
+    logging.info('Backing up repositories')
+    res = True
+    for repo in subprocess.check_output(['ls-repos']).split(b'\n'):
+        repo = repo.decode('utf-8')
+        if not repo:
+            continue
+
+        logging.debug('Attempting to backup repository: %s', repo)
+        repo = pathlib.Path(repo)
+        archive_path = repo.parent / (repo.name + '.tar.gz')
+
+        backup_dest = move_path_dest(args, archive_path)
+        if backup_dest.exists():
+            logging.warning('Skipping repo backup because destination exists: %s', backup_dest)
+            continue
+
+        if args.dry_run:
+            continue
+
+        if not run(['tar', 'czvf', archive_path, '.'], cwd=repo):
+            logging.error('Failed to compress repo to archive for backup: %s', repo)
+            if archive_path.exists():
+                archive_path.unlink()
+            res = False
+        else:
+            move_path(args, (archive_path,))
+    return res
+
+
+# The functions used for backing up in the order we want them to backup.
+BACKUP_FUNCTIONS = (backup_gpg,
+                    backup_pass,
+                    backup_paths,
+                    backup_repos,)
+
+# ┌────────────────────┐
+# │ Script Entry Point │
+# └────────────────────┘
+
+def main(args, vargs, parser):
+    logging.info('Creating backup at %s', args.output)
+
+    # If backup directory exists ask user to proceed.
+    # Otherwise ask user if they really want to backup or not.
+    if args.output.exists():
+        proceed = args.no_confirm or read_bool('Backup destination already exists, continue')
+        if not proceed:
+            logging.info('Skipping backup due to user cancellation')
+            return True
+    elif not args.no_confirm and not read_bool('Creating a backup will invalidate some files on the system, proceed'):
+        logging.info('Skipping backup due to user cancellation')
+        return True
+    args.output.mkdir(exist_ok=True, parents=True)
+
+    # Run all backup functions in order and return True only when all of
+    # them return a non-false value.
+    #
+    # TODO: Error log when a backupper failed.
+    return and_all(func(args) for func in BACKUP_FUNCTIONS)
+
+
+if __name__ == '__main__':
+    import argparse
+
+    from mohkale.logging import add_logging_level, zerolog
+    add_logging_level('TRACE', logging.DEBUG - 5)
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('-o', '--output',
+                        metavar='PATH', type=pathlib.Path,
+                        default=pathlib.Path('~/backup').expanduser(),
+                        help='Dump backup to PATH')
+    parser.add_argument('-y', '--no-confirm',
+                        action='store_true',
+                        help='Assume yes on any interactive queries')
+    parser.add_argument('--dry-run',
+                        action='store_true',
+                        help="Don't actually perform the backup, just log as if you did")
+
+    logging_group = parser.add_argument_group('Logging')
+    logging_group.add_argument('-l', '--log-level', metavar='LEVEL',
+                               type=lambda X: getattr(logging, X.upper()),
+                               default=logging.INFO, help='Level of logging output.')
+    logging_group.add_argument('-L', '--log-file', metavar='FILE', default=sys.stderr,
+                               help='File to write log to. defaults to stderr.')
+    logging_group.add_argument('-C', '--no-color', dest='log_color', action='store_false',
+                               help='Disable coloring of logging output.')
+
+    args  = parser.parse_args()
+    vargs = vars(args)
+
+    zerolog(vargs.pop('log_level'),
+            fd=vargs.pop('log_file'),
+            color=vargs.pop('log_color'))
+
+    sys.exit(0 if main(args, vargs, parser) else 1)
