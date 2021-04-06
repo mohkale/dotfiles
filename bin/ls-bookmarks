@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# -*- +indent: 2 -*-
 
 print_usage() {
   echo "Usage: $(basename "$0") [-h] [-d SEP] [-p FORMAT] [-C]"
@@ -72,6 +73,7 @@ do_chromium() { # ([browser:path1:path2...]...)
     local IFS=
     IFS=: read -r browser paths <<< "$arg"
     while read -r it; do
+      # shellcheck disable=SC2086
       if [ -e $it ]; then
         cat $it; break
       fi

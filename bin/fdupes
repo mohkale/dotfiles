@@ -35,7 +35,6 @@ fdupes command: find ~/multifolder/ -type f | fdupes - -r '\n\n' -s '\n' -o
 """
 
 import os
-import io
 import logging
 
 import filecmp
@@ -54,7 +53,7 @@ def is_duplicate(f1, f2):
           filecmp.cmp(f1, f2, shallow=False)
 
 _get_hash_type = collections.namedtuple('HashType', ['hash', 'time'])
-def get_hash(fp, buf_size=8192, mem={}):
+def get_hash(fp, buf_size=8192, mem={}): # pylint: disable=W0102
     """Get the hash for the file at `fp'.
     Employs a caching mechanism to avoid recalculating the
     hash for a file you've already supplied. The cache is
@@ -85,15 +84,17 @@ def group_equals(iterable, key=lambda a, b: a == b):
     """
     groups = []
     for it in iterable:
-        for i in range(len(groups)):
-            if key(groups[i][0], it):
-                groups[i].append(it)
+        for group in groups:
+            if key(group[0], it):
+                group.append(it)
                 break
         else:
             groups.append([it])
     return groups
 
 def gen_dups(paths):
+    """Enumerate entries in `paths` grouped by duplicates.
+    """
     # Turns out itertools.groupby only groups sequentially matching items
     # like `uniq`. We're gonna have to find and keep track of all the file
     # hashes in advance until I get a chance to implement a lazy groupby.
@@ -101,7 +102,7 @@ def gen_dups(paths):
     for fp in paths:
         try:
             hashes[fp] = get_hash(fp)
-        except:
+        except: # pylint: disable=W0702
             logging.exception('Failed to get hash for file at path: %s', fp)
     paths = sorted(hashes.keys(), key=hashes.__getitem__)
 
@@ -118,62 +119,55 @@ if __name__ == '__main__':
     import argparse
     from mohkale.logging import zerolog
 
-    def parse_args():
-        parser = argparse.ArgumentParser(
-            formatter_class=argparse.RawDescriptionHelpFormatter,
-            description = """
-Compare and group duplicate files.
-            """.strip()
-        )
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description="Compare and group duplicate files.")
 
-        read_group = parser.add_argument_group('Read Paths')
-        read_group.add_argument('path', nargs='*', help='Specify paths to check.')
-        read_group.add_argument('-', '--stdin', action='store_true',
-                                help='Read paths to check from stdin.')
+    read_group = parser.add_argument_group('Read Paths')
+    read_group.add_argument('path', nargs='*', help='Specify paths to check.')
+    read_group.add_argument('-', '--stdin', action='store_true',
+                            help='Read paths to check from stdin.')
 
-        output_group = parser.add_argument_group('Output',
-                                                 description="""
+    output_group = parser.add_argument_group('Output',
+                                                description="""
 Configure how this program outputs results. By default it joins
 each equal file with a field seperator (:) and seperates unequal
 files with row seperator (\\n).
-                                                 """.strip())
-        output_group.add_argument('-s', '--field-seperator',
-                                  default=':', metavar='SEP',
-                                  help='Seperator for identicle files in the same column')
-        output_group.add_argument('-r', '--row-seperator',
-                                  default='\n', metavar='SEP',
-                                  help='Seperator for identicle files in the same column')
+                                                """.strip())
+    output_group.add_argument('-s', '--field-seperator',
+                                default=':', metavar='SEP',
+                                help='Seperator for identicle files in the same column')
+    output_group.add_argument('-r', '--row-seperator',
+                                default='\n', metavar='SEP',
+                                help='Seperator for identicle files in the same column')
 
-        # dup_pred_group = output_group.add_argument_group()
-        dup_pred_group = output_group.add_mutually_exclusive_group()
-        dup_pred_group.add_argument('-o', '--only',
-                                    action='store_true', dest='only_duplicates',
-                                    help='Only print files with at least one duplicate.')
-        dup_pred_group.add_argument('-O', '--except',
-                                    action='store_true', dest='no_duplicates',
-                                    help='Only print files that have no duplicates.')
+    # dup_pred_group = output_group.add_argument_group()
+    dup_pred_group = output_group.add_mutually_exclusive_group()
+    dup_pred_group.add_argument('-o', '--only',
+                                action='store_true', dest='only_duplicates',
+                                help='Only print files with at least one duplicate.')
+    dup_pred_group.add_argument('-O', '--except',
+                                action='store_true', dest='no_duplicates',
+                                help='Only print files that have no duplicates.')
 
-        logging_group = parser.add_argument_group('Logging')
-        logging_group.add_argument('-l', '--log-level', metavar='LEVEL',
-                                    type=lambda X: getattr(logging, X.upper()),
-                                    default=logging.INFO, help='Level of logging output.')
-        logging_group.add_argument('-L', '--log-file', metavar='FILE', default=sys.stderr,
-                                   help='File to write log to. defaults to stderr.')
-        logging_group.add_argument('-C', '--no-color', dest='log_color', action='store_false',
-                                   help='Disable coloring of logging output.')
+    logging_group = parser.add_argument_group('Logging')
+    logging_group.add_argument('-l', '--log-level', metavar='LEVEL',
+                                type=lambda X: getattr(logging, X.upper()),
+                                default=logging.INFO, help='Level of logging output.')
+    logging_group.add_argument('-L', '--log-file', metavar='FILE', default=sys.stderr,
+                                help='File to write log to. defaults to stderr.')
+    logging_group.add_argument('-C', '--no-color', dest='log_color', action='store_false',
+                                help='Disable coloring of logging output.')
 
-        args  = parser.parse_args()
-        vargs = vars(args)
+    args  = parser.parse_args()
+    vargs = vars(args)
 
-        if args.stdin:
-            args.path = itertools.chain(args.path, map(lambda x: x.rstrip(os.linesep), sys.stdin))
+    if args.stdin:
+        args.path = itertools.chain(args.path, map(lambda x: x.rstrip(os.linesep), sys.stdin))
 
-        args.field_seperator = codecs.decode(args.field_seperator, 'unicode_escape')
-        args.row_seperator = codecs.decode(args.row_seperator, 'unicode_escape')
+    args.field_seperator = codecs.decode(args.field_seperator, 'unicode_escape')
+    args.row_seperator = codecs.decode(args.row_seperator, 'unicode_escape')
 
-        return args, vargs, parser
-
-    args, vargs, parser = parse_args()
     zerolog(vargs.pop('log_level'), fd=vargs.pop('log_file'), color=vargs.pop('log_color'))
 
     for _, fs in gen_dups(args.path):

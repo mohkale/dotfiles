@@ -1,3 +1,6 @@
+"""
+Helpers for a lispy data serialisation format.
+"""
 import edn_format
 
 keyword_name = lambda keyword: \
@@ -7,6 +10,9 @@ strinfigy_keyword = lambda x: \
 
 # Taken from [[https://github.com/swaroopch/edn_format/issues/76#issuecomment-665328577][here]].
 def process_edn(x):
+    """
+    Convert edn symbols in parsed objects to strings.
+    """
     if isinstance(x, edn_format.ImmutableDict):
         return {strinfigy_keyword(k): process_edn(v) for k, v in x.items()}
     elif isinstance(x, edn_format.ImmutableList) or isinstance(x, tuple):

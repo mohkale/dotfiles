@@ -1,4 +1,6 @@
-#!/usr/bin/env python3
+"""
+Configure python logging.
+"""
 import io
 import sys
 import logging
@@ -25,6 +27,7 @@ def zerolog(level, *, fd=sys.stderr, color=True):
     logging.addLevelName(logging.ERROR,    (red      if color else '') + 'ERR' + (reset if color else ''))
     logging.addLevelName(logging.CRITICAL, (bold_red if color else '') + 'CRT' + (reset if color else ''))
     if hasattr(logging, 'TRACE'):
+        # pylint disable=no-member
         logging.addLevelName(logging.TRACE, (black if color else '') + 'TRC' + (reset if color else ''))
 
     logging_args = {
@@ -82,6 +85,7 @@ def add_logging_level(level_name, level_num, method_name=None):
     # http://stackoverflow.com/a/13638084/2988730
     def logForLevel(self, message, *args, **kwargs):
         if self.isEnabledFor(level_num):
+            # pylint: disable=W0212
             self._log(level_num, message, args, **kwargs)
 
     def logToRoot(message, *args, **kwargs):

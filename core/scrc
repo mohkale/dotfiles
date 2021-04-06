@@ -17,3 +17,6 @@ disable=SC2166
 disable=SC1071
 # Allow $vars inside of printf strings (eg. printf "$format" "$arg")
 disable=SC2059
+# Suppress warning about assigning array elements by index (I've never done that).
+disable=SC2191
+

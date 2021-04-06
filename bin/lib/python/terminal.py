@@ -1,4 +1,6 @@
-#!/usr/bin/env python3
+"""
+Access your current terminals teletype device.
+"""
 import os
 import io
 import sys
@@ -16,4 +18,3 @@ def open_tty() -> io.FileIO:
     except:
         logging.fatal('Failed to open tty: %s', tty)
         sys.exit(1)
-

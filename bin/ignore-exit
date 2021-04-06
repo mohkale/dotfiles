@@ -6,8 +6,7 @@ if [ "$#" -le 1 ]; then
 fi
 
 code="$1"; shift # read acceptable exit codes
-"$@"
-if [ "$?" -eq 0 ] || grep --quiet "$?" <<< "$code"; then
+if "$@" || echo "$code" | grep --quiet "$?"; then
   exit 0
 else
   exit "$?"

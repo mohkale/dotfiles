@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
+"""
+Filter stdin based on glob patterns.
+"""
 import os
 import sys
 import fnmatch
 
-def exists(iter):
-    """assert whether `iter` has a next element"""
+def exists(it):
+    """assert whether `it` has a next element"""
     try:
-        next(iter)
+        next(it)
         return True
     except StopIteration:
         return False
@@ -20,6 +23,9 @@ def basename_iter(path):
         yield from basename_iter(dirn)
 
 def glob_filter(args):
+    """Return a predicate function that checks whether a line matches
+    a collection of globs.
+    """
     globber = fnmatch.fnmatchcase if args.case_sensitive else fnmatch.fnmatch
     def matches(line):
         """line matches some glob in the glob list"""
@@ -29,7 +35,7 @@ def glob_filter(args):
         def do_filter_all(line):
             for base in basename_iter(line):
                 if matches(base):
-                    return not(args.invert)
+                    return not args.invert
             return args.invert
         return do_filter_all
 
@@ -47,13 +53,15 @@ if __name__ == '__main__':
     globs_group = parser.add_argument_group('Glob')
     globs_group.add_argument('globs', metavar='GLOB', default=[], nargs='*', help='GLOB to match')
     globs_group.add_argument('-p', '--path', metavar='PATH', action='append',
-                        help='read globs from PATH seperated with DELIMETER')
+                             help='read globs from PATH seperated with DELIMETER')
     globs_group.add_argument('-d', '--seperator', metavar='DELIMITER', default=':',
-                        help='DELIMITER used with PATH')
+                             help='DELIMITER used with PATH')
     globs_group.add_argument('-b', '--basename', action='store_true',
                              help='only match against basenames')
     globs_group.add_argument('-a', '--basename-all', action='store_true',
-                             help='only match if at least one basename in the entire path matches a glob. This implies -b. WARN this has massive performance costs :/, so use sparingly if you can.')
+                             help='only match if at least one basename in the entire \
+                             path matches a glob. This implies -b. WARN this has massive \
+                             performance costs :/, so use sparingly if you can.')
 
     parser.add_argument('-v', '--invert', action='store_true',
                         help="only show a line that doesn't match a GLOB")
@@ -70,10 +78,10 @@ if __name__ == '__main__':
             args.globs.extend(path.split(seperator))
 
     if not args.globs:
-        print(f'filter-globs: warning: no globs supplied, catting input', file=sys.stderr)
+        print('filter-globs: warning: no globs supplied, catting input', file=sys.stderr)
         for line in iter(sys.stdin.readline, ''):
             print(line, end='')
-        exit(0)
+        sys.exit(0)
 
     for f in filter(glob_filter(args), map(lambda s: s.rstrip(os.linesep), sys.stdin)):
         print(f)

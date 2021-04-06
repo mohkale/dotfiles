@@ -1,5 +1,9 @@
 #!/usr/bin/env python
-# Adapted from [[https://stackoverflow.com/a/19438403][here]].
+"""
+Output all the code-points in a given font-files.
+
+Adapted from [[https://stackoverflow.com/a/19438403][here]].
+"""
 
 import sys
 import codecs
@@ -9,17 +13,23 @@ from fontTools.ttLib import TTFont, TTLibError
 from fontTools.unicode import Unicode
 
 def open_font(path):
+    """Open the font-file at `path`.
+    """
     return TTFont(path, 0, allowVID=0,
            ignoreDecompileErrors=True,
            fontNumber=-1)
 
 def unicode_title(num):
+    """Return the plaintext representation of a code-point `num`.
+    """
     title = Unicode[num]
     if title == '????':
         title = ''
     return title
 
 def enumerate_glyphs(path):
+    """Enumerate the glyphs in a font-file.
+    """
     with open_font(path) as ttf:
         for x in ttf['cmap'].tables:
             yield from x.cmap.items()
@@ -28,26 +38,20 @@ if __name__ == '__main__':
     import argparse
     import pathlib
 
-    def parse_args():
-        parser = argparse.ArgumentParser(
-            description=" Output code points in one or more font files."
-        )
+    parser = argparse.ArgumentParser(
+        description=" Output code points in one or more font files.")
 
-        parser.add_argument('font', nargs='+', type=pathlib.Path,
-                            help='Path to font file to load')
+    parser.add_argument('font', nargs='+', type=pathlib.Path,
+                        help='Path to font file to load')
 
-        out_group = parser.add_argument_group('out')
-        out_group.add_argument('-d', '--delimiter', default=':',
-                               help='Specify the delimiter for code points')
+    out_group = parser.add_argument_group('out')
+    out_group.add_argument('-d', '--delimiter', default=':',
+                            help='Specify the delimiter for code points')
 
-        args  = parser.parse_args()
-        vargs = vars(args)
+    args  = parser.parse_args()
+    vargs = vars(args)
 
-        args.delimiter = codecs.decode(args.delimiter, 'unicode_escape')
-
-        return args, vargs, parser
-
-    args, vargs, parser = parse_args()
+    args.delimiter = codecs.decode(args.delimiter, 'unicode_escape')
 
     exit_code = 0
     for font in args.font:

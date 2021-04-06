@@ -1,22 +1,23 @@
 #!/usr/bin/env python3
-# Allow cut like operations in bash
-#
-# This script takes a bunch of paths, makes them absolute, then
-# prints them back out in a way that's safe to insert into a
-# command line.
-#
-# eg.
-#
-#   $ cd ~/downloads/incomplete/
-#   $ ls
-#   file-a 'file b'
-#   $ file-path | clip # you can past the fp back out using Ctrl-Shift-V
-#   $ cd ~/
-#   $ mv ~/downloads/incomplete/file-a ~/downloads/incomplete/file\ b .
-#
-# by default this script just prints out all the files in the current
-# working directory, run `file-path -h` for a list of available options.
-#
+"""
+Allow cut like operations in bash
+
+This script takes a bunch of paths, makes them absolute, then
+prints them back out in a way that's safe to insert into a
+command line.
+
+eg.
+
+  $ cd ~/downloads/incomplete/
+  $ ls
+  file-a 'file b'
+  $ file-path | clip # you can past the fp back out using Ctrl-Shift-V
+  $ cd ~/
+  $ mv ~/downloads/incomplete/file-a ~/downloads/incomplete/file\\ b .
+
+by default this script just prints out all the files in the current
+working directory, run `file-path -h` for a list of available options.
+"""
 
 import os
 import sys

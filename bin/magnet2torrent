@@ -29,25 +29,29 @@ distros).
 """
 
 import io
+import logging
 import os
-import sys
+import pathlib as p
 import shutil
 import signal
-import logging
+import sys
 import tempfile
-
-import pathlib as p
-from time import sleep
-import libtorrent as lt
 from contextlib import contextmanager
-
 from dataclasses import dataclass
+from time import sleep
+
+import libtorrent as lt
+
 
 def raise_timeout(signum, frame):
+    """Throw a timeout error."""
     raise TimeoutError()
 
 @contextmanager
 def timeout(time):
+    """
+    Provide a context manager that exits itself after a certain duration.
+    """
     # source [[https://www.jujens.eu/posts/en/2018/Jun/02/python-timeout-function][here]]
     if time:
         # Register a function to raise a TimeoutError on the signal.
@@ -65,6 +69,9 @@ def timeout(time):
 
 @dataclass
 class Torrent(object):
+    """
+    Struct containing fields for a fetched torrent.
+    """
     torrent: io.BytesIO
     name: str
     creator: str
@@ -72,19 +79,24 @@ class Torrent(object):
     size: int # in bytes
 
 class Magnet2Torrent(object):
+    """
+    Constroller for this script.
+    """
     def __init__(self, delay, timeout=None):
         logging.debug('making session')
         self.delay = delay
         self.timeout = timeout
         self.ses = lt.session()
         self.tempdir = tempfile.mkdtemp()
-        logging.debug('temp directory set to: ' + self.tempdir)
+        logging.debug('temp directory set to: %s', self.tempdir)
 
     def __del__(self,):
         self.cleanup()
 
     def convert(self, magnet_url):
-        logging.debug('constructing handle: ' + magnet_url)
+        """Convert a magnet URL to a torrent file.
+        """
+        logging.debug('constructing handle: %s', magnet_url)
         handle = lt.add_magnet_uri(
             self.ses, magnet_url,
             self.get_params(magnet_url))
@@ -102,7 +114,7 @@ class Magnet2Torrent(object):
             # for some reason, pausing it isn't enough to stop
             # libtorrent from making disk calls.
             self.ses.remove_torrent(handle)
-            return
+            return None
 
         logging.info('recieved metadata for magnet url')
         logging.debug('pausing torrent downloading')
@@ -130,7 +142,9 @@ class Magnet2Torrent(object):
         self.ses.remove_torrent(handle)
         return torrent_data
 
-    def get_params(self, magnet_url):
+    def get_params(self, magnet_url): # pylint: disable=W0613
+        """Get default parameters for querying a torrent from libtorrent.
+        """
         return {
             'save_path': self.tempdir,
             'storage_mode': lt.storage_mode_t(2),
@@ -142,6 +156,9 @@ class Magnet2Torrent(object):
         }
 
     def cleanup(self):
+        """Cleanup libtorrent connection and temporarily downloaded
+        files from the temp directory.
+        """
         logging.info('cleaning up')
         logging.debug('closing libtorrent session')
         self.ses.pause()
@@ -204,8 +221,9 @@ if __name__ == '__main__':
             logging.info('working on torrent: %d', i)
             try:
                 data = m2t.convert(uri)
-            except KeyboardInterrupt as e: raise e
-            except:
+            except KeyboardInterrupt as e:
+                raise e
+            except: # pylint: disable=W0702
                 logging.exception('error: skipping magnet %d', i)
                 continue
 
@@ -221,13 +239,14 @@ if __name__ == '__main__':
 
             try:
                 dest_file.parent.mkdir(parents=True, exist_ok=True)
-                logging.info('writing torrent to file: ' + str(dest_file))
+                logging.info('writing torrent to file: %s', str(dest_file))
                 with dest_file.open('wb') as fd:
                     fd.write(data.torrent.read())
                 print(dest_file)
-            except KeyboardInterrupt as e: raise e
-            except:
-                logging.exception('failed to write torrent: ' + str(dest_file))
+            except KeyboardInterrupt as e:
+                raise e
+            except: # pylint: disable=W0702
+                logging.exception('failed to write torrent: %s', dest_file)
                 if dest_file.exists() and dest_file.is_file():
                     dest_file.unlink()
                 exit_code = 1
@@ -237,4 +256,4 @@ if __name__ == '__main__':
 
     logging.debug('deleting libtorrent session')
     del m2t
-    exit(exit_code)
+    sys.exit(exit_code)

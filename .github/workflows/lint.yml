@@ -1,0 +1,54 @@
+---
+name: lint
+
+on:
+  push:
+    branches: master
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+      # Install supported linters
+      - run: pip install pylint
+      - run: pip install yamllint
+      - run: gem install rubocop
+      - run: gem install mdl
+      - run: npm install -g jsonlint
+      - name: Download shellcheck
+        shell: bash
+        run: |
+          ## Adapted from [[https://github.com/ludeeus/action-shellcheck/blob/94e0aab03ca135d11a35e5bfc14e6746dc56e7e9/action.yaml][ludeeus/action-shellcheck]].
+          if [[ "${{ runner.os }}" == "macOS" ]]; then
+            osvariant="darwin"
+          else
+            osvariant="linux"
+          fi
+
+          echo "$PATH"
+          cd "$(mktemp -d)"
+
+          scversion="stable"
+          baseurl="https://github.com/koalaman/shellcheck/releases/download"
+          curl -Lso "sc.tar.xz" \
+            "${baseurl}/${scversion}/shellcheck-${scversion}.${osvariant}.x86_64.tar.xz"
+          tar -xf "sc.tar.xz"
+          mv "shellcheck-${scversion}/shellcheck" \
+            "shellcheck"
+      # Run linter script
+      - name: Lint dotfiles
+        run: |
+          ## Needed until [[https://github.com/koalaman/shellcheck/issues/2199][#2199]] gets merged.
+          ln -sv ./setup/conf/shellcheckrc .shellcheckrc
+          ./setup/lint .

@@ -1,33 +1,36 @@
 #!/usr/bin/env python
-# vipe - edit pipe
-# reimplementation of moreutils vipe in python.
-# why? because I h8 perl :P.
-#
-# see: https://joeyh.name/code/moreutils/
+"""
+vipe - edit pipe
+reimplementation of moreutils vipe in python.
+why? because I h8 perl :P.
 
-# usage: command1 | vipe [options] | command2
-#
-# Environment Variables
-#  * VISUAL - determine editor to use
-#  * EDITOR - determine editor to use
-#
-# vipe allows you to run your editor in the middle of a unix pipeline and edit
-# the data that is being piped between programs. Your editor will have the full
-# data being piped from command1 loaded into it, and when you close it, that
-# data will be piped into command2.
-#
-# changes from upstream version
-# * proper command line options and parsing.
-# * detects when input is a terminal and runs editor directly
-#   instead of reading input. Can be forced with -i/-I.
-#
-#   why? if you start vipe directly, you're saying you want to write
-#   some text and pipe it out, why would you have to prepend vipe
-#   with echo or first send C-z before being prompted with your editor.
-#   In truth, this option is the main reason I created this fork.
+see: https://joeyh.name/code/moreutils/
+
+---
+
+usage: command1 | vipe [options] | command2
+
+Environment Variables
+ * VISUAL - determine editor to use
+ * EDITOR - determine editor to use
+
+vipe allows you to run your editor in the middle of a unix pipeline and edit
+the data that is being piped between programs. Your editor will have the full
+data being piped from command1 loaded into it, and when you close it, that
+data will be piped into command2.
+
+changes from upstream version
+* proper command line options and parsing.
+* detects when input is a terminal and runs editor directly
+  instead of reading input. Can be forced with -i/-I.
+
+  why? if you start vipe directly, you're saying you want to write
+  some text and pipe it out, why would you have to prepend vipe
+  with echo or first send C-z before being prompted with your editor.
+  In truth, this option is the main reason I created this fork.
+"""
 
 import os
-import io
 import sys
 import shlex
 import logging
@@ -38,6 +41,8 @@ import subprocess
 from mohkale.terminal import open_tty
 
 def get_editor():
+    """Return the path to the users configured editor.
+    """
     return shlex.split(
         os.environ.get('VISUAL',
                        os.environ.get('EDITOR', 'vim')))
@@ -81,16 +86,16 @@ the pipeline by exiting with the same code.
     if not args.tmp_dir.exists():
         try:
             args.temp_dir.mkdir(parents=True, exist_ok=True)
-        except:
+        except: # pylint: disable=W0702
             logging.exception('Failed to create temp directory: %s', args.tmp_dir)
-            exit(1)
+            sys.exit(1)
 
     try:
         _, dest_file = tempfile.mkstemp(prefix='vipe-', dir=args.tmp_dir)
         dest_file = pathlib.Path(dest_file)
-    except:
+    except: # pylint: disable=W0702
         logging.exception('Failed to create temp temp file in: %s', args.tmp_dir)
-        exit(1)
+        sys.exit(1)
 
     exit_code = 0
     try:
@@ -120,4 +125,4 @@ the pipeline by exiting with the same code.
             logging.debug('Removing temp file: %s', dest_file)
             dest_file.unlink()
 
-    exit(exit_code)
+    sys.exit(exit_code)

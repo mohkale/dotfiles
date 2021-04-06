@@ -35,7 +35,8 @@ Periodically inspect and output the contents of the system clipboard.
                             help='Print the current value of the clipboard on startup')
 
         output_group = parser.add_argument_group('Output', 'Configure clipboard outputting')
-        def default_formatter(x): return x + args.delimiter
+        def default_formatter(x):
+            return x + args.delimiter
         output_group.add_argument('-j', '--json',
                                   dest='formatter', action='store_const',
                                   const=lambda x: json.dumps(x) + '\n',
@@ -101,7 +102,9 @@ Periodically inspect and output the contents of the system clipboard.
             finally:
                 self.looping = False
 
-    def pred(x): return x.strip() != ''
+    def pred(x):
+        """Predicate on clipboard entries."""
+        return x.strip() != ''
     try:
         it = ClipLoop(args.monitor_stdin).loop(args.interval, args.first)
         for entry in filter(pred, it):

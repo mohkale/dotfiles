@@ -1,3 +1,6 @@
+"""
+Sort collections naturally.
+"""
 import re
 
 key = lambda key: [int(chunk) if chunk.isdigit() else chunk.lower()

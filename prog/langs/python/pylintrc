@@ -144,7 +144,8 @@ disable=print-statement,
         comprehension-escape,
         useless-object-inheritance,
         redefined-outer-name,
-        subprocess-run-check
+        subprocess-run-check,
+        too-few-public-methods
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
@@ -338,12 +339,8 @@ function-naming-style=snake_case
 #function-rgx=
 
 # Good variable names which should always be accepted, separated by a comma.
-good-names=a, b, c,
-           f,
-           i, j, k,
-           m, n, o,
-           v, w, x, y, z,
-           ex,
+good-names=a, b, c, d, e, f, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z,
+           ex, ix,
            it,
            p1, p2,
            Run,
@@ -513,7 +510,7 @@ max-bool-expr=5
 max-branches=12
 
 # Maximum number of locals for function / method body.
-max-locals=15
+max-locals=20
 
 # Maximum number of parents for a class (see R0901).
 max-parents=7

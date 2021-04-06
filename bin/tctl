@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-# tctl - transmission-control
-#
-# Interactively select and run a transmission command.
-# TODO: Rework display logic, it's far too wasteful.
+"""
+tctl - transmission-control
+
+Interactively select and run a transmission command.
+TODO: Rework display logic, it's far too wasteful.
+"""
 
 import enum
 import io
-import math
-import pandas as pd
+import itertools
 import json
 import logging
 import os
@@ -15,18 +16,22 @@ import shlex
 import subprocess
 import sys
 import tempfile
-import itertools
 
+import pandas as pd
 from mohkale.transmission import CONFIG_FILE, Transmission
 
 try:
     from hurry.filesize import size
 except ImportError:
     def size(b):
+        """Human readable file-size conversion"""
         return str(b) + 'B'
 
 
 class Operations(enum.IntEnum):
+    """
+    The operations this script supports.
+    """
     add = enum.auto()
     list = enum.auto()
     play = enum.auto()
@@ -54,10 +59,12 @@ TORRENT_FIELDS = [
 
 
 class TransmissionError(Exception):
-    pass
+    """A transmission request error."""
 
 
 def tcmd(conn, action, **kwargs):
+    """Run a command on transmission with logging.
+    """
     logging.info('Making request to transmission with action %s', repr(action))
     logging.debug('Request params are: %s', json.dumps(kwargs))
 
@@ -70,7 +77,9 @@ def tcmd(conn, action, **kwargs):
     return resp
 
 
-def get_torrents(conn, select=None, ids=None, fields=TORRENT_FIELDS):
+def get_torrents(conn, select=None, ids=None, fields=TORRENT_FIELDS): # pylint: disable=W0102
+    """Get torrents from transmission with filters and field subsets.
+    """
     params = {'fields': fields}
     if ids:
         params['ids'] = ids
@@ -94,12 +103,14 @@ TORRENT_STATUS = {
     6: 'Seeding',
 }
 
-def render_frame(df, sep='  ', **kwargs):
+def render_frame(df, sep='  ', **kwargs): # pylint: disable=W0613
+    """Pretty print a data-frame to string.
+    """
     for col in df.columns[:-1]:
         width = df[col].map(str.__len__).max()
         df[col] = df[col].str.rjust(width)
     buf = io.StringIO()
-    for ix, row in df.iterrows():
+    for row in df.iterrows():
         items = list(row.iteritems())
         for _, value in items[:-1]:
             buf.write(value)
@@ -115,6 +126,8 @@ def render_frame(df, sep='  ', **kwargs):
 PROCESS_TORRENTS_ID_FORMAT = '{:4d}'.format
 
 def process_torrents(ts, cols=None):
+    """Perform any conversion or intermediate steps on a torrents response.
+    """
     if not cols:
         cols = ts.columns
     ts['id'] = ts.index.astype(int)
@@ -136,7 +149,7 @@ def process_torrents(ts, cols=None):
             ts[col] = ts[col].map(size) + '/s'
     return pd.concat([ts[i].astype(str) for i in cols], axis=1)
 
-def format_torrents(torrents, cols=TORRENT_FIELDS, prefix_id=None):
+def format_torrents(torrents, cols=TORRENT_FIELDS, prefix_id=None): # pylint: disable=W0102
     """Format a collection of torrents into pretty printed table rows.
 
     Paramaters
@@ -187,19 +200,23 @@ def fzf_torrents(torrents, delimiter, *args):
             fzf(torrents, '--delimiter', delimiter, '--with-nth', '2..', *args)]
 
 def run_action_callback(remote_cmd, running_action_msg, request_params=None,):
+    """Helper for running a remote cmd with `tcmd`.
+    """
     if not request_params:
         request_params = {}
-    def callback(conn, ids, torrents):
-        logging.info('Attempting to ' + running_action_msg, ', '.join(map(str, ids)))
+    def callback(conn, ids, torrents): # pylint: disable=W0613
+        logging.info('Attempting to ' + running_action_msg, ', '.join(map(str, ids))) # pylint: disable=W1201
         try:
             tcmd(conn, remote_cmd, ids=ids, **request_params)
             return True
         except TransmissionError:
-            logging.info('Failed to ' + running_action_msg, ', '.join(map(str, ids)))
+            logging.info('Failed to ' + running_action_msg, ', '.join(map(str, ids))) # pylint: disable=W1201
             return False
     return callback
 
 def play_torrent_files_cmd(conn, ids, torrents):
+    """Command to open a file from a subset of torrents using OPENER.
+    """
     files = pd.DataFrame()
     files_resp = get_torrents(conn, ids=ids, fields=['id', 'files'])
     for t_id in files_resp.index:
@@ -245,11 +262,12 @@ def play_torrent_files_cmd(conn, ids, torrents):
         proc = subprocess.run([os.getenv('OPENER', 'xdg-open'), *urls],
                               capture_output=True)
         if proc.returncode != 0:
-            logging.error('Opener errored with output:\n', proc.stderr)
+            logging.error('Opener errored with output: %s\n', proc.stderr)
 
         return proc.returncode == 0
     return False
 
+# pylint: disable=W0102,R0913
 def act_on_torrents_cmd(conn,
                         callback,
                         prompt,
@@ -262,7 +280,7 @@ def act_on_torrents_cmd(conn,
     """
     torrents = get_torrents(conn, torrent_filter, fields=torrent_fields)
     if len(torrents) == 0:
-        logging.warning('No active torrents found')
+        logging.warning(no_torrent_msg)
         return True
 
     ids = fzf_torrents(format_torrents(torrents, format_cols, prefix_id=':'),
@@ -276,7 +294,7 @@ def act_on_torrents_cmd(conn,
 if __name__ == '__main__':
     import argparse
 
-    from mohkale.logging import zerolog
+    from mohkale.logging import zerolog # pylint: disable=C0412
 
     parser = argparse.ArgumentParser()
 
@@ -287,24 +305,31 @@ if __name__ == '__main__':
     for op in Operations:
         subcmds[op] = subparser.add_parser(op.name)
 
-    subcmds[Operations.start].add_argument('-n', '--now',
-                                            action='store_true',
-                                            help='Start the chosen torrents immeadiately')
+    subcmds[Operations.start]\
+        .add_argument('-n', '--now',
+                      action='store_true',
+                      help='Start the chosen torrents immeadiately')
 
-    subcmds[Operations.remove].add_argument('-f', '--force',
-                                            action='store_true',
-                                            help='Remove the local torrent and associated files')
+    subcmds[Operations.remove]\
+        .add_argument('-f', '--force',
+                      action='store_true',
+                      help='Remove the local torrent and associated files')
 
-    subcmds[Operations.query].add_argument('action',
-                                            help='Specify the API endpoint to target from: https://github.com/transmission/transmission/blob/master/extras/rpc-spec.txt')
+    # pylint: disable=C0301
+    subcmds[Operations.query]\
+        .add_argument('action',
+                      help='Specify the API endpoint to target from: \
+                      https://github.com/transmission/transmission/blob/master/extras/rpc-spec.txt')
 
     class JSONMergeAction(argparse.Action):
+        """Argparse action which merges arguments into a json object.
+        """
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             self.nargs = 2
             self.default = {}
 
-        def __call__(self, parser, namespace, values, option_string):
+        def __call__(self, parser, namespace, values, option_string=None):
             getattr(namespace, self.dest).update([[values[0], json.loads(values[1])]])
 
     subcmds[Operations.query].add_argument('-a', '--param',

@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
+
 # list tmuxinator configs both in the shared config
 # folder and any project local configs (from the cwd).
 
@@ -11,18 +13,19 @@ require 'tmuxinator/config'
 begin
   require 'colorize'
 rescue LoadError
-  String.define_method(:green, ->(*args) { self })
+  String.define_method(:green, proc { self })
 end
 
 CWD  = Pathname.new('./').expand_path
 HOME = Pathname.new('~/').expand_path
 
 # yields [config_path, project_name, project_path || config_path]
-def each_config(cwd, paths=[])
+def each_config(cwd, paths = [])
   return unless block_given?
+
   Tmuxinator::Config.directories.map do |directory|
     Dir["#{directory}/**/*.yml"].map(&Pathname.method(:new)).map do |path|
-      project_name = path.to_path.gsub("#{directory}/", "").gsub(".yml", "")
+      project_name = path.to_path.gsub("#{directory}/", '').gsub('.yml', '')
       yield path, project_name, path
     end
   end
@@ -52,7 +55,9 @@ OptionParser.new do |it|
 end.parse!(into: opts)
 
 def pretty_print(conf, name, project)
-  "#{conf.to_path}:#{project.directory? ? project.to_path : ''}:#{name} [#{project.to_path.gsub(HOME.to_path+'/', '~/').green}]"
+  # rubocop:disable Style/StringConcatenation, Layout/LineLength
+  "#{conf.to_path}:#{project.directory? ? project.to_path : ''}:#{name} [#{project.to_path.gsub(HOME.to_path + '/', '~/').green}]"
+  # rubocop:enable Style/StringConcatenation, Layout/LineLength
 end
 
 $stdout.sync = true

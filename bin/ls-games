@@ -87,6 +87,10 @@ DEFAULT_CONFIG = pathlib.Path(os.environ.get('XDG_CONFIG_HOME', os.path.expandus
 
 
 class Steam(object):
+    """Utilities for accessing game metadata stored by steam.
+    """
+
+    @staticmethod
     @functools.lru_cache()
     def root() -> t.Optional[pathlib.Path]:
         """Get the path to the root steam configuration directory of this platform
@@ -97,9 +101,12 @@ class Steam(object):
             logging.debug('Checking for steam root at: %s', d)
             if d.exists() and d.is_dir():
                 return d
+        return None
 
     @classmethod
     def minutes_played(cls, steam_id) -> t.Optional[str]:
+        """How many minutes I've played the game with id `steam_id`.
+        """
         root = cls.root()
         if not root:
             return None
@@ -154,6 +161,9 @@ class Game(object):
 
     @property
     def url(self):
+        """The url (file or store or application) to open this game.
+        """
+
         # These each don't have a predictable install location and the client doesn't support
         # a run-this-game URL so we have to keep both a source slug and a file URL for it.
         #
@@ -171,7 +181,7 @@ class Game(object):
             return f'file://{self.file}'
         if self.steam:
             return f'steam://run/{self.steam}'
-        raise ValueError('Game %s initialised with no method to run', repr(self.name))
+        raise ValueError('Game initialised with no method to run', repr(self.name))
 
     def _iter_file_paths(self):
         yield self.file
@@ -180,11 +190,15 @@ class Game(object):
                 yield p.parent / (p.name + ftype)
 
     def pretty(self):
+        """Pretty print this game url.
+        """
         meta = ' '.join(self.meta) if self.meta else ''
         return f'{self.url}:{self.name}' + (f' [\033[0;32m{meta}\033[0m]' if meta else '')
 
     @property
     def meta(self):
+        """Metadata tied to the current game.
+        """
         m = self._meta
         if self.steam:
             sm = Steam.minutes_played(self.steam)
@@ -196,26 +210,27 @@ class Game(object):
     def enumerate_games(cls, obj):
         """Enumerate a :games configuration, yielding Game insance.
         """
-        if isinstance(obj, tuple) or isinstance(obj, list):
+        if isinstance(obj, (list, tuple)):
             for subobj in obj:
                 yield from filter(lambda x: x is not None, cls.enumerate_games(subobj))
-        else:
-            props = None
-            for key in ('epic', 'gog', 'file', 'steam'):  # possible permutation attributes
-                if key in obj:
-                    props = obj.pop(key)
-                    break
-            else:
-                logging.warning('Encountered game with no file or steam field')
-                return None
-            if not isinstance(props, dict):
-                props = {'main': props}
+            return []
 
-            meta = obj.pop('meta', [])
-            for new_meta, value in props.items():
-                yield cls(**obj,
-                          **{key: value},
-                          _meta=meta if new_meta == 'main' else [*meta, new_meta])
+        props = None
+        for key in ('epic', 'gog', 'file', 'steam'):  # possible permutation attributes
+            if key in obj:
+                props = obj.pop(key)
+                break
+        else:
+            logging.warning('Encountered game with no file or steam field')
+            return None
+        if not isinstance(props, dict):
+            props = {'main': props}
+
+        meta = obj.pop('meta', [])
+        for new_meta, value in props.items():
+            yield cls(**obj,
+                        **{key: value},
+                        _meta=meta if new_meta == 'main' else [*meta, new_meta])
 
 
 def _edntag_find(pattern):
@@ -254,7 +269,9 @@ edn.add_tag('game/find', _edntag_find)
 edn.add_tag('game/expand', os.path.expandvars)
 
 
-def main(args, vargs, parse):
+def main(args):
+    """List games.
+    """
     conf = process_edn(_edntag_load(str(args.config)))
     games = Game.enumerate_games(conf.get('games', []))
 
@@ -301,4 +318,4 @@ if __name__ == '__main__':
     if not args.config.exists():
         parser.error('Failed to find config file: %s' % args.config)
     logging.getLogger('edn_format').setLevel(logging.ERROR)
-    sys.exit(0 if main(args, vars(args), parser) else 1)
+    sys.exit(0 if main(args) else 1)

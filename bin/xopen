@@ -65,7 +65,9 @@ def first(it: t.Sequence[T]) -> t.Union[None, T]:
     """extract the first value from the iterator `it'."""
     try:
         return next(it)
-    except StopIteration: pass
+    except StopIteration:
+        pass
+    return None
 
 can_exec = lambda path: os.path.isfile(path) and os.access(path, os.X_OK)
 
@@ -398,6 +400,7 @@ class DesktopFind(object):
                 return df._sections  # pylint: disable=protected-access
         except: # pylint: disable=bare-except
             logging.exception("Parsing desktop file %s failed", repr(fpath))
+        return None
 
     def search_files(self, key, value):
         """Finds desktop file by searching from `self.paths'.
@@ -582,6 +585,7 @@ class GenericOpener(object):
         else:
             # this exec string doesn't depend on any urls.
             yield cmd
+        return []
 
     @staticmethod
     def format_cmd(cmd, entry, entry_path):

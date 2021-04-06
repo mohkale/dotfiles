@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+"""
+Convert one or more image files into a PDF document.
+"""
 import os
 import io
 import sys
@@ -19,10 +22,14 @@ def _load_image_rgb(fd):
         return rgb_img
     return img
 
+# pylint: disable=R0913,W0613,R0912,W0612
 def create_pdf(files, output_path, append, title,
                author, subject, keywords, creator,
                producer, warn, silent, resolution=None,
                **kwargs):
+    """
+    Convert files to pdfs.
+    """
     assert len(files) != 0
 
     metadata = {
@@ -72,7 +79,7 @@ def create_pdf(files, output_path, append, title,
             if not silent: print(fd)
             img.close()
         logging.info('dumped to file: %s', output_path)
-    except (Exception, KeyboardInterrupt) as error:
+    except (Exception, KeyboardInterrupt):  # pylint: disable=W0703
         logging.exception('failed to construct PDF from images')
         if not dest_exists and os.path.exists(output_path):
             # remove when created during program execution

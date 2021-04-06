@@ -69,7 +69,7 @@ else
 fi" \
       -v python_lint="
 if command -v pylint >/dev/null 2>&1; then
-  $batch_str pylint --rcfile setup/conf/pylintrc --msg-template='{path}:{line}:{column}: {category}: {msg} [{symbol} {msg_id}]' --disable C0103,R0801 --reports n --score n
+  $batch_str pylint --rcfile setup/conf/pylintrc --msg-template='{path}:{line}:{column}: {category}: {msg} [{symbol} {msg_id}]' --disable C0103,R0801,E0401 --reports n --score n
 elif command -v pycodestyle >/dev/null 2>&1; then
   $batch_str pycodestyle --config setup/conf/pycodestyle --format '%(path)s:%(row)d:%(col)d: %(text)s [%(code)s]'
 else
@@ -107,6 +107,26 @@ else
 fi
 " \
       -v verbose="$verbose" \
+      -e 'END {
+  codes[++i] = close(shell_lint)
+  codes[++i] = close(python_lint)
+  codes[++i] = close(ruby_lint)
+  codes[++i] = close(json_lint)
+  codes[++i] = close(yaml_lint)
+  codes[++i] = close(md_lint)
+  for (j=1; j <= i; j++) {
+    code = codes[j]
+    if (code == 0)
+      continue;
+
+    # See [[https://www.gnu.org/software/gawk/manual/html_node/Close-Files-And-Pipes.html][awk-pipes]]
+    if (code < 0 || code > 255) {
+      exit(1)
+    } else {
+      exit(code)
+    }
+  }
+}' \
       -e '{
   switch ($2) {
   case /x-sh(ellscript)?/:
