@@ -1,4 +1,4 @@
-# -*- mode: sh -*-
+#!/usr/bin/env bash
 # Variant of fzf designed to be used in the shell instead of through a subcommand.
 # I've seperated this into it's own command because it makes more sense to use a
 # bunch of special options for these situations.

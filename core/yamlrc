@@ -1,0 +1,13 @@
+# [[https://github.com/adrienverge/yamllint][yamllint]] configuration file -*- mode: yaml -*- vim: syntax=yaml filetype=yaml
+
+extends: default
+
+rules:
+  # 80 chars should be enough, but don't fail if a line is longer
+  line-length:
+    max: 100
+    level: warning
+
+  # don't bother me with this rule
+  indentation: disable
+  truthy: disable

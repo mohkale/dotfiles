@@ -1,4 +1,4 @@
-# -*- mode: sh -*-
+#!/usr/bin/env bash
 # Associate a color code with a processes exit code.
 
 # See For More: https://misc.flogisoft.com/bash/tip_colors_and_formatting

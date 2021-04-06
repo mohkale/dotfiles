@@ -1,0 +1,7 @@
+# global [[https://docs.rubocop.org/rubocop/configuration.html][rubocop]] configuration file -*- mode: yaml -*- vim:syntax=yaml filetype=yaml
+
+Style/Encoding:
+  Enabled: false
+
+Layout/LineLength:
+  Max: 99

@@ -1,4 +1,5 @@
 # Tmux Fzf Commands
+
 My [fzf][fzf] shell scripts for managing tmux.
 
 Some of these are largely just rewrites or refactorings or redesigns (whatever floats
@@ -8,6 +9,7 @@ directly would be cool but I'm not a fan of public directories containing script
 personally don't run eg: `.fzf-tmux` and `menu.sh`.
 
 The translations between the two is quite self explanatory:
+
 - run-binding = keybinding.sh
 - run-command = command.sh
 - manage-window = window.sh

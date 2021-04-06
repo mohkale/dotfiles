@@ -8,20 +8,20 @@ the general torrent directories and, more importantly, the directory containing 
 watch for torrents.
 """
 
+import concurrent.futures
+import fnmatch
+import json
+import logging
+import pathlib as p
 import re
 import sys
-import json
 import time
-import logging
-import fnmatch
-import pathlib as p
-
-from mohkale.logging import zerolog
-from watch_config import WatchConfig
-from transmission import Transmission, retry, StatusException, CONFIG_FILE
 
 import inotify.adapters
-import concurrent.futures
+from mohkale.logging import zerolog
+
+from transmission import CONFIG_FILE, StatusException, Transmission, retry
+from watch_config import WatchConfig
 
 RETRY_COUNT = 5
 
@@ -41,7 +41,7 @@ def _rename_torrent(torrent_file, relative_path, args):
     """
     torrent_dest = args.config.added / relative_path
     torrent_dest.parent.mkdir(parents=True, exist_ok=True)
-    logging.info('moving torrent file to: ' + str(torrent_dest))
+    logging.info('moving torrent file to: %s', torrent_dest)
     torrent_file.rename(torrent_dest)
 
 
@@ -59,18 +59,20 @@ def add_all_recursively(root, opts, args):
         logging.info('adding torrent: %s', torrent_file)
         try:
             _add_torrent(torrent_file, opts, args)
-        except:
+        except: # pylint: disable-msg=W0702
             logging.exception('failed to add torrent')
         else:
             _rename_torrent(torrent_file, relative_path, args)
 
 
 def watch(root, opts, args):
+    """Start watching the directory `root` for new torrents to download.
+    """
     add_all_recursively(root, opts, args)
     i = inotify.adapters.InotifyTree(str(root))
 
     try:
-        logging.info('started watching: ' + str(root))
+        logging.info('started watching: %s', str(root))
         for event in i.event_gen(yield_nones=False):
             _, event_types, path, filename = event
             if not filename:
@@ -79,7 +81,7 @@ def watch(root, opts, args):
             path = p.Path(path) / filename
             relative_path = str(path.relative_to(root))
 
-            logging.debug('encountered events %s at path: %s' % (','.join(event_types), path))
+            logging.debug('encountered events %s at path: %s', ','.join(event_types), path)
 
             if not path.exists():
                 # watcher already moved the torrent by the time we recieve the event
@@ -88,7 +90,7 @@ def watch(root, opts, args):
                 logging.debug("skipping event because filename doesn't match *.torrent")
                 continue
             if opts.ignore and re.search(opts.ignore, relative_path):
-                logging.debug('skipping event because file matches ignore regexp: ' + repr(opts.ignore))
+                logging.debug('skipping event because file matches ignore regexp: %s', repr(opts.ignore))
                 continue
             if not {'IN_MOVED_TO', 'IN_CREATE'}.intersection(event_types):
                 logging.debug('skipping event because of undesired event types')
@@ -98,13 +100,13 @@ def watch(root, opts, args):
             time.sleep(1)
             try:
                 _add_torrent(path, opts, args)
-            except:
+            except:  # pylint: disable=W0702
                 logging.exception('failed to add torrent')
             else:
                 _rename_torrent(path, relative_path, args)
     except KeyboardInterrupt:
         pass
-    except Exception:
+    except:  # pylint: disable=W0702
         logging.exception('encountered runtime error, exiting')
 
 

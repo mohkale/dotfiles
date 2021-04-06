@@ -1,6 +1,7 @@
-# -*- mode: sh -*-
+#!/usr/bin/env bash
 cd_project_root() {
-    if local dest="$(project-root)" && [ -n "$dest" ]; then
+    local dest
+    if dest="$(project-root)" && [ -n "$dest" ]; then
         cd "$dest" || echo "error: failed to cd: $dest" >&2
     fi
 }

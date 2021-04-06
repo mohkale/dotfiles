@@ -1,4 +1,5 @@
 # Hyper
+
 A modern, cross-platform, electron based terminal emulator.
 
 That description alone is enough to turn me off :dragon_face:. But I need a usable terminal

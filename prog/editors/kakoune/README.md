@@ -5,6 +5,7 @@ A vi like editor that's [notoriously not vi][kak] :grin:.
 [kak]: https://github.com/mawww/kakoune
 
 ## Deviations From vi
+
 | Key      | Description                                                        |
 |----------|--------------------------------------------------------------------|
 | G        | remapped to ge                                                     |

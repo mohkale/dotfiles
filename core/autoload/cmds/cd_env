@@ -1,12 +1,14 @@
-# -*- mode: sh -*-
+#!/usr/bin/env bash
 cd_env() {
-    local fzf_args=( --no-multi -d ' ' --preview 'preview {2..}' --preview-window=25%
-                     --history "${XDG_DATA_HOME:-$HOME/.locale/share}"/fzf/history/paths )
+    local fzf_args
+    fzf_args=( --no-multi -d ' ' --preview 'preview {2..}' --preview-window=25%
+               --history "${XDG_DATA_HOME:-$HOME/.locale/share}"/fzf/history/paths )
     [ -z "$*" ] || fzf_args+=( -q "$*" )
-    local dest=$(env-paths -d |
-                  if hash column 2>/dev/null; then column -s = -t; else tr '=' ' '; fi |
-                  _fzf "${fzf_args[@]}" |
-                  sed 's/^[^[:space:]]*[[:space:]]\+//')
+    local dest
+    dest=$(env-paths -d |
+               if hash column 2>/dev/null; then column -s = -t; else tr '=' ' '; fi |
+               _fzf "${fzf_args[@]}" |
+               sed 's/^[^[:space:]]*[[:space:]]\+//')
     select_path "$dest"
 }
 

@@ -1,4 +1,4 @@
-# -*- mode: sh -*-
+#!/usr/bin/env bash
 # A wrapper around find which lets you specify a few default options.
 #
 # Find is a cool program, but its syntax is really restrictive. You can
@@ -25,5 +25,6 @@ f1() {
     shift
   done
   [ "${#paths[@]}" -eq 0 ] && paths+=( . )
+  # shellcheck disable=SC2086
   find "${paths[@]}" $FIND_ARGS "$@"
 }

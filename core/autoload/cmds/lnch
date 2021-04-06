@@ -1,4 +1,4 @@
-# -*- mode: sh -*-
+#!/usr/bin/env bash
 # Format a command line to be run asynchronously and not be interrupted
 # when it's parent process group exits. Like [[https://github.com/oem/lnch/blob/master/main.go][lnch]] except written in pure
 # shell and with no external dependencies.

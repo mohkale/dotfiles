@@ -1,4 +1,4 @@
-# -*- mode: sh -*-
+#!/usr/bin/env bash
 # Present all manual pages in a fzf session and choose
 # one or more manual entries to open in your PAGER.
 
@@ -19,6 +19,7 @@ fzman() {
     if [ -n "$FZMAN_CMD" ]; then
         $FZMAN_CMD
     else
+        # shellcheck disable=SC2086
         LESSOPEN='|man %s' xargs -r -d '\n' ${MANPAGER:-less} -is
     fi <<< "$targets"
 }

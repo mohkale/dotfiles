@@ -1,8 +1,11 @@
-# -*- mode: sh -*- combine all [[https://wiki.archlinux.org/index.php/Pass][pass]] records into a single YAML file
+#!/usr/bin/env bash
+# -*- +indent: 2 -*-
+# combine all [[https://wiki.archlinux.org/index.php/Pass][pass]] records into a single YAML file
 
 pass_all() {
   fzpass -lC |
     if command -v parallel >/dev/null 2>&1; then
+      # shellcheck disable=SC2016
       parallel echo {}:';' \
                pass -- {} '|' \
                  sed -e "'"'1s/.*/password: \0/'"'" -e "'"'s/.*/  \0/'"'" -e "'"'$s/$/\n/'"'"
@@ -13,5 +16,5 @@ pass_all() {
           sed -e '1s/.*/password: \0/' -e 's/.*/  \0/' -e '$s/$/\n/'
       done
     fi |
-    bat --language yaml --color=always --plain
+    preview -l yaml -
 }

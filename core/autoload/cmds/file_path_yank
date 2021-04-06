@@ -1,7 +1,8 @@
-# -*- mode: sh -*- run fp, then if it succeeds pipe it to the clipboard.
+#!/usr/bin/env bash
+# run fp, then if it succeeds pipe it to the clipboard.
 fp_yank() {
-    local paths=$(file-path "$@")
-    if [ "$?" -eq 0 ]; then
+    local paths
+    if paths=$(file-path "$@"); then
         echo -n "$paths" | clip
     else
         echo "$paths"

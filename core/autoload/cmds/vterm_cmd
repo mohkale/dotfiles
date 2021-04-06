@@ -1,4 +1,4 @@
-# -*- mode: sh -*-
+#!/usr/bin/env bash
 
 # source [[http://permalink.gmane.org/gmane.comp.terminal-emulators.tmux.user/1324][emacs-libvterm]], also see [[https://github.com/akermu/emacs-libvterm#message-passing][here]].
 vterm_cmd() {

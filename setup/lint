@@ -42,22 +42,70 @@ elif ! [ -e "$root" -a -r "$root" ]; then
 fi
 
 if command -v parallel >/dev/null 2>&1; then
-    batch_str="parallel -d '\n' -X -I% --line-buffer --quote"
+    batch_str="parallel -d '\n' -X --line-buffer --quote --max-procs 1"
     [ "$dry_run" -eq 1 ] && batch_str="$batch_str --dry-run"
 else
-    batch_str="xargs -d '\n' -I%"
+    batch_str="xargs -d '\n'"
     [ "$dry_run" -eq 1 ] && batch_str="$batch_str echo"
 fi
 
-
 cd "$root"
+ignore=$(tr '\n' : < ./setup/conf/lint.ignore)
 ./bin/find-project -fu |
+  while read -r f; do
+    # See [[https://stackoverflow.com/a/61545396/6247387][here]]
+    if ! [[ "$ignore" =~ ^$f:|:$f:|:$f$ ]]; then
+      echo "$f"
+    fi
+  done |
   xargs -r -d '\n' file --dereference --mime-type -- |
   awk -F ': *' \
-      -v shell_lint="$batch_str shellcheck -f gcc %" \
-      -v python_lint="$batch_str pylint --msg-template='{path}:{line}:{column}: {category}: {msg} [{msg_id}({symbol})]' --disable C0103,R0801 --rcfile prog/langs/python/pylintrc --reports n --score n %" \
-      -v ruby_lint="$batch_str rubocop -f emacs %" \
-      -v json_lint="$batch_str jsonlint --quiet %" \
+      -v shell_lint="
+if command -v shellcheck >/dev/null 2>&1; then
+  $batch_str shellcheck -f gcc
+else
+  echo 'warn: lint: no linter for shell installed' >&2
+  cat >/dev/null
+fi" \
+      -v python_lint="
+if command -v pylint >/dev/null 2>&1; then
+  $batch_str pylint --rcfile setup/conf/pylintrc --msg-template='{path}:{line}:{column}: {category}: {msg} [{symbol} {msg_id}]' --disable C0103,R0801 --reports n --score n
+elif command -v pycodestyle >/dev/null 2>&1; then
+  $batch_str pycodestyle --config setup/conf/pycodestyle --format '%(path)s:%(row)d:%(col)d: %(text)s [%(code)s]'
+else
+  echo 'warn: lint: no linter for python installed' >&2
+  cat >/dev/null
+fi" \
+      -v ruby_lint="
+if command -v rubocop >/dev/null 2>&1; then
+  $batch_str rubocop -f emacs --config setup/conf/rubocoprc
+else
+  echo 'warn: lint: no linter for ruby installed' >&2
+  cat >/dev/null
+fi" \
+      -v json_lint="
+if command -v jsonlint >/dev/null 2>&1; then
+  $batch_str jsonlint --quiet
+else
+  echo 'warn: lint: no linter for json installed' >&2
+  cat >/dev/null
+fi" \
+      -v yaml_lint="
+if command -v yamllint >/dev/null 2>&1; then
+  $batch_str yamllint -f parsable -c setup/conf/yamlrc
+else
+  echo 'warn: lint: no linter for yaml installed' >&2
+  cat >/dev/null
+fi
+" \
+    -v md_lint="
+if command -v mdl >/dev/null 2>&1; then
+  $batch_str mdl -s  setup/conf/mdlstyle.rb
+else
+  echo 'warn: lint: no linter for markdown installed' >&2
+  cat >/dev/null
+fi
+" \
       -v verbose="$verbose" \
       -e '{
   switch ($2) {
@@ -73,6 +121,32 @@ cd "$root"
   case /json$/:
     print $1 | json_lint
     break
+  case /yaml$/:
+    print $1 | yaml_lint
+    break
+  case /markdown$/:
+    print $1 | md_lint
+    break
+  case /^text\/plain$/:
+    # Mime checkup failed, lets try a filepath match instead.
+    found = 1
+    switch ($1) {
+      # Ideally your computer should have a mimetype setup for
+      # this but seeing as mine doesnt I have to use this hack
+      case /\.yml$/:
+        print $1 | yaml_lint
+        break
+      case /\.md$|\.markdown$/:
+        print $1 | md_lint
+        break
+      case /core\/autoload\/cmds\//:
+        print $1 | shell_lint
+        break
+      default:
+        found = 0
+    }
+    if (found)
+      break # only break when linter found, otherwise try default.
   default:
     if (verbose)
       print("lint: error: unknown interpreter for linting (" $2 ") at path: " $1)

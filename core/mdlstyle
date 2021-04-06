@@ -1,0 +1,6 @@
+# [[https://github.com/markdownlint/markdownlint/blob/d4722e89430631ab96cfb30719f163650b1d4b14/docs/configuration.md][markdownlint]] configuration file -*- mode: ruby -*- vim: syntax=ruby filetype=ruby
+all
+
+exclude_rule 'MD013'
+exclude_rule 'MD033'
+exclude_rule 'MD036'

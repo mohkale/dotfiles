@@ -1,4 +1,4 @@
-# -*- mode: sh -*-
+#!/usr/bin/env bash
 fzbm() {
   local fzf_args=( -d $'\t' --ansi --with-nth '2..' --multi
                       --bind 'alt-return:execute-silent(xopen {1} &)+down'

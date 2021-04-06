@@ -1,13 +1,14 @@
-# -*- mode: sh -*-
+#!/usr/bin/env bash
 
 with_emacs() {
     # run a command with editor set to emacsclient.
-    local cmd="emacsclient"
+    local cmd
+    cmd="emacsclient"
 
     [ -z "$EMACS_FLAGS" ] || cmd="$cmd $EMACS_FLAGS"
 
     if [ "$#" -eq 0 ]; then
-        local cmd=$(printf %q "$cmd")
+        cmd=$(printf %q "$cmd")
         echo -e "EDITOR=${cmd}\nVISUAL=${cmd}"
     else
         EDITOR="$cmd" VISUAL="$cmd" "$@"

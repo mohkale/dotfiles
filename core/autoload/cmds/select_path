@@ -1,4 +1,4 @@
-# -*- mode: sh -*-
+#!/usr/bin/env bash
 # Try to handle one or more paths in the best way possible, this could
 # mean changing the cwd or opening your EDITOR on the path.
 #
@@ -29,12 +29,14 @@ select_path() {
                $SELECT_PATH_EDIT_FILE_CMD
            else
                # with -r, this only runs if at least one file is found
+               # shellcheck disable=SC2086
                xargs -r -d '\n' ${VISUAL-${$EDITOR-vi}}
            fi
     fi
 
     # Change to any new directories.
     if [ -n "$newdir" ]; then
+        # shellcheck disable=SC2164
         cd "$newdir"
     fi
 }

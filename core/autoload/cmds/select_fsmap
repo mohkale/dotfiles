@@ -1,5 +1,6 @@
-# -*- mode: sh -*-
+#!/usr/bin/env bash
 select_fsmap() {
+    # shellcheck disable=SC2016
     local fzf_args=( --multi -d ' ' --preview 'p={2..}; preview "${p/\~/$HOME}"' --preview-window=25%
                      --history "${XDG_DATA_HOME:-$HOME/.locale/share}"/fzf/history/paths )
     [ -z "$*" ] || fzf_args+=( -q "$*" )

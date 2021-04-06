@@ -1,9 +1,12 @@
-# -*- mode: sh -*-
+#!/usr/bin/env bash
 cd_fsmap() {
-    local fzf_args=( --no-multi -d ' ' --preview 'p={2..}; preview "${p/\~/$HOME}"' --preview-window=25%
-                     --history "${XDG_DATA_HOME:-$HOME/.locale/share}"/fzf/history/paths )
+    local fzf_args
+    # shellcheck disable=SC2016
+    fzf_args=( --no-multi -d ' ' --preview 'p={2..}; preview "${p/\~/$HOME}"' --preview-window=25%
+               --history "${XDG_DATA_HOME:-$HOME/.locale/share}"/fzf/history/paths )
     [ -z "$*" ] || fzf_args+=( -q "$*" )
-    local dest=$(ls-fsmaps -rd |
+    local dest
+    dest=$(ls-fsmaps -rd |
       if command -v column >/dev/null 2>&1; then
           column -s : -t
       else
@@ -12,5 +15,6 @@ cd_fsmap() {
       fi |
       _fzf "${fzf_args[@]}" |
       sed 's/^[^[:space:]]*[[:space:]]\+//')
+    # shellcheck disable=SC2164
     [ -n "$dest" ] && cd "$dest"
 }

@@ -1,4 +1,5 @@
 # VIM/NeoVIM Configuration
+
 This is where I keep my shared vim/nvim config.
 
 Ideally I'd like to dump vimscript in a dumpster and move entirely to a

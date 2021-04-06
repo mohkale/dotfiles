@@ -1,4 +1,4 @@
-# -*- mode: sh -*-
+#!/usr/bin/env bash
 # interactively select program to execute using fzf. [[https://github.com/oem/dotfiles/blob/master/launch/cmdlist][source]].
 
 fzdmenu() {
@@ -17,7 +17,7 @@ Options:
  -b    Wrap the tmux session with a border
 EOF
 
-  local list_cmd=_fzdmenu_list list_all=0 \
+  local list_all=0 \
         hide_details=0 show_preview=0 \
         show_border=0
   while getopts 'haVpb' OPTION; do

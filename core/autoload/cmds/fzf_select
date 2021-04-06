@@ -1,4 +1,4 @@
-# -*- mode: sh -*-
+#!/usr/bin/env bash
 fzf_select() {
     find-project -z "$@" |
         _fzf --read0 --no-multi --preview 'preview {}' --preview-window=25% \

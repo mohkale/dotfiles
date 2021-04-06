@@ -1,4 +1,4 @@
-# -*- mode: sh -*-
+#!/usr/bin/env bash
 
 # Source [[http://permalink.gmane.org/gmane.comp.terminal-emulators.tmux.user/1324][emacs-libvterm]].
 function vterm_printf(){

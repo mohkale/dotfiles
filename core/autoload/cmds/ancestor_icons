@@ -1,4 +1,5 @@
-# -*- mode: sh -*-
+#!/usr/bin/env bash
+# -*- +indent: 2 -*-
 # Output icons for the ancestor processes of the current shell in a way
 # that can be substituted back into your current shells prompt. This only
 # works for zsh and bash.
@@ -20,6 +21,7 @@ ancestor_icons() {
   # TODO: the two awk overhead here can be replaced by one giant mapping
   # of the basename in the final expression of the first awk process.
   if command -v pschain prog-icons >/dev/null 2>&1; then
+    # shellcheck disable=SC2086,SC2046
     pschain -t1 ${1:-$$} |
       awk \
         -e '{ $0 = $1 }' \
