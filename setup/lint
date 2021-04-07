@@ -92,7 +92,7 @@ else
 fi" \
       -v yaml_lint="
 if command -v yamllint >/dev/null 2>&1; then
-  $batch_str yamllint -f parsable -c setup/conf/yamlrc
+  $batch_str yamllint -f parsable -c setup/conf/yamlrc | sed -e 's/\\\\[\\\\([^ ]*\\\\)\\\\]/\\\\1/'
 else
   echo 'warn: lint: no linter for yaml installed' >&2
   cat >/dev/null

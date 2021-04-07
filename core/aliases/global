@@ -44,6 +44,9 @@ tM     tmux display-message
 tm     tmux show-messages
 tls    tmux ls
 tn     tmux new-session
+# Attach to an existing session as if it's a new session (doesn't force
+# you to view the same things as another client).
+tnt    tmux new-session -t
 tx     tmux kill-session
 tprint tmux display-message -p
 

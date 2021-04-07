@@ -347,6 +347,11 @@ case "$-" in
         ;;
 esac
 
+if [ "$TERM" = 'screen-24bit' ]; then
+    alias ssh='TERM=screen-256color ssh'
+    alias journalctl='TERM=screen-256color journalctl'
+fi
+
 [ -e "$XDG_CONFIG_HOME/shenv.local" ] && . "$XDG_CONFIG_HOME/shenv.local"
 
 unset shell

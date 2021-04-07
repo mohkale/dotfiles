@@ -148,6 +148,13 @@ alias info='info --init-file "$XDG_CONFIG_HOME/infokey"'
 ## GDB
 alias gdb='gdb --silent -nh -x "$XDG_CONFIG_HOME"/gdb/init'
 
+## PostgreSQL
+### WARN: These directories need to exist or postgres will complain.
+export PSQLRC="$XDG_CONFIG_HOME/pg/psqlrc"
+export PSQL_HISTORY="$XDG_CACHE_HOME/pg/psql_history"
+export PGPASSFILE="$XDG_CONFIG_HOME/pg/pgpass"
+export PGSERVICEFILE="$XDG_CONFIG_HOME/pg/pg_service.conf"
+
 # Path Management
 if [ "$platform" = "windows" ]; then
     # fix unconverted msys paths which crash some programs
