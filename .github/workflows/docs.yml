@@ -14,7 +14,8 @@ jobs:
     - uses: purcell/setup-emacs@master
       with:
         version: 27.1
-    - run: |-
+    - name: Build docs
+      run: |-
           set -e
           mv .github assets
           sed -i -e 's/\.\/\.github/.\/assets/g' ./README.org

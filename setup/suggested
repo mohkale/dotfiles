@@ -1,0 +1,4 @@
+#!/bin/sh
+# usage: suggested [-a] [-h]
+
+echo "warning: suggested: not yet setup" >&2
