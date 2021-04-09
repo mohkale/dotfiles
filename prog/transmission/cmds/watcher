@@ -14,11 +14,9 @@ import json
 import logging
 import pathlib as p
 import re
-import sys
 import time
 
 import inotify.adapters
-from mohkale.logging import zerolog
 
 from transmission import CONFIG_FILE, StatusException, Transmission, retry
 from watch_config import WatchConfig
@@ -112,6 +110,7 @@ def watch(root, opts, args):
 
 if __name__ == '__main__':
     import argparse
+    from mohkale.logging.config import use_config as use_logging_config
 
     parser = argparse.ArgumentParser()
     parser.add_argument('config', type=argparse.FileType('r', encoding='utf8'),
@@ -121,18 +120,13 @@ if __name__ == '__main__':
                         default=CONFIG_FILE, type=p.Path,
                         help='transmission watcher configuration file')
 
-    log_group = parser.add_argument_group('logging')
-    log_group.add_argument('-l', '--log-level', type=lambda x: getattr(logging, x.upper()),
-                           metavar='LEVEL', default=logging.INFO,
-                           help='verbosity of logging output')
-    log_group.add_argument('-L', '--log-file', metavar='FILE', default=sys.stderr,
-                           type=argparse.FileType('a', encoding='utf8'),
-                           help='file to write logging output to')
-
+    parser.add_argument('-l', '--log-level', metavar='LEVEL',
+                        type=lambda x: getattr(logging, x.upper()),
+                        help='verbosity of logging output')
     args  = parser.parse_args()
     vargs = vars(args)
 
-    zerolog(vargs.pop('log_level'), fd=vargs.pop('log_file'))
+    use_logging_config('transmission-watcher', level=vargs.pop('log_level'))
 
     args.config = WatchConfig(json.load(args.config))
     args.connection = Transmission.from_conf_file(args.transmission_config)

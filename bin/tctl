@@ -110,7 +110,7 @@ def render_frame(df, sep='  ', **kwargs): # pylint: disable=W0613
         width = df[col].map(str.__len__).max()
         df[col] = df[col].str.rjust(width)
     buf = io.StringIO()
-    for row in df.iterrows():
+    for _, row in df.iterrows():
         items = list(row.iteritems())
         for _, value in items[:-1]:
             buf.write(value)
@@ -294,11 +294,15 @@ def act_on_torrents_cmd(conn,
 if __name__ == '__main__':
     import argparse
 
-    from mohkale.logging import zerolog # pylint: disable=C0412
+    from mohkale.logging.config import use_config as use_logging_config # pylint: disable=C0412
 
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--fzf', metavar='CMD', help='Specify command line for fzf')
+
+    parser.add_argument('-l', '--log-level', metavar='LEVEL',
+                        type=lambda X: getattr(logging, X.upper()),
+                        help='Level of logging output.')
 
     subparser = parser.add_subparsers(dest='cmd', help='Specify operation to execute')
     subcmds = {}
@@ -324,6 +328,7 @@ if __name__ == '__main__':
     class JSONMergeAction(argparse.Action):
         """Argparse action which merges arguments into a json object.
         """
+
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             self.nargs = 2
@@ -333,42 +338,33 @@ if __name__ == '__main__':
             getattr(namespace, self.dest).update([[values[0], json.loads(values[1])]])
 
     subcmds[Operations.query].add_argument('-a', '--param',
-                                            dest='params',
-                                            action=JSONMergeAction,
-                                            help='Send the given arg with the query')
+                                           dest='params',
+                                           action=JSONMergeAction,
+                                           help='Send the given arg with the query')
 
     subcmds[Operations.query].add_argument('-', '--read-stdin',
-                                            action='store_true',
-                                            help='Read JSON params from stdin')
+                                           action='store_true',
+                                           help='Read JSON params from stdin')
 
     subcmds[Operations.add].add_argument('-', '--read-stdin',
-                                            action='store_true',
-                                            help='Read magnet links to add from stdin')
+                                         action='store_true',
+                                         help='Read magnet links to add from stdin')
 
     subcmds[Operations.add].add_argument('url', nargs='*',
-                                            help='Add magnet link to transmission')
+                                         help='Add magnet link to transmission')
 
     subcmds[Operations.add].add_argument('-o', '--output', metavar='DIR',
-                                            help='Specify output directory')
+                                         help='Specify output directory')
 
     _ = subcmds[Operations.add].add_mutually_exclusive_group()
     _.add_argument('-s', '--start',
-                    dest='paused',
-                    action='store_const', const=False,
-                    help='Start added torrents paused')
+                   dest='paused',
+                   action='store_const', const=False,
+                   help='Start added torrents paused')
     _.add_argument('-S', '--no-start',
-                    dest='paused',
-                    action='store_const', const=True,
-                    help='Start added torrents unpaused')
-
-    logging_group = parser.add_argument_group('Logging')
-    logging_group.add_argument('-l', '--log-level', metavar='LEVEL',
-                                type=lambda X: getattr(logging, X.upper()),
-                                default=logging.ERROR, help='Level of logging output.')
-    logging_group.add_argument('-L', '--log-file', metavar='FILE', default=sys.stderr,
-                                help='File to write log to. defaults to stderr.')
-    logging_group.add_argument('-C', '--no-color', dest='log_color', action='store_false',
-                                help='Disable coloring of logging output.')
+                   dest='paused',
+                   action='store_const', const=True,
+                   help='Start added torrents unpaused')
 
     args  = parser.parse_args()
     vargs = vars(args)
@@ -378,7 +374,8 @@ if __name__ == '__main__':
         sys.exit(0)
 
     args.cmd = Operations[args.cmd]
-    zerolog(vargs.pop('log_level'), fd=vargs.pop('log_file'), color=vargs.pop('log_color'))
+
+    use_logging_config('tctl', level=vargs.pop('log_level'))
 
     conn = Transmission.from_conf_file(CONFIG_FILE)
 

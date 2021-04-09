@@ -219,8 +219,9 @@ def main(args, vargs, parser):
 
 if __name__ == '__main__':
     import argparse
+    from mohkale.logging.add_level import add_logging_level
+    from mohkale.logging.config import use_config as use_logging_config
 
-    from mohkale.logging import add_logging_level, zerolog
     add_logging_level('TRACE', logging.DEBUG - 5)
 
     parser = argparse.ArgumentParser()
@@ -239,17 +240,11 @@ if __name__ == '__main__':
     logging_group = parser.add_argument_group('Logging')
     logging_group.add_argument('-l', '--log-level', metavar='LEVEL',
                                type=lambda X: getattr(logging, X.upper()),
-                               default=logging.INFO, help='Level of logging output.')
-    logging_group.add_argument('-L', '--log-file', metavar='FILE', default=sys.stderr,
-                               help='File to write log to. defaults to stderr.')
-    logging_group.add_argument('-C', '--no-color', dest='log_color', action='store_false',
-                               help='Disable coloring of logging output.')
+                               help='Level of logging output.')
 
     args  = parser.parse_args()
     vargs = vars(args)
 
-    zerolog(vargs.pop('log_level'),
-            fd=vargs.pop('log_file'),
-            color=vargs.pop('log_color'))
+    use_logging_config('backup', level=vargs.pop('log_level'))
 
     sys.exit(0 if main(args, vargs, parser) else 1)

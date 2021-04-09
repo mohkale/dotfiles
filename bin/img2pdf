@@ -3,7 +3,6 @@
 Convert one or more image files into a PDF document.
 """
 import os
-import io
 import sys
 import logging
 from PIL import Image, ImageFile
@@ -88,6 +87,7 @@ def create_pdf(files, output_path, append, title,
 
 if __name__ == '__main__':
     import argparse
+    from mohkale.logging.config import use_config as use_logging_config
 
     def parse_args():
         """parse command line arguments."""
@@ -105,14 +105,10 @@ if __name__ == '__main__':
         input_group.add_argument('file', metavar='FILE', nargs='*',
                                  help='files to convert to pdf.')
 
-        logging_group = parser.add_argument_group('logging')
-        logging_group.add_argument('-l', '--log-level',
-                                   metavar='LEVEL',
-                                   type=lambda X: getattr(logging, X.upper()),
-                                   default=logging.INFO, help='level of logging output.')
-        logging_group.add_argument('-L', '--log-file', metavar='FILE',
-                                   default=sys.stderr, help='file to write log to. default to stderr.')
-
+        parser.add_argument('-l', '--log-level',
+                            metavar='LEVEL',
+                            type=lambda X: getattr(logging, X.upper()),
+                            help='level of logging output.')
         output_group = parser.add_argument_group('output')
         output_group.add_argument('-o', '--output', metavar='FILE', default='output.pdf', help='write pdf to FILE.')
         output_group.add_argument('-a', '--append', action='store_true', help='append to existing PDF.')
@@ -140,16 +136,7 @@ if __name__ == '__main__':
                 parser.error('unable to locate input file: ' + fd)
         args.paths.extend(vargs.pop('files', []))
 
-        logging.getLogger('PIL').setLevel(logging.ERROR)
-        logging_args = {
-            'level': vargs.pop('log_level'),
-            'format': '%(levelname)8s:%(asctime)-15s:%(filename)s: %(message)s'
-        }
-        if isinstance(args.log_file, io.TextIOWrapper):
-            logging_args['stream'] = vargs.pop('log_file')
-        else:
-            logging_args['handlers'] = [logging.FileHandler(vargs.pop('log_file'), 'a', 'utf-8')]
-        logging.basicConfig(**logging_args)
+        use_logging_config('img2pdf', level=vargs.pop('log_level'))
 
         if not args.paths:
             parser.print_help()

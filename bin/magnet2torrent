@@ -167,6 +167,7 @@ class Magnet2Torrent(object):
 
 if __name__ == '__main__':
     import argparse
+    from mohkale.logging.config import use_config as use_logging_config
 
     parser = argparse.ArgumentParser(description='convert magnet links to torrent files')
 
@@ -191,16 +192,15 @@ if __name__ == '__main__':
     outputs_group.add_argument('-n', '--counter', type=int, default=1, metavar='NUM',
                                help='start format counter from NUM')
 
-    log_group = parser.add_argument_group('logging')
-    log_group.add_argument('-l', '--log-level', default=logging.INFO,
-                           metavar='LEVEL', type=lambda x: getattr(logging, x.upper()),
-                           help='verbosity of logging output')
-    log_group.add_argument('-L', '--log-file', type=argparse.FileType('a'),
-                           metavar='FILE', default=sys.stderr, help='log to FILE.')
+    parser.add_argument('-l', '--log-level', metavar='LEVEL',
+                        type=lambda x: getattr(logging, x.upper()),
+                        help='verbosity of logging output')
     args  = parser.parse_args()
     vargs = vars(args)
 
-    args.uri = args.uri or [] # in case no URI's were passed
+    use_logging_config('magnet2torrent', level=vargs.pop('log_level'))
+
+    args.uri = args.uri or []  # in case no URI's were passed
 
     fd = vargs.pop('file')
     if fd:
@@ -208,11 +208,6 @@ if __name__ == '__main__':
 
     if len(args.uri) == 0:
         logging.warning('no uris specified')
-
-    logging.basicConfig(
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        stream=vargs.pop('log_file'),
-        level=vargs.pop('log_level'))
 
     m2t = Magnet2Torrent(args.delay, args.timeout)
     exit_code = 0

@@ -872,7 +872,9 @@ class GNOME(Desktop):
                             '/org/freedesktop/DBus', 'org.freedesktop.DBus.GetNameOwner',
                             'string:org.gnome.SessionManager']).returncode == 0
 
+
 SUPPORTED_DESKTOP_ENVIRONMENTS = Desktop.__subclasses__()
+
 
 def detect_desktop(only):
     """Find and return the first desktop environment for which
@@ -908,36 +910,23 @@ def xopen(urls, generic_only, only_desktops, *args, **kwargs):
 
     return GenericOpener.from_kwargs(*args, **kwargs).open(urls)
 
-def default_logging_level():
-    """Get the default logging level depending on the env."""
-    env = os.getenv('XDG_UTILS_DEBUG_LEVEL')
-    if env is not None and env.isnumeric():
-        return int(env)
-    # return logging.INFO
-    return logging.DEBUG
-
 
 if __name__ == '__main__':
     import signal
     import argparse
-    from mohkale.logging import zerolog
+    from mohkale.logging.config import use_config as use_logging_config
 
-    signal.signal(signal.SIGINT, lambda: sys.exit(1)) # for ctrl+c
+    signal.signal(signal.SIGINT, lambda: sys.exit(1))  # for ctrl+c
 
     parser = argparse.ArgumentParser()
 
     parser.add_argument('urls', metavar='URLs', nargs='+',
                         help='Path to file or URL to open')
-    parser.add_argument('-l', '--logging_level',
-                        metavar='LEVEL', default=default_logging_level(),
+    parser.add_argument('-l', '--log-level', metavar='LEVEL',
                         type=lambda x: getattr(logging, x.upper()),
                         help='Set verbosity of logging output')
     parser.add_argument('-i', '--interactive', action='store_true',
                         help='When supported, use message boxes and other native notifications')
-    color_map = {'always': True, 'never': False, 'auto': sys.stdout.isatty()}
-    parser.add_argument('-c', '--color',
-                        default='auto', choices=color_map.keys(),
-                        help='Whether to color logging output')
     desktop_names = [x.__name__ for x in SUPPORTED_DESKTOP_ENVIRONMENTS]
     parser.add_argument('-d', '--desktop',
                         dest='only_desktops', nargs='+',
@@ -948,14 +937,15 @@ if __name__ == '__main__':
                         help="Don't bother checking desktop environments at all")
     pargs  = parser.parse_args()
     vargs = vars(pargs)
-    pargs.color = color_map.get(pargs.color, False)
 
     # TODO move these to a configuration file
     vargs['list_files'] = ['mimeapps.list', 'defaults.list']
-    vargs['search_order'] = [DesktopFindSearchOrder.LIST_FILES, DesktopFindSearchOrder.DESKTOP_FP]
+    vargs['search_order'] = [DesktopFindSearchOrder.LIST_FILES,
+                             DesktopFindSearchOrder.DESKTOP_FP]
     vargs['paths'] = [os.path.expanduser('~/.local/share/applications/'),
-                             '/usr/share/applications/',
-                             '/usr/local/share/applications/',]
+                      '/usr/share/applications/',
+                      '/usr/local/share/applications/']
 
-    zerolog(vargs.pop('logging_level'), color=vargs.pop('color'))
+    use_logging_config('xopen', level=vargs.pop('log_level'))
+
     sys.exit(0 if xopen(**vargs) else 1)

@@ -44,7 +44,7 @@ def run_desktop(desktop, urls, **_):
 
 if __name__ == '__main__':
     import argparse
-    from mohkale.logging import zerolog
+    from mohkale.logging.config import use_config as use_logging_config
 
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description="""
@@ -58,19 +58,15 @@ than find the a program to open a URL.
     parser.add_argument('desktop', help='Name (or path) to the desktop file to open')
     parser.add_argument('urls', nargs='*', help='URLs to pass through DESKTOP')
 
-    parser.add_argument('-l', '--logging_level',
-                        metavar='LEVEL',
+    parser.add_argument('-l', '--log_level', metavar='LEVEL',
                         type=lambda x: getattr(logging, x.upper()),
                         help='Set verbosity of logging output')
-    color_map = {'always': True, 'never': False, 'auto': sys.stdout.isatty()}
-    parser.add_argument('-c', '--color',
-                        default='auto', choices=color_map.keys(),
-                        help='Whether to color logging output')
+
     pargs = parser.parse_args()
     vargs = vars(pargs)
 
     xopen = load_xopen()
-    if pargs.logging_level is None:
-        pargs.logging_level = xopen.default_logging_level()
-    zerolog(vargs.pop('logging_level'), color=color_map.get(vargs.pop('color'), False))
+
+    use_logging_config('xrun', level=vargs.pop('log_level'))
+
     sys.exit(0 if run_desktop(**vargs) else 1)

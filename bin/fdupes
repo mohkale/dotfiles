@@ -113,11 +113,12 @@ def gen_dups(paths):
         for eq_paths in group_equals(path_gen, key=is_duplicate):
             yield fhash, eq_paths
 
+
 if __name__ == '__main__':
     import sys
     import codecs
     import argparse
-    from mohkale.logging import zerolog
+    from mohkale.logging.config import use_config as use_logging_config
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -129,17 +130,17 @@ if __name__ == '__main__':
                             help='Read paths to check from stdin.')
 
     output_group = parser.add_argument_group('Output',
-                                                description="""
+                                             description="""
 Configure how this program outputs results. By default it joins
 each equal file with a field seperator (:) and seperates unequal
 files with row seperator (\\n).
                                                 """.strip())
     output_group.add_argument('-s', '--field-seperator',
-                                default=':', metavar='SEP',
-                                help='Seperator for identicle files in the same column')
+                              default=':', metavar='SEP',
+                              help='Seperator for identicle files in the same column')
     output_group.add_argument('-r', '--row-seperator',
-                                default='\n', metavar='SEP',
-                                help='Seperator for identicle files in the same column')
+                              default='\n', metavar='SEP',
+                              help='Seperator for identicle files in the same column')
 
     # dup_pred_group = output_group.add_argument_group()
     dup_pred_group = output_group.add_mutually_exclusive_group()
@@ -150,14 +151,9 @@ files with row seperator (\\n).
                                 action='store_true', dest='no_duplicates',
                                 help='Only print files that have no duplicates.')
 
-    logging_group = parser.add_argument_group('Logging')
-    logging_group.add_argument('-l', '--log-level', metavar='LEVEL',
-                                type=lambda X: getattr(logging, X.upper()),
-                                default=logging.INFO, help='Level of logging output.')
-    logging_group.add_argument('-L', '--log-file', metavar='FILE', default=sys.stderr,
-                                help='File to write log to. defaults to stderr.')
-    logging_group.add_argument('-C', '--no-color', dest='log_color', action='store_false',
-                                help='Disable coloring of logging output.')
+    parser.add_argument('-l', '--log-level', metavar='LEVEL',
+                        type=lambda X: getattr(logging, X.upper()),
+                        help='Level of logging output.')
 
     args  = parser.parse_args()
     vargs = vars(args)
@@ -168,7 +164,7 @@ files with row seperator (\\n).
     args.field_seperator = codecs.decode(args.field_seperator, 'unicode_escape')
     args.row_seperator = codecs.decode(args.row_seperator, 'unicode_escape')
 
-    zerolog(vargs.pop('log_level'), fd=vargs.pop('log_file'), color=vargs.pop('log_color'))
+    use_logging_config('fdupes', level=vargs.pop('log_level'))
 
     for _, fs in gen_dups(args.path):
         if args.only_duplicates and len(fs) == 1 or\

@@ -5,7 +5,6 @@ Determine the approriate destination for a completed transmission torrent downlo
 See the [[file:~/.dotfiles/programs/transmission/README.org][README]].
 """
 
-import sys
 import json
 import logging
 import pathlib as p
@@ -101,16 +100,22 @@ def get_dest_directory(args):
     """determine where a torrent should be placed."""
     dest = args.default
     if not dest:
-        logging.warning('no default destination supplied')
+        logging.warning('No default destination supplied')
+    else:
+        logging.debug('Default destination set to %s', dest)
 
     if normal_download_directory(args.location, args.incomplete):
         if not args.downloads:
             logging.warning('no downloads root supplied, ignoring structure checks')
         else:
+            logging.info('Finding destination directory based on hirearchy')
             hirearchy = check_hirearchy(args)
             if hirearchy and str(hirearchy) != '.':
                 dest = args.downloads / hirearchy
+                logging.debug('Destination set to %s', dest)
     else:
+        logging.warning("Not moving download directory because %s is not a subdirectory of %s",
+                repr(str(args.location)), repr(str(args.incomplete)))
         dest = None  # keep download in it's current, non-normal, location
 
     return dest
@@ -118,6 +123,7 @@ def get_dest_directory(args):
 
 if __name__ == '__main__':
     import argparse
+    from mohkale.logging.config import use_config as use_logging_config
 
     parser = argparse.ArgumentParser()
     parser.add_argument('id', help='tranmission id for torrent')
@@ -134,21 +140,14 @@ if __name__ == '__main__':
     config_group.add_argument('-w', '--watch', metavar='FILE',
                               type=argparse.FileType('r', encoding='utf8'),
                               help='path to default watcher config file')
-
-    log_group = parser.add_argument_group('logging')
-    log_group.add_argument('-l', '--log-level', type=lambda x: getattr(logging, x.upper()),
-                           metavar='LEVEL', default=logging.INFO,
-                           help='verbosity of logging output')
-    log_group.add_argument('-L', '--log-file', metavar='FILE', default=sys.stderr,
-                           type=argparse.FileType('a', encoding='utf8'),
-                           help='file to write logging output to')
+    parser.add_argument('-l', '--log-level', metavar='LEVEL',
+                        type=lambda x: getattr(logging, x.upper()),
+                        help='verbosity of logging output')
 
     args  = parser.parse_args()
     vargs = vars(args)
 
-    logging.basicConfig(
-        level=vargs.pop('log_level'),
-        stream=vargs.pop('log_file'))
+    use_logging_config('dest_path', level=vargs.pop('log_level'))
 
     dest = get_dest_directory(args)
     if dest:

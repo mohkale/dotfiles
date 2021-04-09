@@ -294,7 +294,7 @@ def main(args):
 
 if __name__ == '__main__':
     import argparse
-    from mohkale.logging import zerolog
+    from mohkale.logging.config import use_config as use_logging_config
 
     parser = argparse.ArgumentParser()
 
@@ -307,14 +307,16 @@ if __name__ == '__main__':
     parser.add_argument('-c', '--config',
                         type=pathlib.Path, default=DEFAULT_CONFIG,
                         help='Specify local game configuration file')
-    parser.add_argument('-l', '--logging_level',
-                        metavar='LEVEL', default=logging.INFO,
+    parser.add_argument('-l', '--log-level', metavar='LEVEL',
                         type=lambda x: getattr(logging, x.upper()),
                         help='Set verbosity of logging output')
 
     args = parser.parse_args()
+    vargs = vars(args)
     args.output = args.output or (lambda g: json.dumps({'name': g.name, 'url': g.url, 'meta': g.meta}))
-    zerolog(args.logging_level)
+
+    use_logging_config('ls-games', vargs.pop('log_level'))
+
     if not args.config.exists():
         parser.error('Failed to find config file: %s' % args.config)
     logging.getLogger('edn_format').setLevel(logging.ERROR)

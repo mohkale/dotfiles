@@ -1,0 +1,64 @@
+---  # -*- mode: yaml -*-
+version: 1
+disable_existing_loggers: false
+formatters:
+  simple:
+    format: '%(asctime)s - %(name)s - %(levelname)s %(message)s'
+  detail:
+    format: "%(asctime)s %(name)s %(levelname)s(%(pathname)s:%(lineno)s) %(message)s"
+    datefmt: '%s'
+  plain:
+    format: "%(asctime)s %(levelname)s %(message)s"
+  # zerolog_color:
+  #   format: "\x1b[30m%(asctime)s\x1b[0m %(levelname)s\x1b[0m %(message)s"
+  #   datefmt: '%H:%M%p'
+
+# Consistent width level names taken from [[https://github.com/rs/zerolog][zerolog]].
+levels:
+  DBG: DEBUG
+  INF: INFO
+  WRN: WARN
+  ERR: ERROR
+  CRT: CRITICAL
+  TRC: TRACE
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: INFO
+    formatter: plain
+    stream: ext://sys.stderr
+
+  # yamllint disable rule:comments-indentation
+  # info_file_handler:
+  #   class: logging.handlers.RotatingFileHandler
+  #   level: 0
+  #   formatter: detail
+  #   filename: /home/mohkale/.cache/py-logs.log
+  #   maxBytes: 10485760  # 10MB
+  #   backupCount: 20
+  #   encoding: utf8
+  # yamllint enable rule:comments-indentation
+
+loggers:
+  PIL:
+    level: ERROR
+    handlers: [console]
+    propagate: no
+  edn_format:
+    level: ERROR
+    handlers: [console]
+    propagate: no
+  urllib3:
+    level: ERROR
+    handlers: [console]
+    propagate: no
+  inotify:
+    level: INFO
+    handlers: [console]
+    propagate: no
+
+root:
+  # The level here overrides any handler levels.
+  level: 0
+  handlers: [console]

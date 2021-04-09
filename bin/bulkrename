@@ -142,7 +142,7 @@ def bulkrename(index, preselect, editor,
         index_pre_command = ['sh', '-c', '--', index_pre_command, 'precmd', shlex.quote(str(index))]
         logging.debug('Running shell command: %s', shlex.join(index_pre_command))
         if subprocess.run(index_pre_command).returncode != 0:
-            logging.critical('Pre-command exited with non-0 exit code')
+            logging.error('Pre-command exited with non-0 exit code')
             return False
 
     logging.debug('Copying index to edit-index')
@@ -155,19 +155,19 @@ def bulkrename(index, preselect, editor,
         pre_command = ['sh', '-c', '--', pre_command, 'precmd', shlex.quote(str(index_edit))]
         logging.debug('Running shell command: %s', shlex.join(pre_command))
         if subprocess.run(pre_command).returncode != 0:
-            logging.critical('Pre-command exited with non-0 exit code')
+            logging.error('Pre-command exited with non-0 exit code')
             return False
 
     logging.debug('Opening editor on edit-index')
     if not open_editor(editor, index_edit, preselect):
-        logging.fatal('Index edit exited with non-0 exit code')
+        logging.error('Index edit exited with non-0 exit code')
         return False
 
     logging.debug('Checking index and edited-index size')
     index_count = wc_l(index)
     index_edit_count = wc_l(index_edit)
     if index_count != index_edit_count:
-        logging.fatal("Edited index size doesn't match original index size: %d / %d",
+        logging.error("Edited index size doesn't match original index size: %d / %d",
                       index_count, index_edit_count)
         return False
 
@@ -194,7 +194,7 @@ def bulkrename(index, preselect, editor,
     logging.debug('Opening editor on scratch')
     scratch_line = None if (trash_script is not None or move_script is not None) else (scratch_header.count('\n')+1)
     if confirm and not open_editor(editor, scratch, scratch_line):
-        logging.fatal('Scratch edit exited with non-0 exit code')
+        logging.error('Scratch edit exited with non-0 exit code')
         return False
 
     logging.info('Running bulkrename script')
@@ -206,7 +206,7 @@ def bulkrename(index, preselect, editor,
 if __name__ == '__main__':
     import signal
     import argparse
-    from mohkale.logging import zerolog
+    from mohkale.logging.config import use_config as use_logging_config
 
     signal.signal(signal.SIGINT, lambda: sys.exit(1)) # for ctrl+c
 
@@ -250,14 +250,13 @@ if __name__ == '__main__':
         source_group = parser.add_argument_group('Sources')
         source_group.add_argument('paths', nargs='*', default=[], help='Include file in session')
         source_group.add_argument('-', '--read-stdin', action='store_true',
-                                help='Read filenames from stdin')
+                                  help='Read filenames from stdin')
         source_group.add_argument('-f', '--file', dest='files', metavar='FILE',
-                                default=[], type=pathlib.Path,
-                                action='append', help='Read filenames from FILE')
+                                  default=[], type=pathlib.Path,
+                                  action='append', help='Read filenames from FILE')
 
         conf_group = parser.add_argument_group('Config')
-        conf_group.add_argument('-l', '--logging', dest='logging_level',
-                                metavar='LEVEL', default=logging.CRITICAL,
+        conf_group.add_argument('-l', '--log-level', metavar='LEVEL',
                                 type=lambda x: getattr(logging, x.upper()),
                                 help='Set verbosity of logging output')
         conf_group.add_argument('-e', '--editor', metavar='CMD',
@@ -280,14 +279,14 @@ if __name__ == '__main__':
 
         scripts_group = parser.add_argument_group('Scripts')
         scripts_group.add_argument('-m', '--move', dest='move_script', metavar='CMD',
-                                help='Override the default rename command')
+                                   help='Override the default rename command')
         scripts_group.add_argument('-t', '--trash', dest='trash_script', metavar='CMD',
-                                help='Override the default trash command')
+                                   help='Override the default trash command')
 
         args = parser.parse_args()
         vargs = vars(args)
 
-        zerolog(vargs.pop('logging_level'))
+        use_logging_config('bulkrename', level=vargs.pop('log_level'))
 
         return args, vargs
 

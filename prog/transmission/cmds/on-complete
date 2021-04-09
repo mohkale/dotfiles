@@ -4,7 +4,6 @@ A script invoked by transmission once a download completes, see [[https://github
 """
 
 import os
-import sys
 import json
 import logging
 import filecmp
@@ -122,10 +121,14 @@ def move_to_dest(args):
         except:  # pylint: disable=W0702
             logging.exception('Failed to move torrent to new location')
             return False
+    else:
+        logging.warning('No destination path found, skipping move.')
     return True
 
 
 if __name__ == '__main__':
+    from mohkale.logging.config import use_config as use_logging_config
+
     parser = argparse.ArgumentParser()
 
     parser.add_argument('-c', '--config', metavar='FILE',
@@ -136,14 +139,9 @@ if __name__ == '__main__':
                         default=WATCHER_FILE, type=p.Path,
                         help='transmission daemon configuration file')
 
-    log_group = parser.add_argument_group('logging')
-    log_group.add_argument('-l', '--log-level', type=lambda x: getattr(logging, x.upper()),
-                           metavar='LEVEL', default=logging.INFO,
-                           help='verbosity of logging output')
-    log_group.add_argument('-L', '--log-file', metavar='FILE', default=sys.stderr,
-                           type=argparse.FileType('a', encoding='utf8'),
-                           help='file to write logging output to')
-
+    parser.add_argument('-l', '--log-level', metavar='LEVEL',
+                        type=lambda x: getattr(logging, x.upper()),
+                        help='verbosity of logging output')
     env_group = parser.add_argument_group('Environment Overrides')
     env_group.add_argument('-H', '--hash', default=os.getenv('TR_TORRENT_HASH'),
                            help='hash for the completed torrent')
@@ -160,16 +158,7 @@ if __name__ == '__main__':
     args  = parser.parse_args()
     vargs = vars(args)
 
-    log_file = p.Path('~/.cache/transmission/on-complete-log').expanduser()
-    if not log_file.parent.exists():
-        log_file.parent.mkdir(parents=True, exist_ok=True)
-    logging.basicConfig(
-        # level=vargs.pop('log_level'),
-        # stream=vargs.pop('log_file')
-        # transmission doesn't let you pass arguments, so do this manually :cry:.
-        level=logging.DEBUG,
-        filename=str(log_file),
-    )
+    use_logging_config('on-complete', level=vargs.pop('log_level'))
 
     if not args.watcher.exists():
         parser.error("Watcher config file doesn't exist: " + str(args.watcher))
@@ -181,7 +170,7 @@ if __name__ == '__main__':
 
     args.location = p.Path(
         vargs.pop('directory'),
-        vargs.pop('basename'))
+        vargs.pop('basename')).resolve()
 
     args.connection = Transmission(
         args.config['rpc-bind-address'],
@@ -194,7 +183,7 @@ if __name__ == '__main__':
     if not args.location.exists():
         parser.error("Location doesn't exist: %s" % args.location)
 
-    args.incomplete_dir = p.Path(args.config['download-dir'])
+    args.incomplete_dir = p.Path(args.config['download-dir']).resolve()
     args.download_root  = args.incomplete_dir.parent
     args.default_dest   = args.download_root / 'random'
 
