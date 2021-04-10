@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# -*- +indent: 2 -*-
+# Interactively select program to execute using fzf. [[https://github.com/oem/dotfiles/blob/master/launch/cmdlist][source]].
+
+fzf_grep() {
+  local grepper prompt
+  if command -v rg >/dev/null 2>&1; then
+    grepper="rg --no-column --line-number --no-heading --color=always --smart-case "
+    prompt='Ripgrep to files: '
+  else
+    grepper="find-project -f | xargs -r -d '\n' grep -P --color=always --binary-files=without-match --line-number --regexp "
+    prompt='Grep to files: '
+  fi
+
+  local QUERY="${*:-}"
+  FZF_DEFAULT_COMMAND="$grepper $(printf %q "$QUERY")" \
+    _fzf \
+      --ansi \
+      --disabled \
+      --multi \
+      --query "$QUERY" \
+      --bind "change:reload:sleep 0.1; $grepper {q} || true" \
+      --prompt="$prompt" \
+      --delimiter : \
+      --preview "preview -o bat='--highlight-line {2}' -- {1}" \
+      --preview-window 'down,60%,border-top,+{2}+3/3' |
+    cut -d : -f 1 |
+    uniq |
+    select_path
+}

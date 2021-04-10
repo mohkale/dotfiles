@@ -254,6 +254,9 @@ cmd cdltemp ${{
         lf -remote "send $id cd \"$dest\""
 }}
 
+map gs fzf-grep
+cmd fzf-grep $. $XDG_CONFIG_HOME/lf/cmds/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/fzf_grep; fzf_grep
+
 map cls $true
 
 ## Select files/directories (interactively)

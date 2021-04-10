@@ -95,6 +95,7 @@ ge      cd_env
 gf      fzf_file
 gm      cd_mount
 gp      cd_repo
+gs      fzf_grep
 gu      cd_project_root
 gx      edit_executables
 oe      select_path
