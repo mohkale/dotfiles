@@ -18,7 +18,7 @@ set -g pane-base-index 1                                             # panes sta
 set -g history-limit 100000                                          # a lot of history is a good thing
 set -g set-titles-string 'tmux@#H [#S:#I] #W'                        # title of terminal when running tmux
 set -sg escape-time 10                                               # small enough for nvim and alt-keys :smile:.
-set -ga terminal-overrides ",*256col*:Tc"                            # enable true-color
+set -ga terminal-overrides ",*256col*:Tc,*24bit*:Tc"                 # enable true-color
 set -s extended-keys on                                              # support [[https://github.com/tmux/tmux/wiki/Modifier-Keys#extended-keys][xterm]] extension keys
 set -as terminal-features 'st*:extkeys'                              # allow extended-keys with st just like xterm
 set -gq message-limit 10000                                          # Store upto this many messages in the log
@@ -27,9 +27,9 @@ set -gq message-limit 10000                                          # Store upt
 # terminal. I'll add support for other true-color terms as I use
 # them.
 %if '#{==:#{TERM},st-256color}'
-set -g default-terminal "screen-24bit"
+set -g default-terminal "tmux-24bit"
 %else
-set -g default-terminal "screen-256color"
+set -g default-terminal "tmux-256color"
 %endif
 
 # Detect events in windows and mark appropriately. Supported events include:

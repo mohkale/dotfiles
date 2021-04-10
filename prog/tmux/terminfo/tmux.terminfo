@@ -1,0 +1,14 @@
+# -*- mode: conf -*- Terminfo declaration for tmux which just alias screen.
+#
+# See the [[https://github.com/tmux/tmux/blob/2.1/FAQ#L355-L383][FAQ]], turns out tmux hard-codes in some behaviour to maintain
+# compatibility with screen but that invalidates some xterm like extensions
+# such as italics or strikethrough.
+#
+# The behaviour is only present when your tmux terminal is set to screen* so
+# this is just an alternate terminal definition which is identical to the
+# screen variants but due to having a different name doesn't fall prey to this
+# annoyance 😂.
+tmux|screen with 24-bit direct color mode,
+  use=screen,
+tmux-256color|screen with 24-bit direct color mode,
+  use=screen-256color,

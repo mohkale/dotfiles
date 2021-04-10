@@ -1,6 +1,5 @@
-<!-- -*- mode: markdown -*- -->
+# Terminfo <!-- -*- mode: markdown -*- -->
 
-# Terminfo
 This directory contains the files/configurations needed to enable true-color support
 in tmux and any terminal programs which may rely on it (eg. emacs).
 
@@ -14,14 +13,15 @@ from [here][tmux-24] and [here][vim24]. You can also find an alternative guide i
 [spacemacs/term]: https://github.com/syl20bnr/spacemacs/wiki/Terminal
 
 ## Method
+
 First double check your current client has true-color support by running `tmux info |
 grep Tc`. If not check the `terminal-overrides` option and make sure its setup to
 enable the **Tc** option on your current terminal. More information can be found in
 [[man:tmux][tmux]].
 
-Now run `tic -x screen-24bit.terminfo` to compile and install the terminal-capabilities/info
-for your true-color terminal.
+Now run `tic -x tmux.terminfo && tic -x tmux-24bit.terminfo` to compile and install the
+terminal-capabilities/info for your true-color terminal.
 
-That should be all. Double check when you start a terminal that your TERM value is `screen-24bit`.
+That should be all. Double check when you start a terminal that your TERM value is `tmux-24bit`.
 Then open any programs you use like you normally would and they should detect and adapt to the
 enhanced capabilities :-).
