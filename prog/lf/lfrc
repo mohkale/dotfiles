@@ -23,6 +23,7 @@ set ifs "\n"
 set icons
 set hiddenfiles .*:__pycache__:*.pyc:*.o:node_modules:*.elc:*~:eln-cache
 set info size
+set previewer ~/.config/lf/cmds/lf-preview
 
 # mouse
 map <m-up>    up
@@ -809,7 +810,6 @@ cmd toggle-parent-preview ${{
     lf -remote "send $id set ratios $ratio"
 }}
 
-set previewer lf-preview
 cmd toggle-default-previewer &{{
     if [ "$lf_previewer" = "preview" ]; then
         lf -remote "send $id set previewer"
