@@ -1,0 +1,25 @@
+#!/bin/sh
+# Usage: cut-remove {move|copy}
+#
+# Command to 
+
+files=$(lf -remote load)
+operation=$(echo "$files" | head -n1)
+
+if [ "$operation" != "$1" ]; then
+    lf -remote "send $id echoerr no files in $1 list"
+    exit 1
+fi
+
+files=$(echo "$files" | tail -n +2)
+newline=$'\n'
+
+# here we want all files in $files that aren't in $fs, making sure
+# that none of the entries in $fs are included, even when they aren't
+# in $files. To do this we concatenate $files and $fs (twice), printing
+# only the unique lines.
+new_files=$(echo "$files${newline}$fs${newline}$fx" | sort | uniq -u |
+              sed --quiet -e '/^$/d' -e 'p')
+
+lf -remote "save${newline}$1${newline}${new_files}${newline}"
+lf -remote "send $id unselect${newline}send $id sync"

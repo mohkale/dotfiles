@@ -1,0 +1,38 @@
+#!/bin/sh
+# -*- +indent: 2 -*-
+# Helper to assign $fs (the current lf selection) to the contents of the
+# cwd when it's otherwise unassigned. It also respects the value of the
+# hiddenfiles option.
+
+fs() {
+  # shellcheck disable=SC2154
+  if [ -z "$fs" ]; then
+    dir=$(dirname "$f")
+    find "$dir" -mindepth 1 "$@" |
+      sort -V |
+      if [ "$lf_hidden" = "false" ]; then
+        # not efficient but it works :shrug_tone4:
+        #
+        # we strip out the base directory, then recurse through all
+        # subdirectories removing any that match a pattern in our hidden
+        # files globs. We then re-prepend the base directory back.
+        #
+        # Removing the base directory is done to make sure a path
+        # earlier in our cwd isn't hidden... because if it was then all
+        # files below it would've been ignored implicitly.
+        #
+        # For example if $dir is node_modules/foo/ we'd normally end up
+        # ignoring everything within foo due to node_modules being in
+        # hiddenfiles, but seeing as we're already there we shouldn't
+        # ignore it :-)
+        awk -v cwd="$dir" '{ print(substr($0, length(cwd)+2)) }' |
+          filter-globs -v -p "$lf_hiddenfiles" -ba |
+          awk -v cwd="$dir" '{ printf("%s/%s\n", cwd, $0) }'
+      else
+        cat
+      fi
+    unset dir
+  else
+    echo "$fs"
+  fi
+}

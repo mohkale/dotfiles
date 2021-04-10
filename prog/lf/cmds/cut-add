@@ -1,0 +1,14 @@
+#!/bin/sh
+# Usage: cut-add {move|copy}
+#
+# Command to 
+
+files=$(lf -remote load | tail -n +2)
+newline=$'\n'
+
+# remove empty lines from the file list, because they keep messing
+# up the selection.
+new_files=$(echo "$files${newline}$fx" | sort | uniq | sed --quiet -e '/^$/d' -e 'p')
+
+lf -remote "save${newline}$1${newline}${new_files}${newline}"
+lf -remote "send $id unselect${newline}send $id sync"
