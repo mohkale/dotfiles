@@ -37,6 +37,11 @@ nnoremap <leader><tab> <C-^>
 
 nnoremap <leader>xt  :silent %s/[[:space:]]\+$//e<cr>
 
+" Quickfix
+map  <Leader>jn :cn<cr>
+map  <Leader>jp :cp<cr>
+map  <Leader>j? :cc<cr>
+
 " Easymotions
 map  <Leader>jj <Plug>(easymotion-overwin-f)
 map  <Leader>jJ <Plug>(easymotion-overwin-f2)
@@ -45,9 +50,9 @@ map  <Leader>jhj <Plug>(easymotion-j)
 map  <Leader>jhk <Plug>(easymotion-k)
 map  <Leader>jhh <Plug>(easymotion-linebackward)
 map  <Leader>jhw <Plug>(easymotion-overwin-w)
-map  <Leader>jn <Plug>(easymotion-next)
-map  <Leader>jp <Plug>(easymotion-prev)
-map  <Leader>js <Plug>(easymotion-sn)
+map  <Leader>jhn <Plug>(easymotion-next)
+map  <Leader>jhp <Plug>(easymotion-prev)
+map  <Leader>jhs <Plug>(easymotion-sn)
 
 
 """"""""""""""""""""""""""""""""""""

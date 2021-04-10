@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 cd_mount() {
-    local fzf_args=( --height 99% --reverse --no-multi -d ' ' --preview 'preview {2..}' --preview-window=25%
+    local fzf_args=( --no-multi -d ' ' --preview 'preview {2..}' --preview-window=25%
                      --history "${XDG_DATA_HOME:-$HOME/.locale/share}"/fzf/history/paths )
     [ -z "$*" ] || fzf_args+=( -q "$*" )
     ls-mount |

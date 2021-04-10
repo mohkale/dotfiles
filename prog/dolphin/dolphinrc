@@ -16,6 +16,7 @@ FontWeight=50
 ConfirmClosingMultipleTabs=false
 GlobalViewProps=false
 RememberOpenedTabs=false
+ShowToolTips=true
 Version=200
 ViewPropsTimestamp=2021,2,28,17,27,2.598
 

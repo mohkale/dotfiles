@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# -*- +indent: 2 -*-
 # Fuzzy select a password from the [[https://wiki.archlinux.org/index.php/Pass][pass]] password manager.
 #
 # A fzf command used to interactively select files in your local password
