@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+fzf_file_all() {
+    FZF_SELECT_ARGS=-fa fzf_select "$@"
+}

@@ -6,14 +6,15 @@
 # /____  >___|  /\____/|__|   |__|  \___  >____/ |__| /____  >
 #      \/     \/                        \/                 \/
 
-a       cd_fsmap
+a       fzf_select
+A       fzf_select_all
 b       fzbm
 c       cd
 d       fzf_cd
 D       fzf_cd_all
 e       sh --norc -c '$EDITOR "$@"' edit
-f       fzf_select
-F       fzf_select_all
+f       fzf_file
+F       fzf_file_all
 i       sh -c 'if [ $# -gt 0 ]; then preview "$@" | less; fi' inspect
 m       fzman
 o       xopen
@@ -91,7 +92,7 @@ gz      cd_fsmap
 ga      select_fsmap
 gd      fzf_cd
 ge      cd_env
-gf      fzf_select
+gf      fzf_file
 gm      cd_mount
 gp      cd_repo
 gu      cd_project_root
@@ -102,6 +103,8 @@ cw      bulkrename
 lc      lfcd
 og      open_game
 
+dota    a $DOTFILES
+dotA    A $DOTFILES
 dotf    f $DOTFILES
 dotF    F $DOTFILES
 dotd    d $DOTFILES

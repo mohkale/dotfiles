@@ -1,8 +1,4 @@
 #!/usr/bin/env bash
 fzf_cd_all() {
-    local dest
-    dest=$(find-project -adz |
-      _fzf --read0 --no-multi --preview 'preview {}' --preview-window=25% \
-           --history "${XDG_DATA_HOME:-$HOME/.locale/share}"/fzf/history/paths)
-    cd "$dest" || echo "error: failed to cd: $dest" >&2
+    FZF_CD_ARGS=-da fzf_select "$@"
 }

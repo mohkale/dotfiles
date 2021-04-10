@@ -1,7 +1,24 @@
 #!/usr/bin/env bash
 fzf_select() {
-    find-project -z "$@" |
-        _fzf --read0 --no-multi --preview 'preview {}' --preview-window=25% \
-             --history "${XDG_DATA_HOME:-$HOME/.locale/share}"/fzf/history/paths |
+    local p
+    if [ "$#" -gt 0 ]; then
+        p="$*"
+        # Always make sure there's a trailing slash on the path.
+        [ "${p[${#p}]}" = / ] || p="$p/"
+    else
+        p="./"
+    fi
+
+    # When showing it strip all paths until we reach the cwd.
+    local temp="${p//[^\/]}"
+    local skip="${#temp}"
+
+    # shellcheck disable=SC2086
+    find-project -z ${FZF_SELECT_ARGS:-} -- "$p" |
+        _fzf --read0 \
+             --multi \
+             --preview 'preview {}' \
+             --history "${XDG_DATA_HOME:-$HOME/.locale/share}"/fzf/history/paths \
+             --delimiter / --with-nth "$((skip+1)).." |
         select_path
 }

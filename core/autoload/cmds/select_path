@@ -9,8 +9,8 @@
 # files will be handled first and then the directory.
 
 select_path() {
-    local newdir
-    local files
+    local newdir=
+    local files=
     files=()
     while read -r p; do
         if [ -d "$p" ]; then
