@@ -1,10 +1,30 @@
-#!/usr/bin/env bash
-# System agnostic clipboard sink.
-#
-# Pipe data into this command and it'll
+#!/bin/sh
+# -*- +indent: 2 -*-
+# System agnostic clipboard sink, copies stdin to system clipboard.
 
-if [ "$(ls-platform)" == "linux" ]; then
-  xclip -i -selection clipboard
+read -r -d '' USAGE <<EOF
+Usage: clip [-h] [-t]
+
+Optional arguments:
+  -h  Show this help message and exit
+  -t  Strip trailing line breaks before copying
+EOF
+
+rmlastnl=0
+while getopts 'ht' OPTION; do
+  case "$OPTION" in
+    h) echo "$USAGE"
+       exit 0 ;;
+    \?) echo "$USAGE" >&2
+        exit 1 ;;
+    t) rmlastnl=1 ;;
+  esac
+done
+
+if [ "$(ls-platform)" = "linux" ]; then
+  args=
+  [ "$rmlastnl" -eq 1 ] && args='-rmlastnl'
+  xclip -i -selection clipboard $args
 else
   echo "error: clip: no clipboard utility known for current platform"
 fi

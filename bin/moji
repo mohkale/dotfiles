@@ -90,7 +90,7 @@ fi
     tr '\n' "$delimiter"
   fi |
   case "$operation" in
-    copy) xclip -i -selection clipboard ;;
+    copy) clip ;;
     insert)
       xdotool sleep 0.2 type --delay "$insert_rate" --file -
       ;;
