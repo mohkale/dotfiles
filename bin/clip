@@ -2,6 +2,7 @@
 # -*- +indent: 2 -*-
 # System agnostic clipboard sink, copies stdin to system clipboard.
 
+# shellcheck disable=SC2039
 read -r -d '' USAGE <<EOF
 Usage: clip [-h] [-t]
 
@@ -24,6 +25,7 @@ done
 if [ "$(ls-platform)" = "linux" ]; then
   args=
   [ "$rmlastnl" -eq 1 ] && args='-rmlastnl'
+  # shellcheck disable=SC2248
   xclip -i -selection clipboard $args
 else
   echo "error: clip: no clipboard utility known for current platform"

@@ -1,4 +1,4 @@
-# -*- mode: yaml -*- Tmuxinator Config File for transmission
+---  # -*- mode: yaml -*- Tmuxinator Config File for transmission
 name: tortrans
 root: ~/.config/transmission-daemon
 

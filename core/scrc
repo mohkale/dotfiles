@@ -19,4 +19,6 @@ disable=SC1071
 disable=SC2059
 # Suppress warning about assigning array elements by index (I've never done that).
 disable=SC2191
+# Asume $'...' is always available.
+disable=SC2039
 
