@@ -294,7 +294,7 @@ def act_on_torrents_cmd(conn,
 if __name__ == '__main__':
     import argparse
 
-    from mohkale.logging.config import use_config as use_logging_config # pylint: disable=C0412
+    from mohkale.pylog.config import use_config as use_logging_config # pylint: disable=C0412
 
     parser = argparse.ArgumentParser()
 

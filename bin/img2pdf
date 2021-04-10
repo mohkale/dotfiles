@@ -87,7 +87,7 @@ def create_pdf(files, output_path, append, title,
 
 if __name__ == '__main__':
     import argparse
-    from mohkale.logging.config import use_config as use_logging_config
+    from mohkale.pylog.config import use_config as use_logging_config
 
     def parse_args():
         """parse command line arguments."""

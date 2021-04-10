@@ -127,7 +127,7 @@ def move_to_dest(args):
 
 
 if __name__ == '__main__':
-    from mohkale.logging.config import use_config as use_logging_config
+    from mohkale.pylog.config import use_config as use_logging_config
 
     parser = argparse.ArgumentParser()
 

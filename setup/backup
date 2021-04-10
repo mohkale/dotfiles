@@ -219,8 +219,8 @@ def main(args, vargs, parser):
 
 if __name__ == '__main__':
     import argparse
-    from mohkale.logging.add_level import add_logging_level
-    from mohkale.logging.config import use_config as use_logging_config
+    from mohkale.pylog.add_level import add_logging_level
+    from mohkale.pylog.config import use_config as use_logging_config
 
     add_logging_level('TRACE', logging.DEBUG - 5)
 

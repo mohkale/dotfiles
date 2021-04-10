@@ -167,7 +167,7 @@ class Magnet2Torrent(object):
 
 if __name__ == '__main__':
     import argparse
-    from mohkale.logging.config import use_config as use_logging_config
+    from mohkale.pylog.config import use_config as use_logging_config
 
     parser = argparse.ArgumentParser(description='convert magnet links to torrent files')
 

@@ -118,7 +118,7 @@ if __name__ == '__main__':
     import sys
     import codecs
     import argparse
-    from mohkale.logging.config import use_config as use_logging_config
+    from mohkale.pylog.config import use_config as use_logging_config
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,

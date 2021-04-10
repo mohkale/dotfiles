@@ -914,7 +914,7 @@ def xopen(urls, generic_only, only_desktops, *args, **kwargs):
 if __name__ == '__main__':
     import signal
     import argparse
-    from mohkale.logging.config import use_config as use_logging_config
+    from mohkale.pylog.config import use_config as use_logging_config
 
     signal.signal(signal.SIGINT, lambda: sys.exit(1))  # for ctrl+c
 

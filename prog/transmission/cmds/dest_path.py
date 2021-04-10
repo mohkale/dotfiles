@@ -123,7 +123,7 @@ def get_dest_directory(args):
 
 if __name__ == '__main__':
     import argparse
-    from mohkale.logging.config import use_config as use_logging_config
+    from mohkale.pylog.config import use_config as use_logging_config
 
     parser = argparse.ArgumentParser()
     parser.add_argument('id', help='tranmission id for torrent')
