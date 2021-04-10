@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Preview files and directories, originally sourced from [[https://github.com/gokcehan/lf/wiki/Ranger][rifle]] -*- +indent: 2 -*-
 
-IFS=$'\n'
+# IFS=$'\n'
 set -o pipefail -o noclobber -o noglob -o nounset
 
 # ┌───────────────────────────────────────────────┐
@@ -9,7 +9,8 @@ set -o pipefail -o noclobber -o noglob -o nounset
 # └───────────────────────────────────────────────┘
 
 read -r -d '' USAGE <<EOF
-Usage: preview [-h] [-v] [-l LANGUAGE] [-x POS] [-y POS] [-c COLS] [-r ROWS] PATH
+Usage: preview [-h] [-v] [-l LANGUAGE] [-o HANDLER=ARGS]
+               [-x POS] [-y POS] [-c COLS] [-r ROWS] PATH
 EOF
 
 read -r -d '' HELP <<EOF
@@ -28,6 +29,8 @@ Optional Arguments:
     Show this help message and exit.
   -l LANGUAGE
     Specify the language used for syntax highlighting PATH.
+  -o HANDLER=EXTRA_ARGS
+    Specify optional extensions for a preview handler (eg. bat).
   -v
     Don't suppress intermediate program output while running.
   -r ROWS
@@ -57,8 +60,9 @@ case "$TERM" in
   # Assert whether curren terminal is true-color.
   *-color|*-256color|*-24bit) color=1 ;;
 esac
+declare -A options
 
-while getopts 'hvl:x:y:r:c:' OPT; do
+while getopts 'hvl:x:y:r:c:o:' OPT; do
   case "$OPT" in
     h) echo "$HELP"
        exit 0 ;;
@@ -68,6 +72,8 @@ while getopts 'hvl:x:y:r:c:' OPT; do
     r) rows="$OPTARG" ;;
     x) X="$OPTARG" ;;
     y) Y="$OPTARG" ;;
+    o) IFS='=' read -r -d '' key value <<< "$OPTARG"
+       options["$key"]="$value" ;;
     \?) echo "$USAGE" >&2
         exit 1 ;;
   esac
@@ -82,7 +88,7 @@ if [ -z "$*" ]; then
 fi
 FILE_PATH="$*"
 
-[ -z "$verbose" ] && exec 2>/dev/null                                           # Redirect standard error to null device.
+[ "$verbose" -eq 0 ] && exec 2>/dev/null                                           # Redirect standard error to null device.
 
 # Detect display environment properties unless supplied by parent.
 if [ -z "$cols" ] || [ -z "$rows" ] || [ -z "$color" ]; then
@@ -131,13 +137,15 @@ preview_dir() {
 # The only supported syntax highlighter.
 # The language argument mentioned above is meant to be the kind taken
 # by bat, and you should assume if any later syntax highlighters are
-# ever supported bat, $language will only worth with bat.
+# ever supported bat, $language will only work with bat.
 highlight_bat() {
+  # shellcheck disable=SC2086
   bat -p \
       --color "$(if [ "$color" -eq 1 ]; then echo always; else echo never; fi)" \
       --paging never \
       --tabs "$PREVIEW_TABWIDTH" \
       --theme 'an-old-hope' \
+      ${options[bat]:-} \
       "$@"
 }
 
@@ -231,8 +239,8 @@ do_DSDIFF() {
 [ -n "${KITTY:-}" ] && kitty +kitten icat --clear --transfer-mode file --silent
 do_img() {
   if [ -n "${KITTY:-}" ]; then
-    kitty +kitten icat --transfer-mode file --silent --place "${COLS}x${ROWS}@${X}x${Y}" "$1"
-  fi && return
+    kitty +kitten icat --transfer-mode file --silent --place "${COLS}x${ROWS}@${X}x${Y}" "$1" && return
+  fi
   exiftool "$1" && return
   viu -- "$1" && return
   img2txt --gamma=0.6 -- "$1"
@@ -252,6 +260,18 @@ do_sqlite3() {
     highlight_bat -l sql
 }
 
+do_exe() {
+  do_fallback "$1"
+  echo ""
+  hexdump --color=always -C -- "$1" && return
+  xxd -- "$1" && return
+}
+
+do_fallback() {
+  echo '----- File Type Classification -----'
+  file --dereference --brief -- "$1"
+}
+
 # ┌────────────────────────┐
 # │ Extension Associations │
 # └────────────────────────┘
@@ -261,7 +281,7 @@ FILE_EXTENSION=$(tr '[:upper:]' '[:lower:]' <<< "$FILE_EXTENSION")
 
 case "$FILE_EXTENSION" in
   a|ace|alz|arc|arj|bz|bz2|cab|cpio|deb|gz|jar|lha|lz|lzh|lzma|lzo|\
-    rpm|rz|t7z|tar|tbz|tbz2|tgz|tlz|txz|tZ|tzo|war|xpi|xz|Z|zip)
+    rpm|rz|t7z|tar|tbz|tbz2|tgz|tlz|txz|tZ|tzo|war|xpi|xz|Z|zip|zst)
     do_archive "$FILE_PATH" ;;
   rar|cbr)    do_rar     "$FILE_PATH";    ;;
   cb7|c7z|7z) do_7z      "$FILE_PATH";    ;;
@@ -280,6 +300,8 @@ case "$FILE_EXTENSION" in
   dff|dsf|wv|wvc)  do_DSDIFF  "$FILE_PATH" ;;
   sqlite|sqlite3)  do_sqlite3 "$FILE_PATH" ;;
 
+  el) highlight_bat -l lisp -- "$FILE_PATH" ;;
+
   *) false ;;
 esac && exit 0
 
@@ -291,12 +313,13 @@ esac && exit 0
 case "$MIMETYPE" in
   */json) do_json "$FILE_PATH" ;;
   */html) do_html "$FILE_PATH" ;;
+  *sqlite3) do_sqlite3 "$FILE_PATH" ;;
 
   # Generic classifications
   video/*|audio/*) do_video   "$FILE_PATH" ;;
   image/*)         do_img     "$FILE_PATH" ;;
+  *executable)     do_exe     "$FILE_PATH" ;;
   text/*|*/xml)    do_text    "$FILE_PATH" ;;
-  *sqlite3)        do_sqlite3 "$FILE_PATH" ;;
 
   *) false ;;
 esac && exit 0
@@ -305,5 +328,4 @@ esac && exit 0
 # │ Fallback Preview │
 # └──────────────────┘
 
-echo '----- File Type Classification -----'
-file --dereference --brief -- "$FILE_PATH"
+do_fallback "$FILE_PATH"
