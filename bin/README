@@ -18,7 +18,6 @@ in ruby. Generally whatever works for whatever I'm trying to do.
 | [check-font](./check-font)             | Output character code points in one-or-more font files.                                     |
 | [clip](./clip)                         | Clipboard sink for pipelines. Anything piped to this command is put into your clipboard.    |
 | [clipsink](./clipsink)                 | Monitor changes to the system clipboard and print them to stdout.                           |
-| [clj](./clj)                           | A wrapper around the clojure compiler which adds in readline support.                       |
 | [condemn](./condemn)                   | Trash files using the various tools installed on your system.                               |
 | [dotsync](./dotsync)                   | Sync dotfiles through dotty. Skips package installation and other time-consuming steps.     |
 | [emacs-focus](./emacs-focus)           | Switch focus to any open emacs frames (only works on linux).                                |

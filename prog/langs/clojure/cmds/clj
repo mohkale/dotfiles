@@ -1,4 +1,5 @@
 #!/bin/sh
+# Proxy for the clojure REPL which adds readline support.
 breakchars="(){}[],^%$#@\"\";:''|\\"
 CLOJURE_DIR=~/clojure
 CLOJURE_JAR="$CLOJURE_DIR"/clojure.jar
