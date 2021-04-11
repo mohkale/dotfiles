@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Variant of [[~/.config/dotfiles/core/autoload/cmds/select_path][select_path]] designed for interactive use with tmux.
 _fzf() {
-    tmux-popup -h 80% -w 80% -- fzf --reverse "$@"
+    tmux-popup -h 80% -w 80% -i -o -- fzf --reverse "$@"
 }
 
 cd() {

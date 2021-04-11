@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# -*- +indent: 2 -*-
 # A [[https://github.com/junegunn/fzf/blob/246b9f313085fac4c9c84cf8bf55cc8a8fc29482/bin/fzf-tmux][fzf-tmux]] like script designed to support tmux's new [[https://github.com/tmux/tmux/issues/1842][floating window]] feature.
 # This script accepts a command line, runs it in a new tmux popup (or window if
 # the current tmux version doesn't support popups) and then echoes out the
@@ -12,73 +13,81 @@
 # - Replacement of [[]] with POSIX shell [] where possible. This is mostly to
 #   avoid interference with emacs org-mode links.
 # - Various quoting and other issues pointed out by shell check.
+# - Removal of the automatic handling of stdin and stdout between this script and
+#   the tmux-popup. If you want to pass stdin you must explicitly pass -i and if
+#   you want to read the output pass -o.
 #
 # I'll try to maintain compatibility with the upstream fzf-tmux script, but frankly
 # there's a lot about this script I don't understand. Partly because of bashisms and
 # partly because it's not very legible.
 
-fail() {
-  >&2 echo "$1"
-  exit 2
-}
-
-tmux_args=()
-args=()
-opt=""
-skip=""
-swap=""
-close=""
-term=""
-
-[ -n "$LINES"   ] && lines=$LINES     || lines=$(tput lines)  || lines=$(tmux display-message -p "#{pane_height}")
-[ -n "$COLUMNS" ] && columns=$COLUMNS || columns=$(tput cols) || columns=$(tmux display-message -p "#{pane_width}")
-
 usage() {
-  echo "Usage: tmux-popup [--help] [-] [-p|-P] [-x COL] [-y ROW]"
-  echo "                  [-h HEIGHT[%]] [-w WIDTH[%]]"
-  echo "                  [-u HEIGHT[%]] [-l WIDTH[%]]"
-  echo "                  [-d HEIGHT[%]] [-r WIDTH[%]]"
-  echo "                  [--] SUCOMMAND [OPTS]"
+  cat <<-EOF
+Usage: tmux-popup [--help] [-p|-s] [-i] [-o]
+                  [-x COL] [-y ROW]
+                  [-h HEIGHT[%]] [-w WIDTH[%]]
+                  [-u HEIGHT[%]] [-l WIDTH[%]]
+                  [-d HEIGHT[%]] [-r WIDTH[%]]
+                  [--] SUCOMMAND [OPTS]
+EOF
 }
 
 help() {
   usage
-  echo ""
-  echo "Optional Arguments:"
-  echo "  -                  Treat current stdin as tty even when it isn't."
-  echo "  -p|-P              Toggle use of popup windows (requires tmux >= 3.2)"
-  echo ""
-  echo "Popup Options:"
-  echo "  -w   WIDTH[%]      Set the width of the popup window"
-  echo "  -h   HEIGHT[%]     Set the height of the popup window"
-  echo "  -x   COL           Set the column position of the popup"
-  echo "  -y   ROW           Set the row position of the popup"
-  echo ""
-  echo "Split Pane Options:"
-  echo "  -u [HEIGHT[%]]     Split window above (up)"
-  echo "  -d [HEIGHT[%]]     Split window below (down)"
-  echo "  -l [WIDTH[%]]      Split window to the left"
-  echo "  -r [WIDTH[%]]      Split window to the right"
+  cat <<-EOF
+
+Optional Arguments:
+  --help             Show this help message and exit
+  -i                 Pass standard input to popups stdin
+  -o                 Pass popups standard output/error to current out/err
+  -p|-s              Toggle use of popup windows (requires tmux >= 3.2)
+
+Popup Options:
+  -w   WIDTH[%]      Set the width of the popup window
+  -h   HEIGHT[%]     Set the height of the popup window
+  -x   COL           Set the column position of the popup
+  -y   ROW           Set the row position of the popup
+
+Split Pane Options:
+  -u [HEIGHT[%]]     Split window above (up)
+  -d [HEIGHT[%]]     Split window below (down)
+  -l [WIDTH[%]]      Split window to the left
+  -r [WIDTH[%]]      Split window to the right
+EOF
 }
 
-# detect whether popup support is available and enable it by default.
+fail() {
+    >&2 echo "$1"
+    exit 2
+}
+
+tmux_args=()           # Command line args passed directly to tmux
+args=()                # Command line args used in the new popup window
+opt=""                 # Command line options passed to the popup command
+skip=""                # Stop processing command line arguments
+swap=""                # Command to swap two tmux panes
+close=""               # Post popup script evaluated after popup has finished
+read_in=0              # Whether to pass current standard input to popup
+write_out=0            # Whether to write popups stdout and stderr to current stdout/err
+
+[ -n "$LINES"   ] && lines=$LINES     || lines=$(tput lines)  || lines=$(tmux display-message -p "#{pane_height}")
+[ -n "$COLUMNS" ] && columns=$COLUMNS || columns=$(tput cols) || columns=$(tmux display-message -p "#{pane_width}")
+
+# Detect whether popup support is available and enable it by default.
 [ "$(tmux -V | grep -o '[[:digit:]].[[:digit:]]' | tr -d .)" -gt 32 ] && opt="-K -E"
 
 while [ "$#" -gt 0 ]; do
-  arg="$1"
-  shift
+  arg="$1"; shift
   [ -z "$skip" ] && case "$arg" in
-    --help)
-      help
-      exit 0
-      ;;
-    # toggle popup usage
-    -p) [[ "$opt" =~ "-K -E" ]] || opt="-K -E" ;;
+    --help) help
+            exit 0 ;;
+    # Toggle popup usage
+    -s) [[ "$opt" =~ "-K -E" ]] || opt="-K -E" ;;
     -P) opt="${opt//-K -E}" ;;
-    # redirect current stdin to subcommand
-    -) term=1
-       ;;
-    # configure popup/split features.
+    # Configure popup environment and handling
+    -i) read_in=1 ;;
+    -o) write_out=1 ;;
+    # Configure popup/split features.
     -w*|-h*|-x*|-y*|-d*|-u*|-r*|-l*)
       if [[ "$arg" =~ ^-[whxy] ]]; then
         [[ "$opt" =~ "-K -E" ]] || opt="-K -E"
@@ -97,6 +106,7 @@ while [ "$#" -gt 0 ]; do
           close="; tmux swap-pane -D"
         fi
       fi
+
       if [ "${#arg}" -gt 2 ]; then
         size="${arg:2}"
       else
@@ -139,15 +149,13 @@ while [ "$#" -gt 0 ]; do
       args=( )
       continue
       ;;
-    *)
-      args+=( "$arg" )
-      ;;
+    *) args+=( "$arg" ) ;;
   esac
-  [ -n "$skip" ] && args+=("$arg")
+  [ -n "$skip" ] && args+=( "$arg" )
 done
 
 if [ "${#args[@]}" -eq 0 ]; then
-  echo "tmux-popup: warn: no command to spawn found. defaulting to sh" >&2
+  echo "tmux-popup: warn: no command to spawn found, defaulting to sh" >&2
   args=( "${SHELL:-sh}" )
 fi
 
@@ -173,12 +181,12 @@ fi
 
 set -e
 
-# Clean up named pipes on exit
+# Setup pipes to read/write to the popup
 id=$RANDOM
-argsf="${TMPDIR:-/tmp}/tmux-popup-args-$id"  # will be sourced in the new tmux pane.
-fifo1="${TMPDIR:-/tmp}/tmux-popup-fifo1-$id"
-fifo2="${TMPDIR:-/tmp}/tmux-popup-fifo2-$id"
-fifo3="${TMPDIR:-/tmp}/tmux-popup-fifo3-$id"
+argsf="${TMPDIR:-/tmp}/tmux-popup-args-$id"  # Will be sourced in the new tmux pane.
+fifo1="${TMPDIR:-/tmp}/tmux-popup-fifo1-$id" # stdin
+fifo2="${TMPDIR:-/tmp}/tmux-popup-fifo2-$id" # stdout
+fifo3="${TMPDIR:-/tmp}/tmux-popup-fifo3-$id" # stores exit code from the split when not using the popup.
 # shellcheck disable=SC2207
 tmux_win_opts=( $(tmux show-window-options remain-on-exit \; show-window-options synchronize-panes |
                     sed '/ off/d; s/^/set-window-option /; s/$/ \\;/') )
@@ -208,14 +216,14 @@ cleanup() {
 trap 'cleanup 1' SIGUSR1
 trap 'cleanup' EXIT
 
+# Setup environment for the new popup
 envs="export TERM=$TERM "
 [[ "$opt" =~ "-K -E" ]] && FZF_DEFAULT_OPTS="--margin 0,1 $FZF_DEFAULT_OPTS"
 [[ -n "$FZF_DEFAULT_OPTS"    ]] && envs="$envs FZF_DEFAULT_OPTS=$(printf %q "$FZF_DEFAULT_OPTS")"
 [[ -n "$FZF_DEFAULT_COMMAND" ]] && envs="$envs FZF_DEFAULT_COMMAND=$(printf %q "$FZF_DEFAULT_COMMAND")"
 echo "$envs;" > "$argsf"
 
-# Build command that's to be processed in popup.
-opts=$(printf "%q " "${args[@]}")
+opts=$(printf "%q " "${args[@]}")                                               # Quotes command that's to be run in the popup.
 
 pppid=$$
 echo -n "trap 'kill -SIGUSR1 -$pppid' EXIT SIGINT SIGTERM;" >> "$argsf"
@@ -223,16 +231,23 @@ close="; trap - EXIT SIGINT SIGTERM $close"
 
 export TMUX
 TMUX=$(cut -d , -f 1,2 <<< "$TMUX")
-mkfifo -m o+w "$fifo2"
-if [[ "$opt" =~ "-K -E" ]]; then
-  cat "$fifo2" &
-  if [ -n "$term" ] || [ -t 0 ]; then
-    cat <<< "$opts | tee $fifo2; out=\$? $close; exit \$out" >> "$argsf"
+
+show_popup() {
+  # Create popup script alongside an optional FIFO to write stdout to.
+  if [ "$write_out" -eq 1 ]; then
+    mkfifo -m o+w "$fifo2"
+    cat "$fifo2" & # Start writing from popups output stream
+  fi
+  if [ "$read_in" -eq 0 ]; then
+    echo -n "$opts" >> "$argsf"
   else
     mkfifo "$fifo1"
-    cat <<< "$opts < $fifo1 | tee $fifo2; out=\$? $close; exit \$out" >> "$argsf"
-    cat <&0 > "$fifo1" &
+    echo -n "$opts < $fifo1" >> "$argsf"
+    cat <&0 > "$fifo1" & # Start redirecting standard input to popups input stream.
   fi
+  [ "$write_out" -eq 0 ] || echo -n " | tee $fifo2" >> "$argsf"
+  cat <<< "; out=\$? $close; exit \$out" >> "$argsf"
+
   # tmux dropped the support for `-K`, `-R` to popup command
   #   TODO: We can remove this once tmux 3.2 is released
   if [[ ! "$(tmux popup --help 2>&1)" =~ '-R shell-command' ]]; then
@@ -243,20 +258,34 @@ if [[ "$opt" =~ "-K -E" ]]; then
 
   # shellcheck disable=SC2086
   tmux popup -d "$PWD" "${tmux_args[@]}" $opt "bash $argsf" > /dev/null 2>&1
-  exit $?
-fi
-mkfifo -m o+w "$fifo3"
-if [ -n "$term" ] || [ -t 0 ]; then
-  cat <<< "$opts | tee $fifo2; echo \$? > $fifo3 $close" >> "$argsf"
+  return $?
+}
+
+show_split() {
+  [ "$write_out" -eq 0 ] || mkfifo -m o+w "$fifo2"
+  mkfifo -m o+w "$fifo3" # For some reason tmux-fzf implemented this as a FIFO
+
+  if [ "$read_in" -eq 0 ]; then
+    echo -n "$opts" >> "$argsf"
+  else
+    mkfifo "$fifo1"
+    echo -n "$opts < $fifo1" >> "$argsf"
+    cat <&0 > "$fifo1" &
+  fi
+  [ "$write_out" -eq 0 ] || echo -n " | tee $fifo2" >> "$argsf"
+  cat <<< "; echo \$? > $fifo3 $close" >> "$argsf"
+
+  # shellcheck disable=SC2086
+  tmux set-window-option synchronize-panes off \;\
+       set-window-option remain-on-exit off \;\
+       split-window -c "$PWD" $opt "${tmux_args[@]}" "bash $argsf" $swap \
+       > /dev/null 2>&1 || { "${args[@]}"; exit $?; }
+  [ "$write_out" -eq 0 ] || cat "$fifo2"
+  return "$(cat "$fifo3")"
+}
+
+if [[ "$opt" =~ "-K -E" ]]; then
+  show_popup
 else
-  mkfifo "$fifo1"
-  cat <<< "$opts < $fifo1 | tee $fifo2; echo \$? > $fifo3 $close" >> "$argsf"
-  cat <&0 > "$fifo1" &
+  show_split
 fi
-# shellcheck disable=SC2086
-tmux set-window-option synchronize-panes off \;\
-     set-window-option remain-on-exit off \;\
-     split-window -c "$PWD" $opt "${tmux_args[@]}" "bash $argsf" $swap \
-     > /dev/null 2>&1 || { "${args[@]}"; exit $?; }
-cat "$fifo2"
-exit "$(cat "$fifo3")"
