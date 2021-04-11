@@ -12,13 +12,15 @@ print_usage() {
 
 print_help() {
   print_usage
-  echo ""
-  echo "Optional arguments:"
-  echo "  -f FORMAT"
-  echo "      Specify the format of the output as a csv value passed to 'ps -o'"
-  echo "  -t COUNT     Strip out the last COUNT entries, like tail"
-  echo "  -a           Search all processes, rather than the current group"
-  echo "  -r           Reverse the output branch (going from most recent to oldest)"
+  cat <<-EOF
+
+Optional arguments:
+  -f FORMAT
+      Specify the format of the output as a csv value passed to 'ps -o'
+  -t COUNT     Strip out the last COUNT entries, like tail
+  -a           Search all processes, rather than the current group
+  -r           Reverse the output branch (going from most recent to oldest)
+EOF
 }
 
 format=cmd tail=0 list_flags='-o' reverse=0

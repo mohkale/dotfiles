@@ -7,13 +7,15 @@ print_usage() {
 
 print_help() {
   print_usage
-  echo ""
-  echo "Required Arguments:"
-  echo "  FILE       Banner file from which to output banner"
-  echo ""
-  echo "Optional Arguments:"
-  echo "  -c WIDTH    Center the banner within WIDTH region "
-  echo "  -x WIDTH    Clip the output to fit within WIDTH"
+  cat <<-EOF
+
+Required Arguments:
+  FILE       Banner file from which to output banner
+
+Optional Arguments:
+  -c WIDTH    Center the banner within WIDTH region
+  -x WIDTH    Clip the output to fit within WIDTH
+EOF
 }
 
 center='' clip=''

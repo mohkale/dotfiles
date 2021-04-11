@@ -14,15 +14,21 @@ set -e
 print_usage() {
     # shellcheck disable=SC2016
     echo 'Usage: eval "$(build-aliases [-1] [-i] [-P] [-e EDITOR] FILE [FILE...])"'
-    echo ""
-    echo "Required Arguments:"
-    echo "  FILE       file from which to read alias declarations from"
-    echo "             each line should be an alias with the first word"
-    echo "             being the alias name and the rest the alias cmd"
-    echo ""
-    echo "Optional Arguments:"
-    echo "  -1         output all aliases in a single line"
-    echo "  -e EDITOR  set the editor used for file aliases"
+}
+
+print_help() {
+    print_usage
+    cat <<-EOF
+
+Required Arguments:
+  FILE       file from which to read alias declarations from
+             each line should be an alias with the first word
+             being the alias name and the rest the alias cmd
+
+Optional Arguments:
+  -1         output all aliases in a single line
+  -e EDITOR  set the editor used for file aliases
+EOF
 }
 
 inline=0
@@ -32,7 +38,7 @@ cache_dir="$XDG_CACHE_HOME/aliases"
 
 while getopts "h1e:" option; do
     case "$option" in
-        h) print_usage
+        h) print_help
            exit 0 ;;
         \?) print_usage >&2
             exit 1 ;;

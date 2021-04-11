@@ -17,18 +17,20 @@ print_usage() {
 
 print_help() {
   print_usage
-  echo ""
-  echo "open all files passed via STDIN in a bulkrename session with"
-  echo "file permissions in both octal and human readable form."
-  echo ""
-  echo "on exit, modified permissions in the index are synced with the"
-  echo "filesystem. By convention, octal changes take precedence over"
-  echo "human readable ones."
-  echo ""
-  echo "Options"
-  echo "  -h    show this help message and exit"
-  echo "  -s PRESELECT"
-  echo "     preselect PRESELECT in the session"
+  cat <<-EOF
+
+  Open all files passed via STDIN in a bulkrename session with
+  file permissions in both octal and human readable form.
+
+  On exit, modified permissions in the index are synced with the
+  filesystem. By convention, octal changes take precedence over
+  human readable ones.
+
+Options
+  -h    show this help message and exit
+  -s PRESELECT
+     preselect PRESELECT in the session
+EOF
 }
 
 dir="$(pwd)"
@@ -36,7 +38,7 @@ while getopts 'hs:c:' option; do
   case "$option" in
     h) print_help
        exit 0 ;;
-    \?) print_help >&2
+    \?) print_usage >&2
         exit 1 ;;
     s) preselect="$OPTARG" ;;
     c) dir="$OPTARG" ;;

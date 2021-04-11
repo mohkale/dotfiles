@@ -102,18 +102,20 @@ number_to_attribute() { # NUMBER
 }
 
 print_usage() {
-    echo "Usage: $(basename "$0") [-h] [-8|-x] [-i|-m]"
+    echo "Usage: ansils [-h] [-8|-x] [-i|-m]"
 }
 
 print_help() {
     print_usage
-    echo ""
-    echo "List color spectrum for your curren terminal."
-    echo ""
-    echo "Optional Arguments:"
-    echo "  -h         Print this help message and exit"
-    echo "  -i | -m    Display ansi values inline or a matrix"
-    echo "  -8 | -x    Display only 16/256 bit ansi values"
+    cat <<-EOF
+
+List color spectrum for your curren terminal.
+
+Optional Arguments:
+  -h         Print this help message and exit
+  -i | -m    Display ansi values inline or a matrix
+  -8 | -x    Display only 16/256 bit ansi values
+EOF
 }
 
 case "$TERM" in
@@ -131,7 +133,7 @@ while getopts 8ximh option; do
         m) inline=0 ;;
         h) print_help
            exit 0 ;;
-        \?) print_help >&2
+        \?) print_usage >&2
             exit 1 ;;
     esac
 done

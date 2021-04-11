@@ -4,13 +4,15 @@
 # frame.
 
 print_usage() {
-    echo "Usage: $0 [-h] [-a] [-b] [-c]"
-    echo ""
-    echo "Options":
-    echo "  -h    print this help message and exit"
-    echo "  -a    only work on frames in this desktop"
-    echo "  -b    go backwards through the frame list"
-    echo "  -c    create a new frame if one doesn't exist"
+    cat <<-EOF
+Usage: dotsync [-h] [-a] [-b] [-c]
+
+Optional arguments:
+  -h    print this help message and exit
+  -a    only work on frames in this desktop
+  -b    go backwards through the frame list
+  -c    create a new frame if one doesn't exist
+EOF
 }
 
 create_frame=0 toggle_backwards=0 filter_by_desktop=1

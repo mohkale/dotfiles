@@ -5,17 +5,19 @@ print_usage() {
 
 print_help() {
   print_usage
-  echo ""
-  echo "  Sync configured dotfiles, while skipping any"
-  echo "  package installation, or overly costly steps."
-  echo ""
-  echo "Positional Arguments:"
-  echo "  ARG/ARGS"
-  echo "    These are passed directly to dotty"
-  echo "Options:"
-  echo "  -h    print this help message and exit."
-  echo "  -l LEVEL"
-  echo "     set this as the logging level for dotty"
+  cat <<-EOF
+
+  Sync configured dotfiles, while skipping any
+  package installation, or overly costly steps.
+
+Positional Arguments:
+  ARG/ARGS
+    These are passed directly to dotty
+Options:
+  -h    print this help message and exit.
+  -l LEVEL
+     set this as the logging level for dotty
+EOF
 }
 
 set -e

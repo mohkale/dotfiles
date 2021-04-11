@@ -13,15 +13,17 @@ print_usage() {
 
 print_help() {
   print_usage
-  echo ""
-  echo "Options:"
-  echo "  -h       print this help message and exit"
-  echo "  -c       copy selected kaomojis to the clipboard"
-  echo "  -i       insert selected kaomojis to active application"
-  echo ""
-  echo "  -n/-N    spawn a new terminal for prompting the user"
-  echo "  -d SEP   delimeter when working with multiple emojis"
-  echo "  -r MSEC  input rate"
+  cat <<-EOF
+
+Optional arguments:
+  -h       print this help message and exit
+  -c       copy selected kaomojis to the clipboard
+  -i       insert selected kaomojis to active application
+
+  -n/-N    spawn a new terminal for prompting the user
+  -d SEP   delimeter when working with multiple emojis
+  -r MSEC  input rate
+EOF
 }
 
 operation='copy'

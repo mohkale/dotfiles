@@ -2,30 +2,34 @@
 # condemn files to Davy Jones's locker :skull_crossbones:.
 
 function print_usage {
-    echo "Usage: condemn [-h] [-!] [-b] [-i {kde,trash-cli}]"
-    echo "               [-f FILE] [-] -- FILE [FILE...]"
+    cat <<-EOF
+Usage: condemn [-h] [-!] [-b] [-i {kde,trash-cli}]
+               [-f FILE] [-] -- FILE [FILE...]
+EOF
 }
 
 function print_help {
     print_usage
-    echo ""
-    echo "  trash files using platform specific tools when available."
-    echo ""
-    echo "file-lists:"
-    echo "  -           read file paths from STDIN"
-    echo "  -f FILE, --file FILE"
-    echo "              read file paths from FILE"
-    echo ""
-    echo "optional arguments:"
-    echo "  -h, --help  show this help message and exit"
-    echo "  -b, --bulk  specify that you intend to supply a lot of"
-    echo "              files. condemn will store file paths in a"
-    echo "              file instead of keeping them in memory."
-    echo "  -!, --[no-]rm"
-    echo "              remove files when no trash command exists"
-    echo "  -i, --ignore {kde,trash-cli}"
-    echo "              only allow trashcans not in this comma"
-    echo "              seperated argument list."
+    cat <<-EOF
+
+  trash files using platform specific tools when available.
+
+file-lists:
+  -           read file paths from STDIN
+  -f FILE, --file FILE
+              read file paths from FILE
+
+Optional arguments:
+  -h, --help  show this help message and exit
+  -b, --bulk  specify that you intend to supply a lot of
+              files. condemn will store file paths in a
+              file instead of keeping them in memory.
+  -!, --[no-]rm
+              remove files when no trash command exists
+  -i, --ignore {kde,trash-cli}
+              only allow trashcans not in this comma
+              seperated argument list.
+EOF
 }
 
 function error {
@@ -97,7 +101,7 @@ while [ "$#" -gt 0 ]; do
         fi
     else
         case "$key" in
-            -h) print_usage
+            -h) print_help
                 exit 0 ;;
             --help) print_help
                     exit 0 ;;
@@ -143,7 +147,7 @@ if [ -n "$filelist" ]; then cat "$filelist"; else printf '%s\n' "${files[@]}"; f
         # target before the src files so we'll have to
         # pass all args in a subshell.
         xargs -d '\n' -r sh -c '
-kioclient5 --interactive mv -- "$@" trash:/
+kioclient5 mv -- "$@" trash:/
 printf "trashed: %s\n" "$@"
 ' 'trash'
     elif can_use 'trash-cli' && command -v trash-put >/dev/null 2>&1; then

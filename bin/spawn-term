@@ -9,18 +9,23 @@ fi
 
 print_usage() {
     echo "Usage: $0 [-h] [-r ROWS] [-c COLS] [-n NAME] CMD [...ARGS]"
-    echo ""
-    echo "create a new floating terminal window."
-    echo ""
-    echo "Positional Arguments:"
-    echo "  CMD    execute command in new window"
-    echo "  ARGS   arguments passed to CMD"
-    echo ""
-    echo "Options:"
-    echo "  -h         print this help message and exit"
-    echo "  -r ROWS    number of rows in the new window"
-    echo "  -c COLS    number of columns in the new window"
-    echo "  -n NAME    name of new floating window"
+}
+
+print_help() {
+    cat <<-EOF
+
+  Create a new floating terminal window.
+
+Positional Arguments:
+  CMD    execute command in new window
+  ARGS   arguments passed to CMD
+
+Options:
+  -h         print this help message and exit
+  -r ROWS    number of rows in the new window
+  -c COLS    number of columns in the new window
+  -n NAME    name of new floating window
+EOF
 }
 
 rows=15
@@ -29,7 +34,7 @@ window_name="URxvtFuzzy"
 
 while getopts 'hr:c:n:' OPTION; do
     case "$OPTION" in
-        h) print_usage
+        h) print_help
            exit 0 ;;
         \?) print_usage >&2
             exit 0 ;;

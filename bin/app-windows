@@ -2,17 +2,23 @@
 # output the X-window spec for every currently open emacs frame.
 
 print_usage() {
-    echo "Usage: $0 [-h] [-t TITLE] [COMMAND]"
-    echo ""
-    echo "list open x-windows running COMMAND."
-    echo ""
-    echo "Options:"
-    echo " -t TITLE    only select windows whose x-title matches TITLE."
+    echo "Usage: app-windows [-h] [-t TITLE] [COMMAND]"
+}
+
+print_help() {
+    print_usage
+    cat <<-EOF
+
+  list open x-windows running COMMAND.
+
+Options:
+  -t TITLE    only select windows whose x-title matches TITLE.
+EOF
 }
 
 while getopts 'ht:' OPTION; do
     case "$OPTION" in
-        h) print_usage
+        h) print_help
            exit 0 ;;
         \?) print_usage >&2
             exit 1 ;;

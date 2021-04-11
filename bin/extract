@@ -8,16 +8,18 @@ print_usage() {
 
 print_help() {
   print_usage
-  echo ""
-  echo "Options"
-  echo " -h    show this help message and exit"
+  cat <<-EOF
+
+Options
+  -h    show this help message and exit
+EOF
 }
 
 while getopts 'h' OPTION; do
   case "$OPTION" in
     h) print_help
        exit 0 ;;
-    \?) print_help >&2
+    \?) print_usage >&2
         exit 1 ;;
   esac
 done

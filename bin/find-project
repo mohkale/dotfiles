@@ -14,8 +14,8 @@ function print_help {
     print_usage
     cat <<-EOF
 
-Recursively list all the files in a project.
-Listing all files if the CWD isn't a project.
+  Recursively list all the files in a project.
+  Listing all files if the CWD isn't a project.
 
 Optional arguments:
   -h      show this help message and exit

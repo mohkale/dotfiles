@@ -8,15 +8,16 @@ print_usage() {
 print_help() {
   print_usage
   cat <<-EOF
-Optional Arguments:
+
+Optional arguments:
   -d SEP
-     Specify seperator for the URL, tags, and output
+    Specify seperator for the URL, tags, and output
   -p FORMAT
-     Pretty print parsed output for use in fzbm.
-     FORMAT should be a string containing the following
-     to include them in the output: {h: host, #: tags, t: title}
+    Pretty print parsed output for use in fzbm.
+    FORMAT should be a string containing the following
+    to include them in the output: {h: host, #: tags, t: title}
   -C
-     Remove color codes from pretty-printed output
+    Remove color codes from pretty-printed output
 EOF
 }
 

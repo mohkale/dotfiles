@@ -10,20 +10,22 @@ print_usage() {
 
 print_help() {
   print_usage
-  echo ""
-  echo "Options"
-  echo "  -r ROOT"
-  echo "      root directory where aliases can be found."
-  echo "      (defaults to: $root)."
-  echo "  -p PLATFORM"
-  echo "      current computer platform. (defaults to $platform)."
+  cat <<-EOF
+
+Optional arguments:
+  -r ROOT
+      root directory where aliases can be found.
+      (defaults to: $root).
+  -p PLATFORM
+      current computer platform. (defaults to $platform).
+EOF
 }
 
 while getopts 'hr:p:' option; do
   case "$option" in
     h) print_help
        exit 0 ;;
-    \?) print_help >&2
+    \?) print_usage >&2
         exit 1 ;;
     r) root="$OPTARG" ;;
     p) platform="$OPTARG" ;;

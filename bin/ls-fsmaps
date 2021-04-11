@@ -8,17 +8,19 @@ print_usage() {
 
 print_help() {
   print_usage
-  echo ""
-  echo "Using my configured aliases, filter out all filesystem"
-  echo "aliases and present them to the user with env-variables"
-  echo "properly expanded."
-  echo ""
-  echo "Options:"
-  echo "  -h    Show this help message and exit"
-  echo "  -r    Replace '$HOME' with ~/ before outputting"
-  echo "  -e    Only show dirmaps that currently exist."
-  echo "  -f    Only show dirmaps that currently exist as files"
-  echo "  -d    Only show dirmaps that currently exist as directories"
+  cat <<-EOF
+
+  Using my configured aliases, filter out all filesystem
+  aliases and present them to the user with env-variables
+  properly expanded.
+
+Options:
+  -h    Show this help message and exit
+  -r    Replace '$HOME' with ~/ before outputting
+  -e    Only show dirmaps that currently exist.
+  -f    Only show dirmaps that currently exist as files
+  -d    Only show dirmaps that currently exist as directories
+EOF
 }
 
 # shellcheck disable=SC2016
@@ -28,7 +30,7 @@ while getopts 'hrefd' option; do
   case "$option" in
     h) print_help
        exit 0 ;;
-    \?) print_help >&2
+    \?) print_usage >&2
         exit 1 ;;
     r) home_relative=1 ;;
     e) exists_only=1 ;;

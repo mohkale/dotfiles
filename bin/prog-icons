@@ -10,16 +10,18 @@ print_usage() {
 
 print_help() {
   print_usage
-  echo ""
-  echo "Output an icon to associate with the program PROG"
-  echo "using the config file at: $conf_file."
-  echo ""
-  echo "Optional Arguments:"
-  echo "  -h         Print this help message and exit"
-  echo "  -x FORMAT  Format outputted icons with FORMAT"
-  echo "  -f         Keep reading program names from stdin and"
-  echo "             outputting icons. You must still supply an"
-  echo "             initial program name."
+  cat <<-EOF
+
+  Output an icon to associate with the program PROG
+  using the config file at: $conf_file.
+
+Optional Arguments:
+  -h         Print this help message and exit
+  -x FORMAT  Format outputted icons with FORMAT
+  -f         Keep reading program names from stdin and
+             outputting icons. You must still supply an
+             initial program name.
+EOF
 }
 
 follow=0 format="%s \n"
@@ -27,7 +29,7 @@ while getopts hfx: OPTION; do
   case "$OPTION" in
     h) print_help
        exit 0 ;;
-    \?) print_help >&2
+    \?) print_usage >&2
         exit 1 ;;
     f) follow=1 ;;
     x) format="$OPTARG" ;;
