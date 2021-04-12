@@ -2,4 +2,4 @@
 
 # Execute non-pdb commands.
 import os
-exec(open(os.path.expanduser("~/.config/pdbrc.py"), 'r').read())
+exec(open(os.path.expanduser(os.environ.get('XDG_CONFIG_HOME', '~/.config') + "/pdbrc.py"), 'r').read())

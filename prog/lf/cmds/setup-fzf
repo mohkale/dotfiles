@@ -16,4 +16,4 @@ _edit_files_by_selecting_them() {
 export SELECT_PATH_EDIT_FILE_CMD=_edit_files_by_selecting_them
 
 # shellcheck disable=SC1090
-. ~/.config/autoloads/cmds/select_path
+. "$XDG_CONFIG_HOME"/autoloads/cmds/select_path

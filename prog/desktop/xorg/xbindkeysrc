@@ -25,10 +25,10 @@
 "term-dwim"
   Control + apostrophe
 
-"spawn-term sh -c '. ~/.config/autoloads/cmds/lnch; . ~/.config/autoloads/cmds/silent_bg; . ~/.config/autoloads/cmds/fzdmenu; fzdmenu -Vb'"
+"spawn-term sh -c '. $XDG_CONFIG_HOME/autoloads/cmds/lnch; . $XDG_CONFIG_HOME/autoloads/cmds/silent_bg; . $XDG_CONFIG_HOME/autoloads/cmds/fzdmenu; fzdmenu -Vb'"
   Mod4 + bracketleft + Release
 
-"spawn-term sh -c '. ~/.config/autoloads/cmds/lnch; . ~/.config/autoloads/cmds/silent_bg; . ~/.config/autoloads/cmds/fzdmenu; fzdmenu -Vba'"
+"spawn-term sh -c '. $XDG_CONFIG_HOME/autoloads/cmds/lnch; . $XDG_CONFIG_HOME/autoloads/cmds/silent_bg; . $XDG_CONFIG_HOME/autoloads/cmds/fzdmenu; fzdmenu -Vba'"
   Mod4 + bracketright + Release
 
 "moji -n -d ' '"

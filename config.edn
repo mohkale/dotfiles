@@ -1,16 +1,81 @@
 ;; [[https://github.com/mohkale/dotty][dotty]] configuration file
 (
+ ;; Set up the user-dirs configuration for the current host based on
+ ;; the current platform. This follows the convention of the XDG spec
+ ;; outlined by the free-desktop standard.
+ ;;
+ ;; I've also defined my own extensions to XDG for directories I commonly
+ ;; use for a given purpose but are otherwise not supported by XDG ~yet~.
+ ;;
+ ;; NOTE: The XDG spec states these variables should start with a $HOME
+ ;; but because I use them to reference install locations and because I
+ ;; don't support recursive evaluations I'll have to re-substitute $HOME
+ ;; later.
+ (:def
+   "XDG_DOCUMENTS_DIR" "$HOME/docs"
+   "XDG_DOWNLOAD_DIR" "$HOME/files"
+   "XDG_MUSIC_DIR" "$HOME/media/music"
+   "XDG_PICTURES_DIR" "$HOME/media/images"
+   "XDG_VIDEOS_DIR" "$HOME/media/videos"
+   "XDG_DESKTOP_DIR" "$HOME/multi/desktop"
+   "XDG_PUBLICSHARE_DIR" "$HOME/multi/share"
+   "XDG_TEMPLATES_DIR" "$HOME/multi/templates"
+
+   ;; Configuration directories
+   "XDG_CONFIG_HOME" "$HOME/.config"
+   "XDG_CACHE_HOME" "$HOME/.cache"
+   "XDG_DATA_HOME" "$HOME/.local/share"
+
+   ;; Unofficial extensions to the spec I added myself.
+   "XDG_TEMP_DIR" "$HOME/.local/temp"
+   "XDG_GAMES_DIR" "$HOME/media/games"
+   "XDG_DEV_HOME" "$HOME/prog"
+   "XDG_BIN_DIR" "$HOME/.local/bin")
+
+ ;; Windows doesn't make user directories configurable but does expose
+ ;; the recommended ones as environment variables for some directories.
+ ;;
+ ;; For now I just substitute in the correct XDG values for windows 10.
+ #dot/if-windows
+ (:def
+   "XDG_DOCUMENTS_DIR" "$HOME/Documents"
+   "XDG_DOWNLOAD_DIR" "$HOME/Downloads"
+   "XDG_MUSIC_DIR" "$HOME/Music"
+   "XDG_PICTURES_DIR" "$HOME/Pictures"
+   "XDG_VIDEOS_DIR" "$HOME/Videos"
+   "XDG_DESKTOP_DIR" "$HOME/Desktop"
+   "XDG_PUBLICSHARE_DIR" "$HOME/Documents/Share"
+   "XDG_TEMPLATES_DIR" "$HOME/Documents/Templates"
+   "XDG_CONFIG_HOME" "$APPDATA"
+   "XDG_CACHE_HOME" "$LOCALAPPDATA/Temp"
+   "XDG_DATA_HOME" "$LOCALAPPDATA"
+   "XDG_TEMP_DIR" "$TEMP"
+   "XDG_GAMES_DIR" "$HOME/Saved Games"
+   "XDG_DEV_HOME" "$HOME/Develop"
+   "XDG_BIN_DIR" "$HOME/Develop/bin")
+
+ (:shell {:desc "Updating user-dirs configuration file"
+          :cmd "./setup/gen-user-dirs | tee ~/.config/user-dirs.dirs"})
+
  (:clean "~")
 
  (:mkdirs
-  "~/docs"
-  "~/files"
-  ("~/media"
-   ("games" "images" "videos" "music"))
-  ("~/multi"
-   ("share" "templates" "desktop"))
-  ("~/prog/"
-    ("repos" "scripts" "conf" "logs")))
+   "$XDG_DOCUMENTS_DIR"
+   "$XDG_DOWNLOAD_DIR"
+   "$XDG_MUSIC_DIR"
+   "$XDG_PICTURES_DIR"
+   "$XDG_VIDEOS_DIR"
+   "$XDG_DESKTOP_DIR"
+   "$XDG_PUBLICSHARE_DIR"
+   "$XDG_TEMPLATES_DIR"
+   "$XDG_CONFIG_HOME"
+   "$XDG_CACHE_HOME"
+   "$XDG_DATA_HOME"
+   ;; Custom XDG Extensions
+   "$XDG_TEMP_DIR"
+   "$XDG_GAMES_DIR"
+   ("$XDG_DEV_HOME"
+     ("repos" "scripts" "conf")))
 
  (:import "core")
 

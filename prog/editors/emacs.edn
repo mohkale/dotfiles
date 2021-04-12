@@ -8,7 +8,7 @@
             (:choco "emacs")
             (:yay "emacs27-git"))
 
- (:link "emacs" "~/.config/emacs"
+ (:link "emacs" "$XDG_CONFIG_HOME/emacs"
         ;; XDG_CONFIG_DIR has only been supported from emacs 27 forwards
         {:src "emacs" :dest "~/.emacs.d"
          :when "[ \"$(emacs --version | head -n1 | cut -d' ' -f3 | cut -d. -f1)\" -le 26 ]"})

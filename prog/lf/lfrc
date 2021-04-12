@@ -17,7 +17,7 @@ set hiddenfiles .*:__pycache__:*.pyc:*.o:node_modules:*.elc:*~:eln-cache
 set info size
 #set relativenumber
 set dircounts                                                                   # show number of files in directory, not size of directory inode.
-set previewer ~/.config/lf/cmds/lf-preview
+$lf -remote "send $id set previewer $XDG_CONFIG_HOME/lf/cmds/lf-preview"
 
 
 # Bindings
@@ -544,7 +544,7 @@ cmd bulkchmod ${{
 # Editor
 map oe evi
 cmd evi ${{
-    . $XDG_CONFIG_HOME/.config/autoloads/cmds/evi
+    . $XDG_CONFIG_HOME/autoloads/cmds/evi
     evi "$f"
 }}
 
@@ -557,7 +557,7 @@ cmd edit-config ${{
 
 map ,E evi-config
 cmd evi-config ${{
-    . $XDG_CONFIG_HOME/.config/autoloads/cmds/evi
+    . $XDG_CONFIG_HOME/autoloads/cmds/evi
     if evi $XDG_CONFIG_HOME/lf/lfrc; then
         lf -remote "send $id source $XDG_CONFIG_HOME/lf/lfrc"
     fi

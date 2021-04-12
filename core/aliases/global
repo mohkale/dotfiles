@@ -197,7 +197,7 @@ lt          mcd   "$(date +"${XDG_TEMP_DIR:-$HOME/.local/temp}/%Y%m%d.%H%M%S")"
 
 # filesystem-shortcuts
 profile@file     ~/.profile
-gconf@file       ~/.config/git/config
+gconf@file       $XDG_CONFIG_HOME/git/config
 shenv@file       $XDG_CONFIG_HOME/shenv
 shenvl@file      $XDG_CONFIG_HOME/shenv.local
 al@file          $XDG_CONFIG_HOME/aliases
@@ -215,9 +215,9 @@ emacsrc@file     $XDG_CONFIG_HOME/lisp/+config.el
 tmuxrc@file      $TMUX_HOME/tmux.conf
 
 h@dirx           ~
-rp@dirx          ~/prog/repos
-sc@dirx          ~/prog/scripts
-bin@dirx         ~/.local/bin
+rp@dirx          $XDG_DEV_HOME/repos
+sc@dirx          $XDG_DEV_HOME/scripts
+bin@dirx         $XDG_BIN_DIR
 box@dirx         ~/Dropbox
 dot@dirx         $DOTFILES
 dbin@dirx        $DOTFILES/bin

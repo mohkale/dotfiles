@@ -23,9 +23,9 @@ nnoremap <leader>xu gU
 nnoremap <leader>xc gc
 
 " Manipulate This Configuration File
-nnoremap <leader>fet :tabedit ~/.config/vim/init.vim<cr>
-nnoremap <leader>fec :edit ~/.config/vim/init.vim<cr>
-nnoremap <leader>fer :source ~/.config/vim/init.vim<cr>
+nnoremap <leader>fet :tabedit $XDG_CONFIG_HOME/vim/init.vim<cr>
+nnoremap <leader>fec :edit $XDG_CONFIG_HOME/vim/init.vim<cr>
+nnoremap <leader>fer :source $XDG_CONFIG_HOME/vim/init.vim<cr>
 nnoremap <leader>bb  :Buffers<cr>
 nnoremap <leader>fsf :Files<cr>
 nnoremap <leader>fr  :History<cr>

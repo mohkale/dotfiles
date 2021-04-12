@@ -22,35 +22,44 @@ import sys
 # │ Constants │
 # └───────────┘
 
+XDG_DEV = os.environ.get('XDG_DEV_HOME', os.path.expanduser('~/prog'))
+XDG_CONFIG = os.environ.get('XDG_CONFIG_HOME', os.path.expanduser('~/.config'))
+XDG_DATA = os.environ.get('XDG_DATA_HOME', os.path.expanduser('~/.local/share'))
+XDG_CACHE = os.environ.get('XDG_CACHE_HOME', os.path.expanduser('~/.cache'))
+XDG_TEMP = os.environ.get('XDG_TEMP_DIR', os.path.expanduser('~/.local/temp'))
+XDG_DOCS = os.environ.get('XDG_DOCUMENTS_DIR', os.path.expanduser('~/Documents'))
+
 # Specify the individual paths you'd like to be backed up
 # as a chain of [[https://docs.python.org/3/library/glob.html][globs]].
 #
 # If any of the globs don't expand to a valid path, they
 # won't be backed up (simple as).
-PATHS = ('~/prog/.modules/python',
-         '~/prog/conf',
-         '~/prog/logs',
+PATHS = (f'{XDG_DEV}/.modules/python',
+         f'{XDG_DEV}/conf',
+         f'{XDG_DEV}/logs',
+         # TODO: Media directories
          '~/media',
-         '~/docs',
+         f'{XDG_DOCS}',
          # TODO: crontab
-         '~/.config/aliases/*.private',
-         '~/.config/shenv.local',
+         f'{XDG_CONFIG}/aliases/*.private',
+         f'{XDG_CONFIG}/shenv.local',
+         f'{XDG_CONFIG}/pylog',
          # Browser bookmarks
-         '~/.config/google-chrome',
-         '~/.config/BraveSoftware/Brave-Browser/Default/Bookmarks',
+         f'{XDG_CONFIG}/google-chrome',
+         f'{XDG_CONFIG}/BraveSoftware/Brave-Browser/Default/Bookmarks',
          '~/.mozilla/firefox/*/places.sqlite',
          '~/.tor-browser/app/Browser/TorBrowser/Data/Browser/*/places.sqlite',
          # Tmux
-         '~/.config/tmux/disk-free.conf',
-         '~/.config/tmux/tmux-local.conf',
-         '~/.config/tmuxinator',
+         f'{XDG_CONFIG}/tmux/disk-free.conf',
+         f'{XDG_CONFIG}/tmux/tmux-local.conf',
+         f'{XDG_CONFIG}/tmuxinator',
          # Transmission torrent database
-         '~/.config/transmission*',
+         f'{XDG_CONFIG}/transmission*',
          # Vim shared data (undo history)
-         '~/.local/share/vim',
-         '~/.local/share/nvim',
+         f'{XDG_DATA}/vim',
+         f'{XDG_DATA}/nvim',
          # My local temporary files directory
-         '~/.local/temp',
+         f'{XDG_TEMP}',
          # System files (may require sudo)
          '/etc/ssh/',
          )

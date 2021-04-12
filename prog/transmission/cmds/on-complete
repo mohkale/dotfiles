@@ -18,7 +18,8 @@ from transmission import Transmission, retry, StatusException
 # hardcoded config defaults
 RETRY_COUNT  = 5
 
-CONFIG_DIR   = p.Path('~/.config/transmission-daemon').expanduser()
+XDG_HOME = p.Path(os.environ.get('XDG_CONFIG_HOME', '~/.config')).expanduser()
+CONFIG_DIR = XDG_HOME / 'transmission-daemon'
 TORRENTS_DIR = CONFIG_DIR / 'torrents'
 CONFIG_FILE  = CONFIG_DIR / 'settings.json'
 WATCHER_FILE = CONFIG_DIR / 'watcher.json'

@@ -13,7 +13,7 @@
 # | shell         | The name of the current shell (bash, zsh, etc.)                                    |
 # | platform      | The platform (linux, windows, darwin, etc.) of the current host.                   |
 # | smart_term    | Whether the current terminal is a smart terminal or a dumb terminal.               |
-# | sourced_shenv | 1 when ~/.config/shenv has been sourced.                                           |
+# | sourced_shenv | 1 when $XDG_CONFIG_HOME/shenv has been sourced.                                    |
 # | interactive   | 1 when this shell is being run interactively.                                      |
 # | show_banner   | 1 when a colorful banner (from [[file:.config/banners/][banners]]) should be shown on shell startup.          |
 # |---------------+------------------------------------------------------------------------------------|
@@ -33,7 +33,7 @@
 [ -f "$HOME/.config/user-dirs.dirs" ] && . "$HOME/.config/user-dirs.dirs"
 export XDG_CONFIG_HOME XDG_DATA_HOME XDG_CACHE_HOME XDG_DOCUMENTS_DIR \
     XDG_PICTURES_DIR XDG_MUSIC_DIR XDG_VIDEOS_DIR XDG_DESKTOP_DIR \
-    XDG_DOWNLOAD_DIR XDG_TEMP_DIR XDG_GAMES_DIR
+    XDG_DOWNLOAD_DIR XDG_TEMP_DIR XDG_GAMES_DIR XDG_DEV_HOME XDG_BIN_DIR
 
 case "$TERM" in
     xterm*|rxvt*|eterm*|screen*|tmux*|cygwin*|emacs*|st*|alacritty)
@@ -57,7 +57,7 @@ else                             export EDITOR=vi
 fi
 
 # source XDG compatibility environment files
-[ -r "$HOME/.config/xdg" ] && . "$HOME/.config/xdg"
+[ -r "$XDG_CONFIG_HOME/xdg" ] && . "$XDG_CONFIG_HOME/xdg"
 
 export VISUAL="$EDITOR"
 export PAGER=less
@@ -102,7 +102,7 @@ fi
 
 if [ -e "$XDG_CONFIG_HOME/diricons" ]; then
     # load icons from human readable config file.
-    LF_ICONS=$(sed ~/.config/diricons \
+    LF_ICONS=$(sed $XDG_CONFIG_HOME/diricons \
                 -e '/^[ \t]*#/d'       \
                 -e '/^[ \t]*$/d'       \
                 -e 's/[ \t]\+/=/g'     \
@@ -191,9 +191,9 @@ export GEM_HOME="$HOME"/prog/.modules/ruby
 lines_to_path <<EOF
 [PATH]
 ~/.local/bin
-~/prog/scripts
-~/prog/.modules/ruby/bin
-~/prog/.modules/go/bin
+$XDG_DEV_HOME/scripts
+$XDG_DEV_HOME/.modules/ruby/bin
+$XDG_DEV_HOME/.modules/go/bin
 $XDG_DATA_HOME/npm/bin
 ~/.rvm/bin
 ${POETRY_HOME:-$HOME/.poetry}/bin
@@ -206,29 +206,29 @@ ${POETRY_HOME:-$HOME/.poetry}/bin
 # WARN for some dumb reason... java & javac just
 #      completely ignore this environment variable
 #      when you pass the -cp argument.
-~/prog/.modules/java/
-~/prog/.modules/java/*
+$XDG_DEV_HOME/.modules/java/
+$XDG_DEV_HOME/.modules/java/*
 
 [PYTHONPATH]
-~/prog/.modules/python
+$XDG_DEV_HOME/.modules/python
 
 [GEM_PATH]
 $GEM_HOME
 
 [GOPATH]
-~/prog/.modules/go
+$XDG_DEV_HOME/.modules/go
 
 [NODE_PATH]
-~/prog/.modules/node
+$XDG_DEV_HOME/.modules/node
 /usr/lib/nodejs
 /usr/share/nodejs
 
 [:REPO_PATH]
-~/prog/repos/
-~/prog/upwork/
+$XDG_DEV_HOME/repos/
+$XDG_DEV_HOME/upwork/
 $DOTFILES
-~/prog/.modules/go/src/*/*/
-~/prog/.modules/ruby/gems/
+$XDG_DEV_HOME/.modules/go/src/*/*/
+$XDG_DEV_HOME/.modules/ruby/gems/
 EOF
 
 unset -f lines_to_path # thank you, good bye

@@ -10,7 +10,7 @@ if ENV['INSIDE_EMACS']
   IRB.conf[:PROMPT_MODE]  = :DEFAULT
   IRB.conf[:SAVE_HISTORY] ||= 1000
   IRB.conf[:HISTORY_FILE] ||= File.join(
-    ENV.fetch('XDG_DATA_HOME', File.expand_path('~/.config/')),
+    ENV.fetch('XDG_DATA_HOME', File.expand_path('~/.cache')),
     'irb', 'history'
   )
 end

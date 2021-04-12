@@ -88,7 +88,7 @@ export GNUPGHOME="$XDG_DATA_HOME/gnupg"
 export KDEHOME="$XDG_CONFIG_HOME/kde"
 
 ## markdownlint
-alias mdl='mdl -s ~/.config/mdlstyle.rb'
+alias mdl='mdl -s $XDG_CONFIG_HOME/mdlstyle.rb'
 
 ## terminfo
 export TERMINFO="$XDG_DATA_HOME/terminfo"

@@ -1,8 +1,7 @@
 # -*- mode: conf -*- [[https://github.com/koalaman/shellcheck][ShellCheck]] configuration file.
 
 # Look for 'source'd files relative to the checked script,
-# and also look for absolute paths in /mnt/chroot
-source-path=~/.config/autoloads/cmds/
+source-path=$XDG_CONFIG_HOME/autoloads/cmds/
 source-path=/mnt/chroot
 
 # Turn on warnings for unquoted variables with safe values

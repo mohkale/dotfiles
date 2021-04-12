@@ -18,4 +18,4 @@ _edit_files_in_new_tmux_window() {
 export SELECT_PATH_EDIT_FILE_CMD=_edit_files_in_new_tmux_window
 
 # shellcheck disable=SC1090
-. ~/.config/autoloads/cmds/select_path
+. "$XDG_CONFIG_HOME"/autoloads/cmds/select_path

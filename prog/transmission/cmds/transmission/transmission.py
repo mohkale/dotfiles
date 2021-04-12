@@ -2,13 +2,15 @@
 Client implementation for the transmission daemon.
 """
 
+import os
 import json
 import socket
 import logging
 import pathlib as p
 from requests import Session
 
-CONFIG_DIR   = p.Path('~/.config/transmission-daemon').expanduser()
+XDG_HOME = p.Path(os.environ.get('XDG_CONFIG_HOME', '~/.config')).expanduser()
+CONFIG_DIR = XDG_HOME / 'transmission-daemon'
 CONFIG_FILE  = CONFIG_DIR / 'settings.json'
 
 class Transmission(object):
