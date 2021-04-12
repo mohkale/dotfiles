@@ -1,1 +1,1 @@
-../../core/mdlstyle
+../../prog/lint/markdownlint/mdlstyle
