@@ -25,11 +25,11 @@ jobs:
         ./manage -l debug install -b "$bots" --except package,packages
 
   # TODO: Setup windows install action.
-  # install-windows:
-  #   runs-on: windows-latest
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #   - name: Run installation
-  #     run: |-
-  #       bots=$(./setup/suggested -a | tr '\n' ,)
-  #       manage.ps1 -l info install -b "$bots" --except package,packages
+  install-windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run installation
+      run: |-
+        # bots=$(./setup/suggested -a | tr '\n' ,)
+        powershell ./manage.ps1 -l debug install -b "$bots" --except package,packages
