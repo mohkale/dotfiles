@@ -18,7 +18,7 @@
 #  PS1_INLINE:      when set to 1, bash prompt won't spread over multiple lines.
 
 if ! hash __git_ps1 1>/dev/null 2>&1; then
-  git_prompt_path="$HOME/.local/bin/git-prompt"
+  git_prompt_path="${XDG_BIN_DIR:-$HOME/.local/bin}/git-prompt"
   if [ -f "$git_prompt_path" ]; then
     ENTRY_POINT='true' . "$git_prompt_path" # source git prompt script to define __git_ps1
 

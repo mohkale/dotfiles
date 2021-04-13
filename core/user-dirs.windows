@@ -8,7 +8,7 @@ XDG_VIDEOS_DIR="$HOME/Videos"
 XDG_DESKTOP_DIR="$HOME/Desktop"
 XDG_PUBLICSHARE_DIR="$HOME/Documents/Share"
 XDG_TEMPLATES_DIR="$HOME/Documents/Templates"
-XDG_CONFIG_HOME="$HOME/AppData"
+XDG_CONFIG_HOME="$HOME/AppData/Local"
 XDG_CACHE_HOME="$HOME/AppData/Local/Temp"
 XDG_DATA_HOME="$HOME/AppData/Local"
 

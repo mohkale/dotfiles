@@ -190,7 +190,7 @@ export GEM_HOME="$HOME"/prog/.modules/ruby
 
 lines_to_path <<EOF
 [PATH]
-~/.local/bin
+$XDG_BIN_DIR
 $XDG_DEV_HOME/scripts
 $XDG_DEV_HOME/.modules/ruby/bin
 $XDG_DEV_HOME/.modules/go/bin

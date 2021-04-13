@@ -34,7 +34,7 @@ EOF
 inline=0
 editor=${EDITOR:-vi}
 # generated aliases will be cached here.
-cache_dir="$XDG_CACHE_HOME/aliases"
+cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/aliases"
 
 while getopts "h1e:" option; do
     case "$option" in
