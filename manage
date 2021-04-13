@@ -1,22 +1,23 @@
 #!/usr/bin/env bash
+# -*- +indent: 2 -*-
+
+set -e
 
 # A way to get the absolute path to this directory using
 # just shell builtins. (source [[https://stackoverflow.com/a/3915420/6247387][here]]).
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd -P)"
 
-# where should [[https://github.com/mohkale/dotty][dotty]] be placed after downloading
+# Where should [[https://github.com/mohkale/dotty][dotty]] be placed after downloading.
 dotty_path=$root/setup/dotty
 
-# The url for the latest dotty release
+# The url for the latest dotty release.
 dotty_version=v0.0.2
 dotty_url=https://github.com/mohkale/dotty/releases/download/$dotty_version
 
-# keep dotty bots cache here.
+# Keep dotty bots cache here.
 export DOTTY_BOTS_FILE="$root/setup/cache/dotty.bots"
 
-set -e
-
-## cleanup environment for different platforms.
+## Cleanup environment for different platforms.
 case "$(uname -s)" in
   CYGWIN*|MSYS*|MINGW*)
     SHELL=$(cygpath -m "$SHELL")
@@ -51,4 +52,20 @@ if ! [ -e "$dotty_path" ]; then
   mv "$dotty_bin" "$dotty_path"
 fi
 
+# Source and export XDG files for the current platform.
+if [ "$("$root"/bin/ls-platform)" = windows ]; then
+  xdg_file="$root/core/user-dirs.windows"
+else
+  xdg_file="$root/core/user-dirs"
+fi
+
+# shellcheck disable=SC1090
+source "$xdg_file"
+xdgvars=$(sed -e '/^#/d' -e '/^$/d' -e 's/^\(.\+\)=\(.\+\)$/\1/' "$xdg_file")
+IFS=$'\n'
+for var in $xdgvars; do
+  export "${var?}"
+done
+
+# Run dotty
 "$dotty_path" "$@"
