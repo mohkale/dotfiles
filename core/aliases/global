@@ -103,6 +103,7 @@ fp      fzpass
 cw      bulkrename
 lc      lfcd
 og      open_game
+fp      project-files
 
 dota    a $DOTFILES
 dotA    A $DOTFILES

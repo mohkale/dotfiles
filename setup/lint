@@ -51,7 +51,7 @@ fi
 
 cd "$root"
 ignore=$(tr '\n' : < ./setup/conf/lint.ignore)
-./bin/find-project -fu |
+./bin/project-files -fu |
   while read -r f; do
     # See [[https://stackoverflow.com/a/61545396/6247387][here]]
     if ! [[ "$ignore" =~ ^$f:|:$f:|:$f$ ]]; then

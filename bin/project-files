@@ -5,7 +5,7 @@
 # files (such as .gitignore, .ignore etc.).
 
 read -r -d '' USAGE <<EOF
-Usage: find-project [-h] [-d|-f] [-z] [-c|-C] [-a] [-v] [DIR [...DIR]]
+Usage: project-list [-h] [-d|-f] [-z] [-c|-C] [-a] [-v] [DIR [...DIR]]
 EOF
 
 read -r -d '' HELP <<EOF

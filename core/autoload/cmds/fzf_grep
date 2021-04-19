@@ -8,7 +8,7 @@ fzf_grep() {
     grepper="rg --no-column --line-number --no-heading --color=always --smart-case "
     prompt='Ripgrep to files: '
   else
-    grepper="find-project -f | xargs -r -d '\n' grep -P --color=always --binary-files=without-match --line-number --regexp "
+    grepper="project-files -f | xargs -r -d '\n' grep -P --color=always --binary-files=without-match --line-number --regexp "
     prompt='Grep to files: '
   fi
 

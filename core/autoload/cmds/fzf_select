@@ -14,7 +14,7 @@ fzf_select() {
     local skip="${#temp}"
 
     # shellcheck disable=SC2086
-    find-project -z ${FZF_SELECT_ARGS:-} -- "$p" |
+    project-files -z ${FZF_SELECT_ARGS:-} -- "$p" |
         _fzf --read0 \
              --multi \
              --preview 'preview {}' \
