@@ -1,0 +1,98 @@
+#!/usr/bin/env python3
+import subprocess
+import sys
+import time
+import re
+
+from distutils.spawn import find_executable as which
+
+def nordvpn(args):
+    if not which('nordvpn'):
+        return None
+    proc = subprocess.run(['nordvpn', 'status'], capture_output=True)
+    out = proc.stdout.decode('utf-8')
+    match = re.search(r'Status: (.+)', out, flags=re.IGNORECASE)
+    if not match:
+        return None
+    connected = match[1].lower() == 'connected'
+    if args.nordvpn_hide and not connected:
+        return None
+    ip = ''
+    match = re.search('Your new IP: (.+)', out, re.IGNORECASE)
+    if match:
+        ip = ' ' + match[1]
+    return (args.nordvpn_active_style if connected
+            else args.nordvpn_inactive_style) \
+        + args.nordvpn_icon + args.reset_style + ip
+
+def load_loop(args):
+    statuses = [x for x in (args.nordvpn,) if x]
+    while True:
+        try:
+            msgs = (x(args) for x in statuses)
+            msgs = [x for x in msgs if x]
+            if msgs:
+                yield args.sep.join(msgs) + args.suffix
+            else:
+                yield ''
+        except GeneratorExit:
+            break
+        # except:  # pylint: disable=W0702
+        #     yield ''
+
+def print_loop(it, unbuffer, sleep):
+    """Generator continually reading lines to output from `it` only outputting
+    when the output has changed from the previous output.
+    """
+    last_output = None
+    for line in it:
+        if line != last_output:
+            print(line)
+            last_output = line
+            if unbuffer:
+                sys.stdout.flush()
+        if not sleep:
+            break
+        time.sleep(sleep)
+
+if __name__ == '__main__':
+    import argparse
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('--suffix',
+                        metavar='FORMAT', default='',
+                        help='Suffix output with FORMAT.')
+
+    nvpngroup = parser.add_argument_group('Nord VPN')
+    nvpngroup.add_argument('--nordvpn',
+                           action='store_const', const=nordvpn,
+                           help='Show indicator for nordvpn status.')
+    nvpngroup.add_argument('--nordvpn-icon', default='N', metavar='ICON',
+                           help='Icon shown to indicate nordvpn status.')
+    nvpngroup.add_argument('--nordvpn-hide',
+                           action='store_true',
+                           help='Hide nordvpn status when disconnected')
+    nvpngroup.add_argument('--nordvpn-active-style', metavar='STYLE',
+                           default='',
+                           help='Styling for an active nordvpn connection.')
+    nvpngroup.add_argument('--nordvpn-inactive-style', metavar='STYLE',
+                           default='',
+                           help='Styling for an inactive nordvpn connection.')
+
+    parser.add_argument('--sep', metavar='STRING', default=' ',
+                        help='Concatenate status indicators with STRING')
+    parser.add_argument('-r', '--reset-style', default='#[default]',
+                        help='Specify style for resetting styles')
+    parser.add_argument('-u', '--unbuffer', action='store_true',
+                        help='Immeadiately flush output after writing')
+    parser.add_argument('-s', '--sleep', type=int,
+                        help='When given, wait this duration between outputting')
+
+    args  = parser.parse_args()
+    vargs = vars(args)
+
+    try:
+        print_loop(load_loop(args), args.unbuffer, args.sleep)
+    except KeyboardInterrupt:
+        pass

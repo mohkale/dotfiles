@@ -71,7 +71,7 @@ if __name__ == '__main__':
     parser.add_argument('-j', '--join', default=' ',
                         help='Specify character to join CPU indicators')
 
-    parser.add_argument('-r', '--reset-style', default='#[none]',
+    parser.add_argument('-r', '--reset-style', default='#[default]',
                         help='Specify style for resetting styles')
     parser.add_argument('-u', '--unbuffer', action='store_true',
                         help='Immeadiately flush output after writing')

@@ -152,7 +152,7 @@ if __name__ == '__main__':
 
     parser.add_argument('-m', '--mount-style', default='',
                         help='Specify style for mount points')
-    parser.add_argument('-r', '--reset-style', default='#[none]',
+    parser.add_argument('-r', '--reset-style', default='#[default]',
                         help='Specify style for resetting styles')
     parser.add_argument('-v', '--value-style', default='',
                         help='Specify style for value points')
