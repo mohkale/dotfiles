@@ -4,7 +4,7 @@ cd_repo() {
                    --history "${XDG_DATA_HOME:-$HOME/.locale/share}"/fzf/history/paths )
   [ -z "$*" ] || fzf_args+=( -q "$*" )
   local dest
-  if dest=$(ls-repos | _fzf "${fzf_args[@]}") && [ -n "$dest" ]; then
+  if dest=$(ls-projects | _fzf "${fzf_args[@]}") && [ -n "$dest" ]; then
     # shellcheck disable=SC2164
     cd "$dest"
   fi

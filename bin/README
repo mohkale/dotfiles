@@ -39,7 +39,7 @@ in ruby. Generally whatever works for whatever I'm trying to do.
 | [ls-exec](./ls-exec)                   | List executables which can be accessed from your PATH.                                      |
 | [ls-fsmaps](./ls-fsmaps)               | List aliases (from `ls-aliases`) that point to dirs/files (used for file-system jumps).     |
 | [ls-platform](./ls-platform)           | List the current platform (Unix, MacOS, Windows).                                           |
-| [ls-repos](./ls-repos)                 | List all code repositories found through the `REPO_PATH` environment variable.              |
+| [ls-projects](./ls-projects)           | List all code repositories found through the `REPO_PATH` environment variable.              |
 | [ls-mount](./ls-mount)                 | List mounted devices alongside the file-system path where they've been mounted.             |
 | [ls-games](./ls-games)                 | List available games to play (either through steam,EGS,GOG,natively or with an emulator).   |
 | [magit](./magit)                       | Run emacs magit directly from your shell.                                                   |

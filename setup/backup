@@ -164,7 +164,7 @@ def backup_repos(args):
     """
     logging.info('Backing up repositories')
     res = True
-    for repo in subprocess.check_output(['ls-repos']).split(b'\n'):
+    for repo in subprocess.check_output(['ls-projects']).split(b'\n'):
         repo = repo.decode('utf-8')
         if not repo:
             continue

@@ -39,7 +39,7 @@ def each_config(cwd, paths = [])
 end
 
 def ls_repos
-  IO.popen('ls-repos') do |fd|
+  IO.popen('ls-projects') do |fd|
     fd.each_line.map do |path|
       Pathname.new(path.chomp)
     end

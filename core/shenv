@@ -24,7 +24,7 @@
 # |---------------+------------------------------------------------------------------------------------|
 # | PATH          | The : delimited list of directories bash/zsh/sh looks for executables.             |
 # | DOTFILES      | Path to where user dotfiles repository can be found. Should always be ~/.dotfiles. |
-# | REPO_PATH     | PATH like for variable for looking up code repositories (see [[file:.local/bin/ls-repos][ls-repos]]).            |
+# | REPO_PATH     | PATH like for variable for looking up code repositories (see [[file:.local/bin/ls-projects][ls-projects]]).         |
 # | GAME_PATH     | Path to look for installed games (eg. GBA or actual executables etc.)              |
 
 # don't source this script if you've already sourced it.
