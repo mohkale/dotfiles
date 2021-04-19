@@ -49,7 +49,7 @@ while read -r path; do
     *.jar)                           jar xf     "$path" ;;
     *.rar|*.cbr)                     unrar x    "$path" ;;
     *.cab)                           cabextract "$path" ;;
-    *.cb7|*.7z)                      7z x       "$path" ;;
+    *.cb7|*.7z|*.c7z)                7z x       "$path" ;;
   esac || exit_code=1
 done <<< "$(printf "%s\n" "$@")"
 

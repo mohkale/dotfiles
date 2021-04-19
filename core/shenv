@@ -95,9 +95,13 @@ if command -v lesskey >/dev/null 2>&1 && \
     lesskey "$LESSKEY.base"
 fi
 
-# enable color support of ls and also add handy aliases
-if [ -x /usr/bin/dircolors ] && [ -r "$XDG_CONFIG_HOME/dircolors" ]; then
-    eval "$(dircolors -b $XDG_CONFIG_HOME/dircolors)" || eval "$(dircolors -b)"
+# Custom color scheme configuration for ls
+if [ -x /usr/bin/dircolors ]; then
+    if [ -r "$XDG_CONFIG_HOME/dircolors" ]; then
+        eval "$(dircolors -b $XDG_CONFIG_HOME/dircolors)" || eval "$(dircolors -b)"
+
+        export LF_COLORS="$LS_COLORS:.git/=35:.github/=35"
+    fi
 fi
 
 if [ -e "$XDG_CONFIG_HOME/diricons" ]; then
@@ -351,6 +355,7 @@ case "$TERM" in
     *-24bit)
         alias ssh='TERM=screen-256color ssh'
         alias journalctl='TERM=screen-256color journalctl'
+        alias systemctl='TERM=screen-256color systemctl'
         ;;
 esac
 

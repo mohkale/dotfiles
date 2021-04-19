@@ -11,6 +11,7 @@ files/incomplete/
 .gnome/
 .mozilla/
 .pki/
+.parallel/
 .steam/
 .wine/
 .Upwork/

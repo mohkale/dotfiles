@@ -114,11 +114,11 @@ INCLUDE_DIR="${INCLUDE_DIR:-0}"                                                 
 
 preview_dir() {
   if [ "$INCLUDE_DIR" -eq 1 ]; then
-    ls -d --color=always "$FILE_PATH"
-    echo "${FILE_PATH//?/-}"
+    ls -d --color=always "$1"
+    echo "${1//?/-}"
   fi
 
-  list=$(ls "$FILE_PATH" --color=always --group-directories-first -1)
+  list=$(ls "$1" --color=always --group-directories-first -1)
   if [ -n "$list" ]; then
     echo "$list"
   elif [ -n "$color" ]; then
@@ -128,7 +128,16 @@ preview_dir() {
   fi
 }
 
-[ -d "$FILE_PATH" ] && preview_dir && exit 0
+preview_socket() {
+  local fout
+  if fout=$(fuser -uv "$1" 2>&1); then
+    echo "$fout" && return 0
+  fi
+  losf -- "$1"
+}
+
+[ -d "$FILE_PATH" ] && preview_dir    "$FILE_PATH" && exit 0
+[ -S "$FILE_PATH" ] && preview_socket "$FILE_PATH" && exit 0
 
 # ┌────────────────────────────┐
 # │ Syntax Highlighter Proxies │
@@ -300,6 +309,7 @@ case "$FILE_EXTENSION" in
   dff|dsf|wv|wvc)  do_DSDIFF  "$FILE_PATH" ;;
   sqlite|sqlite3)  do_sqlite3 "$FILE_PATH" ;;
 
+  md) highlight_bat -l markdown -- "$FILE_PATH" ;;
   el) highlight_bat -l lisp -- "$FILE_PATH" ;;
 
   *) false ;;

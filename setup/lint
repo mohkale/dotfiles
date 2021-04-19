@@ -42,10 +42,10 @@ elif ! [ -e "$root" -a -r "$root" ]; then
 fi
 
 if command -v parallel >/dev/null 2>&1; then
-    batch_str="parallel -d '\n' -X --line-buffer --quote --max-procs 1"
+    batch_str="parallel -r -d '\n' -X --line-buffer --quote --max-procs 1"
     [ "$dry_run" -eq 1 ] && batch_str="$batch_str --dry-run"
 else
-    batch_str="xargs -d '\n'"
+    batch_str="xargs -r -d '\n'"
     [ "$dry_run" -eq 1 ] && batch_str="$batch_str echo"
 fi
 

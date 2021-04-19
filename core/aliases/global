@@ -70,6 +70,7 @@ mv      mv -v
 cp      cp -v
 ln      ln -v
 mkdir   mkdir -v
+chmod   chmod -v
 
 par     parallel
 parx    par -X
@@ -103,7 +104,6 @@ fp      fzpass
 cw      bulkrename
 lc      lfcd
 og      open_game
-fp      project-files
 
 dota    a $DOTFILES
 dotA    A $DOTFILES
