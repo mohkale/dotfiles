@@ -301,7 +301,7 @@ bind -Tm-commands m run -b '\
 # bind W run -b "$TMUX_HOME/cmds/manage-windows -i"
 # bind X run -b "$TMUX_HOME/cmds/run-command"
 
-source $TMUX_HOME/theme
+source $TMUX_HOME/theme.conf
 
 if-shell '[ -e "$TMUX_HOME/tmux-local.conf" ]' {
   source $TMUX_HOME/tmux-local.conf

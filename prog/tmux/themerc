@@ -139,16 +139,16 @@ set -g status-right " \
 #[default,bg=$TMUX_BG,fg=$TMUX_FG]#[push-default]\
 #{?#{&&:#{!=:#{host},#{pane_title}},#{e|>=:#{client_width},#{@theme-hide-title-width}}},#{=/$TMUX_OPT_NAME_MAX_LEN/...:pane_title}#{?#{==:#{@theme-sep},}, ,#{@theme-sep}},}\
 \
-#{?#{e|>=:#{client_width},#{@theme-hide-misc-width}},#($TMUX_HOME/cmds/status-misc -u -s 60 --suffix '#{?#{==:#{@theme-sep},}, ,#{@theme-sep}}' --nordvpn --nordvpn-hide --nordvpn-icon ' ' --nordvpn-active-style '#[fg=$AOH_GREEN]' --nordvpn-inactive-style '#[fg=$AOH_RED]'),}\
+#{?#{e|>=:#{client_width},#{@theme-hide-misc-width}},#($TMUX_HOME/theme/status-misc -u -s 60 --suffix '#{?#{==:#{@theme-sep},}, ,#{@theme-sep}}' --nordvpn --nordvpn-hide --nordvpn-icon ' ' --nordvpn-active-style '#[fg=$AOH_GREEN]' --nordvpn-inactive-style '#[fg=$AOH_RED]'),}\
 \
-#(echo ""; $TMUX_HOME/cmds/disk-free -u -s 60 -b -m '#[bold,fg=#{@theme-df-mount}]' -t 80 '#[fg=#{@theme-df-medium}]' -t 95 '#[fg=#{@theme-df-large}]' -t 100 '#[fg=#{@theme-df-full}]')\
+#(echo ""; $TMUX_HOME/theme/disk-free -u -s 60 -b -m '#[bold,fg=#{@theme-df-mount}]' -t 80 '#[fg=#{@theme-df-medium}]' -t 95 '#[fg=#{@theme-df-large}]' -t 100 '#[fg=#{@theme-df-full}]')\
 \
 #[default]#{?#{==:#{@theme-sep},}, ,#{@theme-sep}}\
-#(echo ""; $TMUX_HOME/cmds/cpu-load  -u -s 1 -t 30 '#[fg=#{@theme-cpu-1}]'  -t 50 '#[fg=#{@theme-cpu-2}]'  -t 70 '#[fg=#{@theme-cpu-3}]'  -t 90 '#[fg=#{@theme-cpu-4}]' -d '•' -j '')\
+#(echo ""; $TMUX_HOME/theme/cpu-load  -u -s 1 -t 30 '#[fg=#{@theme-cpu-1}]'  -t 50 '#[fg=#{@theme-cpu-2}]'  -t 70 '#[fg=#{@theme-cpu-3}]'  -t 90 '#[fg=#{@theme-cpu-4}]' -d '•' -j '')\
 \
 #[default]#{?#{==:#{@theme-sep},}, ,#{@theme-sep}}\
 #{?#{e|>=:#{client_width},#{@theme-hide-host-width}},#{host}(#{=$TMUX_OPT_CMD_MAX_LEN:pane_current_command}) ,}\
-#(echo ""; $TMUX_HOME/cmds/tmux-icons -c '#{client_tty}') \
+#(echo ""; $TMUX_HOME/theme/tmux-icons -c '#{client_tty}') \
 #[pop-default]\
 \
 #[default,bg=$TMUX_HL,fg=$TMUX_BG]#[push-default]\
