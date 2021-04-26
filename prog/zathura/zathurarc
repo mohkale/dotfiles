@@ -1,14 +1,49 @@
 # -*- mode: sh -*-
 
+# Viewer Options
 set synctex true
-# set synctex-editor-command "gvim +%{line} %{input}"
+#set synctex-editor-command "gvim +%{line} %{input}"
 
 set selection-clipboard clipboard
 set font "noto-sans 12"
 
-map [normal] gr reload
+set window-title-home-tilde true
+set window-title-page true
 
-# emacs like bindings
+#set recolor true                                                              # Dark mode from the beginning
+set recolor-reverse-video true                                                 # Don't invert images with recolor
+set render-loading true                                                        # Notify when rendering a page
+#set scroll-page-aware true                                                    # Respect page boundaries on scroll
+set adjust-open width
+set statusbar-home-tilde true                                                  # Replace $HOME wilth ~ in statusbar
+
+# Bindings
+map gr reload
+map ] rotate rotate-cw
+map [ rotate rotate-ccw
+unmap C-r
+map r recolor
+map i toggle_index
+
+map [index] q toggle_index                                                     # Don't quit the index when hitting q.
+map [index] zo navigate_index expand
+map [index] zc navigate_index collapse
+map [index] zm navigate_index collapse-all
+map [index] zr navigate_index expand-all
+
+map [presentation] q toggle_presentation
+map [presentation] P toggle_presentation
+map [presentation] n navigate next
+map [presentation] p navigate previous
+map [presentation] <C-d> navigate next
+map [presentation] <C-u> navigate previous
+map [presentation] gg goto top
+map [presentation] G goto bottom
+map [presentation] f follow
+map [presentation] i toggle_index
+map [presentation] r recolor
+
+## Emacs is all
 map <C-g> abort
 map <C-a> scroll full-left
 map <C-b> scroll left
@@ -17,13 +52,46 @@ map <C-f> scroll right
 map <C-n> scroll down
 map <C-p> scroll up
 
-set default-bg "#1C1D21"
-set inputbar-bg "#1C1D21"
-set default-fg "#CBCDD2"
-set inputbar-fg "#CBCDD2"
+## Leader Keys
+#unmap <Space>
+#map <C-Space> feedkeys ":nohlsearch <Return>"
+map ,c feedkeys ":nohlsearch <Return>"
 
-set statusbar-fg "#1C1D21"
-set statusbar-bg "#CBCDD2"
+# Adapted Darcula color scheme from [[https://github.com/ghaetinger/Dotfiles_i3_aesthetic/blob/36eb213d0f98345bec8406a92f9f567c125d5865/zathura/zathurarc][here]].
+## Light/Default mode settings:
+set notification-error-bg       "#ff5555" # Red
+set notification-error-fg       "#f8f8f2" # Foreground
+set notification-warning-bg     "#ffb86c" # Orange
+set notification-warning-fg     "#44475a" # Selection
+set notification-bg             "#282a36" # Background
+set notification-fg             "#f8f8f2" # Foreground
 
-set window-title-home-tilde true
-set window-title-page true
+set completion-bg               "#282a36" # Background
+set completion-fg               "#6272a4" # Comment
+set completion-group-bg         "#282a36" # Background
+set completion-group-fg         "#6272a4" # Comment
+set completion-highlight-bg     "#44475a" # Selection
+set completion-highlight-fg     "#f8f8f2" # Foreground
+
+set index-bg                    "#282a36" # Background
+set index-fg                    "#f8f8f2" # Foreground
+set index-active-bg             "#44475a" # Current Line
+set index-active-fg             "#f8f8f2" # Foreground
+
+set inputbar-bg                 "#282a36" # Background
+set inputbar-fg                 "#f8f8f2" # Foreground
+set statusbar-bg                "#f8f8f2" # Background
+set statusbar-fg                "#282a36" # Foreground
+
+set highlight-color             "#ffb86c" # Orange
+set highlight-active-color      "#ff79c6" # Pink
+
+set default-bg                  "#282a36" # Background
+set default-fg                  "#f8f8f2" # Foreground
+
+set render-loading-fg           "#282a36" # Background
+set render-loading-bg           "#f8f8f2" # Foreground
+
+## Recolor mode settings
+set recolor-lightcolor          "#282a36" # Background
+set recolor-darkcolor           "#f8f8f2" # Foreground
