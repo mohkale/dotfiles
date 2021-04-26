@@ -3,7 +3,7 @@
 with_emacs() {
     # run a command with editor set to emacsclient.
     local cmd
-    cmd="emacsclient"
+    cmd="${EMACS_CMD:-emacsclient}"
 
     [ -z "$EMACS_FLAGS" ] || cmd="$cmd $EMACS_FLAGS"
 

@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-evi() {
-    # run emacs like vim, using emacsclient
-    emacsclient -nw -a= -c "$@"
-}

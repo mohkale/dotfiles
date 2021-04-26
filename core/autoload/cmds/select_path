@@ -24,14 +24,26 @@ select_path() {
 
     # Edit any given files
     if [ "${#files[@]}" -gt 0 ]; then
-       printf "%s\n" "${files[@]}" |
-           if [ -n "$SELECT_PATH_EDIT_FILE_CMD" ]; then
+       if [ -n "$SELECT_PATH_EDIT_FILE_CMD" ]; then
+           printf "%s\n" "${files[@]}" |
                $SELECT_PATH_EDIT_FILE_CMD
-           else
-               # with -r, this only runs if at least one file is found
-               # shellcheck disable=SC2086
-               xargs -r -d '\n' ${VISUAL-${$EDITOR-vi}}
-           fi
+       else
+           # Annoying dependence on python3 to get the current terminal fd.
+           # This is needed to access and interact with the current terminal
+           # in the middle of a pipeline (which select_path is probably called
+           # in), and without it some less capable editors like vim or...
+           # emacsclient (not emacs though (ノдヽ)) will fail to startup properly.
+           local tty="$(python3 -c '
+import os
+# See [[~/.config/dotfiles/bin/lib/python/terminal.py][terminal.py]]
+try:
+    print(os.ttyname(2))
+except OSError:
+   print("/dev/tty")
+           ')"
+           # shellcheck disable=SC2086
+           xargs -r -d '\n' -a <(printf "%s\n" "${files[@]}") ${VISUAL-${$EDITOR-vi}} >"$tty" <"$tty"
+       fi
     fi
 
     # Change to any new directories.

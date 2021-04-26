@@ -23,6 +23,7 @@ in ruby. Generally whatever works for whatever I'm trying to do.
 | [emacs-focus](./emacs-focus)           | Switch focus to any open emacs frames (only works on linux).                                |
 | [emacs-make-frame](./emacs-make-frame) | Create a new emacs frame.                                                                   |
 | [env-paths](./env-paths)               | List environment variables which points to an existing filepath.                            |
+| [evi](./evi)                           | Emacs proxy which connects to emacsclient or starts a new emacs frame.                      |
 | [extract](./extract)                   | A quick and dirty multipurpose archive extracter. Takes only one arg (the path to extract). |
 | [fdupes](./fdupes)                     | Pass a list of files and print back out any duplicates (based on file content).             |
 | [file-path](./file-path)               | Print paths back to stdout in a way that can be substituted back into the shell.            |

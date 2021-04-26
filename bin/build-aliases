@@ -1,33 +1,30 @@
 #!/bin/bash
-# source [[https://stackoverflow.com/questions/2683279/how-to-detect-if-a-script-is-being-sourced][here]].
-if [ -n "$ZSH_EVAL_CONTEXT" ]; then
-    case $ZSH_EVAL_CONTEXT in *:file) sourced=1;; esac
-elif [ -n "$BASH_VERSION" ]; then
-    (return 0 2>/dev/null) && sourced=1
-else # All other shells: examine $0 for known shell binary filenames
-    # Detects `sh` and `dash`; add additional shell filenames as needed.
-    case ${0##*/} in sh|dash) sourced=1;; esac
-fi
+# -*- +indent: 2 -*-
 
 set -e
 
 print_usage() {
-    # shellcheck disable=SC2016
-    echo 'Usage: eval "$(build-aliases [-1] [-i] [-P] [-e EDITOR] FILE [FILE...])"'
+  # shellcheck disable=SC2016
+  echo 'Usage: eval "$(build-aliases [-1] [-c] [-e EDITOR] FILE [FILE...])"'
 }
 
 print_help() {
-    print_usage
-    cat <<-EOF
+  print_usage
+  cat <<-EOF
 
 Required Arguments:
-  FILE       file from which to read alias declarations from
+  FILE       File from which to read alias declarations from
              each line should be an alias with the first word
-             being the alias name and the rest the alias cmd
+             being the alias name and the rest the alias cmd.
 
-Optional Arguments:
-  -1         output all aliases in a single line
-  -e EDITOR  set the editor used for file aliases
+Optional arguments:
+  -1
+    Output all aliases in a single line
+  -e EDITOR
+    Set the editor used for file aliases
+  -c
+    Save or print aliases from alias cache. Cache are generated
+    based on the contents and order of the FILE argument/s.
 EOF
 }
 
@@ -35,86 +32,109 @@ inline=0
 editor=${EDITOR:-vi}
 # generated aliases will be cached here.
 cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/aliases"
+cache=0
 
-while getopts "h1e:" option; do
-    case "$option" in
-        h) print_help
-           exit 0 ;;
-        \?) print_usage >&2
-            exit 1 ;;
-        1) inline=1
-           ;;
-        e) editor=$OPTARG
-           ;;
-    esac
+while getopts 'h1e:c' option; do
+  case "$option" in
+    h) print_help
+       exit 0 ;;
+    \?) print_usage >&2
+        exit 1 ;;
+    1) inline=1 ;;
+    e) editor=$OPTARG ;;
+    c) cache=1 ;;
+  esac
 done
 shift $((OPTIND - 1))
 
 read_script() { #(*files)
-    cat "$@" | sed -r - -e ':x /\\$/ { N; s/\\\n//g ; bx }' \
-                        -e 's/^\s*#.*$//'                   \
-                        -e 's/^\s+//'                       \
-                        -e '/^\s*$/d'
+  sed -r \
+      -e ':x /\\$/ { N; s/\\\n//g ; bx }' \
+      -e 's/^\s*#.*$//'                   \
+      -e 's/^\s+//'                       \
+      -e '/^$/d'                          \
+      -- "$@"
 
-    # join lines ending with a backslash together, then strip comments, entry
-    # level indentation, empty lines (in that order) from every input file
-    # concatenated together.
-    # the line joining program was a godsend from the gnu sed manual:
-    #  * https://www.gnu.org/software/sed/manual/html_node/Joining-lines.html
+  # Join lines ending with a backslash together, then strip comments, entry
+  # level indentation, empty lines (in that order) from every input file
+  # concatenated together.
+  #
+  # The line joining program was a godsend from the [[https://www.gnu.org/software/sed/manual/html_node/Joining-lines.html][gnu sed]] manual.
 }
 
 parse_aliases() {
-    while read -r key dest; do
-        local cut=${key%@*}
-        local tag=${key:${#cut}}
-        # shellcheck disable=SC2086
-        case "$tag" in
-            @file) echo alias  ${cut@Q}=${editor@Q}"' '"${dest@Q} ;;
-            @dir)  echo alias  ${cut@Q}="'cd '"${dest@Q} ;;
-            @dirx) echo alias  ${cut@Q}="'cd '"${dest@Q}
-                   echo alias q${cut@Q}="'pushd '"${dest@Q} ;;
-            *) [ -n "$tag" ] && echo "warn: build-aliases: unknown alias tag: $tag"
-               echo alias ${cut@Q}=${dest@Q}
-               ;;
-        esac
-    done
-}
-
-create_aliases() { #(*files)
-    [ -e "$cache_dir" ] || mkdir -p "$cache_dir"
-    for file in "$@"; do
-        if ! [ -r "$file" -a -f "$file" ]; then
-            echo 'build-aliases(error) : shortcut file '"$file"' is not readable' >&2
-            continue
-        fi
-
-        base=${file##*/}
-        cached=$cache_dir/$base
-        # WARN: hardcoded path to current script.
-        if [ -e "$cached" -a "$cached" -nt "$file" -a "$cached" -nt "$HOME/.local/bin/build-aliases" ]; then
-            cat -- "$cached"
-        else
-            # generate aliases and then save back to cache
-            read_script "$file" | parse_aliases | tee "$cached"
-        fi
+  # We replace separator with a null(like) byte so we can keep trailing
+  # spaces in the alias (that's how bash/zsh decide to expand the alias
+  # arguments).
+  sed 's/^\([^ ]\+\) *\(.\+\)$/\1\x01\2/' |
+    while IFS=$'\x01' read -r key dest; do
+      local cut=${key%@*}
+      local tag=${key:${#cut}}
+      # shellcheck disable=SC2086
+      case "$tag" in
+        @file) echo alias  ${cut@Q}=${editor@Q}"' '""${dest@Q}" ;;
+        @dir)  echo alias  ${cut@Q}="'cd '""${dest@Q}" ;;
+        @dirx) echo alias  ${cut@Q}="'cd '""${dest@Q}"
+               echo alias q${cut@Q}="'pushd '""${dest@Q}" ;;
+        *) [ -n "$tag" ] && echo "warn: build-aliases: unknown alias tag: $tag"
+           echo alias ${cut@Q}="${dest@Q}"
+           ;;
+      esac
     done
 }
 
 _inline_alias_calls() {
-    # turn an output stream with rows of alias calls,
-    # into one alias calls with multiple alias targets
+  # Turn an output stream with rows of alias calls,
+  # into one alias calls with multiple alias targets
 
-    cat | sed 's/^alias //' \
-        | awk -e 'BEGIN { RS=""; printf "alias " }' \
-              -e '{ gsub(/\n/, " ", $0) }1' \
-              -e 'END { printf "\n" }'
+  sed 's/^alias //' \
+    | awk -e 'BEGIN { RS=""; printf "alias " }' \
+          -e '{ gsub(/\n/, " ", $0) }1' \
+          -e 'END { printf "\n" }'
 }
 
 main() {
-    create_aliases "$@" |
-        if [ "$inline" -eq 1 ]; then _inline_alias_calls; else cat; fi
+  hash=$(md5sum <<< "$@")
+  cache_file=$cache_dir/"${hash/ -/}"
+
+  {
+    # When allowed to output from the cache file we first check it exists
+    # and then we check whether every file we're working on is newer than
+    # the cache file.
+    read_cache="$cache"
+    if [ "$cache" -eq 1 ]; then
+      if [ -e "$cache_file" ]; then
+        for file in "$@"; do
+          if ! [ "$cache_file" -nt "$file" -a \
+                 "$cache_file" -nt "${XDG_BIN_DIR:-$HOME/.local/bin}/build-aliases" ]; then
+            read_cache=0
+            break
+          fi
+        done
+      else
+        read_cache=0
+      fi
+    fi
+    # Output cached aliases or create and then cache aliases.
+    if [ "$read_cache" -eq 1 ]; then
+      cat "$cache_file"
+    else
+      read_script "$@" | parse_aliases |
+        if [ "$cache" -eq 1 ]; then tee "$cache_file"; else cat; fi
+    fi
+  } |
+    if [ "$inline" -eq 1 ]; then _inline_alias_calls; else cat; fi
 }
 
-if [ "${sourced:-0}" -eq 0 ]; then
-    main "$@"
+# Source [[https://stackoverflow.com/questions/2683279/how-to-detect-if-a-script-is-being-sourced][here]].
+if [ -n "$ZSH_EVAL_CONTEXT" ]; then
+  case $ZSH_EVAL_CONTEXT in *:file) sourced=1;; esac
+elif [ -n "$BASH_VERSION" ]; then
+  (return 0 2>/dev/null) && sourced=1
+else # All other shells: examine $0 for known shell binary filenames
+  # Detects `sh` and `dash`; add additional shell filenames as needed.
+  case ${0##*/} in sh|dash) sourced=1;; esac
 fi
+
+# Run main only when the current script isn't being sourced
+if [ "${sourced:-0}" -eq 0 ]; then main "$@"; fi

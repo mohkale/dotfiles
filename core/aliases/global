@@ -21,6 +21,7 @@ o       xopen
 p       cd_repo
 s       $SHELL
 x       fzdmenu
+y       file_path_yank
 z       select_fsmap
 
 g          git
@@ -136,7 +137,7 @@ etnw    et && emacs -nw
 etc     et -c
 etd     et -l -
 etcd    etd -c
-we      with-evi
+we      EMACS_CMD=evi with_emacs 
 emf     emacs-make-frame
 
 # Buku

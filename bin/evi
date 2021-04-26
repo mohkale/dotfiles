@@ -1,0 +1,7 @@
+#!/bin/sh
+# run emacs like vim, using emacsclient
+#
+# If the emacs daemon is not running then start
+# a new emacs instance instead of connecting to
+# an existing session.
+emacsclient -nw -a='emacs -nw' -c "$@"
