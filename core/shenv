@@ -356,6 +356,7 @@ case "$TERM" in
         alias ssh='TERM=screen-256color ssh'
         alias journalctl='TERM=screen-256color journalctl'
         alias systemctl='TERM=screen-256color systemctl'
+        alias bluetoothctl='TERM=screen-256color bluetoothctl'
         ;;
 esac
 

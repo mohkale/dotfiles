@@ -67,9 +67,9 @@ suniq   sort | uniq
 card    curl -sL kisara.moe/~mohkale/card
 
 rm      rm -v
-mv      mv -v
-cp      cp -v
-ln      ln -v
+mv      mv -iv
+cp      cp -iv
+ln      ln -iv
 mkdir   mkdir -v
 chmod   chmod -v
 

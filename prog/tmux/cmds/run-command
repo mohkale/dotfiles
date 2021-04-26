@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 commands=$(tmux list-commands)
-fzf="tmux-popup -- fzf"
+fzf="tmux-popup -i -o -- fzf"
 command=$(echo "$commands"                              \
     | sed -E -e 's/\[.+\]//g' -e 's/ +/ /g'             \
     | $fzf -- --exact --prompt="choose a command: " \

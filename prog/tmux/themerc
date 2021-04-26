@@ -139,7 +139,7 @@ set -g status-right " \
 #[default,bg=$TMUX_BG,fg=$TMUX_FG]#[push-default]\
 #{?#{&&:#{!=:#{host},#{pane_title}},#{e|>=:#{client_width},#{@theme-hide-title-width}}},#{=/$TMUX_OPT_NAME_MAX_LEN/...:pane_title}#{?#{==:#{@theme-sep},}, ,#{@theme-sep}},}\
 \
-#{?#{e|>=:#{client_width},#{@theme-hide-misc-width}},#($TMUX_HOME/theme/status-misc -u -s 60 --suffix '#{?#{==:#{@theme-sep},}, ,#{@theme-sep}}' --nordvpn --nordvpn-hide --nordvpn-icon ' ' --nordvpn-active-style '#[fg=$AOH_GREEN]' --nordvpn-inactive-style '#[fg=$AOH_RED]'),}\
+#{?#{e|>=:#{client_width},#{@theme-hide-misc-width}},#(echo ""; $TMUX_HOME/theme/status-misc -u -s 60 --suffix '#{?#{==:#{@theme-sep},}, ,#{@theme-sep}}' --nordvpn --nordvpn-hide --nordvpn-icon ' ' --nordvpn-active-style '#[fg=$AOH_GREEN]' --nordvpn-inactive-style '#[fg=$AOH_RED]'),}\
 \
 #(echo ""; $TMUX_HOME/theme/disk-free -u -s 60 -b -m '#[bold,fg=#{@theme-df-mount}]' -t 80 '#[fg=#{@theme-df-medium}]' -t 95 '#[fg=#{@theme-df-large}]' -t 100 '#[fg=#{@theme-df-full}]')\
 \

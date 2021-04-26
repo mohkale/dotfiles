@@ -25,7 +25,7 @@ while getopts 'hrpvc' option; do
     esac
 done
 
-fzf="tmux-popup -- fzf"
+fzf="tmux-popup -i -o -- fzf"
 
 # bindings format is "key map values"
 # shellcheck disable=SC2046

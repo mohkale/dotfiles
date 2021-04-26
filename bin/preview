@@ -311,6 +311,7 @@ case "$FILE_EXTENSION" in
 
   md) highlight_bat -l markdown -- "$FILE_PATH" ;;
   el) highlight_bat -l lisp -- "$FILE_PATH" ;;
+  org) highlight_bat -l orgmode -- "$FILE_PATH" ;;
 
   *) false ;;
 esac && exit 0

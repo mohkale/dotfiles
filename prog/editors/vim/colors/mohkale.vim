@@ -22,7 +22,7 @@ hi IncSearch    ctermfg=234  ctermbg=74   cterm=bold guifg=#1c1d20 guibg=#4fb3d8
 hi Directory    ctermfg=221  ctermbg=NONE cterm=bold guifg=#e5cd52 guibg=NONE    gui=bold
 hi VertSplit    ctermfg=12   ctermbg=NONE cterm=NONE guifg=#4fb3d8 guibg=NONE    gui=NONE
 hi LineNr       ctermfg=15   ctermbg=234  cterm=NONE guifg=#cbcdd2 guibg=#1c1d20 gui=NONE
-hi CursorLineNr ctermfg=74   ctermbg=234  cterm=NONE guifg=#4fb3d8 guibg=#ba78ab gui=NONE
+hi CursorLineNr ctermfg=74   ctermbg=234  cterm=NONE guifg=#4fb3d8 guibg=#1c1d20 gui=NONE
 hi Pmenu        ctermfg=NONE ctermbg=NONE cterm=NONE guifg=NONE    guibg=NONE    gui=NONE
 hi PmenuSel     ctermfg=NONE ctermbg=208  cterm=NONE guifg=NONE    guibg=#ee7b29 gui=NONE
 hi Folded       ctermfg=0    ctermbg=15   cterm=NONE guifg=#4f5053 guibg=#cbccd1 gui=NONE

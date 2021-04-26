@@ -15,7 +15,7 @@ while getopts 'h?d' option; do
     esac
 done
 
-fzf="tmux-popup -- fzf"
+fzf="tmux-popup -i -o -- fzf"
 sessions=$(tmux ls -F '#S:#{session_id}:#{session_created}:#{session_windows}')
 
 if [ -z "$sessions" ]; then

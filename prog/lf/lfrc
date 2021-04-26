@@ -17,8 +17,13 @@ set hiddenfiles .*:__pycache__:*.pyc:*.o:node_modules:*.elc:*~:eln-cache
 set info size
 #set relativenumber
 set dircounts                                                                   # show number of files in directory, not size of directory inode.
-$lf -remote "send $id set previewer $XDG_CONFIG_HOME/lf/cmds/lf-preview"
-
+$lf -remote "send $id set previewer ${XDG_CONFIG_HOME:-$HOME/.config}/lf/cmds/lf-preview"
+set globsearch
+set errorfmt "\033[1;31merror\033[0m: %s"
+set incsearch
+set nomouse
+set noanchorfind
+set noglobsearch
 
 # Bindings
 map c
@@ -56,7 +61,7 @@ map gr :reload; sync
 map cd push :cd<space>
 map ,g push :glob-select<space>
 map ,u push :glob-unselect<space>
-map ,r source $XDG_CONFIG_HOME/lf/lfrc
+$lf -remote "send $id map ,r source ${XDG_CONFIG_HOME:-$HOME/.config}/lf/cmds/lf-preview"
 
 ## Readline
 cmap <c-g>  cmd-escape
@@ -76,9 +81,9 @@ map ,X push &echo<space>"$fx"<space>|<space>xargs<space>-r<space>-d<space>'\n'<s
 map ,f push !echo<space>"$fx"<space>|<space>while<space>read<space>-r<space>it;<space>do<space>;<space>done<left><left><left><left><left><left>
 map ,F push &echo<space>"$fx"<space>|<space>while<space>read<space>-r<space>it;<space>do<space>;<space>done<left><left><left><left><left><left>
 
-### printf "%s\n" "$fx" |
-map ,p push !printf<space>"%s\n"<space>$fx<space>|<space>
-map ,P push &printf<space>"%s\n"<space>$fx<space>|<space>
+### printf "%s\n" "$fx" | parallel -r -d '\n'
+map ,p push !printf<space>"%s\n"<space>$fx<space>|<space>parallel<space>-r<space>-d<space>'\n'<space>
+map ,P push &printf<space>"%s\n"<space>$fx<space>|<space>parallel<space>-r<space>-d<space>'\n'<space>
 
 
 # Commands
@@ -214,7 +219,7 @@ cmd execute-async &{{
 map ob open-bookmark
 cmd open-bookmark $. $XDG_CONFIG_HOME/lf/cmds/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/fzbm; fzbm
 
-map op open-password
+map oP open-password
 cmd open-password $bash -c '. $XDG_CONFIG_HOME/lf/cmds/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/fzpass; fzpass'
 
 map og open-game
@@ -476,7 +481,7 @@ cmd bulkrename ${{
         bulkrename -V -s "$f" -
 }}
 
-# recursively bulkrename all files
+## recursively bulkrename all files
 map cr bulkrename-all
 cmd bulkrename-all ${{
     . $XDG_CONFIG_HOME/lf/cmds/lf-files
@@ -488,8 +493,9 @@ cmd bulkrename-all ${{
 map +  :push :mkdir<space>
 map ,m :push :mkdir<space>
 cmd mkdir %{{
-    mkdir -p "$@"
-    lf -remote "send $id load"$'\n'"send $id select \"$@\""
+    IFS=' '
+    mkdir -p "$*"
+    lf -remote "send $id load"$'\n'"send $id select \"$*\""
 }}
 
 map ,n :push :mkcd<space>
@@ -670,6 +676,9 @@ cmd yank-basename-without-extension &{{
       if [ -n "$fs" ]; then cat; else tr -d '\n'; fi |
       clip
 }}
+
+### Source local configuration
+${{ [ -r "$XDG_CONFIG_HOME/lf/lfrc.local" ] && lf -remote "send $id source $XDG_CONFIG_HOME/lf/lfrc.local" }}
 
 # Local Variables:
 # electric-pair-preserve-balance: t

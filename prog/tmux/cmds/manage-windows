@@ -29,7 +29,7 @@ while getopts 'i@:glmsSrkh?' option; do
     esac
 done
 
-fzf="tmux-popup -- fzf"
+fzf="tmux-popup -i -o -- fzf"
 
 _select_window() {
     # select a window, output format is "session_id:window_id"
