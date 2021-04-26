@@ -132,7 +132,7 @@ ec      emacsclient
 ee      ec --no-wait --suppress-output # emacs dispatch
 ex      emacs
 sx      smacs
-et      sh -c 'cd $XDG_CONFIG_HOME/emacs && ./bin/tangle -i -d lisp/+config.el "$@"' ''
+et      emacs-tangle --cd "$XDG_CONFIG_HOME/emacs" --interactive --dependency lisp/+config.el
 etnw    et && emacs -nw
 etc     et -c
 etd     et -l -
