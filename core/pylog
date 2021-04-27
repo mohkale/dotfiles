@@ -9,9 +9,25 @@ formatters:
     datefmt: '%s'
   plain:
     format: "%(asctime)s %(levelname)s %(message)s"
-  # zerolog_color:
-  #   format: "\x1b[30m%(asctime)s\x1b[0m %(levelname)s\x1b[0m %(message)s"
-  #   datefmt: '%H:%M%p'
+
+  # yamllint disable rule:comments-indentation
+  # colorlog:
+  #   # Adapted from [[https://stackoverflow.com/questions/42095184/scrapy-framework-colorize-logging][here]].
+  #   (): colorlog.ColoredFormatter
+  #   format: '%(log_color)s%(levelname)s%(reset)s %(yellow)s%(asctime)s%(reset)s %(white)s%(name)s %(funcName)s%(bold_purple)s:%(lineno)d%(reset)s %(log_color)s%(message)s%(reset)s'
+  #   datefmt: '%y-%m-%d %H:%M:%S'
+  #   log_colors:
+  #     TRACE: black
+  #     DEBUG: yellow
+  #     INFO: green
+  #     WARNING: red
+  #     ERROR: bold_red
+  #     CRITICAL: bg_bold_red,black
+  # yamllint enable rule:comments-indentation
+
+# These assign the existing global default formatter, not create a new one.
+default_format: '%(asctime)s %(name)s %(levelname)s(%(pathname)s:%(lineno)s) %(message)s'
+default_datefmt: '%s'
 
 # Consistent width level names taken from [[https://github.com/rs/zerolog][zerolog]].
 levels:
