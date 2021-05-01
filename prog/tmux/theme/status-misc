@@ -4,6 +4,7 @@ import sys
 import time
 import re
 
+from shared import render_loop, print_loop
 from distutils.spawn import find_executable as which
 
 def nordvpn(args):
@@ -25,35 +26,19 @@ def nordvpn(args):
             else args.nordvpn_inactive_style) \
         + args.nordvpn_icon + args.reset_style + ip
 
-def load_loop(args):
-    statuses = [x for x in (args.nordvpn,) if x]
-    while True:
-        try:
-            msgs = (x(args) for x in statuses)
-            msgs = [x for x in msgs if x]
-            if msgs:
-                yield args.sep.join(msgs) + args.suffix
-            else:
-                yield ''
-        except GeneratorExit:
-            break
-        # except:  # pylint: disable=W0702
-        #     yield ''
-
-def print_loop(it, unbuffer, sleep):
-    """Generator continually reading lines to output from `it` only outputting
-    when the output has changed from the previous output.
+def status_misc(args):
+    """Closure around args continually outputting meta-data.
     """
-    last_output = None
-    for line in it:
-        if line != last_output:
-            print(line)
-            last_output = line
-            if unbuffer:
-                sys.stdout.flush()
-        if not sleep:
-            break
-        time.sleep(sleep)
+    statuses = [x for x in (args.nordvpn,) if x]
+
+    def wrapped():
+        msgs = (x(args) for x in statuses)
+        msgs = [x for x in msgs if x]
+        if msgs:
+            return args.sep.join(msgs) + args.suffix
+        return ''
+    return wrapped
+
 
 if __name__ == '__main__':
     import argparse
@@ -93,6 +78,6 @@ if __name__ == '__main__':
     vargs = vars(args)
 
     try:
-        print_loop(load_loop(args), args.unbuffer, args.sleep)
+        print_loop(render_loop(status_misc(args)), args.unbuffer, args.sleep)
     except KeyboardInterrupt:
         pass
