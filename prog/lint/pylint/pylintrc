@@ -197,7 +197,16 @@ never-returning-functions=sys.exit
 expected-line-ending-format=
 
 # Regexp for a line that is allowed to be longer than the limit.
-ignore-long-lines=^\s*(# )?<?https?://\S+>?$
+#+BEGIN_SRC emacs-lisp
+# (rxt-elisp-to-pcre
+#  (rx (or ;; Let comments get as wide as they need to when the entire line is a comment.
+#       (and bol (zero-or-more space) "#" (zero-or-more any) eol)
+#       ;; Org links are generally rendered short but written long, ignore them as well.
+#       (and "[[" (one-or-more alpha) ":" (one-or-more (not "]")) "]"
+#            ;; Optionally a link title to show instead of the link.
+#            (optional "[" (one-or-more (not "]")) "]") "]"))))
+#+END_SRC
+ignore-long-lines=^[[:space:]]*#.*$|\[\[[[:alpha:]]+:[^\]]+\](?:\[[^\]]+\])?\]
 
 # Number of spaces of indent required inside a hanging or continued line.
 indent-after-paren=4

@@ -57,6 +57,7 @@ cls     clear
 clamp   cut -b 1-$COLUMNS
 wai     whoami
 nv      nvim
+code    codium
 netcat  ncat
 chksum  cksum
 unmount umount
@@ -127,9 +128,9 @@ weather curl -q -s http://wttr.in/
 :wq     exit
 
 # Emacs
-evipe   VISUAL='emacsclient -nw -a= -c' vipe # emacs edit pipe
+evipe   VISUAL='evi' vipe
 ec      emacsclient
-ee      ec --no-wait --suppress-output # emacs dispatch
+ee      ec --no-wait --suppress-output
 ex      emacs
 sx      smacs
 et      emacs-tangle --cd "$XDG_CONFIG_HOME/emacs" --interactive --dependency lisp/+config.el
@@ -217,6 +218,7 @@ emacsrc@file     $XDG_CONFIG_HOME/lisp/+config.el
 tmuxrc@file      $TMUX_HOME/tmux.conf
 
 h@dirx           ~
+gh@dirx          ~
 rp@dirx          $XDG_DEV_HOME/repos
 sc@dirx          $XDG_DEV_HOME/scripts
 bin@dirx         $XDG_BIN_DIR

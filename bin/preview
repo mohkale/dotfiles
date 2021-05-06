@@ -281,6 +281,45 @@ do_fallback() {
   file --dereference --brief -- "$1"
 }
 
+do_python_bytecode() {
+  # Disassembles pythons pyc files. Adapted from [[https://stackoverflow.com/a/42720524/6247387][here]] and [[https://stackoverflow.com/a/25129042/6247387][here]].
+  python3 - "$1" <<-EOF | highlight_bat -l asm -
+import marshal
+import dis
+import sys
+import struct
+import binascii
+import time
+import platform
+
+with open(sys.argv[1], 'rb') as fd:
+    magic = fd.read(4)
+    timestamp = fd.read(4)
+    size = None
+    if sys.version_info.major == 3 and sys.version_info.minor >= 3:
+         size = fd.read(4)
+    if sys.version_info.major == 3 and sys.version_info.minor >= 7:
+         bit_field = timestamp
+         timestamp = size
+         size = fd.read(4)
+    size = struct.unpack('I', size)[0]
+
+    code = marshal.load(fd)
+
+    magic = binascii.hexlify(magic).decode('utf-8')
+    timestamp = time.asctime(time.localtime(struct.unpack('I', b'D\xa5\xc2X')[0]))
+
+    print(f'# {"-" * 76} #')
+    print(f'# Python version: {platform.python_version()}'.ljust(78) + ' #')
+    print(f'# Magic code: {magic}'.ljust(78) + ' #')
+    print(f'# Timestamp: {timestamp}'.ljust(78) + ' #')
+    print(f'# Size: {size}'.ljust(78) + ' #')
+    print(f'# {"-" * 76} #\n')
+
+    dis.disassemble(code,)
+EOF
+}
+
 # ┌────────────────────────┐
 # │ Extension Associations │
 # └────────────────────────┘
@@ -296,7 +335,7 @@ case "$FILE_EXTENSION" in
   cb7|c7z|7z) do_7z      "$FILE_PATH";    ;;
   # Many archive programs don't seem to recognise comic book extensions.
   cbz)        do_archive "$FILE_PATH" zip ;;
-  cbt)        do_archive "$FILE_PATH" tar ;;
+  cbt|gem)    do_archive "$FILE_PATH" tar ;;
   cba)        do_archive "$FILE_PATH" ace ;;
 
   pdf)             do_pdf     "$FILE_PATH" ;;
@@ -308,6 +347,7 @@ case "$FILE_EXTENSION" in
   json|ipynb*)     do_json    "$FILE_PATH" ;;
   dff|dsf|wv|wvc)  do_DSDIFF  "$FILE_PATH" ;;
   sqlite|sqlite3)  do_sqlite3 "$FILE_PATH" ;;
+  pyc)             do_python_bytecode "$FILE_PATH" ;;
 
   md) highlight_bat -l markdown -- "$FILE_PATH" ;;
   el) highlight_bat -l lisp -- "$FILE_PATH" ;;

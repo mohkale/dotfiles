@@ -98,8 +98,9 @@ def which(program: str):
                 return exe_file
     return None
 
-def nrwalk(top, mindepth=0, maxdepth=sys.maxsize, # pylint: disable=too-many-arguments
-         dirfilter=None, filefilter=None, onerror=None):
+# pylint: disable=too-many-arguments
+def nrwalk(top, mindepth=0, maxdepth=sys.maxsize,
+           dirfilter=None, filefilter=None, onerror=None):
     """Non-recursive directory tree generator.
 
     TODO why not just os.walk?
@@ -935,7 +936,7 @@ if __name__ == '__main__':
     parser.add_argument('-g', '--generic',
                         dest='generic_only', action='store_true',
                         help="Don't bother checking desktop environments at all")
-    pargs  = parser.parse_args()
+    pargs = parser.parse_args()
     vargs = vars(pargs)
 
     # TODO move these to a configuration file

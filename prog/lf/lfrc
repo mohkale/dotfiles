@@ -550,7 +550,6 @@ cmd bulkchmod ${{
 # Editor
 map oe evi
 cmd evi ${{
-    . $XDG_CONFIG_HOME/autoloads/cmds/evi
     evi "$f"
 }}
 
@@ -563,7 +562,6 @@ cmd edit-config ${{
 
 map ,E evi-config
 cmd evi-config ${{
-    . $XDG_CONFIG_HOME/autoloads/cmds/evi
     if evi $XDG_CONFIG_HOME/lf/lfrc; then
         lf -remote "send $id source $XDG_CONFIG_HOME/lf/lfrc"
     fi

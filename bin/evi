@@ -4,4 +4,5 @@
 # If the emacs daemon is not running then start
 # a new emacs instance instead of connecting to
 # an existing session.
-emacsclient -nw -a='emacs -nw' -c "$@"
+
+exec emacsclient -nw -a='emacs -nw' -c "$@"

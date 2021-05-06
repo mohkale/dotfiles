@@ -1,5 +1,8 @@
 # Global [[https://docs.rubocop.org/rubocop/configuration.html][rubocop]] configuration file -*- mode: yaml -*- vim:syntax=yaml filetype=yaml
 
+AllCops:
+  TargetRubyVersion: 2.6
+
 Style/Encoding:
   Enabled: false
 
@@ -20,4 +23,7 @@ Metrics/MethodLength:
   Max: 25
 
 Style/SpecialGlobalVars:
+  Enabled: false
+
+Style/ParallelAssignment:
   Enabled: false

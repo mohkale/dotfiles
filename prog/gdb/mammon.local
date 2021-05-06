@@ -6,4 +6,4 @@ set $SHOW_CONTEXT = 0
 
 # Messes up some bindings such as goto-first-char because
 # the escape sequence is treated as its own line.
-set $COLOREDPROMPT = 0
+set $COLOREDPROMPT = 1
