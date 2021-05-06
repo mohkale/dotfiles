@@ -1,0 +1,16 @@
+---
+# -*- mode: sh; +indent: 2 -*- vim:syntax=sh filetype=sh
+tags: [compression]
+---
+# Snippets - Dumping ground for various cmds that aren't worth making into scripts.
+
+# Given a list of archives ($fx) extract each of them and then recompress them
+# using the 7zip archive utility. After 7z compression the original archive and
+# the extracted contents will be deleted.
+echo "$fx" |
+  parallel --line-buffer echo {}\; 7z -bb x -o{.} {} '&&' pushd {.} '&&' 7z -bb a {.}.7z . '&&' popd '&&' rm -rv {} {.}
+
+# Given a list of directories ($fx) convert each of them into a 7z archive and
+# then remove the previous directory recursively.
+echo "$fx" |
+  parallel echo {}\; cd {} '&&' 7z a ../{/}.7z . '&&' cd ../ '&&' rm -rv {/}

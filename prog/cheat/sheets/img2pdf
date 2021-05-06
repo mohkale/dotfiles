@@ -1,0 +1,8 @@
+---
+# -*- mode: sh; +indent: 2 -*- vim:syntax=sh filetype=sh
+---
+# img2pdf - A script to batch convert images to pdfs.
+
+# Convert a list of directories ($fx) into pdfs (in the cwd) in parallel.
+echo "$fx" |
+  parallel --ungroup find {} -type f '|' sort -V '|' img2pdf - -l DEBUG -o {/}.pdf

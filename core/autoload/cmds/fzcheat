@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# -*- +indent: 2 -*-
+
+function fzcheat() {
+  local fzf_args=( -d ':' --ansi --with-nth '2..'
+                   --bind 'ctrl-y:execute-silent(echo {1} | clip)'
+                   --bind 'alt-e:execute(cheat -e {1})'
+                   --bind 'ctrl-m:execute:cheat -c {1} | $PAGER'
+                   --preview 'cheat -c {1}'
+                   --prompt "Cheatsheet: "
+                   --history "${XDG_DATA_HOME:-$HOME/.locale/share}"/fzf/history/fzf_cheat )
+  [ -z "$*" ] || fzf_args+=( -q "$*" )
+
+  cheat -l |
+    awk -v c_tag_l=$'\e[1m' \
+        -v c_tag_r=$'\e[0m' \
+        -e 'NR == 1 { next }' \
+        -e '{
+  # We maintain a separate index of any cheats we have encountered
+  # before and any tags associated with that cheat. The last cheat
+  # parsed is assumed to be the cheat shown when running `cheat name`
+  # so all previous cheats and any tags associated with them are
+  # removed.
+
+  # If we have seen this sheet do not update our order list
+  cheats[$1]++ || mem[++i] = $1
+  tags[$1] = ""
+  for (j=3; j <= NF; j++) {
+    tags[$1] = tags[$1] FS $j
+  }
+  sub(FS "$", "", tags[$1])
+  sub("^" FS, "", tags[$1])
+}' \
+        -e 'END {
+  for (k=1; k <= i; k++) {
+    name = mem[k]
+    name_tags = tags[name]
+    printf("%s:%s%s\n", name, name, name_tags ? (c_tag_l " [" name_tags "] " c_tag_r) : "")
+  }
+}' |
+    _fzf "${fzf_args[@]}"
+}

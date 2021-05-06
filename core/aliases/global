@@ -103,6 +103,7 @@ gu      cd_project_root
 gx      edit_executables
 oe      select_path
 fp      fzpass
+fc      fzcheat
 cw      bulkrename
 lc      lfcd
 og      open_game
@@ -227,6 +228,7 @@ dot@dirx         $DOTFILES
 dbin@dirx        $DOTFILES/bin
 em@dirx          $XDG_CONFIG_HOME/emacs
 org@dirx         $XDG_CONFIG_HOME/emacs/org
+cheats@dirx      $XDG_CONFIG_HOME/cheat/cheatsheets/personal
 
 dl@dirx          $XDG_DOWNLOAD_DIR
 docs@dirx        $XDG_DOCUMENTS_DIR

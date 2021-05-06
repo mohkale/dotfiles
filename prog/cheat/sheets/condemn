@@ -1,0 +1,9 @@
+---
+# -*- mode: sh; +indent: 2 -*- vim:syntax=sh filetype=sh
+---
+# condemn - Trash files and directories using system specific tools
+
+# Given a list of directories ($fx) view the last naturally-sorted file
+# in that directory in sxiv and then trash any selected files.
+echo "$fx" |
+  parallel find {} -type f '|' sort -V '|' tail -n1 | sxiv -io | condemn -
