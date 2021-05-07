@@ -371,6 +371,7 @@ case "$MIMETYPE" in
   image/*)         do_img     "$FILE_PATH" ;;
   *executable)     do_exe     "$FILE_PATH" ;;
   text/*|*/xml)    do_text    "$FILE_PATH" ;;
+  message/*)       highlight_bat -l email -- "$FILE_PATH" ;;
 
   *) false ;;
 esac && exit 0

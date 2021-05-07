@@ -1,0 +1,76 @@
+# -*- mode: conf-space -*- [[https://wiki.archlinux.org/title/isync][isync]] configuration file -- vim:syntax=conf:filetype=conf
+# mohkale@kisara.moe
+IMAPAccount kisara
+Host kisara.moe
+User mohkale
+PassCmd "pass server/kisara.moe/mohkale | head -n1"
+# Dumb issues with Self Signed Certificates.
+SSLType None
+
+IMAPStore kisara-remote
+Account kisara
+
+MaildirStore kisara-local
+SubFolders Verbatim
+Path ~/docs/mail/kisara/
+Inbox ~/docs/mail/kisara/Inbox
+
+Channel kisara
+Far :kisara-remote:
+Near :kisara-local:
+Patterns *
+Create both
+SyncState *
+
+# mohkalsin@gmail.com
+IMAPAccount mohkalsin-gmail
+Host imap.gmail.com
+User mohkalsin@gmail.com
+PassCmd "pass accounts/google/mohkalsin@gmail.com | pcregrep -o1 '  mail: (.+)$' | head -n1"
+SSLType IMAPS
+CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+IMAPStore mohkalsin-gmail-remote
+Account mohkalsin-gmail
+
+MaildirStore mohkalsin-gmail-local
+SubFolders Verbatim
+Path ~/docs/mail/mohkalsin/
+Inbox ~/docs/mail/mohkalsin/Inbox
+
+Channel mohkalsin-gmail
+Far :mohkalsin-gmail-remote:
+Near :mohkalsin-gmail-local:
+Patterns *
+Create Both
+SyncState *
+Patterns * ![Gmail]* "[Gmail]/Sent Mail" "[Gmail]/Starred" "[Gmail]/All Mail"
+
+# mohkalex@gmail.com
+IMAPAccount mohkalex-gmail
+Host imap.gmail.com
+User mohkalex@gmail.com
+PassCmd "pass accounts/google/mohkalex@gmail.com | head -n1"
+SSLType IMAPS
+CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+IMAPStore mohkalex-gmail-remote
+Account mohkalex-gmail
+
+MaildirStore mohkalex-gmail-local
+SubFolders Verbatim
+Path ~/docs/mail/mohkalex/
+Inbox ~/docs/mail/mohkalex/Inbox
+
+Channel mohkalex-gmail
+Far :mohkalex-gmail-remote:
+Near :mohkalex-gmail-local:
+Patterns *
+Create Both
+SyncState *
+Patterns * ![Gmail]* "[Gmail]/Sent Mail" "[Gmail]/Starred" "[Gmail]/All Mail"
+
+Group all
+Channel kisara
+Channel mohkalsin-gmail
+Channel mohkalex-gmail

@@ -148,6 +148,13 @@ alias info='info --init-file "$XDG_CONFIG_HOME/infokey"'
 ## GDB
 alias gdb='gdb --silent -nh -x "$XDG_CONFIG_HOME"/gdb/init'
 
+## isync
+alias mbsync='mbsync -c "$XDG_CONFIG_HOME"/isync/mbsyncrc'
+
+## Mail
+export MAIL=$XDG_DOCUMENTS_DIR/mail
+export MAILDIR=$MAIL
+
 ## PostgreSQL
 ### WARN: These directories need to exist or postgres will complain.
 export PSQLRC="$XDG_CONFIG_HOME/pg/psqlrc"
