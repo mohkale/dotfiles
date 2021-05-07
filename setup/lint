@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
+# -*- +indent: 2 -*-
 # Recursively find all executable scripts and match their interpreters
 # to different linters and produce GCC compatible linting output.
 
-set -e
-
 print_usage() {
-    echo "Usage: $(basename "$0") [-h] [-v] [-d] PATH"
+  echo "Usage: $(basename "$0") [-h] [-v] [-d] PATH"
 }
 print_help() {
   print_usage
@@ -42,16 +41,18 @@ elif ! [ -e "$root" -a -r "$root" ]; then
 fi
 
 if command -v parallel >/dev/null 2>&1; then
-    batch_str="parallel -r -d '\n' -X --line-buffer --quote --max-procs 1"
-    [ "$dry_run" -eq 1 ] && batch_str="$batch_str --dry-run"
+  batch_str="parallel -r -d '\n' -X --line-buffer --quote --max-procs 1"
+  [ "$dry_run" -eq 1 ] && batch_str="$batch_str --dry-run"
 else
-    batch_str="xargs -r -d '\n'"
-    [ "$dry_run" -eq 1 ] && batch_str="$batch_str echo"
+  batch_str="xargs -r -d '\n'"
+  [ "$dry_run" -eq 1 ] && batch_str="$batch_str echo"
 fi
 
-cd "$root"
+exit=0
+
+cd "$root" || exit 1
 ignore=$(tr '\n' : < ./setup/conf/lint.ignore)
-./bin/project-files -fu |
+./bin/project-files -f |
   while read -r f; do
     # See [[https://stackoverflow.com/a/61545396/6247387][here]]
     if ! [[ "$ignore" =~ ^$f:|:$f:|:$f$ ]]; then
@@ -171,4 +172,12 @@ fi
     if (verbose)
       print("lint: error: unknown interpreter for linting (" $2 ") at path: " $1)
   }
-}'
+}' || exit=1
+
+# Also list broken symlinks as errors.
+while IFS=: read -r src dest; do
+  echo "$src: error: non-existant symlink $dest"
+  exit=1
+done < <(./bin/broken-links)
+
+exit "$exit"
