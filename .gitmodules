@@ -26,3 +26,6 @@
 [submodule "prog/gdb/mammon"]
 	path = prog/gdb/mammon
 	url = git@github.com:mohkale/Gdbinit.git
+[submodule "prog/pass/store"]
+	path = prog/pass/store
+	url = git@github.com:mohkale/pass.git
