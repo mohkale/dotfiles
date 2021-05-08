@@ -13,3 +13,4 @@ rules:
   # don't bother me with this rule
   indentation: disable
   truthy: disable
+  comments-indentation: disable

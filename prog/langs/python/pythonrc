@@ -30,6 +30,7 @@ del readline
 
 if re.search(r'(-color|-256color|-24bit)$',
              os.environ.get('TERM')):
+    # pylint: disable=C0301
     # The \001 and \002 fix length calculations, see [[https://stackoverflow.com/questions/30998499/why-my-gdb-prompt-shows-wrong-after-i-change-its-color][here]].
     sys.ps1 = '\001\033[32m\002>>> \001\033[0m\002'
     sys.ps2 = '\001\033[31m\002... \001\033[0m\002'

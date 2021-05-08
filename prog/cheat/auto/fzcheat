@@ -2,6 +2,7 @@
 # -*- +indent: 2 -*-
 
 function fzcheat() {
+  # shellcheck disable=SC2016
   local fzf_args=( -d ':' --ansi --with-nth '2..'
                    --bind 'ctrl-y:execute-silent(echo {1} | clip)'
                    --bind 'alt-e:execute(cheat -e {1})'

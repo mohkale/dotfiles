@@ -69,7 +69,10 @@ def first(it: t.Sequence[T]) -> t.Union[None, T]:
         pass
     return None
 
-can_exec = lambda path: os.path.isfile(path) and os.access(path, os.X_OK)
+
+def can_exec(path):
+    """Asseert whether `path` is executable."""
+    return os.path.isfile(path) and os.access(path, os.X_OK)
 
 @functools.lru_cache()
 def which(program: str):
@@ -147,30 +150,30 @@ def nrwalk(top, mindepth=0, maxdepth=sys.maxsize,
         # Filter nondirs with filefilter and dirs with dirfilter, if filter
         # returns True for a file # then the file is filtered away
         if dirfilter:
-            dirs = [ x for x in dirs if not dirfilter(x, root) ]
+            dirs = [x for x in dirs if not dirfilter(x, root)]
         if filefilter:
-            nondirs = [ x for x in nondirs if not filefilter(x, root) ]
+            nondirs = [x for x in nondirs if not filefilter(x, root)]
 
         return dirs, nondirs
 
     _, join, isdir = os.path.islink, os.path.join, os.path.isdir
 
-    Dir_node = namedtuple('Dir_node', [ 'root', 'dirs', 'nondirs' ])
+    Dir_node = namedtuple('Dir_node', ['root', 'dirs', 'nondirs'])
     travelsal_stack = list()
     travelsal_stack.append(Dir_node(top, *process_dir(top)))
-    if maxdepth >= len(travelsal_stack)-1 >= mindepth:
+    if maxdepth >= len(travelsal_stack) - 1 >= mindepth:
         yield travelsal_stack[0]
 
     while True:
         if not travelsal_stack:
             break
-        if travelsal_stack[len(travelsal_stack)-1].dirs and \
+        if travelsal_stack[len(travelsal_stack) - 1].dirs and \
                 maxdepth >= len(travelsal_stack):
-            _new_root = join(travelsal_stack[len(travelsal_stack)-1].root,
-                    travelsal_stack[len(travelsal_stack)-1].dirs.pop())
+            _new_root = join(travelsal_stack[len(travelsal_stack) - 1].root,
+                             travelsal_stack[len(travelsal_stack) - 1].dirs.pop())
             travelsal_stack.append(Dir_node(_new_root, *process_dir(_new_root)))
-            if len(travelsal_stack)-1 >= mindepth:
-                yield travelsal_stack[len(travelsal_stack)-1]
+            if len(travelsal_stack) - 1 >= mindepth:
+                yield travelsal_stack[len(travelsal_stack) - 1]
         else:
             travelsal_stack.pop()
 
@@ -180,7 +183,7 @@ def parse_comma_sep_list(csl_str):
         cls_str: str. Comma separated list as a string.
     """
     sl = csl_str.split(",")
-    sl = [ os.path.expanduser(s.strip()) for s in sl ]
+    sl = [os.path.expanduser(s.strip()) for s in sl]
     return sl
 
 # ┌───────────────────────────────┐
@@ -206,11 +209,11 @@ def desktop_list_parser(desktop_list_fn, mime_type_find=None, find_all=False):
         dict/[str]/None. See doc string.
     """
     mt_df_re = re.compile(
-            r"""
+        r"""
             (^[^[]+)    # mimetype, line doesn't start with [
             =
             (.+)[;]?$   # desktop file, ignore possible ';' at the end
-            """, re.I|re.X)
+            """, re.I | re.X)
     mime_type_desktop_map = {}
     desktop_files = []
     with open(desktop_list_fn) as f:
@@ -243,9 +246,9 @@ class URL(object):
     """Store a URL alongside it's parsed protocol, target and mimetype.
     """
 
-    url:      str
+    url: str
     protocol: str = ""
-    target:   str = ""
+    target: str = ""
     mimetype: str = ""
     desktop_file: str = None
 
@@ -253,8 +256,10 @@ class URL(object):
         canon_target = self.protocol == "file"
         if not self.protocol or not self.target:
             prot, tar = self._parse_protocol(self.url)
-            if not self.protocol: self.protocol = prot
-            if not self.target:   self.target   = tar
+            if not self.protocol:
+                self.protocol = prot
+            if not self.target:
+                self.target   = tar
             canon_target = canon_target or prot == "file"
 
         if canon_target:
@@ -291,7 +296,7 @@ class URL(object):
     def _find_mimetype(cls, url, protocol, target):
         # adapted from [[https://github.com/wor/pyxdg-open/blob/1094f1e301fab5a22a46fefe31ea4427db1cfd7e/src/wor/xdg_open.py#L136][xdg-open/__get_mimetype__]].
         if protocol == "file":
-            if not os.path.exists(target): # guess from extension
+            if not os.path.exists(target):  # guess from extension
                 ext = os.path.splitext(target)[1]
                 logging.debug('Guessing mimetype from file extension: %s', ext)
                 if len(ext) <= 1:
@@ -324,14 +329,15 @@ class URL(object):
         # try to use an associated mimetype for the given protocol
         try:
             return cls.protocol_mimetypes[protocol]
-        except KeyError: pass
+        except KeyError:
+            pass
 
         # fallback to using the url mimetype or the protocol handler
         mtype = mime.guess_type(url)
         if not mtype:
             mtype = "x-scheme-handler/" + protocol
             logging.info("Defaulted protocol '%s' to mime type: '%s'",
-                            protocol, mtype)
+                         protocol, mtype)
         return mtype
 
 class DesktopFindSearchOrder(enum.IntEnum):
@@ -347,7 +353,7 @@ class DesktopFind(object):
     a configurable search order.
     """
 
-    paths:      t.List[str]
+    paths: t.List[str]
     list_files: t.List[str]
     search_order: t.List[DesktopFindSearchOrder]
 
@@ -355,7 +361,7 @@ class DesktopFind(object):
         # quick and simple instance based hash.
         return hash(repr(self))
 
-    @functools.lru_cache(maxsize=None) # cache all mime lookups
+    @functools.lru_cache(maxsize=None)  # cache all mime lookups
     def get_file(self, *args, **kwargs):
         """Alias for `get_files' which returns the first desktop file found.
         Generates tuples of (filepath: str, filecontents: dict)
@@ -399,7 +405,7 @@ class DesktopFind(object):
             with open(fpath, 'r') as fd:
                 df.read_file(fd)
                 return df._sections  # pylint: disable=protected-access
-        except: # pylint: disable=bare-except
+        except:  # pylint: disable=bare-except
             logging.exception("Parsing desktop file %s failed", repr(fpath))
         return None
 
@@ -411,9 +417,9 @@ class DesktopFind(object):
         """
 
         # Next try to find correct desktop file by parsing invidual desktop files
-        logging.debug("Find desktop file by search with key/value: %s", repr((key,value),))
+        logging.debug("Find desktop file by search with key/value: %s", repr((key, value),))
         for path in self.paths:
-            for root, _, files in nrwalk(path, filefilter=lambda f,_: not f.endswith(".desktop")):
+            for root, _, files in nrwalk(path, filefilter=lambda f, _: not f.endswith(".desktop")):
                 for f in files:
                     df_name = os.path.join(root, f)
                     df = self.read_desktop_file(df_name)
@@ -424,7 +430,8 @@ class DesktopFind(object):
                         # TODO maybe check if XDG allows MimeType in other sections
                         if value in df['Desktop Entry']['MimeType']:
                             yield df_name, df
-                    except KeyError: pass
+                    except KeyError:
+                        pass
         return []
 
     def _resolve_fullpath(self, desktop_file):
@@ -467,11 +474,12 @@ class DesktopFind(object):
         for dp in self.paths:
             for list_file, desktop_files in check_list_files(dp):
                 for desktop_file in desktop_files:
-                    if not desktop_file: continue # TODO check whether this is needed
+                    if not desktop_file:
+                        continue  # TODO check whether this is needed
                     df_fp = self._resolve_fullpath(desktop_file)
                     if not df_fp:
                         logging.info("Skipping not found (list) desktop file "
-                                    "%s, mentioned in %s", repr(desktop_file), repr(list_file))
+                                     "%s, mentioned in %s", repr(desktop_file), repr(list_file))
                         continue
 
                     logging.info("Found desktop file from list: %s", list_file)
@@ -481,10 +489,10 @@ class DesktopFind(object):
 
 @dataclasses.dataclass
 class GenericOpener(object):
-    paths:        t.List[str]
-    list_files:   t.List[str]
+    paths: t.List[str]
+    list_files: t.List[str]
     search_order: t.List[str]
-    terminal:     str = None
+    terminal: str = None
 
     @classmethod
     def from_kwargs(cls, **kwargs):
@@ -559,9 +567,12 @@ class GenericOpener(object):
         URLs substituted with the empty string ''.
         """
         cmd = self.format_cmd(cmd, entry, entry_path)
-        transform = lambda x: x
         if entry.get('Desktop Entry', {}).get('terminal', '').lower() == 'true':
-            transform = lambda cmd: self.terminal + ' -e ' + cmd
+            def transform(cmd):
+                return self.terminal + ' -e ' + cmd
+        else:
+            def transform(x):
+                return x
 
         url_flags = ('%F', '%U', '%f', '%u')
         if len(urls) == 0:
@@ -633,16 +644,17 @@ class GenericOpener(object):
 # TODO remove this warning once I've tested all implemented openers.
 
 @functools.lru_cache()
-def xdg_current_desktop(): # pylint: disable=missing-function-docstring
+def xdg_current_desktop():  # pylint: disable=missing-function-docstring
     return os.environ.get('XDG_CURRENT_DESKTOP', '')
 
 @functools.lru_cache()
-def desktop_session(): # pylint: disable=missing-function-docstring
+def desktop_session():  # pylint: disable=missing-function-docstring
     return os.environ.get('DESKTOP_SESSION', '')
 
 class Desktop(abc.ABC):
     """Abstract base class for a desktop environment with it's own `open' command.
     """
+
     def __init__(self, *args, **kwargs):
         self.args   = args
         self.kwargs = kwargs

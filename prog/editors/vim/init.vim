@@ -78,6 +78,7 @@ set guifont=Meslo\ LG\ M\ DZ                                                   "
 set selection=old                                                              " Fix bizarre eol behaviour in visual mode. See [[https://vi.stackexchange.com/questions/12607/extend-visual-selection-til-the-last-character-on-the-line-excluding-the-new-li][here]]
 set undofile                                                                   " Save undo history to undodir and reload on startup
 set undolevels=1000                                                            " Maximum number of undos allowed (has memory cost)
+set mouse=a                                                                    " Enable mouse interactions even in the terminal
 
 let g:netrw_banner=0                                                           " configure netrw to be more dired like
 let g:netrw_fastbrowse=1                                                       " cache directory entries only when remote
@@ -147,4 +148,9 @@ map gm :call SynStack()<CR>
 augroup help_splits
   autocmd!
   autocmd! BufEnter * if &ft ==# 'help' | wincmd L | endif
+augroup END
+
+augroup Mkdir
+  autocmd!
+  autocmd BufWritePre * call mkdir(expand("<afile>:p:h"), "p")
 augroup END

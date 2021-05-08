@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
-import subprocess
-import sys
-import time
-import re
+"""
+Misc sections for my tmux status-line. Here I throw in any status-line elements
+I haven't created any dedicated scripts for (... yet).
+"""
 
-from shared import render_loop, print_loop
+import re
+import subprocess
 from distutils.spawn import find_executable as which
 
+from shared import print_loop, render_loop
+
 def nordvpn(args):
+    """Nordvpn status-line section."""
     if not which('nordvpn'):
         return None
     proc = subprocess.run(['nordvpn', 'status'], capture_output=True)
@@ -18,13 +22,13 @@ def nordvpn(args):
     connected = match[1].lower() == 'connected'
     if args.nordvpn_hide and not connected:
         return None
-    ip = ''
+    ip_address = ''
     match = re.search('Your new IP: (.+)', out, re.IGNORECASE)
     if match:
-        ip = ' ' + match[1]
+        ip_address = ' ' + match[1]
     return (args.nordvpn_active_style if connected
             else args.nordvpn_inactive_style) \
-        + args.nordvpn_icon + args.reset_style + ip
+        + args.nordvpn_icon + args.reset_style + ip_address
 
 def status_misc(args):
     """Closure around args continually outputting meta-data.

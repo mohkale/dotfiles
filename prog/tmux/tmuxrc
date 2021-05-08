@@ -22,6 +22,11 @@ set -ga terminal-overrides ",*256col*:Tc,*24bit*:Tc"                 # enable tr
 set -s extended-keys on                                              # support [[https://github.com/tmux/tmux/wiki/Modifier-Keys#extended-keys][xterm]] extension keys
 set -as terminal-features 'st*:extkeys'                              # allow extended-keys with st just like xterm
 set -gq message-limit 10000                                          # Store upto this many messages in the log
+set -g set-clipboard on                                              # Save to clipboard but don't read back from it
+set -g copy-command clip                                             # Set executable used to copy to the clipboard
+set -g word-separators " =+!@#$%^&*,.<>/?;:\\|~`(){}[]\"'"           # Specify boundary for new-words (eg: forward-word)
+set -g repeat-time 300                                               # Interval over which you can repeat a repeatable keypress
+set -g wrap-search off                                               # Don't jump back to the first search after going forward from the last search
 
 # Assign the TERM environment variable depending on the current
 # terminal. I'll add support for other true-color terms as I use
@@ -170,16 +175,16 @@ bind -r C-k if -F '#{&&:#{@switch-pane-clamp},#{pane_at_top}}'    '' 'select-pan
 bind -r C-l if -F '#{&&:#{@switch-pane-clamp},#{pane_at_right}}'  '' 'select-pane -R'
 
 ## Numerical jumps
-bind M-0 command-prompt -p "index: " "select-pane -t ':%%'"
-bind M-1 select-pane -t 1
-bind M-2 select-pane -t 2
-bind M-3 select-pane -t 3
-bind M-4 select-pane -t 4
-bind M-5 select-pane -t 5
-bind M-6 select-pane -t 6
-bind M-7 select-pane -t 7
-bind M-8 select-pane -t 8
-bind M-9 select-pane -t 9
+bind C-0 command-prompt -p "index: " "select-pane -t ':%%'"
+bind C-1 select-pane -t 1
+bind C-2 select-pane -t 2
+bind C-3 select-pane -t 3
+bind C-4 select-pane -t 4
+bind C-5 select-pane -t 5
+bind C-6 select-pane -t 6
+bind C-7 select-pane -t 7
+bind C-8 select-pane -t 8
+bind C-9 select-pane -t 9
 
 bind 0 command-prompt -p index "select-window -t ':%%'"
 bind 1 select-window -t 1
@@ -230,6 +235,19 @@ bind -T off F12 \
   refresh-client -S
 
 # Script Bindings
+bind M-e run -b 'tmux new-window "tmux capture-pane -t #{pane_id} -p -S - | vipe"'
+bind M-l run -b '
+  if [ "#{pane_pipe}" -eq 1 ]; then\
+    tmux pipe-pane -t "#{pane_id}";\
+    tmux display-message "Killing existing pipe to pane #P in window #S for session #{session_name}";\
+  else
+    dest="$XDG_DATA_HOME/tmux/log-#S-#I-#P";\
+    tmux pipe-pane -t "#{pane_id}" -O "cat > $dest";\
+    tmux new-window "${PAGER:-less} +F $dest";\
+    tmux display-message "Piping current pane into $dest";\
+  fi;\
+'
+
 bind x switch-client -Tm-commands                                              # Custom key-table prefix
 
 # Proxy to [[/home/mohkale/.config/dotfiles/core/autoload/cmds/fztmuxinator][fztmuxinator]] using a tmux popup.
