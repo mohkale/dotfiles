@@ -1,4 +1,95 @@
-#!/bin/sh
-# usage: suggested [-a] [-h]
+#!/usr/bin/env bash
+# -*- +indent: 2 -*- Script to pick bots to install for the current host.
 
-echo "warning: suggested: not yet setup" >&2
+declare -A presets
+# Mapping from keywords/options to bots to install.
+#
+# The format is straightforward, each key is a presets containing a
+# list of bots (seperated by space) to install for that presets. You
+# can also suffix a presets with a platform to only enable it if the
+# presets is to be installed and we're on that platform.
+#
+# The special presets *default* is always installed.
+presets=(
+  # Configurations to always setup
+  [default]="tmux python wget bat gotop dropbox vlc cheat"
+  [default.doc]="Configurations that're always installed"
+  [default.windows]="powershell vscode"
+  [default.linux]="zsh wine nvim st lf ripgrep zathura"
+  [default.macos]=""
+
+  # Used for development machines where I intend to write code
+  [develop]="emacs ruby node go gdb markdownlint pylint pycodestyle rubocop shellcheck yamllint"
+  [develop.doc]="Development and code writing tools"
+
+  ## Used for torrent boxes which I use to download torrents
+  [torrent]="transmission tor"
+  [torrent.doc]="Torrent downloading and uploading configurations"
+
+  # Play games
+  [games]="steam"
+  [games.doc]="For machines where I like to play games, both modern and retro"
+  [games.windows]="gog"
+  [games.linux]="gba"
+
+  # Bots to install in a system designed for regular user use.
+  [user]="brave firefox gimp mail"
+  [user.doc]="General purpose programs for regular interactive use"
+  [user.windows]="itunes"
+  [user.linux]="lollypop"
+)
+
+preset_keys=$(printf '%s\n' "${!presets[@]}" | grep -v '\.\|^default$')
+
+read -r -d '' USAGE <<EOF
+Usage: suggested [-h] [-a] [-p PLATFORM] [PRESETS [...PRESETS]]
+
+  Pick valid bots to install on the current host system.
+
+Optional arguments:
+  PRESETS
+    One or more optional presetss to choose to setup. Must
+    be one of: {$(echo "$preset_keys" | tr '\n' ,)}
+  -h
+     Show this help message and exit
+  -a
+     Assume we want to install all presets
+  -p PLATFORM
+     Set the current platform to PLATFORM
+  -l
+     List available presets instead of bots
+EOF
+
+install_presets='' platform=''
+while getopts 'hap:l' OPTION; do
+  case "$OPTION" in
+    h) echo "$USAGE"; exit 0 ;;
+    \?) echo "$USAGE" >&2; exit 1 ;;
+    a) install_presets="$preset_keys" ;;
+    p) platform="$OPTARG" ;;
+    l) ps=$(printf "%s\n" "${!presets[@]}" | sed 's/\..*$//' | sort | uniq)
+       for p in $ps; do
+         echo -e "\e[0;35;1m$p\e[0m:${presets[$p.doc]}"
+       done < <(printf "%s\n" "${!presets[@]}" | sed 's/\..*$//' | sort | uniq) |
+         if command -v column >/dev/null 2>&1; then
+           column -t -s : -o ' - '
+         else
+           cat
+         fi
+       exit 0 ;;
+  esac
+done
+shift $((OPTIND - 1))
+[ -z "$install_presets" ] && install_presets="$*"
+
+[ -z "$platform" ] && platform=$(./bin/ls-platform)
+for preset in default $install_presets; do
+  # shellcheck disable=SC2086
+  printf "%s\n" ${presets[$preset]}
+  # shellcheck disable=SC2086
+  printf "%s\n" ${presets[$preset.$platform]}
+done |
+  sed '/^$/d' |
+  sort |
+  uniq |
+  tr '\n' ','

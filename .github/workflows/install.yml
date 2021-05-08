@@ -11,11 +11,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      # with:
+      #   submodules: true
     - name: Install dotfiles
       run: |-
         # Install all the recommended configurations for the current
         # platform.
-        bots=$(./setup/suggested -a | tr '\n' ,)
+        # bots=$(./setup/suggested | tr '\n' ,)
 
         # Actual installation of programs would take forever and constantly
         # spam a lot of package archives so we skip it.
@@ -29,7 +31,9 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v2
+      # with:
+      #   submodules: true
     - name: Run installation
       run: |-
-        # bots=$(./setup/suggested -a | tr '\n' ,)
+        # bots=$(./setup/suggested | tr '\n' ,)
         powershell ./manage.ps1 -l debug install -b "$bots" --except package,packages
