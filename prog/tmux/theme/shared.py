@@ -27,7 +27,8 @@ def render_loop(wrap):
             return
         except GeneratorExit:
             break
-        except Exception:  # pylint: disable=broad-except
+        except Exception as e:  # pylint: disable=broad-except,unused-variable
+            # print('error', e)
             yield ''
 
 def print_loop(it, unbuffer=False, sleep=False):

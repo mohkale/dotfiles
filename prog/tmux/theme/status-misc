@@ -4,8 +4,11 @@ Misc sections for my tmux status-line. Here I throw in any status-line elements
 I haven't created any dedicated scripts for (... yet).
 """
 
+# TODO: Support custom intervals for each section.
+
 import re
 import subprocess
+import logging
 from distutils.spawn import find_executable as which
 
 from shared import print_loop, render_loop
@@ -30,10 +33,45 @@ def nordvpn(args):
             else args.nordvpn_inactive_style) \
         + args.nordvpn_icon + args.reset_style + ip_address
 
+def notmuch(args):
+    """notmuch mail status-line section."""
+    if not which('notmuch'):
+        return None
+    # Mapping search queries to the style string to apply for them.
+    tag_styles = {
+        'tag:unread': args.notmuch_unread_style,
+        'tag:flagged': args.notmuch_flagged_style,
+    }
+    proc = subprocess.run(['notmuch', 'count', '--batch'], capture_output=True,
+                          input='\n'.join(tag_styles.keys()), encoding='ascii')
+    if proc.returncode != 0:
+        return None
+    counts = [(None if x == '0' and args.notmuch_hide_zero
+               else (args.notmuch_format.format(int(x))))
+              if x.isdigit() else '?'
+              for x in proc.stdout.rstrip().split('\n')]
+    if len(counts) != len(tag_styles):
+        logging.error('notmuch: count/search length mismatch: %d/%d', len(counts), len(tag_styles))
+        return None
+    res = []
+    for count, style in zip(counts, tag_styles.values()):
+        if not count:
+            continue
+        if style:
+            count = style + count + args.reset_style
+        res.append(count)
+    if res:
+        icon = args.notmuch_icon
+        if args.notmuch_icon_style:
+            icon = args.notmuch_icon_style + icon + args.reset_style
+        res.insert(0, icon)
+    return ' '.join(res)
+
 def status_misc(args):
     """Closure around args continually outputting meta-data.
     """
-    statuses = [x for x in (args.nordvpn,) if x]
+    statuses = [x for x in (args.nordvpn,
+                            args.notmuch,) if x]
 
     def wrapped():
         msgs = (x(args) for x in statuses)
@@ -62,12 +100,34 @@ if __name__ == '__main__':
     nvpngroup.add_argument('--nordvpn-hide',
                            action='store_true',
                            help='Hide nordvpn status when disconnected')
-    nvpngroup.add_argument('--nordvpn-active-style', metavar='STYLE',
-                           default='',
+    nvpngroup.add_argument('--nordvpn-active-style',
+                           default='', metavar='STYLE',
                            help='Styling for an active nordvpn connection.')
-    nvpngroup.add_argument('--nordvpn-inactive-style', metavar='STYLE',
-                           default='',
+    nvpngroup.add_argument('--nordvpn-inactive-style',
+                           default='', metavar='STYLE',
                            help='Styling for an inactive nordvpn connection.')
+
+    notmuchgroup = parser.add_argument_group('notmuch mail')
+    notmuchgroup.add_argument('--notmuch',
+                              action='store_const', const=notmuch,
+                              help='Show indicator for nordvpn status.')
+    notmuchgroup.add_argument('--notmuch-format',
+                              default='{:02d}',
+                              help='Format string for notmuch mail counts.')
+    notmuchgroup.add_argument('--notmuch-icon', default='M', metavar='ICON',
+                              help='Icon shown to indicate notmuch status.')
+    notmuchgroup.add_argument('--notmuch-icon-style',
+                              default='', metavar='STYLE',
+                              help='Styling for notmuch mail icon')
+    notmuchgroup.add_argument('--notmuch-hide-zero',
+                              action='store_true',
+                              help="When true don't show empty mail entries")
+    notmuchgroup.add_argument('--notmuch-unread-style',
+                              default='', metavar='STYLE',
+                              help='Styling for unread emails.')
+    notmuchgroup.add_argument('--notmuch-flagged-style',
+                              default='', metavar='STYLE',
+                              help='Styling for flagged emails.')
 
     parser.add_argument('--sep', metavar='STRING', default=' ',
                         help='Concatenate status indicators with STRING')
