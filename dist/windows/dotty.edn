@@ -1,7 +1,7 @@
 ;; -*- mode: clojure -*-
 (
- (:import "../prog/chocolatey"
-          "../prog/desktop/windows")
+ (:import "../../prog/chocolatey"
+          "../../prog/desktop/windows")
 
  ;; setup msys, the unix like environment for windows
  (:packages (:choco "msys2" "cyg-get"))
@@ -40,7 +40,7 @@
 
  (:packages (:cygwin "envsubst"))
 
- (:import "../prog/git")
+ (:import "../../prog/git")
 
  ;; A terminal wrapper to support some modern escape codes on the archaic
  ;; windows platform.
@@ -58,6 +58,6 @@
                 EOF"})
 
  ;; some extra cool windows additions
- (:import "../prog/wsl"
-          "../prog/cmder")
+ (:import "../../prog/wsl"
+          "../../prog/cmder")
 )

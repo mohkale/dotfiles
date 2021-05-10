@@ -1,5 +1,3 @@
-<!-- -*- mode: markdown -*- -->
-
 # Distribution
 
 Distribution specific configurations. These configs install and setup the prerequisites
