@@ -66,6 +66,7 @@ IFS=$'\n'
 for var in $xdgvars; do
   export "${var?}"
 done
+export DOTFILES="$root"
 
 # Run dotty
 "$dotty_path" "$@"
