@@ -108,6 +108,7 @@ fc      fzcheat
 cw      bulkrename
 lc      lfcd
 og      open_game
+pm      skeletor create
 
 dota    a $DOTFILES
 dotA    A $DOTFILES

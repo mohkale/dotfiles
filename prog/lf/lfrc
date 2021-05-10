@@ -547,6 +547,18 @@ cmd bulkchmod ${{
     lf -remote "send $id reload"
 }}
 
+map pm push :skeletor<space>
+cmd skeletor ${{
+    out="$*"
+    if [ -z "$out" ]; then
+        out=$(pwd)
+        echo "warning: no dest directory supplied, defaulting to: $out" >&2
+    fi
+
+    skeletor create -o "$out"
+    lf -remote "send $id cd \"$out\""
+}}
+
 # Editor
 map oe evi
 cmd evi ${{

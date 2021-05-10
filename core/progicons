@@ -80,4 +80,8 @@ wget        
 curl        
 make        
 jq          
+mbsync      
+mail        
+mu          
+notmuch     
 *           ﲎ

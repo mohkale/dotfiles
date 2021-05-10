@@ -31,28 +31,25 @@ Recent URLs[$e]=file:$HOME/,file:$HOME/documents/
 iconViewIconSize=43
 
 [KPropertiesDialog]
-DP-1 Height 1920x1080=520
-DP-1 Width 1920x1080=438
+DP-1 Height 1920x1080=458
+DP-1 Width 1920x1080=326
 
 [MainWindow]
-DP-1 Height 1920x1080=1035
+DP-1 Height 1920x1080=802
 DP-1 Width 1920x1080=1010
 DP-1 XPosition 1920x1080=910
-DP-1 YPosition 1920x1080=45
+DP-1 YPosition 1920x1080=278
 MenuBar=Disabled
 RestorePositionForNextInstance=false
-State=AAAA/wAAAAD9AAAAAgAAAAAAAADFAAAD3fwCAAAAA/sAAAAWAGYAbwBsAGQAZQByAHMARABvAGMAawAAAAAA/////wAAAAoBAAAD+wAAABQAcABsAGEAYwBlAHMARABvAGMAawEAAAAuAAAB5gAAAF0BAAAD+wAAABAAaQBuAGYAbwBEAG8AYwBrAQAAAhUAAAH2AAABDwEAAAMAAAADAAAAAAAAAAD8AQAAAAH7AAAAGAB0AGUAcgBtAGkAbgBhAGwARABvAGMAawAAAAAA/////wAAAAoBAAADAAADLAAAA90AAAAEAAAABAAAAAgAAAAI/AAAAAEAAAACAAAAAQAAABYAbQBhAGkAbgBUAG8AbwBsAEIAYQByAQAAAAD/////AAAAAAAAAAA=
+State=AAAA/wAAAAD9AAAAAgAAAAAAAADFAAAC9PwCAAAAA/sAAAAWAGYAbwBsAGQAZQByAHMARABvAGMAawAAAAAA/////wAAAAoBAAAD+wAAABQAcABsAGEAYwBlAHMARABvAGMAawEAAAAuAAABdQAAAF0BAAAD+wAAABAAaQBuAGYAbwBEAG8AYwBrAQAAAaQAAAF+AAABDwEAAAMAAAADAAAAAAAAAAD8AQAAAAH7AAAAGAB0AGUAcgBtAGkAbgBhAGwARABvAGMAawAAAAAA/////wAAAAoBAAADAAADLAAAAvQAAAAEAAAABAAAAAgAAAAI/AAAAAEAAAACAAAAAQAAABYAbQBhAGkAbgBUAG8AbwBsAEIAYQByAQAAAAD/////AAAAAAAAAAA=
 ToolBarsMovable=Disabled
 
 [Open-with settings]
 CompletionMode=1
-History=vim,zath,neovim
+History=brave,vim,zath,neovim
 
 [PreviewSettings]
 Plugins=appimagethumbnail,audiothumbnail,comicbookthumbnail,cursorthumbnail,djvuthumbnail,ebookthumbnail,exrthumbnail,directorythumbnail,fontthumbnail,imagethumbnail,jpegthumbnail,kraorathumbnail,windowsexethumbnail,windowsimagethumbnail,opendocumentthumbnail,svgthumbnail
-
-[Search]
-Location=Everywhere
 
 [SettingsDialog]
 DP-1 Height 1920x1080=440
