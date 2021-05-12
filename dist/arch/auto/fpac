@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# -*- +indent: 2 -*- Interactively install packages through pacman (or yay).
+
+fpac() {
+  local search_args
+  search_args=(
+    # 1. Get list of available packages
+    # 2. Preview args
+    # 3. Installation script
+  )
+  local fzf_args
+  fzf_args=( --multi )
+  read -r -d '' USAGE <<-EOF
+Usage: fpac [-h] [-i|-u] QUERY
+EOF
+  read -r -d '' HELP <<-EOF
+$USAGE
+
+Optional arguments:
+  -h  Show this help message and exit
+  -i  Install or reinstall packages
+  -u  Uninstall installed packages
+EOF
+  set -- -i "$@" # By default we install
+  while getopts 'iuh' OPTION; do
+    case "$OPTION" in
+      h) echo "$HELP"
+         return 0 ;;
+      i) search_args=( -Slq -Si -S ) ;;
+      u) search_args=( -Qq -Qi -Rns ) ;;
+      \?) echo "$USAGE"
+          return 1 ;;
+    esac
+  done
+  shift $((OPTIND - 1))
+  [ -z "$*" ] || fzf_args+=( --query "$*" )
+
+  local bin; bin=pacman
+  if command -v yay >/dev/null 2>&1; then
+    bin=yay
+  fi
+
+  local pkgs
+  if pkgs=$("$bin" "${search_args[1]}" | _fzf "${fzf_args[@]}" --preview "$bin"' '"${search_args[2]}"' {1}'); then
+    xargs -r \
+          -d '\n' \
+          -a <(echo "$pkgs") \
+          "$bin" "${search_args[3]}"
+  fi
+}
