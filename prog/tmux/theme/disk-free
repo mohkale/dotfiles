@@ -93,9 +93,9 @@ def format_mount(entry, fmt, args):
     res = ''
     res += args.mount_style + entry.name + args.reset_style
     res += ':' + args.value_style
-    for threshold, st in args.thresholds:
+    for threshold, style in args.thresholds:
         if percent >= threshold:
-            res += st
+            res += style
             break
     res += fmt(usage, percent)
     return res

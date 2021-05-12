@@ -6,75 +6,235 @@ I haven't created any dedicated scripts for (... yet).
 
 # TODO: Support custom intervals for each section.
 
-import re
-import subprocess
+import abc
 import logging
+import re
+import os
+import subprocess
+import typing
+import pathlib
 from distutils.spawn import find_executable as which
+
+import requests.exceptions
 
 from shared import print_loop, render_loop
 
-def nordvpn(args):
-    """Nordvpn status-line section."""
-    if not which('nordvpn'):
-        return None
-    proc = subprocess.run(['nordvpn', 'status'], capture_output=True)
-    out = proc.stdout.decode('utf-8')
-    match = re.search(r'Status: (.+)', out, flags=re.IGNORECASE)
-    if not match:
-        return None
-    connected = match[1].lower() == 'connected'
-    if args.nordvpn_hide and not connected:
-        return None
-    ip_address = ''
-    match = re.search('Your new IP: (.+)', out, re.IGNORECASE)
-    if match:
-        ip_address = ' ' + match[1]
-    return (args.nordvpn_active_style if connected
-            else args.nordvpn_inactive_style) \
-        + args.nordvpn_icon + args.reset_style + ip_address
 
-def notmuch(args):
-    """notmuch mail status-line section."""
-    if not which('notmuch'):
-        return None
-    # Mapping search queries to the style string to apply for them.
-    tag_styles = {
-        'tag:unread': args.notmuch_unread_style,
-        'tag:flagged': args.notmuch_flagged_style,
-    }
-    proc = subprocess.run(['notmuch', 'count', '--batch'], capture_output=True,
-                          input='\n'.join(tag_styles.keys()), encoding='ascii')
-    if proc.returncode != 0:
-        return None
-    counts = [(None if x == '0' and args.notmuch_hide_zero
-               else (args.notmuch_format.format(int(x))))
-              if x.isdigit() else '?'
-              for x in proc.stdout.rstrip().split('\n')]
-    if len(counts) != len(tag_styles):
-        logging.error('notmuch: count/search length mismatch: %d/%d', len(counts), len(tag_styles))
-        return None
-    res = []
-    for count, style in zip(counts, tag_styles.values()):
-        if not count:
-            continue
+class StatusMiscSegment(abc.ABC):
+    """Root class for a status line segment.
+    """
+
+    def __init__(self, args):
+        self.__dict__.update({key.removeprefix(self.name + '_'): value
+                              for key, value in vars(args).items()
+                              if key.startswith(self.name)})
+        self.args = args
+
+    @abc.abstractproperty
+    def name(self):
+        """The name of the current segment (used in --enable)."""
+
+    @abc.abstractclassmethod
+    def parser_args(cls, parser):
+        """Assign any command line arguments for this segment.
+
+        Each command line arg should be prefixed by this segments name
+        which will make them be assigned as local variables in this
+        segment.
+        """
+
+    @abc.abstractmethod
+    def render(self) -> typing.Optional[str]:
+        """Render this status line segment."""
+
+    def _style(self, msg, style):
         if style:
-            count = style + count + args.reset_style
-        res.append(count)
-    if res:
-        icon = args.notmuch_icon
-        if args.notmuch_icon_style:
-            icon = args.notmuch_icon_style + icon + args.reset_style
-        res.insert(0, icon)
-    return ' '.join(res)
+            msg = style + msg + self.args.reset_style
+        return msg
+
+class NordVPNSegment(StatusMiscSegment):
+    """Status line segment showing NordVPN status."""
+
+    name = 'nordvpn'
+
+    @classmethod
+    def parser_args(cls, parser):
+        nvpn = parser.add_argument_group('Nord VPN')
+        nvpn.add_argument(f'--{cls.name}-icon', default='N', metavar='ICON',
+                          help='Icon shown to indicate nordvpn status.')
+        nvpn.add_argument(f'--{cls.name}-hide',
+                          action='store_true',
+                          help='Hide nordvpn status when disconnected')
+        nvpn.add_argument(f'--{cls.name}-active-style',
+                          default='', metavar='STYLE',
+                          help='Styling for an active nordvpn connection.')
+        nvpn.add_argument(f'--{cls.name}-inactive-style',
+                          default='', metavar='STYLE',
+                          help='Styling for an inactive nordvpn connection.')
+
+    def render(self):
+        """Nordvpn status-line section."""
+        # pylint: disable=no-member
+        if not which('nordvpn'):
+            return None
+        proc = subprocess.run(['nordvpn', 'status'], capture_output=True, encoding='utf-8')
+        match = re.search(r'Status: (.+)', proc.stdout, flags=re.IGNORECASE)
+        if not match:
+            return None
+        connected = match[1].lower() == 'connected'
+        if args.nordvpn_hide and not connected:
+            return None
+        ip_address = ''
+        match = re.search('Your new IP: (.+)', proc.stdout, re.IGNORECASE)
+        if match:
+            ip_address = ' ' + match[1]
+        return self._style(self.icon,
+                           self.active_style if connected else self.inactive_style) + ip_address
+
+class NotMuchSegment(StatusMiscSegment):
+    """Status line segment showing number of unread emails."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # pylint: disable=no-member
+        self.tag_styles = {
+            'tag:unread': self.unread_style,
+            'tag:flagged': self.flagged_style,
+        }
+
+    name = 'notmuch'
+
+    @classmethod
+    def parser_args(cls, parser):
+        notmuch_group = parser.add_argument_group('Notmuch Mail')
+        notmuch_group.add_argument(f'--{cls.name}-format',
+                                   default='{:02d}',
+                                   help='Format string for notmuch mail counts.')
+        notmuch_group.add_argument(f'--{cls.name}-icon', default='M', metavar='ICON',
+                                   help='Icon shown to indicate notmuch status.')
+        notmuch_group.add_argument(f'--{cls.name}-icon-style',
+                                   default='', metavar='STYLE',
+                                   help='Styling for notmuch mail icon')
+        notmuch_group.add_argument(f'--{cls.name}-hide-zero',
+                                   action='store_true',
+                                   help="When true don't show empty mail entries")
+        notmuch_group.add_argument(f'--{cls.name}-unread-style',
+                                   default='', metavar='STYLE',
+                                   help='Styling for unread emails.')
+        notmuch_group.add_argument(f'--{cls.name}-flagged-style',
+                                   default='', metavar='STYLE',
+                                   help='Styling for flagged emails.')
+
+    def render(self):
+        # pylint: disable=no-member
+        if not which('notmuch'):
+            return None
+        # Mapping search queries to the style string to apply for them.
+        proc = subprocess.run(['notmuch', 'count', '--batch'], capture_output=True,
+                              input='\n'.join(self.tag_styles.keys()), encoding='ascii')
+        if proc.returncode != 0:
+            return None
+        counts = [(None if x == '0' and self.hide_zero
+                   else (self.format.format(int(x))))
+                  if x.isdigit() else '?'
+                  for x in proc.stdout.rstrip().split('\n')]
+        if len(counts) != len(self.tag_styles):
+            logging.error('notmuch: count/search length mismatch: %d/%d', len(counts), len(self.tag_styles))
+            return None
+        res = []
+        for count, style in zip(counts, self.tag_styles.values()):
+            if not count:
+                continue
+            res.append(self._style(count, style))
+        if res and self.icon:
+            res.insert(0, self._style(self.icon, self.icon_style))
+        return ' '.join(res)
+
+class GithubNotificationsSegment(StatusMiscSegment):
+    """Status line segment showing number of github notifications."""
+
+    name = 'github'
+
+    @classmethod
+    def parser_args(cls, parser):
+        github_group = parser.add_argument_group('Github Notifications')
+        github_group.add_argument(f'--{cls.name}-format',
+                                  default='{:02d}',
+                                  help='Format string for github notification counts.')
+        github_group.add_argument(f'--{cls.name}-icon', default='G', metavar='ICON',
+                                  help='Icon shown to indicate github status.')
+        github_group.add_argument(f'--{cls.name}-icon-style',
+                                  default='', metavar='STYLE',
+                                  help='Styling for github icon')
+        github_group.add_argument(f'--{cls.name}-hide-zero', action='store_true',
+                                  help="When true don't show when no icons.")
+        github_group.add_argument(f'--{cls.name}-count-style',
+                                  default='', metavar='STYLE',
+                                  help='Styling for github notification count.')
+        github_group.add_argument(f'--{cls.name}-config', type=pathlib.Path,
+                                  default=pathlib.Path(os.path.expandvars('$TMUX_HOME/github-api.key')),
+                                  help='Specify mount map configuration file')
+
+    _client = None
+
+    @property
+    def client(self):
+        """Github client."""
+        if not self._client:
+            try:
+                # pip install pygithub
+                # pylint: disable=import-outside-toplevel
+                import github
+            except ImportError:
+                logging.warning('Failed to import github')
+                return None
+            pass_key = self.api_pass
+            if not pass_key:
+                return None
+            self._client = github.Github(pass_key)
+        return self._client
+
+    @property
+    def api_pass(self):
+        """API Key for accessing github notifications."""
+        # pylint: disable=no-member
+        # TODO: Re-read when key files been modified
+        if not self.config.exists():
+            logging.warning("Github status line section can't access key file: %s", self.config)
+            return None
+        with self.config.open('r') as f:
+            return f.read().strip()
+
+    def render(self):
+        # pylint: disable=no-member
+        client = self.client
+        if not client:
+            return None
+        try:
+            count = client.get_user().get_notifications().totalCount
+        except requests.exceptions.RequestException:
+            return None
+        if self.hide_zero and count == 0:
+            return None
+        return ' '.join(x for x in [
+            self._style(self.icon, self.icon_style),
+            self._style(self.format.format(count), self.count_style),
+        ] if x)
 
 def status_misc(args):
-    """Closure around args continually outputting meta-data.
+    """Closure around args continually outputting meta-segments.
     """
-    statuses = [x for x in (args.nordvpn,
-                            args.notmuch,) if x]
+    statuses = [x.render for x in args.enable]
 
     def wrapped():
-        msgs = (x(args) for x in statuses)
+        msgs = []
+        for x in statuses:
+            # pylint: disable=unused-variable
+            try:
+                msgs.append(x())
+            except Exception as e:  # pylint: disable=broad-except
+                # print(e)
+                continue
         msgs = [x for x in msgs if x]
         if msgs:
             return args.sep.join(msgs) + args.suffix
@@ -87,47 +247,16 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
 
+    SEGMENTS = {x.name: x for x in StatusMiscSegment.__subclasses__()}
+
     parser.add_argument('--suffix',
                         metavar='FORMAT', default='',
                         help='Suffix output with FORMAT.')
 
-    nvpngroup = parser.add_argument_group('Nord VPN')
-    nvpngroup.add_argument('--nordvpn',
-                           action='store_const', const=nordvpn,
-                           help='Show indicator for nordvpn status.')
-    nvpngroup.add_argument('--nordvpn-icon', default='N', metavar='ICON',
-                           help='Icon shown to indicate nordvpn status.')
-    nvpngroup.add_argument('--nordvpn-hide',
-                           action='store_true',
-                           help='Hide nordvpn status when disconnected')
-    nvpngroup.add_argument('--nordvpn-active-style',
-                           default='', metavar='STYLE',
-                           help='Styling for an active nordvpn connection.')
-    nvpngroup.add_argument('--nordvpn-inactive-style',
-                           default='', metavar='STYLE',
-                           help='Styling for an inactive nordvpn connection.')
-
-    notmuchgroup = parser.add_argument_group('notmuch mail')
-    notmuchgroup.add_argument('--notmuch',
-                              action='store_const', const=notmuch,
-                              help='Show indicator for nordvpn status.')
-    notmuchgroup.add_argument('--notmuch-format',
-                              default='{:02d}',
-                              help='Format string for notmuch mail counts.')
-    notmuchgroup.add_argument('--notmuch-icon', default='M', metavar='ICON',
-                              help='Icon shown to indicate notmuch status.')
-    notmuchgroup.add_argument('--notmuch-icon-style',
-                              default='', metavar='STYLE',
-                              help='Styling for notmuch mail icon')
-    notmuchgroup.add_argument('--notmuch-hide-zero',
-                              action='store_true',
-                              help="When true don't show empty mail entries")
-    notmuchgroup.add_argument('--notmuch-unread-style',
-                              default='', metavar='STYLE',
-                              help='Styling for unread emails.')
-    notmuchgroup.add_argument('--notmuch-flagged-style',
-                              default='', metavar='STYLE',
-                              help='Styling for flagged emails.')
+    # NOTE: The orders of these determines order in output.
+    parser.add_argument('--enable',
+                        metavar='SEGMENT', action='append', default=[],
+                        help='Enable a segment, one of: ' + ', '.join(SEGMENTS.keys()))
 
     parser.add_argument('--sep', metavar='STRING', default=' ',
                         help='Concatenate status indicators with STRING')
@@ -138,8 +267,15 @@ if __name__ == '__main__':
     parser.add_argument('-s', '--sleep', type=int,
                         help='When given, wait this duration between outputting')
 
+    for segment in StatusMiscSegment.__subclasses__():
+        segment.parser_args(parser)
+
     args  = parser.parse_args()
-    vargs = vars(args)
+
+    for i, segment in enumerate(args.enable):
+        if segment not in SEGMENTS:
+            parser.error(f'Unknown segment enabled: {segment}')
+        args.enable[i] = SEGMENTS[segment](args)
 
     try:
         print_loop(render_loop(status_misc(args)), args.unbuffer, args.sleep)
