@@ -43,7 +43,7 @@ EOF
   [ -z "$*" ] || fzf_args+=( -q "$*" )
 
   local root=${PASSWORD_STORE_DIR:-$HOME/.pass}
-  find "$root" -mindepth 1 \
+  find -L "$root" -mindepth 1 \
        \( -iname '.*' -and -prune \) -or \
        -type f -iname '*.gpg' -printf '%h:%f\n' |
     # We color code directories and files independently.

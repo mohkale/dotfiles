@@ -1,4 +1,5 @@
 #!/bin/sh
+# -*- +indent: 2 -*- notmuch synchronisation script.
 
 # Sync mail files from all configured remotes
 mbsync --verbose -c "$XDG_CONFIG_HOME"/isync/mbsyncrc all
@@ -7,11 +8,16 @@ mbsync --verbose -c "$XDG_CONFIG_HOME"/isync/mbsyncrc all
 notmuch new
 
 # Automatically read and flag any emails from myself
-notmuch tag -new -unread +flagged -- tag:new and from:"mohsin kaleem"
+notmuch tag -new +inbox -unread +flagged -- tag:new and from:"mohsin kaleem" and to:"mohsin kaleem"
 
 # Automatically mark developer related content
-notmuch tag -new +dev -- tag:new and from:help-debbugs@gnu.org
-notmuch tag -new +dev -- tag:new and from:@github.com
+notmuch tag -new +inbox +dev -- tag:new and from:help-debbugs@gnu.org
+notmuch tag -new +inbox +dev -- tag:new and from:@github.com
+
+# Tag any mail in the bin as deleted.
+notmuch tag +deleted -inbox -unread -- folder:'/\[Gmail\]/' and folder:'/Bin$/'
+notmuch tag +spam    -inbox -unread -- folder:'/\[Gmail\]/' and folder:'/Spam$/'
+notmuch tag +deleted -inbox -unread -- folder:'/^kisara\/Trash/'
 
 # Remove new tag and attach defaults for rest of new mail
 notmuch tag +inbox +unread -new -- tag:new

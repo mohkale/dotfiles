@@ -17,6 +17,9 @@ nnoremap <leader>te :set readonly!<cr>
 nnoremap <leader>tn :set relativenumber! number!<cr>
 nnoremap <leader>sc :nohlsearch<cr>
 nnoremap <leader>ff :edit<Space>
+nnoremap <leader>fy :let @+ = expand("%:p")<CR>:echo expand("%:p")<CR>
+nnoremap <leader>fu :let @+ = expand("%:p:h")<CR>:echo expand("%:p:h")<CR>
+nnoremap <leader>f% :let @+ = expand("%:t")<CR>:echo expand("%:t")<CR>
 nnoremap <leader>jd :edit .<cr>
 nnoremap <leader>xd gu
 nnoremap <leader>xu gU

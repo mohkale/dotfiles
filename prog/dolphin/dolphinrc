@@ -23,7 +23,7 @@ ViewPropsTimestamp=2021,2,28,17,27,2.598
 [IconsMode]
 FontWeight=50
 IconSize=176
-PreviewSize=160
+PreviewSize=176
 
 [KFileDialog Settings]
 Recent Files[$e]=file:$HOME/dolphin.shortcuts,file:$HOME/dolphin.shortcuts
@@ -31,22 +31,22 @@ Recent URLs[$e]=file:$HOME/,file:$HOME/documents/
 iconViewIconSize=43
 
 [KPropertiesDialog]
-DP-1 Height 1920x1080=458
-DP-1 Width 1920x1080=326
+DP-1 Height 1920x1080=486
+DP-1 Width 1920x1080=438
 
 [MainWindow]
-DP-1 Height 1920x1080=802
-DP-1 Width 1920x1080=1010
-DP-1 XPosition 1920x1080=910
-DP-1 YPosition 1920x1080=278
+DP-1 Height 1920x1080=1051
+DP-1 Width 1920x1080=1038
+DP-1 XPosition 1920x1080=882
+DP-1 YPosition 1920x1080=29
 MenuBar=Disabled
 RestorePositionForNextInstance=false
-State=AAAA/wAAAAD9AAAAAgAAAAAAAADFAAAC9PwCAAAAA/sAAAAWAGYAbwBsAGQAZQByAHMARABvAGMAawAAAAAA/////wAAAAoBAAAD+wAAABQAcABsAGEAYwBlAHMARABvAGMAawEAAAAuAAABdQAAAF0BAAAD+wAAABAAaQBuAGYAbwBEAG8AYwBrAQAAAaQAAAF+AAABDwEAAAMAAAADAAAAAAAAAAD8AQAAAAH7AAAAGAB0AGUAcgBtAGkAbgBhAGwARABvAGMAawAAAAAA/////wAAAAoBAAADAAADLAAAAvQAAAAEAAAABAAAAAgAAAAI/AAAAAEAAAACAAAAAQAAABYAbQBhAGkAbgBUAG8AbwBsAEIAYQByAQAAAAD/////AAAAAAAAAAA=
+State=AAAA/wAAAAD9AAAAAgAAAAAAAADxAAAD7fwCAAAAA/sAAAAWAGYAbwBsAGQAZQByAHMARABvAGMAawAAAAAA/////wAAAAoBAAAD+wAAABQAcABsAGEAYwBlAHMARABvAGMAawEAAAAuAAACywAAAF0BAAAD+wAAABAAaQBuAGYAbwBEAG8AYwBrAQAAAvoAAAEhAAABIQEAAAMAAAADAAAAAAAAAAD8AQAAAAH7AAAAGAB0AGUAcgBtAGkAbgBhAGwARABvAGMAawAAAAAA/////wAAAAoBAAADAAADHAAAA+0AAAAEAAAABAAAAAgAAAAI/AAAAAEAAAACAAAAAQAAABYAbQBhAGkAbgBUAG8AbwBsAEIAYQByAQAAAAD/////AAAAAAAAAAA=
 ToolBarsMovable=Disabled
 
 [Open-with settings]
 CompletionMode=1
-History=brave,vim,zath,neovim
+History=vlc,brave,vim,zath,neovim
 
 [PreviewSettings]
 Plugins=appimagethumbnail,audiothumbnail,comicbookthumbnail,cursorthumbnail,djvuthumbnail,ebookthumbnail,exrthumbnail,directorythumbnail,fontthumbnail,imagethumbnail,jpegthumbnail,kraorathumbnail,windowsexethumbnail,windowsimagethumbnail,opendocumentthumbnail,svgthumbnail

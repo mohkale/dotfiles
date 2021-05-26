@@ -65,7 +65,6 @@ CommandWindow3=Activate and pass click
 CommandWindowWheel=Scroll
 
 [NightColor]
-Active=true
 LatitudeAuto=53.3678
 LongitudeAuto=-1.5065
 Mode=Constant

@@ -4,10 +4,10 @@ name: tortrans
 windows:
   - interface:
       # need to sleep or tremc will crash because daemon isn't recieving yet.
-      panes: |-
-          sleep 1
-          cd ~/
-          tremc --skip-version-check
+      panes:
+        - - sleep 1
+          - cd ~/
+          - tremc --skip-version-check
   - watcher:
       # vertically split with left hand side wider than right.
       layout: 47f0,228x23,0,0{137x23,0,0,1,90x23,138,0,2}
@@ -15,6 +15,6 @@ windows:
         - stdbuf -oL transmission-daemon --foreground --log-error --log-info --log-debug | tee -a "${XDG_CACHE_HOME:-$HOME/.cache}/transmission.log"
         - $XDG_CONFIG_HOME/transmission-daemon/cmds/watcher -l DEBUG $XDG_CONFIG_HOME/transmission-daemon/watcher.json
   - puddle:
-      panes: |-
-        cd -q $XDG_DATA_HOME/puddle || exit 0
-        npm run serve:production
+      panes:
+        - - cd -q $XDG_DATA_HOME/puddle || exit 0
+          - npm run serve:production
