@@ -219,6 +219,7 @@ progicons@file   $XDG_CONFIG_HOME/progicons
 prompt@file      $XDG_CONFIG_HOME/prompt
 emacsrc@file     $XDG_CONFIG_HOME/lisp/+config.el
 tmuxrc@file      $TMUX_HOME/tmux.conf
+brain@dirx       $XDG_DOCUMENTS_DIR/brain
 
 h@dirx           ~
 gh@dirx          ~
