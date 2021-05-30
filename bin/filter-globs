@@ -2,6 +2,7 @@
 """
 Filter stdin based on glob patterns.
 """
+
 import os
 import sys
 import fnmatch

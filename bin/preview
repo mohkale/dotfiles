@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Preview files and directories, originally sourced from [[https://github.com/gokcehan/lf/wiki/Ranger][rifle]] -*- +indent: 2 -*-
+# -*- +indent: 2 -*- Preview files and directories, originally sourced from [[https://github.com/gokcehan/lf/wiki/Ranger][rifle]]
 
 # IFS=$'\n'
 set -o pipefail -o noclobber -o noglob -o nounset

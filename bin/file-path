@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Allow cut like operations in bash
+Allow cut like operations in bash.
 
 This script takes a bunch of paths, makes them absolute, then
 prints them back out in a way that's safe to insert into a

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# bash/zsh git prompt support
+# bash/zsh git prompt support.
 #
-# adapted from [[https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh][git-promp]] to be usable as a standalone script.
+# Adapted from [[https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh][git-promp]] to be usable as a standalone script.
 # git-prompt has a tonne of cool features, but I really only
 # need branch/rebase info so this is a skimmed down version.
 

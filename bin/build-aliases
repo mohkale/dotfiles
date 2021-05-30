@@ -1,5 +1,6 @@
 #!/bin/bash
 # -*- +indent: 2 -*-
+# Build alias declarations from my alias files, see [[file:~/.config/dotfiles/core/aliases/][aliases]].
 
 set -e
 

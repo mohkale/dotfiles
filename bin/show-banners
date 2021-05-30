@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Show an ascii art banner, see [[file:~/.config/dotfiles/core/banners/][banners]].
+
 set -e
 
 print_usage() {

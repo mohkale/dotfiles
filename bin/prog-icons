@@ -1,5 +1,5 @@
 #!/bin/sh
-# Associate programs with icons using a human readable config.
+# Associate programs with icons using a human readable config, see [[file:~/.config/dotfiles/core/progicons][progicons]].
 
 fallback=""
 conf_file="${XDG_CONFIG_HOME:-$HOME/.config}/progicons"

@@ -1,8 +1,4 @@
 #!/usr/bin/env python3
-# pylint: disable=too-many-lines, missing-module-docstring, line-too-long
-# pylint: disable=multiple-statements, disable=invalid-name, subprocess-run-check
-# pylint: disable=useless-object-inheritance, missing-class-docstring
-
 """
 A utility script to open a URL in the registered default application.
 
@@ -13,9 +9,13 @@ way to keep a persistent version of xdg-open across all my files.
 
 For why this is necessary, look no further than [[https://cgit.freedesktop.org/xdg/xdg-utils/commit/?id=2373d9b2b70652e447b413cde7939bff42fb960d][here]]. This script takes
 more than a little inspiration from [[https://github.com/wor/pyxdg-open][pyxdg-open]].
-
-TODO finish add async support.
 """
+
+# pylint: disable=too-many-lines, missing-module-docstring, line-too-long
+# pylint: disable=multiple-statements, disable=invalid-name, subprocess-run-check
+# pylint: disable=useless-object-inheritance, missing-class-docstring
+
+# TODO: finish add async support.
 
 import os
 import re

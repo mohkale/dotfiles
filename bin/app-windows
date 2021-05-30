@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# output the X-window spec for every currently open emacs frame.
+# Output the X-window spec for every currently open emacs frame.
 
 print_usage() {
     echo "Usage: app-windows [-h] [-t TITLE] [COMMAND]"

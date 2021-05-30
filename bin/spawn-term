@@ -1,5 +1,5 @@
 #!/usr/bin/sh
-# creates a new floating terminal for interactive program execution.
+# Creates a new floating terminal for interactive program execution.
 
 # forked from: https://github.com/oem/dotfiles/blob/master/fuzzy/fuzzy_win
 if [ "$#" -eq 0 ]; then
@@ -67,4 +67,3 @@ sh_command=st_cmd
 xdotool search --onlyvisible --classname "$window_name" windowunmap \
     || xdotool search --classname "$window_name" windowmap          \
     || $sh_command "$@"
-

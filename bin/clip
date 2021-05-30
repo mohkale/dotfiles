@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # -*- +indent: 2 -*-
 # System agnostic clipboard sink, copies stdin to system clipboard.
 

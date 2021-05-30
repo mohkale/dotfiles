@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# condemn files to Davy Jones's locker :skull_crossbones:.
+# Condemn files to Davy Jones's locker :skull_crossbones:.
 
 function print_usage {
     cat <<-EOF

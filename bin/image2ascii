@@ -2,6 +2,7 @@
 """
 Convert an image to some asciified text.
 """
+
 import os
 import sys
 from PIL import Image, ImageStat

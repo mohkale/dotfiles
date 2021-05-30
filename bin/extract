@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# A quick and dirty multipurpose archive extracter. Takes only one arg, the path to
+# extract.
 
 set -f -e
 

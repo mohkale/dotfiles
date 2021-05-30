@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # -*- +indent: 2 -*-
+#
 # A [[https://github.com/junegunn/fzf/blob/246b9f313085fac4c9c84cf8bf55cc8a8fc29482/bin/fzf-tmux][fzf-tmux]] like script designed to support tmux's new [[https://github.com/tmux/tmux/issues/1842][floating window]] feature.
 # This script accepts a command line, runs it in a new tmux popup (or window if
 # the current tmux version doesn't support popups) and then echoes out the

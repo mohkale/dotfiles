@@ -1,5 +1,5 @@
 #!/usr/bin/sh
-# list alias files related to the current user environment.
+# List alias files related to the current user environment, see [[file:build-aliases][build-aliases]].
 
 platform=$(ls-platform)
 root="$XDG_CONFIG_HOME/aliases"

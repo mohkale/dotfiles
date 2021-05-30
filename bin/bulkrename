@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-# pylint: disable=line-too-long, subprocess-run-check, redefined-outer-name, C0103
-
 """
 A script to automate the bulkrenaming of files/dirs inspired by [[https://github.com/ranger/ranger][ranger]] and [[https://github.com/alexherbo2/batch][batch]].
 See also [[https://github.com/gokcehan/lf/issues/149][lf#149]].
@@ -19,6 +17,8 @@ NOTE: This script was [[https://github.com/mohkale/dotfiles/blob/b6b5ea34b8bd2be
       issues with large edit lists I ended up migrating to python. Python is
       decently performant for large scale text processing needs ＼（＾ ＾）／.
 """
+
+# pylint: disable=line-too-long, subprocess-run-check, redefined-outer-name, C0103
 
 import re
 import os

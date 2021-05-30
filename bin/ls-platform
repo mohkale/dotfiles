@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# List the current platform (Unix, MacOS, Windows).
+
 case "$OSTYPE" in
     cygwin*|msys*|win32*) echo "windows" ;;
     darwin*)              echo "macos"   ;;

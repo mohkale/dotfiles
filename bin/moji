@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Open a list of kaomojis in a fzf session.
+
 set -e
 set -o pipefail
 

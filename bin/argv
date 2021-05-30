@@ -1,5 +1,5 @@
 #!/bin/sh
-# Print command line arguments (argv) on each line.
+# Print command line argument (argv) on each line.
 
 i=1
 while [ "$#" -gt 0 ]; do

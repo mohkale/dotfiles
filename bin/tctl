@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """
-tctl - transmission-control
-
-Interactively select and run a transmission command.
-TODO: Rework display logic, it's far too wasteful.
+Interactively select on run commands on torrents controlled by transmission.
 """
+
+# TODO: Rework display logic, it's far too wasteful.
 
 import enum
 import io

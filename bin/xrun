@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+"""Open a .desktop file directly."""
+
 # pylint: disable=subprocess-run-check, missing-module-docstring
 
 import sys

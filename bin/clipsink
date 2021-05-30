@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
-"""
-A utility to continually query the system clipboard and output any changes
-in the clipboard contents.
-"""
+"""Monitor changes to the system clipboard and print them to stdout."""
 
 import sys
 import time

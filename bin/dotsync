@@ -1,4 +1,6 @@
 #!/usr/bin/sh
+# Sync dotfiles through dotty, without any slow setup steps.
+
 print_usage() {
   echo "Usage: $(basename "$0") [-h] [-l LEVEL] -- ARG [...ARGS]"
 }

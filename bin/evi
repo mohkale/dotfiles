@@ -1,8 +1,7 @@
 #!/bin/sh
-# run emacs like vim, using emacsclient
+# -*- +indent: 2 -*- run emacs like vim, using emacsclient
 #
-# If the emacs daemon is not running then start
-# a new emacs instance instead of connecting to
-# an existing session.
+# If the emacs daemon is not running then start a new emacs instance instead of
+# connecting to an existing session.
 
-exec emacsclient -nw -a='emacs -nw' -c "$@"
+exec emacsclient -nw --alternate-editor='emacs -nw' --create-frame "$@"

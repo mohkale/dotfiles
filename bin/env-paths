@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# List environment variables which points to an existing filepath.
+
 print_usage() {
   echo "Usage: $(basename "$0") [-h] [-d|-f]"
 }

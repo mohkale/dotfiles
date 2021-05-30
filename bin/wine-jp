@@ -1,2 +1,4 @@
 #!/bin/sh
+# Run wine with japanese locale settings (good for non-translated japanese games).
+
 LC_ALL=ja_JP.UTF-8 LANG="ja_JP" wine "$@"

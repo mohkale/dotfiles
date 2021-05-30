@@ -1,8 +1,8 @@
 #!/usr/bin/env sh
 # Present all commits in current repositry as a colored log in fzf
 # and select one to show the diff of it in your PAGER. Opening a
-# commit doesn't exit the fzf session, that stays open until you're
-# finished.
+# commit doesn't exit the fzf session, that stays open until you
+# explicitly exit it.
 
 git_fzlog() {
     if ! git --help >/dev/null 2>&1; then

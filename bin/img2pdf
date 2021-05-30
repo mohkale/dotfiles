@@ -2,6 +2,7 @@
 """
 Convert one or more image files into a PDF document.
 """
+
 import os
 import sys
 import logging
@@ -32,12 +33,12 @@ def create_pdf(files, output_path, append, title,
     assert len(files) != 0
 
     metadata = {
-        'title':      title,
-        'author':     author,
-        'subject':    subject,
-        'keywords':   keywords,
-        'creator':    creator,
-        'producer':   producer,
+        'title': title,
+        'author': author,
+        'subject': subject,
+        'keywords': keywords,
+        'creator': creator,
+        'producer': producer,
     }
 
     dest_exists = os.path.exists(output_path)
@@ -75,7 +76,8 @@ def create_pdf(files, output_path, append, title,
             else:
                 img.save(output_path, 'PDF', append=True, **metadata)
 
-            if not silent: print(fd)
+            if not silent:
+                print(fd)
             img.close()
         logging.info('dumped to file: %s', output_path)
     except (Exception, KeyboardInterrupt):  # pylint: disable=W0703
@@ -84,6 +86,7 @@ def create_pdf(files, output_path, append, title,
             # remove when created during program execution
             os.remove(output_path)
         sys.exit(1)
+
 
 if __name__ == '__main__':
     import argparse

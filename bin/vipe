@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """
 vipe - edit pipe
+
 reimplementation of moreutils vipe in python.
 why? because I h8 perl :P.
 

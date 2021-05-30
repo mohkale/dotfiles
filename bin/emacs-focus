@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shell script to switch focus to emacs frames, cycling forward or
+# Shell script to switch focus to emacs frames, cycling forward or
 # backwards between open frames when you're currently already in a
 # frame.
 
