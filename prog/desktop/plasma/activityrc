@@ -1,0 +1,17 @@
+[Plugins]
+org.kde.ActivityManager.VirtualDesktopSwitchEnabled=true
+
+[activities]
+53965751-b407-4f41-b55d-f7396ee40545=Default
+7e1a8d08-751d-434a-921f-7d5de9e867f9=Media
+ca9c0c5b-42c0-4ad4-bc75-d301eafb5d26=Gaming
+
+[activities-icons]
+53965751-b407-4f41-b55d-f7396ee40545=users
+7e1a8d08-751d-434a-921f-7d5de9e867f9=map-globe
+ca9c0c5b-42c0-4ad4-bc75-d301eafb5d26=applications-games-symbolic
+
+[main]
+currentActivity=53965751-b407-4f41-b55d-f7396ee40545
+runningActivities=53965751-b407-4f41-b55d-f7396ee40545
+stoppedActivities=7e1a8d08-751d-434a-921f-7d5de9e867f9,ca9c0c5b-42c0-4ad4-bc75-d301eafb5d26

@@ -1,8 +1,10 @@
 [ActivityManager]
-_k_friendly_name=Activity Manager
+_k_friendly_name=Plasma
 switch-to-activity-4036ca79-f3ca-4905-804a-1ad3d3461bfa=none,none,Switch to activity "Main"
 switch-to-activity-53965751-b407-4f41-b55d-f7396ee40545=none,none,Switch to activity "Default"
+switch-to-activity-7e1a8d08-751d-434a-921f-7d5de9e867f9=none,none,Switch to activity "H"
 switch-to-activity-7f312640-b765-4f55-915f-c562aad56307=none,none,Switch to activity "Default"
+switch-to-activity-ca9c0c5b-42c0-4ad4-bc75-d301eafb5d26=none,none,Switch to activity "Gaming"
 switch-to-activity-e696e87b-62e2-43bd-ac71-39650afd5a46=none,none,Switch to activity "Work"
 switch-to-activity-fe6f3aa6-fe7e-4f16-87cb-65aa14970923=none,none,Switch to activity "Default"
 
@@ -39,20 +41,15 @@ decrease_microphone_volume=Microphone Volume Down,Microphone Volume Down,Decreas
 decrease_volume=Volume Down,Volume Down,Decrease Volume
 increase_microphone_volume=Microphone Volume Up,Microphone Volume Up,Increase Microphone Volume
 increase_volume=Volume Up,Volume Up,Increase Volume
-mic_mute=Microphone Mute,Microphone Mute,Mute Microphone
+mic_mute=Microphone Mute,Microphone Mute\tMeta+Volume Mute,Mute Microphone
 mute=Volume Mute,Volume Mute,Mute
 
-[krunner.desktop]
-RunClipboard=Alt+Shift+F2,Alt+Shift+F2,Run command on clipboard contents
-_k_friendly_name=KRunner
-_launch=Search\tMeta+Space,none,KRunner
-
 [ksmserver]
-Halt Without Confirmation=none,Ctrl+Alt+Shift+PgDown,Halt Without Confirmation
+Halt Without Confirmation=none,none,Halt Without Confirmation
 Lock Session=Meta+L,Meta+L\tCtrl+Alt+L\tScreensaver,Lock Session
 Log Out=none,Ctrl+Alt+Del,Log Out
-Log Out Without Confirmation=none,Ctrl+Alt+Shift+Del,Log Out Without Confirmation
-Reboot Without Confirmation=none,Ctrl+Alt+Shift+PgUp,Reboot Without Confirmation
+Log Out Without Confirmation=none,none,Log Out Without Confirmation
+Reboot Without Confirmation=none,none,Reboot Without Confirmation
 _k_friendly_name=Session Management
 
 [kwin]
@@ -232,6 +229,11 @@ stopmedia=Media Stop,Media Stop,Stop media playback
 _k_friendly_name=Dolphin
 _launch=Meta+E,Meta+E,Dolphin
 
+[org.kde.krunner.desktop]
+RunClipboard=Alt+Shift+F2,Alt+Shift+F2,Run command on clipboard contents
+_k_friendly_name=KRunner
+_launch=Search\tMeta+Space,none,KRunner
+
 [org.kde.plasma.emojier.desktop]
 _k_friendly_name=Emoji Selector
 _launch=,Meta+.,Emoji Selector
@@ -258,7 +260,7 @@ Turn Off Screen=none,none,Turn Off Screen
 _k_friendly_name=Power Management
 
 [plasmashell]
-_k_friendly_name=Plasma
+_k_friendly_name=Activity switching
 activate task manager entry 1=Meta+1,Meta+1,Activate Task Manager Entry 1
 activate task manager entry 10=Meta+0,Meta+0,Activate Task Manager Entry 10
 activate task manager entry 2=Meta+2,Meta+2,Activate Task Manager Entry 2
@@ -270,7 +272,7 @@ activate task manager entry 7=Meta+7,Meta+7,Activate Task Manager Entry 7
 activate task manager entry 8=Meta+8,Meta+8,Activate Task Manager Entry 8
 activate task manager entry 9=Meta+9,Meta+9,Activate Task Manager Entry 9
 activate widget 27=none,none,Activate Hard Disk Activity Widget
-activate widget 3=Alt+F1,none,Activate Application Launcher Widget
+activate widget 37=Alt+F1,none,Activate Application Dashboard Widget
 activate widget 5=none,none,Activate Icons-only Task Manager Widget
 clear-history=none,none,Clear Clipboard History
 clipboard_action=Ctrl+Alt+X,Ctrl+Alt+X,Enable Clipboard Actions
@@ -283,7 +285,7 @@ previous activity=Meta+Shift+Tab,Meta+Shift+Tab,Walk through activities (Reverse
 repeat_action=Ctrl+Alt+R,Ctrl+Alt+R,Manually Invoke Action on Current Clipboard
 show dashboard=Ctrl+F12,Ctrl+F12,Show Desktop
 show-barcode=none,none,Show Barcode...
-show-on-mouse-pos=none,none,Open Klipper at Mouse Position
+show-on-mouse-pos=none,Meta+V,Open Klipper at Mouse Position
 stop current activity=,Meta+S,Stop Current Activity
 switch to next activity=none,none,Switch to Next Activity
 switch to previous activity=none,none,Switch to Previous Activity

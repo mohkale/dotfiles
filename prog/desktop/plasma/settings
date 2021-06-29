@@ -140,7 +140,7 @@ Size=22
 
 [DirSelect Dialog]
 DirSelectDialog Size=844,598
-History Items[$e]=file:$HOME/media/images,file:$HOME/multimedia/images
+History Items[$e]=file:$HOME/media/games/,file:$HOME/media/images,file:$HOME/multimedia/images
 
 [General]
 BrowserApplication=brave-browser.desktop
@@ -161,9 +161,10 @@ toolBarFont=Noto Sans,10,-1,5,50,0,0,0,0,0,Regular
 widgetStyle=kvantum
 
 [Icons]
-Theme=breeze-dark
+Theme=Tela-dark
 
 [KDE]
+AnimationDurationFactor=0.7071067811865475
 ColorScheme=Breeze
 LookAndFeelPackage=org.kde.breezedark.desktop
 ShowDeleteCommand=true

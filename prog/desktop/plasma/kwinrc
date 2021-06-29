@@ -11,12 +11,12 @@ Id_3=a4dd51a9-de26-425e-9a37-ebfc1ba0a452
 Id_4=4be569cb-6e8d-4550-8422-2ed336db6d52
 Id_5=5a7b1c60-d78f-4edf-9339-ab759f57e498
 Id_6=6c0c68c0-0d09-4d91-8b3c-cb280f2aa25e
-Name_1=__main__
-Name_2=editor
-Name_3=browser
-Name_4=vlc
-Name_5=expansion1
-Name_6=expansion2
+Name_1=1
+Name_2=2
+Name_3=3
+Name_4=4
+Name_5=5
+Name_6=6
 Number=6
 Rows=2
 
@@ -72,6 +72,7 @@ NightTemperature=2500
 
 [Plugins]
 coverswitchEnabled=true
+desktopchangeosdEnabled=true
 flipswitchEnabled=true
 highlightwindowEnabled=true
 kwin4_effect_dimscreenEnabled=true
@@ -79,6 +80,43 @@ kwin4_effect_fadeEnabled=false
 kwin4_effect_scaleEnabled=true
 mouseclickEnabled=true
 windowgeometryEnabled=false
+
+[Script-desktopchangeosd]
+PopupHideDelay=500
+TextOnly=true
+
+[SubSession: 7e1a8d08-751d-434a-921f-7d5de9e867f9]
+active=-1
+count=0
+
+[SubSession: ca9c0c5b-42c0-4ad4-bc75-d301eafb5d26]
+active=-1
+activities1=ca9c0c5b-42c0-4ad4-bc75-d301eafb5d26
+count=0
+desktop1=4
+fsrestore1=64,0,1856,1081
+fullscreen1=0
+geometry1=891,30,1029,1049
+iconified1=false
+keepBelow1=false
+maximize1=0
+opacity1=1
+resourceClass1=dolphin
+resourceName1=dolphin
+restore1=891,0,1029,1080
+sessionId1=1014114e98d8000162490613500000009340015
+shaded1=false
+shortcut1=
+skipPager1=false
+skipSwitcher1=false
+skipTaskbar1=false
+stackingOrder1=5
+staysOnTop1=false
+sticky1=false
+userNoBorder1=false
+windowRole1=Dolphin#1
+windowType1=Normal
+wmCommand1=
 
 [TabBox]
 BorderActivate=9
@@ -117,4 +155,8 @@ TitlebarDoubleClickCommand=Maximize
 WindowSnapZone=10
 
 [org.kde.kdecoration2]
+BorderSize=NoSides
+BorderSizeAuto=false
 ButtonsOnRight=IAX
+library=org.kde.kwin.aurorae
+theme=__aurorae__svg__Fluent-round-dark
