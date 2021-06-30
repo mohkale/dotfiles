@@ -36,7 +36,7 @@ EOF
 
   local FZF_ARGS
   FZF_ARGS=( -d : --with-nth 2.. --reverse --multi --ansi --query "$*"
-             --history "${XDG_DATA_HOME:-$HOME/.locale/share}"/fzf/history/fzdmenu )
+             --history "${XDG_STATE_HOME:-$HOME/.locale/state}"/fzf/history/fzdmenu )
   if [ "$show_preview" -ne 0 ]; then
     FZF_ARGS+=( --preview 'preview {1}' )
   fi

@@ -12,7 +12,7 @@ windows:
       # vertically split with left hand side wider than right.
       layout: 47f0,228x23,0,0{137x23,0,0,1,90x23,138,0,2}
       panes:
-        - stdbuf -oL transmission-daemon --foreground --log-error --log-info --log-debug | tee -a "${XDG_CACHE_HOME:-$HOME/.cache}/transmission.log"
+        - stdbuf -oL transmission-daemon --foreground --log-error --log-info --log-debug | tee -a "${XDG_STATE_HOME:-$HOME/.local/state}/transmission.log"
         - $XDG_CONFIG_HOME/transmission-daemon/cmds/watcher -l DEBUG $XDG_CONFIG_HOME/transmission-daemon/watcher.json
   - puddle:
       panes:

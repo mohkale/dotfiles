@@ -11,6 +11,7 @@ XDG_TEMPLATES_DIR="$HOME/Documents/Templates"
 XDG_CONFIG_HOME="$HOME/AppData/Local"
 XDG_CACHE_HOME="$HOME/AppData/Local/Temp"
 XDG_DATA_HOME="$HOME/AppData/Local"
+XDG_STATE_HOME="$HOME/AppData/Local"
 
 XDG_TEMP_DIR="$HOME/AppData/Local/Temp"
 XDG_GAMES_DIR="$HOME/Saved Games"

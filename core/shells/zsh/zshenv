@@ -18,10 +18,4 @@ if [[ -o login ]]; then
   . "$HOME"/.profile
 fi
 
-ZGEN_DIR="$ZDOTDIR/zgen"
-
-if [ -z "$ZSH_COMPDUMP" ]; then
-  ZSH_COMPDUMP="${ZDOTDIR:-${ZSH}}/cache/.zcompdump-${ZSH_VERSION}"
-  [ -d "$(dirname "$ZSH_COMPDUMP")" ] ||
-    \mkdir "$(dirname "$ZSH_COMPDUMP")"
-fi
+ZGEN_DIR="$XDG_CACHE_HOME/zgen"

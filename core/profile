@@ -254,7 +254,7 @@ export FZF_DEFAULT_OPTS='
   --bind ctrl-space:toggle+down
   --bind ctrl-o:top
 
-  --history '"$XDG_DATA_HOME"'/fzf/history/default
+  --history '"$XDG_STATE_HOME"'/fzf/history/default
   --history-size 1000000
   --bind alt-j:next-history
   --bind alt-k:previous-history

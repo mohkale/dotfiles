@@ -17,6 +17,7 @@ XDG_TEMPLATES_DIR="$HOME/multi/templates"
 XDG_CONFIG_HOME="$HOME/.config"
 XDG_CACHE_HOME="$HOME/.cache"
 XDG_DATA_HOME="$HOME/.local/share"
+XDG_STATE_HOME="$HOME/.local/state"
 
 # Unofficial extensions to the spec I added myself
 XDG_TEMP_DIR="$HOME/.local/temp"

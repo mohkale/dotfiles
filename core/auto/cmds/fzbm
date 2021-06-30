@@ -4,7 +4,7 @@ fzbm() {
                       --bind 'alt-return:execute-silent(xopen {1} &)+down'
                       --bind 'ctrl-y:execute-silent(echo {1} | clip)'
                       --no-hscroll
-                      --history "${XDG_DATA_HOME:-$HOME/.locale/share}"/fzf/history/bookmarks )
+                      --history "${XDG_STATE_HOME:-$HOME/.locale/state}"/fzf/history/bookmarks )
   [ -z "$*" ] || fzf_args+=( -q "$*" )
 
   ls-bookmarks -p '' |

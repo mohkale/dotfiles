@@ -8,7 +8,7 @@ import re
 import sys
 import pathlib
 
-histfile = pathlib.Path(os.environ.get('XDG_CACHE_HOME', '~/.cache')).expanduser() / 'python_history'
+histfile = pathlib.Path(os.environ.get('XDG_STATE_HOME', '~/.local/state')).expanduser() / 'python_history'
 try:
     import atexit
     import readline

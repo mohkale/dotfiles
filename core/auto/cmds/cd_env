@@ -2,7 +2,7 @@
 cd_env() {
     local fzf_args
     fzf_args=( --no-multi -d ' ' --preview 'preview {2..}' --preview-window=25%
-               --history "${XDG_DATA_HOME:-$HOME/.locale/share}"/fzf/history/paths )
+               --history "${XDG_STATE_HOME:-$HOME/.locale/state}"/fzf/history/paths )
     [ -z "$*" ] || fzf_args+=( -q "$*" )
     local dest
     dest=$(env-paths -d |

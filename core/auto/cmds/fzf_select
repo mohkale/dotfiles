@@ -18,7 +18,7 @@ fzf_select() {
         _fzf --read0 \
              --multi \
              --preview 'preview {}' \
-             --history "${XDG_DATA_HOME:-$HOME/.locale/share}"/fzf/history/paths \
+             --history "${XDG_STATE_HOME:-$HOME/.locale/state}"/fzf/history/paths \
              --delimiter / --with-nth "$((skip+1)).." |
         select_path
 }
