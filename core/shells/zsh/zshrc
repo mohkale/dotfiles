@@ -1,10 +1,107 @@
-# -*- mode: sh -*-
-# see: http://zsh.sourceforge.net/Guide/zshguide02.html
+#!/usr/bin/env zsh
+# -*- +indent: 2 -*- zshell interactive [[http://zsh.sourceforge.net/Guide/zshguide02.html][rc]] file.
+#          _
+#  _______| |__  _ __ ___
+# |_  / __| '_ \| '__/ __|
+#  / /\__ \ | | | | | (__
+# /___|___/_| |_|_|  \___|
+#
+# Zshell configuration file sourced only in interactive shells.
 
-# Only run zshrc if being run interactively
-case $- in
-    *i*) ;;
-    *) return ;;
-esac
+if ! [ -d "$ZGEN_DIR" ]; then
+  echo "zgen: installation not found, installing now"
+  git clone --quiet https://github.com/tarjoilija/zgen.git "$ZGEN_DIR"
+fi
+ZGEN_RESET_ON_CHANGE=("$ZDOTDIR/.zshrc")
+source "$ZGEN_DIR/zgen.zsh"
 
-[ -n "$sourced_zprofile" ] || . $ZDOTDIR/.zprofile
+# zsh-highlight
+typeset -A ZSH_HIGHLIGHT_STYLES
+ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets cursor)
+## errors and warnings
+ZSH_HIGHLIGHT_STYLES[unknown-token]='fg=red'
+## builtins and syntax specific stuff
+ZSH_HIGHLIGHT_STYLES[reserved-word]='fg=blue'
+ZSH_HIGHLIGHT_STYLES[builtin]='fg=blue'
+ZSH_HIGHLIGHT_STYLES[named-fd]='fg=blue'
+ZSH_HIGHLIGHT_STYLES[numeric-fd]='fg=yellow'
+ZSH_HIGHLIGHT_STYLES[named-fd]='fg=yellow'
+ZSH_HIGHLIGHT_STYLES[precommand]="fg=blue"
+
+ZSH_HIGHLIGHT_STYLES[global-alias]="fg=green"
+ZSH_HIGHLIGHT_STYLES[suffix-alias]="fg=green"
+## color for quoted arguments/bodies
+ZSH_HIGHLIGHT_STYLES[single-quoted-argument]="fg=blue"
+ZSH_HIGHLIGHT_STYLES[dollar-quoted-argument]="fg=blue"
+ZSH_HIGHLIGHT_STYLES[double-quoted-argument]="fg=blue"
+ZSH_HIGHLIGHT_STYLES[single-quoted-argument-unclosed]="fg=black,bold"
+ZSH_HIGHLIGHT_STYLES[double-quoted-argument-unclosed]="fg=black,bold"
+ZSH_HIGHLIGHT_STYLES[dollar-quoted-argument-unclosed]="fg=black,bold"
+ZSH_HIGHLIGHT_STYLES[back-double-quoted-argument]="fg=cyan"
+ZSH_HIGHLIGHT_STYLES[back-dollar-quoted-argument]="fg=cyan"
+
+ZSH_HIGHLIGHT_STYLES[assign]="fg=yellow"
+ZSH_HIGHLIGHT_STYLES[path]="none"
+ZSH_HIGHLIGHT_STYLES[autodirectory]="fg=green"
+
+unset ZSH_AUTOSUGGEST_USE_ASYNC                                                  # See [[https://github.com/zsh-users/zsh-autosuggestions/issues/483][conflict]] with syntax-highlighting.
+
+if ! zgen saved; then
+  # zgen load 'zpm-zsh/ssh'                                                      # Complete ssh hostanmes
+  zgen load 'mafredri/zsh-async'                                                 # Asynchronous actions (for prompt)
+  zgen load 'zsh-users/zsh-syntax-highlighting'                                  # Highlight keywords/commands as you write
+  zgen load 'zsh-users/zsh-autosuggestions'                                      # Preview completions/suggestions
+  zgen save
+fi
+
+. "$XDG_CONFIG_HOME/shenv"
+
+setopt shwordsplit                                                              # Allows $foo to expand to multiple space delimeted arguments, instead of just one argument.
+setopt globsubst                                                                # Allow glob substitutions to be expanded when done so inside of variables. eg. foo='*'; find $foo; will behave just as if you type `find *` directly.
+setopt notify                                                                   # Interrupt me to let me know a background jobs finished.
+setopt localtraps                                                               # Any and trap calls within a function are undone on exit.
+setopt promptpercent                                                            # Allow % substitutions in zsh prompts.
+setopt promptsubst                                                              # Allow ${} substitutions in zsh prompts.
+setopt appendhistory                                                            # Write to history file after every command.
+setopt incappendhistory                                                         # Don't truncate history file.
+setopt histfindnodups                                                           # You can store duplicates, but don't show them as distinct candidates.
+setopt histignorespace                                                          # Any command lines beginning with an empty space, doesn't get stored in history.
+setopt histnofunctions                                                          # Don't store functions in history as functions. foo() { : }, isn't very readable.
+setopt nohistbeep                                                               # Supress any history dings. it's bad enough when a GUI does it.
+setopt histignoredups                                                           # Don't store repeated history elements.
+setopt histignorealldups
+setopt histignorespace                                                          # Don't add lines to history if they begin with at least one whitespace character.
+setopt nosharehistory                                                           # Share history between all sessions.
+setopt autocd                                                                   # Trying to execute a directory, will change you into it.
+setopt nobeep
+setopt autolist                                                                 # Ambiguous completion candidate automatically shows options on tab.
+setopt automenu                                                                 # Completion menu (tab to select and cycle) only happens on second tab press.
+unsetopt menucomplete                                                           # Prevent automatic insertion of first ambiguous completion target
+setopt noautoremoveslash                                                        # Removes a trailing slash from completed directories.
+setopt completeinword                                                           # Allows completions in the middle of a word/argument.
+setopt listrowsfirst
+
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"                         # Have completion candidates styled like ls.
+zstyle ':completion:*' matcher-list 'r:|[._-]=* r:|=*'                          # Smart matching of dashed values, e.g. f-b matching foo-bar.
+zstyle ':completion:*' completer _expand_alias _complete _ignored               # Expand aliases with tab as well (see also <C-x>+a).
+# zstyle ':completion:*' insert-tab false                                       # Don't insert a literal tab when trying to complete in an empty line.
+
+# Orders directories first, but seperates files from dirs
+# even when theres more than enough room for both :sad:.
+# zstyle ':completion:*' list-dirs-first true
+# zstyle ':completion:*:matches' group 'yes'
+# zstyle ':completion:*'         group-name ''
+
+source "$XDG_CONFIG_HOME"/bindings/zshell
+
+# Where to look for autoloads.
+fpath=("$fpath[@]")
+
+autoload -U compinit && compinit
+
+[ "${smart_term:-0}" -eq 1 ] &&
+  . "$XDG_CONFIG_HOME/prompt/zsh"
+
+if [ "$INSIDE_EMACS" = 'vterm' ]; then
+  PROMPT="$PROMPT"'%{$(vterm_prompt_end)%}'
+fi

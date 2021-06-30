@@ -1,388 +1,118 @@
-# -*- mode: sh -*- shell agnostic environment setup file.
-
+#!/usr/bin/env bash
+# -*- +indent: 2 -*- Shell agnostic environment setup file.
 #      _          _ _                    _                                      _
 #  ___| |__   ___| | |    ___ _ ____   _(_)_ __ ___  _ __  _ __ ___   ___ _ __ | |_
 # / __| '_ \ / _ \ | |   / _ \ '_ \ \ / / | '__/ _ \| '_ \| '_ ` _ \ / _ \ '_ \| __|
 # \__ \ | | |  __/ | |  |  __/ | | \ V /| | | | (_) | | | | | | | | |  __/ | | | |_
-# |___/_| |_|\___|_|_|___\___|_| |_|\_/ |_|_|  \___/|_| |_|_| |_| |_|\___|_| |_|\__|
-#                   |_____|
+# |___/_| |_|\___|_|_|   \___|_| |_|\_/ |_|_|  \___/|_| |_|_| |_| |_|\___|_| |_|\__|
+#
 
-# Assigned/available environment variables
-# | Variable      | Description                                                                        |
-# |---------------+------------------------------------------------------------------------------------|
-# | shell         | The name of the current shell (bash, zsh, etc.)                                    |
-# | platform      | The platform (linux, windows, darwin, etc.) of the current host.                   |
-# | smart_term    | Whether the current terminal is a smart terminal or a dumb terminal.               |
-# | sourced_shenv | 1 when $XDG_CONFIG_HOME/shenv has been sourced.                                    |
-# | interactive   | 1 when this shell is being run interactively.                                      |
-# | show_banner   | 1 when a colorful banner (from [[file:.config/banners/][banners]]) should be shown on shell startup.          |
-# |---------------+------------------------------------------------------------------------------------|
-# | EDITOR        | The preffered EDITOR that various programs should use.                             |
-# | VISUAL        | EDITOR alternative which should be used when [[https://unix.stackexchange.com/questions/4859/visual-vs-editor-what-s-the-difference][advanced term-codes]] are available.    |
-# | PAGER         | The preferred program that should be used to page long file output.                |
-# | OPENER        | The program used for opening URLs on your system, eg: [[file://home/mohkale/.profile]] |
-# |---------------+------------------------------------------------------------------------------------|
-# | PATH          | The : delimited list of directories bash/zsh/sh looks for executables.             |
-# | DOTFILES      | Path to where user dotfiles repository can be found. Should always be ~/.dotfiles. |
-# | REPO_PATH     | PATH like for variable for looking up code repositories (see [[file:.local/bin/ls-projects][ls-projects]]).         |
-# | GAME_PATH     | Path to look for installed games (eg. GBA or actual executables etc.)              |
-
-# don't source this script if you've already sourced it.
-[ -z "$sourced_shenv" ] || return
-
-[ -f "$HOME/.config/user-dirs.dirs" ] && . "$HOME/.config/user-dirs.dirs"
-export XDG_CONFIG_HOME XDG_DATA_HOME XDG_CACHE_HOME XDG_DOCUMENTS_DIR \
-    XDG_PICTURES_DIR XDG_MUSIC_DIR XDG_VIDEOS_DIR XDG_DESKTOP_DIR \
-    XDG_DOWNLOAD_DIR XDG_TEMP_DIR XDG_GAMES_DIR XDG_DEV_HOME XDG_BIN_DIR
-
+smart_term=0
 case "$TERM" in
-    xterm*|rxvt*|eterm*|screen*|tmux*|cygwin*|emacs*|st*|alacritty)
-        smart_term=1 ;;
-    dumb)
-        PS1="> " # dumb terminal used by emacs tramp
-        smart_term=0 ;;
-    *) smart_term=0 ;;
+  xterm*|rxvt*|eterm*|screen*|tmux*|cygwin*|emacs*|st*|alacritty)
+    smart_term=1
+    ;;
+  dumb)
+    PS1="> " # dumb terminal used by emacs tramp
+    ;;
 esac
 
-case "$(ps -p $$ | awk 'END { print($NF) }')" in
+[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"                    # Make less more friendly for non-text input files, see lesspipe(1)
+
+# Generate lesskey configuration file when it's out of date.
+[ -n "$LESSKEY" ] &&
+  command -v lesskey >/dev/null 2>&1 &&
+  [ -e "$LESSKEY.base" -a "$LESSKEY.base" -nt "$LESSKEY" ] &&
+  lesskey "$LESSKEY.base"
+
+# Apply custom color scheme for ls (for some reason this doesn't
+# work in ~/.profile :?).
+if [ -z "$LS_COLORS" -a \
+     -x /usr/bin/dircolors -a \
+     -r "$XDG_CONFIG_HOME/dircolors" ]; then
+  eval "$(/usr/bin/dircolors -b "$XDG_CONFIG_HOME/dircolors")" ||
+      eval "$(/usr/bin/dircolors -b)"
+  # shellcheck disable=SC2153
+  export LF_COLORS="$LS_COLORS:.git/=35:.github/=35"
+fi
+
+SAVEHIST=10000000 HISTSIZE=10000000 HISTFILESIZE=10000000
+
+FZF_SHELL_OPTS="--height 99% --reverse"                                         # FZF options for use in interactive shells and widgets.
+
+# Might be assigned by [[file:~/.profile][profile]].
+if [ -z "$shell" ]; then
+  case "$(ps -p $$ | awk 'END { print($NF) }')" in
     *bash) shell="bash"   ;;
     *zsh)  shell="zshell" ;;
     *)     shell=         ;;
-esac
-
-# prioritize editors in order of nvim, vim, vi.
-if   hash nvim 2>/dev/null; then export EDITOR=nvim
-elif hash vim  2>/dev/null; then export EDITOR=vim
-else                             export EDITOR=vi
+  esac
 fi
 
-# source XDG compatibility environment files
-[ -r "$XDG_CONFIG_HOME/xdg" ] && . "$XDG_CONFIG_HOME/xdg"
+# Source autoloads
+[                   -f "$XDG_CONFIG_HOME/autoloads/global"    ] && . "$XDG_CONFIG_HOME/autoloads/global"
+[ -n "$shell"    -a -f "$XDG_CONFIG_HOME/autoloads/$shell"    ] && . "$XDG_CONFIG_HOME/autoloads/$shell"
+[ -n "$platform" -a -f "$XDG_CONFIG_HOME/autoloads/$platform" ] && . "$XDG_CONFIG_HOME/autoloads/$platform"
 
-export VISUAL="$EDITOR"
-export PAGER=less
-export LESS="-R -S -i --save-marks -x4"
-export DOTFILES=$XDG_CONFIG_HOME/dotfiles
-export TMUX_HOME=$XDG_CONFIG_HOME/tmux
-export TMUX_TMPDIR=$XDG_CACHE_HOME/tmux
-export LANG=en_GB.UTF-8 LC_MESSAGES="C"
-export MANPATH=$XDG_DATA_HOME/man:$MANPATH
-export MANPAGER='less -s -M +Gg'
-export MAN_KEEP_FORMATTING=1
-export INFOPATH=$XDG_DATA_HOME/info:$INFOPATH
-# shell used by emacs for various shell like purposes
-export ESHELL="$(command -v bash 2>/dev/null || echo /bin/sh)"
-export OPENER='xopen' # command used to open files/URLs
-
-show_banner=0 # whether to show an ascii art banner on startup
-
-# make less more friendly for non-text input files, see lesspipe(1)
-[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
-
-# colorize less pager, format is red, green & white.
-# NOTE bold=1 but only works with colors in the range 90+
-export LESS_TERMCAP_mb=$'\e[1;91m' # begin blinking
-export LESS_TERMCAP_md=$'\e[1;91m' # begin bold
-export LESS_TERMCAP_me=$'\e[0m'    # end mode
-export LESS_TERMCAP_se=$'\e[0m'    # end standout-mode
-export LESS_TERMCAP_ue=$'\e[0m'    # end underline
-export LESS_TERMCAP_us=$'\e[1;32m' # begin underline
-export LESS_TERMCAP_so=$'\e[36m'   # begin standout-mode - info box
-
-## Generate lesskey file when it's out of date
-if command -v lesskey >/dev/null 2>&1 && \
-   [ -e "$LESSKEY.base" -a "$LESSKEY.base" -nt "$LESSKEY" ]; then
-    lesskey "$LESSKEY.base"
-fi
-
-# Custom color scheme configuration for ls
-if [ -x /usr/bin/dircolors ]; then
-    if [ -r "$XDG_CONFIG_HOME/dircolors" ]; then
-        eval "$(dircolors -b $XDG_CONFIG_HOME/dircolors)" || eval "$(dircolors -b)"
-
-        export LF_COLORS="$LS_COLORS:.git/=35:.github/=35"
-    fi
-fi
-
-if [ -e "$XDG_CONFIG_HOME/diricons" ]; then
-    # load icons from human readable config file.
-    LF_ICONS=$(sed $XDG_CONFIG_HOME/diricons \
-                -e '/^[ \t]*#/d'       \
-                -e '/^[ \t]*$/d'       \
-                -e 's/[ \t]\+/=/g'     \
-                -e 's/$/ /')
-    LF_ICONS=${LF_ICONS//$'\n'/:}
-    export LF_ICONS
-fi
-
-# Prevents Error Message with Python Encoding
-export PYTHONIOENCODING="utf-8"
-
-SAVEHIST=1000000 HISTSIZE=1000000 HISTFILESIZE=1000000
-
-# set terminal used by i3
-export TERMINAL="st"
-
-# disable telemetary and tracking when possible, see [[https://consoledonottrack.com/][do-not-track]].
-export \
-    HOMEBREW_NO_ANALYTICS=1               \
-    SAM_CLI_TELEMETRY=0                   \
-    AZURE_CORE_COLLECT_TELEMETRY=0        \
-    DO_NOT_TRACK=1                        \
-    STRIPE_CLI_TELEMETRY_OPTOUT=1         \
-    GATSBY_TELEMETRY_DISABLED=1           \
-    HASURA_GRAPHQL_ENABLE_TELEMETRY=false \
-    DOTNET_CLI_TELEMETRY_OPTOUT=true      \
-    NEXT_TELEMETRY_DISABLED=1             \
-    AUTOMATEDLAB_TELEMETRY_OPTOUT=1       \
-    POWERSHELL_TELEMETRY_OPTOUT=1
-
-lines_to_path() {
-    # A helper to quickly declare a bunch of PATH variables from
-    # a basic INI like configuration format (supplied through stdin).
-    #
-    # An environment variable is a section beginning contained in [],
-    # comments are specified bash style, and can be interspersed any-
-    # where. Any line that's neither a comment nor a section starter
-    # is seen as a PATH in the last-most defined section.
-    #
-    # By default this script checks whether an existing variable matching
-    # a section is defined and appends it to the PATH string. You can
-    # prefix the variable with a : (eg: [:PATH]) to prevent appending the
-    # existing variable.
-
-    # I'm too inexperienced with sed to use only one sed process
-    # once I get some more familirarity with it I'll optimise this.
-    local conf=$(sed -e 's/ *#.*$//g'             \
-                     -e '/^ *$/d'                 \
-                     -e 's!^~/!'"${HOME}"/'!g'    \
-                     -e '/^\[.\+\]$/!s/.\+$/\0:/' \
-                     -e '/^\[.\+\]$/s/.\+/\n\0/' |
-                 sed -e '/^$/d' \
-                     -e ': again; /:$/ { N; /\[.\+\]$/!s/:\n/:/; t again }' |
-                 sed -e '/\[.\+\]/ { N; s/\[\(.\+\)\]\n/\1 / }')
-
-    local var paths existing
-    while IFS=' ' read -r var paths; do
-        if [ "${var:0:1}" = ":" ]; then
-            var="${var:1}" # strip out : prefix.
-        else
-            case "$shell" in
-                zshell) existing="${(P)var}" ;;
-                bash)   existing="${!var}" ;;
-                # POSIX compliant but ugly and vulnerable
-                *)      existing=$(eval "echo \${$var}") ;;
-            esac
-
-            if [ -n "$existing" ]; then
-                # print existing path variables when given in linux path format.
-                # printf ":" # delimit the existing
-                case "$OSTYPE" in
-                    *cygwin|*msys) existing=:$(printf "%s:" "$(cygpath --path "$existing")") ;;
-                    *)             existing=:$(printf "%s:" "$existing") ;;
-                esac
-            fi
-
-            paths=$paths:$existing
-        fi
-
-        export "$var"="${paths}"
-    done <<< "$conf"
-}
-
-export GEM_HOME="$HOME"/prog/.modules/ruby
-
-lines_to_path <<EOF
-[PATH]
-$XDG_BIN_DIR
-$XDG_DEV_HOME/scripts
-$XDG_DEV_HOME/.modules/ruby/bin
-$XDG_DEV_HOME/.modules/go/bin
-$XDG_DATA_HOME/npm/bin
-~/.rvm/bin
-${POETRY_HOME:-$HOME/.poetry}/bin
-
-[CLASSPATH]
-.
-# WARN you need to specify both the directory with
-#      wildcards to reference JARs and without them
-#      for finding classes from that directory.
-# WARN for some dumb reason... java & javac just
-#      completely ignore this environment variable
-#      when you pass the -cp argument.
-$XDG_DEV_HOME/.modules/java/
-$XDG_DEV_HOME/.modules/java/*
-
-[PYTHONPATH]
-$XDG_DEV_HOME/.modules/python
-
-[GEM_PATH]
-$GEM_HOME
-
-[GOPATH]
-$XDG_DEV_HOME/.modules/go
-
-[NODE_PATH]
-$XDG_DEV_HOME/.modules/node
-/usr/lib/nodejs
-/usr/share/nodejs
-
-[:REPO_PATH]
-$XDG_DEV_HOME/repos/
-$XDG_DEV_HOME/upwork/
-$DOTFILES
-$XDG_DEV_HOME/.modules/go/src/*/*/
-$XDG_DEV_HOME/.modules/ruby/gems/
-EOF
-
-unset -f lines_to_path # thank you, good bye
-
-platform="$(ls-platform)"
-[ -z "$platform" ] && echo "warning: shenv: unknown OS type: $OSTYPE" >&2
-
-if [ "$platform" = "windows" ]; then
-    for var in CLASSPATH PYTHONPATH; do
-        # For programs that don't care about the environment,
-        # only about the OS, convert paths back to a windows
-        # like path.
-
-        export $var="$(cygpath --windows --path "${!var}")"
-    done
-    unset var
-
-    export GEM_HOME="$(cygpath --mixed "$GEM_HOME")"
-
-    # Assume it's the only platform using the TCP file.
-    export EMACS_SERVER_FILE="$XDG_CONFIG_HOME/emacs/var/server/server"
-
-    # Proper symlinks, not that wibbly wobbley copy paste
-    export MSYS=winsymlinks:nativestrict
-
-    # Fix annoying issues with chocolatey mixing up windows
-    # temp variables and msys ones.
-    unset tmp temp
-fi
-
-# Uses darcula theme from fzf color schemes wiki
-export FZF_DEFAULT_OPTS='
-    --bind ctrl-j:down
-    --bind ctrl-k:up
-    --bind ctrl-u:page-up
-    --bind ctrl-d:page-down
-
-    --bind alt-u:preview-page-up
-    --bind alt-d:preview-page-down
-    --bind ctrl-n:preview-down
-    --bind ctrl-p:preview-up
-    --bind ctrl-i:toggle-preview
-    --bind alt-i:toggle-preview
-
-    --bind shift-left:backward-word
-    --bind shift-right:forward-word
-    --bind ctrl-b:backward-word
-    --bind ctrl-f:forward-word
-    --bind ctrl-h:backward-char
-    --bind ctrl-l:forward-char
-
-    --bind alt-return:print-query
-    --bind alt-bspace:clear-query
-
-    --bind alt-j:accept
-    --bind alt-k:accept-non-empty
-    --bind alt-q:jump
-    --bind ctrl-q:jump-accept
-
-    --bind alt-a:select-all
-    --bind alt-x:deselect-all
-
-    --bind "ctrl-y:execute-silent(echo {} | clip)"
-
-    --bind ctrl-s:toggle-search
-
-    --bind ctrl-space:toggle+down
-    --bind ctrl-o:top
-
-    --history '"${XDG_DATA_HOME:-$HOME/.local/share}"'/fzf/history/default
-    --history-size 1000000
-    --bind alt-j:next-history
-    --bind alt-k:previous-history
-
-    --color dark
-    --color fg:-1,bg:-1,fg+:-1,bg+:-1,hl+:#e93c58,hl:#df5273
-    --color info:#af87ff,prompt:#5fff87,pointer:#ff87d7,marker:#ff87d7,spinner:#ff87d7
-
-    --cycle
-'
-
-# source autoloads
-autoloads_dir="$XDG_CONFIG_HOME/autoloads"
-[ -f "$autoloads_dir/global" ]                      && . "$autoloads_dir/global"
-[ -n "$shell"    -a -f "$autoloads_dir/$shell"    ] && . "$autoloads_dir/$shell"
-[ -n "$platform" -a -f "$autoloads_dir/$platform" ] && . "$autoloads_dir/$platform"
-unset autoloads_script
-
-# reclaim C-s and C-q
+# Reclaim C-s and C-q
 if [ "$smart_term" -eq 1 ]; then
-    stty stop  undef 2>/dev/null
-    stty start undef 2>/dev/null
+  stty stop  undef 2>/dev/null
+  stty start undef 2>/dev/null
 fi
 
 # source aliases
 interactive=0
 case "$-" in
-    *i*)
-        interactive=1
+  *i*)
+    interactive=1
 
-        if command -v thefuck >/dev/null 2>&1; then
-            # Honestly I doubt I'll really be using 'the-fuck' but
-            # lazy loading it is a near effortless task so why not
+    if command -v thefuck >/dev/null 2>&1; then
+      # Honestly I doubt I'll really be using 'the-fuck' but
+      # lazy loading it is a near effortless task so why not
 
-            # Lazy load 'the fuck' using an alias which evaluates
-            # it removes the alias and then runs it for the first
-            # time
+      # Lazy load 'the fuck' using an alias which evaluates
+      # it removes the alias and then runs it for the first
+      # time
 
-            alias='fx' # Alias under which 'the-fuck' will be invoked... actually a function
-            alias $alias='eval $(thefuck --alias '$alias') && unalias '$alias' && '$alias
-            unset alias # Remove a basically uselass environment variable from the shell
-        fi
+      alias fx='eval "$(thefuck --alias 'fx')" && unalias fx && fx'
+    fi
 
-        load-aliases() { eval "$(ls-aliases | xargs -d '\n' -r build-aliases -1c -e e)"; }
-        load-aliases
-        ;;
+    load-aliases() { eval "$(ls-aliases | xargs -d '\n' -r build-aliases -1c -e e)"; }
+    load-aliases
+    ;;
 esac
 
 case "$TERM" in
-    *-24bit)
-        alias ssh='TERM=screen-256color ssh'
-        alias journalctl='TERM=screen-256color journalctl'
-        alias systemctl='TERM=screen-256color systemctl'
-        alias bluetoothctl='TERM=screen-256color bluetoothctl'
-        ;;
+  *-24bit)
+    alias \
+      ssh='TERM=screen-256color ssh' \
+      journalctl='TERM=screen-256color journalctl' \
+      systemctl='TERM=screen-256color systemctl' \
+      bluetoothctl='TERM=screen-256color bluetoothctl'
+    ;;
 esac
 
-[ -e "$XDG_CONFIG_HOME/shenv.local" ] && . "$XDG_CONFIG_HOME/shenv.local"
+[ -r "$XDG_CONFIG_HOME/shenv.local" ] &&
+  . "$XDG_CONFIG_HOME/shenv.local"
 
 unset shell
 
 if [ "${interactive:-0}" -ne 0 \
-    -a "${show_banner:-0}" -gt 0 \
+    -a "${SH_BANNER:-0}" -gt 0 \
     -a -n "$COLUMNS" \
     -a -d "$XDG_CONFIG_HOME/banners" \
-    -a -r "$XDG_CONFIG_HOME/banners" ] \
-    && command -v "show-banners" >/dev/null 2>&1; then
-    banner=$(find -L "$XDG_CONFIG_HOME/banners" -type f -or -type l |
-        sort -R |
-        while read -r b; do
-            IFS=: read -r width _ < "$b"
-            if [ "$width" -le "$COLUMNS" ]; then
-                echo "$b"
-                break
-            fi
-        done)
-    [ -n "$banner" ] && show-banners -c "$COLUMNS" "$banner"
-    unset banner
+    -a -r "$XDG_CONFIG_HOME/banners" ] && \
+     command -v "show-banners" >/dev/null 2>&1; then
+  banner=$(find -L "$XDG_CONFIG_HOME/banners" -type f -or -type l |
+             sort -R |
+             while read -r b; do
+               IFS=: read -r width _ < "$b"
+               if [ "$width" -le "$COLUMNS" ]; then
+                 echo "$b"
+                 break
+               fi
+             done)
+  [ -n "$banner" ] &&
+    show-banners -c "$COLUMNS" "$banner"
+  unset banner
 fi
-
-sourced_shenv=1
-
-# vim:syntax=sh filetype=sh

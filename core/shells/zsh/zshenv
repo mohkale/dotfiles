@@ -1,10 +1,27 @@
-# -*- mode: sh -*-
-[ -r "$HOME/.config/shenv" ] && . "$HOME/.config/shenv"
+#!/usr/bin/env zsh
+# -*- +indent: 2 -*- ZSH environment file.
+#          _
+#  _______| |__   ___ _ ____   __
+# |_  / __| '_ \ / _ \ '_ \ \ / /
+#  / /\__ \ | | |  __/ | | \ V /
+# /___|___/_| |_|\___|_| |_|\_/
+#
+# This is a configuration file that's ALWAYS sourced by zshell, prior
+# to sourcing the zshrc or any other shell specific configurations.
+#
+# Place configuration options or declarations you always want to
+# evaluate in here.
 
-export ZDOTDIR="$XDG_CONFIG_HOME/zshell"
-#export ZPLUG_HOME="$ZDOTDIR/zplug"
+# Use this in liue of zprofile because this will always be
+# run on every shell, meaning we can assign ZDOTDIR here.
+if [[ -o login ]]; then
+  . "$HOME"/.profile
+fi
+
 ZGEN_DIR="$ZDOTDIR/zgen"
 
 if [ -z "$ZSH_COMPDUMP" ]; then
   ZSH_COMPDUMP="${ZDOTDIR:-${ZSH}}/cache/.zcompdump-${ZSH_VERSION}"
+  [ -d "$(dirname "$ZSH_COMPDUMP")" ] ||
+    \mkdir "$(dirname "$ZSH_COMPDUMP")"
 fi

@@ -1,172 +1,114 @@
 # -*- mode: sh -*- XDG compatibility for various programs, see [[https://wiki.archlinux.org/index.php/XDG_Base_Directory][here]].
 
-## GNU Readline
-export INPUTRC="$XDG_CONFIG_HOME"/bindings/readline
+export INPUTRC="$XDG_CONFIG_HOME"/bindings/readline                             # GNU [[https://tldp.org/LDP/lfs/LFS-BOOK-6.1.1-HTML/chapter07/inputrc.html][readline]]
 
-## GNU Parallel
-export PARALLEL_HOME="$XDG_CONFIG_HOME"/parallel
+export PARALLEL_HOME="$XDG_CONFIG_HOME"/parallel                                # GNU [[man:parallel][parallel]]
 
-## rust/cargo
-export RUSTUP_HOME="$XDG_DATA_HOME"/rustup
+export RUSTUP_HOME="$XDG_DATA_HOME"/rustup                                      # rust/cargo
+export CARGO_HOME="$XDG_DATA_HOME"/cargo
 
-## Ruby Bundler
-export BUNDLE_USER_CONFIG="$XDG_CONFIG_HOME"/bundle
+export BUNDLE_USER_CONFIG="$XDG_CONFIG_HOME"/bundle                             # Ruby bundler
 export BUNDLE_USER_CACHE="$XDG_CACHE_HOME"/bundle
 export BUNDLE_USER_PLUGIN="$XDG_DATA_HOME"/bundle
-export RBENV_ROOT=$XDG_DATA_HOME/rbenv
+export RBENV_ROOT="$XDG_DATA_HOME"/rbenv                                        # rbenv
+export IRBRC="$XDG_CONFIG_HOME"/irb/irbrc                                       # irb (interactive ruby)
+export GEM_SPEC_CACHE="$XDG_CACHE_HOME"/gem                                     # ruby gems
+export SOLARGRAPH_CACHE="$XDG_CACHE_HOME"/solargraph                            # solargraph
 
-## Interactive Ruby (irb)
-export IRBRC="$XDG_CONFIG_HOME"/irb/irbrc
+export _JAVA_OPTIONS=-Djava.util.prefs.userRoot="$XDG_CONFIG_HOME"/java         # OpenJDK
+export GRADLE_USER_HOME="$XDG_DATA_HOME"/gradle                                 # Gradle
 
-## Ruby Gems
-export GEM_SPEC_CACHE="$XDG_CACHE_HOME/gem"
+export LESSKEY="$XDG_CONFIG_HOME"/less/lesskey                                  # Less is More
+export LESSHISTFILE="$XDG_CACHE_HOME"/less/history
+[ -d "$XDG_CACHE_HOME/less" ] ||
+  mkdir -p "$XDG_CACHE_HOME"/less
 
-## Solargraph
-export SOLARGRAPH_CACHE="$XDG_CACHE_HOME"/solargraph
+export NODE_REPL_HISTORY="$XDG_DATA_HOME"/node_repl_history                     # node
+export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME"/npm/npmrc                       # npm
 
-## OpenJDK
-export _JAVA_OPTIONS=-Djava.util.prefs.userRoot="$XDG_CONFIG_HOME"/java
+export MYSQL_HISTFILE="$XDG_DATA_HOME"/mysql_history                            # MySQL
 
-## irssi
-alias irssi="irssi --config=$XDG_CONFIG_HOME/irssi/config --home=$XDG_DATA_HOME/irssi"
+export PYTHONSTARTUP="$XDG_CONFIG_HOME"/pythonrc.py                             # Python
+export PYENV_ROOT="$XDG_DATA_HOME"/pyenv
+export PYLINTHOME="$XDG_CACHE_HOME"/pylint
+export PYLINTRC="$XDG_CONFIG_HOME"/pylintrc
+export PIPENV_IGNORE_VIRTUALENVS=1
+export POETRY_HOME="$XDG_CONFIG_HOME"/poetry                                    # poetry
 
-## Less is More
-[ -e "$XDG_CACHE_HOME/less" ] || mkdir -p "$XDG_CACHE_HOME/less"
-export LESSKEY="$XDG_CONFIG_HOME/less/lesskey"
-export LESSHISTFILE="$XDG_CACHE_HOME/less/history"
+export IPYTHONDIR="$XDG_CONFIG_HOME"/jupyter                                    # iPython (jupyter notebooks)
+export JUPYTER_CONFIG_DIR="$XDG_CONFIG_HOME"/jupyter
 
-## Node
-export NODE_REPL_HISTORY="$XDG_DATA_HOME/node_repl_history"
+export VIMINIT=":source $XDG_CONFIG_HOME/vim/init.vim"                          # Vim
 
-### npm
-export NPM_CONFIG_USERCONFIG=$XDG_CONFIG_HOME/npm/npmrc
+export GTK_RC_FILES="$XDG_CONFIG_HOME/gtk-1.0"/gtkrc                            # GTK
+export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0"/gtkrc
 
-## Bash/zsh
+export GNUPGHOME="$XDG_DATA_HOME"/gnupg                                         # GnuPG
+
+export KDEHOME="$XDG_CONFIG_HOME"/kde                                           # KDE
+
+alias  mdl='mdl -s $XDG_CONFIG_HOME/mdlstyle.rb'                                # markdownlint
+
+export TERMINFO="$XDG_DATA_HOME"/terminfo                                       # [[man:terminfo][TermInfo]]
+export TERMINFO_DIRS="$TERMINFO:/usr/share/terminfo"
+
+export WGETRC="$XDG_CONFIG_HOME/wgetrc"                                         # wget
+# export CURL_HOME="$XDG_CONFIG_HOME"                                           # curl. Only required for versions older than 7.73.0
+
+export WINEPREFIX="$XDG_DATA_HOME"/wine/prefixes/default                        # Wine
+
+export PASSWORD_STORE_DIR="$XDG_DATA_HOME"/pass                                 # pass
+
+export EMACS_HOME="$XDG_CONFIG_HOME"/emacs                                      # Emacs. Not used by emacs, just used by me for config stuff.
+
+export WAKATIME_HOME="$XDG_CONFIG_HOME"/wakatime                                # wakatime
+
+export VAGRANT_HOME="$XDG_DATA_HOME"/vagrant                                    # Vagrant
+export VAGRANT_ALIAS_FILE="$XDG_DATA_HOME"/vagrant/aliases
+
+export SQLITE_HISTORY="$XDG_DATA_HOME"/sqlite_history                           # sqlite
+
+export RIPGREP_CONFIG_PATH="$XDG_CONFIG_HOME"/rgrc                              # ripgrep
+
+export TEXMFHOME="$XDG_DATA_HOME"/texmf                                         # TeX Live
+export TEXMFVAR="$XDG_CACHE_HOME"/texlive/texmf-var
+export TEXMFCONFIG="$XDG_CONFIG_HOME"/texlive/texmf-config
+export TEXINPUTS="$XDG_DATA_HOME"/texmf:"$TEXINPUTS"
+
+export VSCODE_PORTABLE="$XDG_DATA_HOME"/vscode                                  # vscode
+
+alias  info='info --init-file "$XDG_CONFIG_HOME/infokey"'                       # GNU info
+
+alias  gdb='gdb --silent -nh -x "$XDG_CONFIG_HOME"/gdb/init'                    # GDB
+
+alias  mbsync='mbsync -c "$XDG_CONFIG_HOME"/isync/mbsyncrc'                     # isync
+
+export MAIL="$XDG_DOCUMENTS_DIR"/mail                                           # Mail
+export MAILDIR=$MAIL
+
+export PSQLRC="$XDG_CONFIG_HOME/pg/psqlrc"                                      # PostgreSQL. WARN: These directories need to exist or postgres will complain.
+export PSQL_HISTORY="$XDG_CACHE_HOME/pg/psql_history"
+export PGPASSFILE="$XDG_CONFIG_HOME/pg/pgpass"
+export PGSERVICEFILE="$XDG_CONFIG_HOME/pg/pg_service.conf"
+
+# export LEDGER_FILE="$XDG_DOCUMENTS_DIR"/finance/ledger.journal                # Ledger
+
+export ZDOTDIR="$XDG_CONFIG_HOME/zshell"                                        # zshell
+
+# bash/zsh
 if [ -n "$ZSH_VERSION" ]; then
-  # using extended zshell history, which isn't
-  # compatible with bash :/
   export HISTFILE="$XDG_DATA_HOME/zshell_history"
 else
   export HISTFILE="$XDG_DATA_HOME/shell_history"
 fi
 
-## XDG
-export GTK_RC_FILES="$XDG_CONFIG_HOME/gtk-1.0/gtkrc"
-export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
+export ASPELL_CONF="\
+per-conf $XDG_CONFIG_HOME/aspell/aspell.conf; \
+personal $XDG_CONFIG_HOME/aspell/en.pws; \
+repl $XDG_CONFIG_HOME/aspell/en.prepl\
+"
 
-## z
-export _Z_DATA="$XDG_DATA_HOME/z"
-
-## gradle
-export GRADLE_USER_HOME="$XDG_DATA_HOME/gradle"
-
-## MySQL
-export MYSQL_HISTFILE="$XDG_DATA_HOME"/mysql_history
-
-## Python
-export PYTHONSTARTUP="$XDG_CONFIG_HOME/pythonrc.py"
-export PYENV_ROOT="$XDG_DATA_HOME/pyenv"
-export PYLINTHOME="$XDG_CACHE_HOME/pylint"
-export PYLINTRC="$XDG_CONFIG_HOME/pylintrc"
-export PIPENV_IGNORE_VIRTUALENVS=1
-
-## ipython/jupyter notebooks
-export IPYTHONDIR="$XDG_CONFIG_HOME"/jupyter
-export JUPYTER_CONFIG_DIR="$XDG_CONFIG_HOME"/jupyter
-
-## Vim
-export VIMINIT=":source $XDG_CONFIG_HOME/vim/init.vim"
-
-## GTK
-export GTK_RC_FILES="$XDG_CONFIG_HOME/gtk-1.0/gtkrc"
-export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc"
-
-## GnuPG
-export GNUPGHOME="$XDG_DATA_HOME/gnupg"
-
-## KDE
-export KDEHOME="$XDG_CONFIG_HOME/kde"
-
-## markdownlint
-alias mdl='mdl -s $XDG_CONFIG_HOME/mdlstyle.rb'
-
-## terminfo
-export TERMINFO="$XDG_DATA_HOME/terminfo"
-export TERMINFO_DIRS="$XDG_DATA_HOME/terminfo:/usr/share/terminfo"
-
-## wget
-export WGETRC="$XDG_CONFIG_HOME/wgetrc"
-
-## curl
-# export CURL_HOME="$XDG_CONFIG_HOME" # only required for versions older than 7.73.0
-
-## Wine
-export WINEPREFIX="$XDG_DATA_HOME"/wine/prefixes/default
-
-## aspell
-export ASPELL_CONF="per-conf $XDG_CONFIG_HOME/aspell/aspell.conf; personal $XDG_CONFIG_HOME/aspell/en.pws; repl $XDG_CONFIG_HOME/aspell/en.prepl"
-
-## pass
-export PASSWORD_STORE_DIR="$XDG_DATA_HOME"/pass
-
-## Emacs
-### not used by emacs, just used by me for config stuff.
-export EMACS_HOME="$XDG_CONFIG_HOME/emacs"
-
-## poetry
-export POETRY_HOME=$XDG_CONFIG_HOME/poetry
-
-## wakatime
-export WAKATIME_HOME="$XDG_CONFIG_HOME/wakatime"
-
-## rust
-export CARGO_HOME="$XDG_DATA_HOME/cargo"
-export TUSTUP_HOME="$XDG_DATA_HOME/rustup"
-
-## Vagrant
-export VAGRANT_HOME="$XDG_DATA_HOME"/vagrant
-export VAGRANT_ALIAS_FILE="$XDG_DATA_HOME"/vagrant/aliases
-
-## sqlite
-export SQLITE_HISTORY="$XDG_DATA_HOME/sqlite_history"
-
-## ripgrep
-export RIPGREP_CONFIG_PATH="$XDG_CONFIG_HOME/rgrc"
-
-## TeX Live
-export TEXMFHOME="$XDG_DATA_HOME"/texmf
-export TEXMFVAR="$XDG_CACHE_HOME"/texlive/texmf-var
-export TEXMFCONFIG="$XDG_CONFIG_HOME"/texlive/texmf-config
-export TEXINPUTS="$XDG_DATA_HOME"/texmf:"$TEXINPUTS"
-
-## vscode
-export VSCODE_PORTABLE="$XDG_DATA_HOME"/vscode
-
-## GNU info
-alias info='info --init-file "$XDG_CONFIG_HOME/infokey"'
-
-## GDB
-alias gdb='gdb --silent -nh -x "$XDG_CONFIG_HOME"/gdb/init'
-
-## isync
-alias mbsync='mbsync -c "$XDG_CONFIG_HOME"/isync/mbsyncrc'
-
-## Mail
-export MAIL=$XDG_DOCUMENTS_DIR/mail
-export MAILDIR=$MAIL
-
-## PostgreSQL
-### WARN: These directories need to exist or postgres will complain.
-export PSQLRC="$XDG_CONFIG_HOME/pg/psqlrc"
-export PSQL_HISTORY="$XDG_CACHE_HOME/pg/psql_history"
-export PGPASSFILE="$XDG_CONFIG_HOME/pg/pgpass"
-export PGSERVICEFILE="$XDG_CONFIG_HOME/pg/pg_service.conf"
-
-# Path Management
-if [ "$platform" = "windows" ]; then
-    # fix unconverted msys paths which crash some programs
-    for var in IRBRC SOLARGRAPH_CACHE BUNDLE_USER_CONFIG \
-               BUNDLE_USER_CACHE BUNDLE_USER_PLUGIN; do
-        export $var="$(cygpath --mixed "${!var}")"
-    done
-fi
+alias irssi="\
+irssi --config=$XDG_CONFIG_HOME/irssi/config \
+--home=$XDG_DATA_HOME/irssi\
+"

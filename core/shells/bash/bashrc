@@ -1,8 +1,5 @@
-# -*- mode: sh -*-
-# bash rc script.
-# this script is sourced when bash is running a non login shell,
-# either interactively or not.
-
+#!/usr/bin/env bash
+# -*- +indent: 2 -*- Bash Run Command
 #  _               _
 # | |             | |
 # | |__   __ _ ___| |__  _ __ ___
@@ -10,41 +7,47 @@
 # | |_) | (_| \__ \ | | | | | (__
 # |_.__/ \__,_|___/_| |_|_|  \___|
 #
+# This is the main bash configuration file and is sourced whenever you start a
+# non-login shell. It doesn't matter whether the shell is interactive or not so
+# to speed up performance when running bash shell scripts you should return
+# early when being run non-interactively.
 
-# Only run bashrc if being run interactively
-case $- in
-    *i*) ;;
-      *) return;;
+# Only run the rest of this file if being sourced interactively
+case "$-" in
+  *i*) ;;
+    *) return ;;
 esac
 
-. "$HOME/.bash_profile"
+. "$XDG_CONFIG_HOME/shenv"
 
-# set a fancy prompt (non-color, unless we know we "want" color)
-case "$TERM" in
-	xterm-color|*-256color)
-        color_prompt=1
-        ;;
-    *)
-        # set force_color_prompt to 1 for a colored prompt, if the terminal has the
-        # capability; turned off by default to not distract the user: the focus in
-        # a terminal window should be on the output of commands, not on the prompt
-        if [ -n "$force_color_prompt" ]; then
-            if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
-	            # We have color support; assume it's compliant with Ecma-48
-	            # (ISO/IEC-6429). Lack of such support is extremely rare, and such
-	            # a case would tend to support setf rather than setaf.
-	            color_prompt=1
-            else
-                color_prompt=0
-            fi
-        fi
-
-        ;;
+case "$-" in
+  *i*)
+    if [ "$INSIDE_EMACS" = 'vterm' ]; then
+      PS1=$PS1'\[$(vterm_prompt_end)\]'
+    elif [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+	    # We have color support; assume it's compliant with Ecma-48
+	    # (ISO/IEC-6429). Lack of such support is extremely rare, and such
+	    # a case would tend to support setf rather than setaf.
+      . "$XDG_CONFIG_HOME/prompt/bash"
+    fi
+    ;;
 esac
 
-if [ "${color_prompt:-0}" -eq 1 ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
-else
-    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+shopt -s checkwinsize                                                           # Keep LINES & COLUMNS upto date after every command
+shopt -s globstar                                                               # Enable **/* in shell globing
+shopt -s autocd                                                                 # cd to path automatically.
+shopt -s histappend                                                             # Open history file as a, not w
+HISTCONTROL=ignoreboth                                                          # Ignore duplicate lines or lines with spaces.
+bind 'set enable-bracketed-paste on'                                            # Allow paste with newlines
+
+[ -r "$XDG_CONFIG_HOME/bindings/bash" ] &&
+  . "$XDG_CONFIG_HOME/bindings/bash"
+
+# Enable programmable completion features
+if ! shopt -oq posix; then
+  if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+  elif [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+  fi
 fi
-unset color_prompt force_color_prompt

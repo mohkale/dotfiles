@@ -8,5 +8,5 @@
 # flowing out from your shell prompt.
 
 _fzf() {
-    FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --height 99% --reverse" fzf "$@"
+    FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS $FZF_SHELL_OPTS" fzf "$@"
 }
