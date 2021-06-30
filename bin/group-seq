@@ -1,0 +1,93 @@
+#!/usr/bin/env -S gawk -E
+# -*- mode: awk; +indent: 2 -*- Group numbered sequences of stdin into sub-sequence ranges.
+#
+# Useful for when you've got a sequence of numbered lines (for example:
+# [1, 2, 3, 4, 5...]) and you'd like to group them into something akin
+# to (1-3/1, 1-3/2, 1-3/3, etc.)
+
+@include "getopt.awk"
+
+function print_usage() {
+  print "Usage: group-seq [-h] [-u UPPER] [-l LOWER] [-s STEP] [-o] [-m PATTERN] [-s RANGE-SEP[:ENTRY-SEP]]"
+}
+
+function print_help() {
+  print_usage()
+  print ""
+  print "  Group numbered sequences of STDIN together."
+  print ""
+  print "Optional arguments:"
+  print "  -h"
+  print "    Show this help message and exit."
+  print "  -u UPPER"
+  print "    Clamp upper ranges to UPPER."
+  print "  -u LOWER"
+  print "    Clamp lower ranges to LOWER."
+  print "  -s STEP"
+  print "    Set step size between subsequence-ranges."
+  print "  -p"
+  print "    Offset lower indexes by 1."
+  print "  -m"
+  print "    Specify pattern used to match a number in a line."
+  print "    Should be a regular expression with a single capture"
+  print "    group matching the number on the line."
+  # print "  -s RANGE-SEP[:ENTRY-SEP]"
+  # print "    Specify the separators for each TODO finish."
+}
+
+BEGIN {
+  lower = 1
+  upper = 100000000000
+  step  = 10
+  offset = 1
+  num_match = "([[:digit:]]+)"
+  while ((opt = getopt(ARGC, ARGV, "hu:l:s:pm:")) != -1) {
+    opti++
+    if (Optarg)
+      opti++
+    switch (opt) {
+    case "u":
+      upper = int(Optarg)
+      break
+    case "l":
+      lower = int(Optarg)
+      break
+    case "s":
+      step = int(Optarg)
+      break
+    case "p":
+      offset = 0
+      break
+    case "m":
+      num_match = Optarg
+      break
+    # case "o":
+    #   output_format = Optarg
+    #   break
+    case "h":
+      print_help()
+      exit
+    case "?":
+      print_usage() > "/dev/stderr"
+      exit 1
+    }
+  }
+
+  ARGC -= opti
+}
+
+{
+  if (match($1, num_match, m) == 0) {
+    print "error: line doesn't match format regexp: " $0 > "/dev/stderr"
+    print $0
+    next
+  }
+
+  l = (int(($0 - 1) / step) * step) + 1
+  u = (int(($0 - 1) / step) + 1) * step
+  if (u > upper)
+    u = upper
+  if (l < lower)
+    l = lower
+  printf("%02d-%02d/%s\n", l, u, $0)
+}
