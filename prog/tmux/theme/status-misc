@@ -78,18 +78,17 @@ class NordVPNSegment(StatusMiscSegment):
         if not which('nordvpn'):
             return None
         proc = subprocess.run(['nordvpn', 'status'], capture_output=True, encoding='utf-8')
-        match = re.search(r'Status: (.+)', proc.stdout, flags=re.IGNORECASE)
-        if not match:
-            return None
-        connected = match[1].lower() == 'connected'
-        if args.nordvpn_hide and not connected:
+        if proc.returncode != 0:
             return None
         ip_address = ''
-        match = re.search('Your new IP: (.+)', proc.stdout, re.IGNORECASE)
-        if match:
+        match = re.search(r'Server IP: (.+)', proc.stdout, flags=re.IGNORECASE)
+        if not match:
+            if args.nordvpn_hide:
+                return None
+        elif match:
             ip_address = ' ' + match[1]
         return self._style(self.icon,
-                           self.active_style if connected else self.inactive_style) + ip_address
+                           self.active_style if ip_address else self.inactive_style) + ip_address
 
 class NotMuchSegment(StatusMiscSegment):
     """Status line segment showing number of unread emails."""

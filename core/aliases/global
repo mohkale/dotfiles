@@ -15,7 +15,7 @@ D       fzf_cd_all
 e       sh --norc -c '$EDITOR "$@"' edit
 f       fzf_file
 F       fzf_file_all
-i       sh -c 'if [ $# -gt 0 ]; then preview "$@" | less; fi' inspect
+i       sh -c 'if [ $# -gt 0 ]; then preview "$@"; fi' inspect
 m       fzman
 o       xopen
 p       cd_repo
@@ -108,7 +108,7 @@ fc      fzcheat
 cw      bulkrename
 lc      lfcd
 og      open_game
-pm      skeletor create
+pn      skeletor create
 
 dota    a $DOTFILES
 dotA    A $DOTFILES
@@ -147,6 +147,9 @@ emf     emacs-make-frame
 # Buku
 buku      buku --np
 buku-tags buku -t
+
+## jq
+jqr jq --raw-output
 
 # Transmission
 trr     echo -e 'list:list\nplay:play\nstart:start\nstart -n:start-now\npause:pause\nverify:verify\nremove:remove\nremove -f:delete' \
@@ -230,7 +233,7 @@ box@dirx         ~/Dropbox
 dot@dirx         $DOTFILES
 dbin@dirx        $DOTFILES/bin
 em@dirx          $XDG_CONFIG_HOME/emacs
-org@dirx         $XDG_CONFIG_HOME/emacs/org
+org@dirx         $DOTFILES/core/org
 cheats@dirx      $XDG_CONFIG_HOME/cheat/cheatsheets/personal
 
 dl@dirx          $XDG_DOWNLOAD_DIR
