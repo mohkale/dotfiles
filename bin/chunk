@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+# Chunk STDIN using a sub-command. -*- +indent: 2 -*-
+#
+# This script is designed as a wrapper for stream filters such as `sxiv -io`.
+# These commands take standard input and output a subset of them back out.
+# This script lets you use these filters to mark where each chunk begins and
+# then partitions each line from STDIN into their corresponding chunk.
+#
+# WARN: The order of the output of the sub-command must match the order of
+# the STDIN to it and it must not output something not passed to it through
+# STDIN. Violating this property will lead to undefined behaviour (most likely
+# chunks won't end or start where their intended to).
+
+print_usage() {
+  echo "Usage: chunk [-h] [-m NUM] [-s SEP] [-f FMT] CMD [...ARGS]"
+}
+
+print_help() {
+  print_usage
+  cat <<-EOF
+
+  Chunk STDIN using CMD.
+
+Positional Arguments:
+  CMD
+    The subcmd that this commands STDIN will be passed to. It should output
+    a subset of its input which will then be removed from STDIN and written
+    to STDOUT.
+  ARGS
+    Any positional arguments to pass directly to CMD. They will not be used
+    by this process.
+
+Optional Arguments:
+  -h       Show this help message and exit.
+  -m NUM   Start counting chunks from NUM.
+  -s SEP   Separate chunk counts and input lines with SEP.
+  -f FMT   Format chunk numbers with FMT.
+EOF
+}
+
+sep=:
+min=0
+num_fmt="%d"
+while getopts 'hs:m:f:' OPTION; do
+  case "$OPTION" in
+    s) sep="$OPTARG" ;;
+    m) if [ -z "${OPTARG##*[!0-9]*}" ]; then
+         echo 'chunk:error: -m should be a number.' >&2
+         exit 1
+       fi
+       min="$OPTARG" ;;
+    f) num_fmt="$OPTARG" ;;
+    h) print_help
+       exit 0 ;;
+    \?) print_usage >&2
+        exit 1 ;;
+  esac
+done
+shift $(("$OPTIND" - 1))
+if [ -z "$1" ]; then
+  echo 'chunk:error: Must specify a CMD.' >&2
+  print_usage >&2
+  exit 1
+fi
+
+select=$(mktemp -u)
+mkfifo -m 600 "$select"
+trap '\rm -f '"$select" EXIT
+
+tee >("$@" > "$select") |
+  gawk -v count="$min" \
+       -v fmt="$num_fmt$sep%s\n" \
+       -v index_file="$select" \
+       -e '
+BEGIN {
+  eof = 0                                                                       # Have we reached the end of the index file.
+  index_line = 0                                                                # The last line read from the index file.
+  read_index()
+}
+
+function read_index() {
+  # We treat errors as EOF as well... it makes things simpler.
+  if ((getline index_line < index_file) != 1)
+    eof = 1
+}
+
+{
+  if (!eof && $0 == index_line) {
+    count++
+    read_index()
+  }
+
+  printf(fmt, count, $0)
+}
+'
