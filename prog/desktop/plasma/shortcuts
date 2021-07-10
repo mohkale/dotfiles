@@ -85,10 +85,10 @@ Switch One Desktop Down=Meta+Ctrl+Down,Meta+Ctrl+Down,Switch One Desktop Down
 Switch One Desktop Up=Meta+Ctrl+Up,Meta+Ctrl+Up,Switch One Desktop Up
 Switch One Desktop to the Left=Meta+Ctrl+Left,Meta+Ctrl+Left,Switch One Desktop to the Left
 Switch One Desktop to the Right=Meta+Ctrl+Right,Meta+Ctrl+Right,Switch One Desktop to the Right
-Switch Window Down=none,Meta+Alt+Down,Switch to Window Below
-Switch Window Left=none,Meta+Alt+Left,Switch to Window to the Left
-Switch Window Right=none,Meta+Alt+Right,Switch to Window to the Right
-Switch Window Up=none,Meta+Alt+Up,Switch to Window Above
+Switch Window Down=Meta+Ctrl+J,Meta+Alt+Down,Switch to Window Below
+Switch Window Left=Meta+Ctrl+H,Meta+Alt+Left,Switch to Window to the Left
+Switch Window Right=Meta+Ctrl+L,Meta+Alt+Right,Switch to Window to the Right
+Switch Window Up=Meta+Ctrl+K,Meta+Alt+Up,Switch to Window Above
 Switch to Desktop 1=Meta+Ctrl+1,Ctrl+F1,Switch to Desktop 1
 Switch to Desktop 10=none,none,Switch to Desktop 10
 Switch to Desktop 11=none,none,Switch to Desktop 11
@@ -227,7 +227,7 @@ stopmedia=Media Stop,Media Stop,Stop media playback
 
 [org.kde.dolphin.desktop]
 _k_friendly_name=Dolphin
-_launch=Meta+E,Meta+E,Dolphin
+_launch=none,Meta+E,Dolphin
 
 [org.kde.krunner.desktop]
 RunClipboard=Alt+Shift+F2,Alt+Shift+F2,Run command on clipboard contents
@@ -272,14 +272,15 @@ activate task manager entry 7=Meta+7,Meta+7,Activate Task Manager Entry 7
 activate task manager entry 8=Meta+8,Meta+8,Activate Task Manager Entry 8
 activate task manager entry 9=Meta+9,Meta+9,Activate Task Manager Entry 9
 activate widget 27=none,none,Activate Hard Disk Activity Widget
-activate widget 37=Alt+F1,none,Activate Application Dashboard Widget
+activate widget 37=Meta+X,none,Activate Application Dashboard Widget
 activate widget 5=none,none,Activate Icons-only Task Manager Widget
+activate widget 58=none,none,Activate Digital Clock Widget
 clear-history=none,none,Clear Clipboard History
 clipboard_action=Ctrl+Alt+X,Ctrl+Alt+X,Enable Clipboard Actions
 cycleNextAction=none,none,Next History Item
 cyclePrevAction=none,none,Previous History Item
 edit_clipboard=none,none,Edit Contents...
-manage activities=Meta+Q\tMeta+X,Meta+Q,Show Activity Switcher
+manage activities=Meta+Q,Meta+Q,Show Activity Switcher
 next activity=Meta+Tab,Meta+Tab,Walk through activities
 previous activity=Meta+Shift+Tab,Meta+Shift+Tab,Walk through activities (Reverse)
 repeat_action=Ctrl+Alt+R,Ctrl+Alt+R,Manually Invoke Action on Current Clipboard

@@ -9,6 +9,8 @@ notmuch new
 
 # Automatically read and flag any emails from myself
 notmuch tag -new +inbox -unread +flagged -- tag:new and from:"mohsin kaleem" and to:"mohsin kaleem"
+# Don't mark any replies I make as new emails, their continuations of earlier ones.
+notmuch tag -new +inbox -unread -- tag:new and from:"mohsin kaleem"
 
 # Automatically mark developer related content
 notmuch tag -new +inbox +dev -- tag:new and from:help-debbugs@gnu.org

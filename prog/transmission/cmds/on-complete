@@ -35,7 +35,7 @@ def notify(msg, /, title=None, icon=None):
         cmd.append(title)
     cmd.append(msg)
     if s.call(cmd) != 0:
-        logging.error('failed to notify user, msg was: %s', msg)
+        logging.error('Failed to notify user, msg was: %s', msg)
 
 @retry(RETRY_COUNT)
 def _torrent_file(tid: int, watch_config):

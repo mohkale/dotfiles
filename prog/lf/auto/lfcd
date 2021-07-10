@@ -18,10 +18,13 @@
 
 lfcd () {
     tmp="$(mktemp)"
+    signal=EXIT
+    [ -n "$BASH_VERSION" ] && signal=RETURN
+    trap '\rm -f '"$tmp" "$signal"
+
     \lf -last-dir-path="$tmp" "$@"
     if [ -f "$tmp" ]; then
         dir="$(cat "$tmp")"
-        \rm -f "$tmp"
         if [ -d "$dir" ]; then
             if [ "$dir" != "$(pwd)" ]; then
                 cd "$dir" || return 1

@@ -11,14 +11,20 @@ Id_3=a4dd51a9-de26-425e-9a37-ebfc1ba0a452
 Id_4=4be569cb-6e8d-4550-8422-2ed336db6d52
 Id_5=5a7b1c60-d78f-4edf-9339-ab759f57e498
 Id_6=6c0c68c0-0d09-4d91-8b3c-cb280f2aa25e
+Id_7=235a1507-fc1b-40ac-926f-e5cf2f61b720
+Id_8=fae4f9ef-9a50-4274-b792-932f935b9df7
+Id_9=767833c7-01b7-44ad-8b35-0c7a45e7a1a4
 Name_1=1
 Name_2=2
 Name_3=3
 Name_4=4
 Name_5=5
 Name_6=6
-Number=6
-Rows=2
+Name_7=7
+Name_8=8
+Name_9=9
+Number=9
+Rows=3
 
 [Effect-Cube]
 BorderActivate=9
@@ -45,6 +51,9 @@ TopRight=None
 
 [KDE]
 AnimationDurationFactor=0.5
+
+[ModifierOnlyShortcuts]
+Meta=
 
 [MouseBindings]
 CommandActiveTitlebar1=Raise
@@ -87,7 +96,32 @@ TextOnly=true
 
 [SubSession: 7e1a8d08-751d-434a-921f-7d5de9e867f9]
 active=-1
-count=0
+activities1=7e1a8d08-751d-434a-921f-7d5de9e867f9
+count=1
+desktop1=1
+fsrestore1=481,481,0,0
+fullscreen1=0
+geometry1=891,30,1029,1049
+iconified1=false
+keepBelow1=false
+maximize1=0
+opacity1=1
+resourceClass1=dolphin
+resourceName1=dolphin
+restore1=891,0,1029,1080
+sessionId1=1014114e98d8000162567818700000263330010
+shaded1=false
+shortcut1=
+skipPager1=false
+skipSwitcher1=false
+skipTaskbar1=false
+stackingOrder1=5
+staysOnTop1=false
+sticky1=false
+userNoBorder1=false
+windowRole1=Dolphin#1
+windowType1=Normal
+wmCommand1=
 
 [SubSession: ca9c0c5b-42c0-4ad4-bc75-d301eafb5d26]
 active=-1

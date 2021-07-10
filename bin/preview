@@ -261,7 +261,8 @@ do_epub() {
 }
 
 do_video() {
-  mediainfo "$1" && exiftool "$1"
+  mediainfo "$1" && return
+  exiftool "$1"
 }
 
 do_sqlite3() {

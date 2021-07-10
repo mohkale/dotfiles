@@ -112,6 +112,7 @@ Session.vim
 netrwhist
 *.bak
 *.backup
+.flymake_*
 
 # ┌───────────┐
 # │ Languages │

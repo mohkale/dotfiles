@@ -13,7 +13,7 @@ set shellopts '-eu'
 set ifs "\n"
 
 set icons
-set hiddenfiles .*:__pycache__:*.pyc:*.o:node_modules:*.elc:*~
+set hiddenfiles .*:__pycache__:*.pyc:*.o:node_modules:*.elc:*~:folder*.ico
 set info size
 #set relativenumber
 set dircounts                                                                   # show number of files in directory, not size of directory inode.
@@ -98,7 +98,15 @@ map <bs2> toggle-backwards
 
 ## inspect folder sizes
 map du du
-cmd du !du --max-depth=1 -h --apparent-size
+# cmd du !du --max-depth=1 -h --apparent-size
+cmd du !{{
+  max_depth=0
+  if [ -z "$fs" ]; then
+    fx="."
+    max_depth=1
+  fi
+  echo "$fx" | xargs -r -d "\n" du --max-depth="$max_depth" -h --apparent-size
+}}
 
 map dU du-sorted
 cmd du-sorted !du --max-depth=1 -h --apparent-size | sort -rh
@@ -491,22 +499,21 @@ cmd bulkrename-all ${{
 
 ## Misc
 map +  :push :mkdir<space>
-map ,m :push :mkdir<space>
 cmd mkdir %{{
     IFS=' '
     mkdir -p "$*"
     lf -remote "send $id load"$'\n'"send $id select \"$*\""
 }}
 
-map ,n :push :mkcd<space>
+map ,m :push :mkcd<space>
 cmd mkcd %{{
     # make a directory and then change to it.
-    mkdir -p "$@"
-    lf -remote "send $id select \"$@\""$'\n'"send $id cd \"$@\""
+    IFS=' '
+    mkdir -p "$*"
+    lf -remote "send $id select \"$*\""$'\n'"send $id cd \"$*\""
 }}
 
-map -  :push :touch<space>
-map ,t :push :touch<space>
+map - :push :touch<space>
 cmd touch %{{
     file="$@"
 

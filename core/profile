@@ -8,8 +8,8 @@
 # |_|
 #
 # This shell script should be sourced by any shells during login or just
-# to initialise the environment for an interactive shell. It won't be
-# sourced when running shell scripts or other non-interactive interactions.
+# to initialise the environment for an interactive shell. It will not be
+# sourced when running shell scripts or other non-interactive shells.
 #
 # NOTE: Both ssh and tmux create login shells so this script will be sourced
 # by them EVERY time. You may end up in a situation where this script ends up
@@ -56,7 +56,7 @@ export LESS_TERMCAP_us=$(printf '\033[1;32m')                                   
 export LESS_TERMCAP_so=$(printf '\033[36m')                                     # Begin standout-mode - info box
 
 if [ -e "$XDG_CONFIG_HOME/diricons" ]; then
-  # load icons from human readable config file.
+  # Load icons from human readable config file.
   LF_ICONS=$(sed "$XDG_CONFIG_HOME"/diricons \
                  -e '/^[ \t]*#/d'       \
                  -e '/^[ \t]*$/d'       \
@@ -67,7 +67,7 @@ if [ -e "$XDG_CONFIG_HOME/diricons" ]; then
 fi
 
 export PYTHONIOENCODING="utf-8"                                                 # Prevents error message with python encoding
-export TERMINAL="st"                                                            # set terminal used by i3
+export TERMINAL="st"                                                            # Set terminal used by i3
 
 # Disable telemetary and tracking when possible, see [[https://consoledonottrack.com/][do-not-track]].
 export \
@@ -215,7 +215,7 @@ case "$(ls-platform)" in
     ;;
 esac
 
-# Uses darcula theme from fzf color schemes wiki
+# Uses darcula theme from fzf color schemes wiki.
 export FZF_DEFAULT_OPTS='
   --bind ctrl-j:down
   --bind ctrl-k:up

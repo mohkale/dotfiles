@@ -10,6 +10,3 @@ windows:
       - gotop || htop || top || exit
   - net:
       - nethogs || nload || iftop || exit
-  - shell:
-      - tmux set-window-option -t 3 automatic-rename on
-      - clear

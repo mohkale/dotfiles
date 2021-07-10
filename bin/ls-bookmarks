@@ -165,13 +165,11 @@ do_buku() {
   # is to just [[https://github.com/jarun/buku/issues/447][dump to a file]] and read from there but I'm not about to introduce temporary file management
   # to this script.
   #
-  # Instead for now I'll detect whether stdin is a tty or not and delete the
-  # first line of output appropriately. It's an ugly hack but it works.
+  # Instead for now I'll add a process overhead that detects and removes the leading prompt.
+  # Not ideal... but it works :cry:.
 
-  [ -t 0 ]
-  local is_tty=$?
   buku --print --format 4 --json --np 2>/dev/null |
-    if [ "$is_tty" -eq 0 ]; then cat; else sed '1d'; fi |
+    awk -e 'NR != 1 || $0 !~ /^waiting for input$/' |
     jq --arg sep "$d" -r \
        '.[]
         | [.uri, .tags, .title]

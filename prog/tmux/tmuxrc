@@ -154,7 +154,7 @@ bind -r C-M-p previous-window -a
 bind -r [ swap-window -d -t -1
 bind -r ] swap-window -d -t +1
 
-set -g @switch-pane-clamp 0                                                                        # when true, switching a window to the right/left/up/down will wrap around
+set -g @switch-pane-clamp 1                                                                        # when true, switching a window to the right/left/up/down will wrap around
 
 ## move between panes
 bind h if -F '#{&&:#{@switch-pane-clamp},#{pane_at_left}}'   '' 'select-pane -L'

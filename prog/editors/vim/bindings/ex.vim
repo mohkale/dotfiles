@@ -13,3 +13,5 @@ command! WQa wqa
 command! WQA wqa
 command! Qa  qa
 command! Q   q
+command! CQ  cq
+command! Cq  cq
