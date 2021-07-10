@@ -1,0 +1,34 @@
+#!/bin/sh
+# Invert the selection of a stream filter. -*- +indent: 2 -*-
+#
+# For example you may have a program such as sxiv that you use to select
+# which images you want to trash, prefix it with invert and now you'll be
+# selecting the images you want to keep instead.
+
+if [ -z "$1" ]; then
+  cat <<EOF >&2
+Usage: invert CMD [...ARGS]
+
+  A command to remove from STDIN all the lines output by CMD.
+EOF
+  exit 0
+fi
+
+chunk -m 1 "$@" |
+  awk -F : \
+      '
+BEGIN { count = 2 }
+
+{
+  if ($1 == count) {
+    count++
+    next
+  }
+
+  out = $2
+  for (i=3; i < NF; i++) {
+    out = FS $i
+  }
+  print out
+}
+'
