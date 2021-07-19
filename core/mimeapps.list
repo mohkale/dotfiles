@@ -1,0 +1,10 @@
+# -*- mode: conf-unix -*- [[https://wiki.archlinux.org/title/XDG_MIME_Applications#mimeapps.list][Mimetype]] application configuration.
+[Removed Associations]
+text/plain=libreoffice-writer.desktop
+
+[Default Applications]
+application/pdf=org.pwmt.zathura.desktop
+image/jpeg=sxiv-ls.desktop
+image/png=sxiv-ls.desktop
+text/plain=nvim.desktop
+text/plain=vim.desktop
