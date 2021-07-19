@@ -67,6 +67,7 @@ local.properties
 .cproject
 .buildpath
 flycheck_*
+native-lisp/
 
 # Netbeans
 nbproject/private/
@@ -152,6 +153,7 @@ netrwhist
 *.acr
 *.alg
 *.aux
+*.auxlock
 *.bcf
 *.bbl
 *.blg
