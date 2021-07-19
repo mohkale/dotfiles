@@ -152,34 +152,7 @@ cmd open-yank ${{
 }}
 
 map oi open-images
-cmd open-images &{{
-    # open all marked images or images in the cwd.
-    . $XDG_CONFIG_HOME/lf/cmds/lf-files
-
-    # Strip out all files that aren't images
-    fs=$(fs -maxdepth 1 | xargs -r -d '\n' file -L --mime-type |
-         awk -F : '{
-if ($2 ~ /image/)
-    print $1
-else
-    printf "file not image: %s\n", $1 > "/dev/stderr"
-}')
-
-    if [ -z "$fs" ]; then
-      lf -remote "send $id echoerr \"No image files available\""
-      exit 1
-    fi
-
-    # when current file is an image, and is in the list of opened images
-    # make sure SXIV selects that image first.
-    flags=""
-    if [ -n "$f" ]; then
-        line=$(echo "$fs" | grep --max-count=1 -nxwF -- "$(readlink -m "$f")" | cut -d':' -f1)
-        [ -n "$line" ] && flags='-n '"$line"
-    fi
-
-    echo "$fs" | sxiv -i $flags
-}}
+cmd open-images &sxiv-ls $fx
 
 map ov open-videos
 cmd open-videos ${{

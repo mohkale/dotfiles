@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Usage: sxiv-ls FILE [...FILES]
+#
+# Invoke [[man:sxiv][sxiv]] on a file or list of files.
+#
+# Depending on the number of arguments this either opens sxiv on all files
+# in a directory or only the image files passed to this processe directly.
+# When only one image is given the former is done and when more than one is
+# given then the latter is done.
+#
+# This allows sxiv to behave like the classic windows image viewer.
+
+num=1
+
+if [ "$#" -gt 1 ]; then
+  files=$(printf "%s\n" "$@")
+else
+  if ! [ -e "$1" ]; then
+    echo "sxiv-ls: error: File to open doesn't exist." >&2
+    exit 1
+  fi
+
+  num_f=$(mktemp)
+  trap '\rm -f '"$num_f" EXIT
+
+  files=$(
+    find -L "$(dirname "$1")" \
+          -mindepth 1 -maxdepth 1 -type f \
+          -exec file -L --mime-type {} + |
+      sort -g |
+      awk -F: \
+          -v current="$1" \
+          -v num_file="$num_f" \
+          -e '!($2 ~ /image/) { next }' \
+          -e '{ print $1; count++ }' \
+          -e '$1 == current { print count > num_file }')
+
+  read -r num < "$num_f"
+  [ -z "$num" ] && num=1
+  rm -f "$num_f"
+fi
+
+exec sxiv -i -n "$num" <<< "$files"
