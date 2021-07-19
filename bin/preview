@@ -321,6 +321,12 @@ with open(sys.argv[1], 'rb') as fd:
 EOF
 }
 
+do_java_class() {
+  javap -private -c "$1" |
+    sed 1d |
+    highlight_bat --language java -
+}
+
 # ┌────────────────────────┐
 # │ Extension Associations │
 # └────────────────────────┘
@@ -349,6 +355,7 @@ case "$FILE_EXTENSION" in
   dff|dsf|wv|wvc)  do_DSDIFF  "$FILE_PATH" ;;
   sqlite|sqlite3)  do_sqlite3 "$FILE_PATH" ;;
   pyc)             do_python_bytecode "$FILE_PATH" ;;
+  class)           do_java_class "$FILE_PATH" ;;
 
   md) highlight_bat -l markdown -- "$FILE_PATH" ;;
   el) highlight_bat -l lisp -- "$FILE_PATH" ;;
