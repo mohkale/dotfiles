@@ -28,11 +28,7 @@ Rows=3
 
 [Effect-Cube]
 BorderActivate=9
-BorderActivateCylinder=9
 BorderActivateSphere=9
-
-[Effect-DesktopGrid]
-BorderActivate=9
 
 [Effect-PresentWindows]
 BorderActivate=3
@@ -80,9 +76,7 @@ Mode=Constant
 NightTemperature=2500
 
 [Plugins]
-coverswitchEnabled=true
 desktopchangeosdEnabled=true
-flipswitchEnabled=true
 highlightwindowEnabled=true
 kwin4_effect_dimscreenEnabled=true
 kwin4_effect_fadeEnabled=false
@@ -97,7 +91,7 @@ TextOnly=true
 [SubSession: 7e1a8d08-751d-434a-921f-7d5de9e867f9]
 active=-1
 activities1=7e1a8d08-751d-434a-921f-7d5de9e867f9
-count=1
+count=0
 desktop1=1
 fsrestore1=481,481,0,0
 fullscreen1=0

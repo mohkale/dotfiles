@@ -260,7 +260,7 @@ Turn Off Screen=none,none,Turn Off Screen
 _k_friendly_name=Power Management
 
 [plasmashell]
-_k_friendly_name=Plasma
+_k_friendly_name=Activity switching
 activate task manager entry 1=Meta+1,Meta+1,Activate Task Manager Entry 1
 activate task manager entry 10=Meta+0,Meta+0,Activate Task Manager Entry 10
 activate task manager entry 2=Meta+2,Meta+2,Activate Task Manager Entry 2
@@ -272,7 +272,8 @@ activate task manager entry 7=Meta+7,Meta+7,Activate Task Manager Entry 7
 activate task manager entry 8=Meta+8,Meta+8,Activate Task Manager Entry 8
 activate task manager entry 9=Meta+9,Meta+9,Activate Task Manager Entry 9
 activate widget 27=none,none,Activate Hard Disk Activity Widget
-activate widget 37=Meta+X,none,Activate Application Dashboard Widget
+activate widget 3=Meta+X,none,Activate Application Launcher Widget
+activate widget 37=,none,Activate Application Dashboard Widget
 activate widget 5=none,none,Activate Icons-only Task Manager Widget
 activate widget 58=none,none,Activate Digital Clock Widget
 clear-history=none,none,Clear Clipboard History
