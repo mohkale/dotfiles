@@ -3,7 +3,7 @@
 #
 # shellcheck disable=SC2154
 
-files=$(lf -remote load)
+files=$(cat "$XDG_DATA_HOME/lf/files")
 operation=$(echo "$files" | head -n1)
 
 if [ "$operation" != "$1" ]; then
@@ -14,12 +14,12 @@ fi
 files=$(echo "$files" | tail -n +2)
 newline=$'\n'
 
-# here we want all files in $files that aren't in $fs, making sure
+# Here we want all files in $files that aren't in $fs, making sure
 # that none of the entries in $fs are included, even when they aren't
 # in $files. To do this we concatenate $files and $fs (twice), printing
 # only the unique lines.
-new_files=$(echo "$files${newline}$fs${newline}$fx" | sort | uniq -u |
-              sed --quiet -e '/^$/d' -e 'p')
+new_files=$(echo "$files${newline}$fs${newline}$fx" |
+              sort | uniq -u | sed --quiet -e '/^$/d' -e 'p')
 
-lf -remote "save${newline}$1${newline}${new_files}${newline}"
-lf -remote "send $id unselect${newline}send $id sync"
+printf "%s\n%s\n" "$1" "$new_files" > "$XDG_DATA_HOME/lf/files"
+lf -remote "send $id unselect${newline}send sync"

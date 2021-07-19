@@ -154,26 +154,6 @@ cmd open-yank ${{
 map oi open-images
 cmd open-images &sxiv-ls $fx
 
-map ov open-videos
-cmd open-videos ${{
-    . $XDG_CONFIG_HOME/lf/cmds/lf-files
-
-    fs=$(xargs -r -d '\n' file -L --mime-type <<< "$fs" |
-         awk -F : '{
-if ($2 ~ /video|audio/)
-    print $1
-else
-    printf "file not playable by VLC: %s\n", $1 > "/dev/stderr"
-}')
-
-    if [ -z "$fs" ]; then
-      lf -remote "send $id echoerr \"no video files available\""
-      exit 1
-    fi
-
-    echo "$fs" | nohup xargs -r -d '\n' vlc -- >/dev/null 2>&1 &
-}}
-
 map o! execute
 cmd execute !{{
     if ! [ -x "$f" ]; then
@@ -198,13 +178,13 @@ cmd execute-async &{{
 }}
 
 map ob open-bookmark
-cmd open-bookmark $. $XDG_CONFIG_HOME/lf/cmds/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/fzbm; fzbm
+cmd open-bookmark $. $XDG_CONFIG_HOME/lf/auto/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/fzbm; fzbm
 
 map oP open-password
-cmd open-password $bash -c '. $XDG_CONFIG_HOME/lf/cmds/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/fzpass; fzpass'
+cmd open-password $bash -c '. $XDG_CONFIG_HOME/lf/auto/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/fzpass; fzpass'
 
 map og open-game
-cmd open-game $. $XDG_CONFIG_HOME/lf/cmds/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/open_game; open_game
+cmd open-game $. $XDG_CONFIG_HOME/lf/auto/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/open_game; open_game
 
 ## Change to directory (non-interactively)
 map gt cd /tmp/
@@ -241,29 +221,29 @@ cmd cdltemp ${{
 }}
 
 map gs fzf-grep
-cmd fzf-grep $. $XDG_CONFIG_HOME/lf/cmds/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/fzf_grep; fzf_grep
+cmd fzf-grep $. $XDG_CONFIG_HOME/lf/auto/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/fzf_grep; fzf_grep
 
 map cls $true
 
 ## Select files/directories (interactively)
 map ga goto-fsmap
-cmd goto-fsmap $. $XDG_CONFIG_HOME/lf/cmds/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/select_fsmap; select_fsmap
+cmd goto-fsmap $. $XDG_CONFIG_HOME/lf/auto/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/select_fsmap; select_fsmap
 
 map gp goto-repo
-cmd goto-repo $. $XDG_CONFIG_HOME/lf/cmds/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/cd_repo; cd_repo
+cmd goto-repo $. $XDG_CONFIG_HOME/lf/auto/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/cd_repo; cd_repo
 
 map gx goto-executable
-cmd goto-executable $. $XDG_CONFIG_HOME/lf/cmds/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/edit_executables; edit_executables
+cmd goto-executable $. $XDG_CONFIG_HOME/lf/auto/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/edit_executables; edit_executables
 
 map ge goto-environment
-cmd goto-environment $. $XDG_CONFIG_HOME/lf/cmds/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/cd_env; cd_env
+cmd goto-environment $. $XDG_CONFIG_HOME/lf/auto/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/cd_env; cd_env
 
 map gm goto-mount
-cmd goto-mount $. $XDG_CONFIG_HOME/lf/cmds/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/cd_mount; cd_mount
+cmd goto-mount $. $XDG_CONFIG_HOME/lf/auto/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/cd_mount; cd_mount
 
 map gu goto-project-root
 cmd goto-project-root %{{
-    . $XDG_CONFIG_HOME/lf/cmds/setup-fzf
+    . $XDG_CONFIG_HOME/lf/auto/setup-fzf
     if root="$(project-root)"; then
         cd "$root"
     else
@@ -275,7 +255,7 @@ map gj goto-link-dest
 cmd goto-link-dest %{{
     [ -L "$f" ] || exit 0
 
-    . $XDG_CONFIG_HOME/lf/cmds/setup-fzf
+    . $XDG_CONFIG_HOME/lf/auto/setup-fzf
     dest=$(readlink -e -- "$f")
     if [ -n "$dest" ]; then
         select_path "$dest"
@@ -285,22 +265,22 @@ cmd goto-link-dest %{{
 }}
 
 map gd fzf-cd
-cmd fzf-cd $. $XDG_CONFIG_HOME/lf/cmds/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/fzf_select; . $XDG_CONFIG_HOME/autoloads/cmds/fzf_cd; fzf_cd
+cmd fzf-cd $. $XDG_CONFIG_HOME/lf/auto/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/fzf_select; . $XDG_CONFIG_HOME/autoloads/cmds/fzf_cd; fzf_cd
 
 map gD fzf-cd-all
-cmd fzf-cd-all $. $XDG_CONFIG_HOME/lf/cmds/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/fzf_select; . $XDG_CONFIG_HOME/autoloads/cmds/fzf_cd_all; fzf_cd_all
+cmd fzf-cd-all $. $XDG_CONFIG_HOME/lf/auto/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/fzf_select; . $XDG_CONFIG_HOME/autoloads/cmds/fzf_cd_all; fzf_cd_all
 
 map gf fzf-file
-cmd fzf-file $. $XDG_CONFIG_HOME/lf/cmds/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/fzf_select; . $XDG_CONFIG_HOME/autoloads/cmds/fzf_file; fzf_file
+cmd fzf-file $. $XDG_CONFIG_HOME/lf/auto/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/fzf_select; . $XDG_CONFIG_HOME/autoloads/cmds/fzf_file; fzf_file
 
 map gF fzf-file-all
-cmd fzf-file-all $. $XDG_CONFIG_HOME/lf/cmds/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/fzf_select; . $XDG_CONFIG_HOME/autoloads/cmds/fzf_file_all; fzf_file_all
+cmd fzf-file-all $. $XDG_CONFIG_HOME/lf/auto/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/fzf_select; . $XDG_CONFIG_HOME/autoloads/cmds/fzf_file_all; fzf_file_all
 
 map gn fzf-select
-cmd fzf-select $. $XDG_CONFIG_HOME/lf/cmds/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/fzf_select; fzf_select
+cmd fzf-select $. $XDG_CONFIG_HOME/lf/auto/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/fzf_select; fzf_select
 
 map gN fzf-select-all
-cmd fzf-select-all $. $XDG_CONFIG_HOME/lf/cmds/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/fzf_select; . $XDG_CONFIG_HOME/autoloads/cmds/fzf_select_all; fzf_select_all
+cmd fzf-select-all $. $XDG_CONFIG_HOME/lf/auto/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/fzf_select; . $XDG_CONFIG_HOME/autoloads/cmds/fzf_select_all; fzf_select_all
 
 ## Archive openers
 map ox extract
@@ -374,90 +354,16 @@ cmd zip-replace ${{
 
 ## Pasting
 map pl paste-links
-cmd paste-links &{{
-    # Paste any copy/yanked files as symlinks.
-
-    # All non-empty files in the marked file list
-    files=$(lf -remote load | sed --quiet -e '/^$/d' -e p)
-
-    read -r operation <<< "$files"
-    files=$(tail -n +2 <<< "$files")
-
-    if [ -z "$files" ]; then
-        lf -remote "send $id echoerr \"no files in cut list\""
-        exit 1
-    fi
-
-    if [ "$operation" = "move" ]; then
-        link_type=-s
-    elif [ "$operation" = "copy" ]; then
-        link_type=-P
-    else
-        lf -remote "send $id echoerr \"unknown operation: $operation\""
-        exit 1
-    fi
-
-    xargs -d '\n' -r ln "$link_type" -vt "$(dirname "$f")" <<< "$files"
-    lf -remote "send $id :clear"$'\n'"send $id :load"
-}}
+cmd paste-links &$XDG_CONFIG_HOME/lf/cmds/paste-links
 
 map pL paste-links-reverse
-cmd paste-links-reverse ${{
-    # move cut/copied files to current directory first and then
-    # paste links to the new files in their previous directory.
-    #
-    # WARN any files that failed to be moved are kept in the cut
-    # list in case you'd like to modify them further.
-
-    files=$(lf -remote load | sed --quiet -e '/^$/d' -e p)
-
-    read -r operation <<< "$files"
-    files=$(tail -n +2 <<< "$files")
-
-    if [ -z "$files" ]; then
-        lf -remote "send $id echoerr \"no files in cut list\""
-        exit 1
-    fi
-
-    if [ "$operation" = "move" ]; then
-        link_type=-s
-    elif [ "$operation" = "copy" ]; then
-        link_type=-P
-    else
-        lf -remote "send $id echoerr \"unknown operation: $operation\""
-        exit 1
-    fi
-
-    failed_index=$(mktemp)
-    cleanup() { [ -e "$failed_index" ] && rm "$failed_index"; }
-    trap cleanup EXIT
-
-    on_failed() {
-        lf -remote "send $id echoerr \"destination already exists: $*\""
-        echo "$*" > "$failed_index"
-    }
-
-    dir=$(readlink -e -- "$(pwd)")
-    while read -r fpath; do
-        base="$(basename "$fpath")"
-        if [ -e "$dir/$base" ] || ! {
-            mv -n -t "$dir" "$fpath" &&
-            ln "$link_type" -vt "$(dirname "$fpath")" "$dir/$base"
-        }; then
-            on_failed "$fpath"
-        fi
-    done <<< "$files"
-
-    newline=$'\n'
-    lf -remote "save${newline}$operation${newline}$(cat "$failed_index")${newline}"
-    lf -remote "send $id sync"
-}}
+cmd paste-links-reverse &$XDG_CONFIG_HOME/lf/cmds/paste-links -r
 
 # bulkrename a bunch of files, see [[https://github.com/gokcehan/lf/issues/149#issuecomment-470960434][here]].
 map cw    bulkrename
 map <a-e> bulkrename
 cmd bulkrename ${{
-    . $XDG_CONFIG_HOME/lf/cmds/lf-files
+    . $XDG_CONFIG_HOME/lf/auto/lf-files
     fs -maxdepth 1 |
         bulkrename -V -s "$f" -
 }}
@@ -465,7 +371,7 @@ cmd bulkrename ${{
 ## recursively bulkrename all files
 map cr bulkrename-all
 cmd bulkrename-all ${{
-    . $XDG_CONFIG_HOME/lf/cmds/lf-files
+    . $XDG_CONFIG_HOME/lf/auto/lf-files
     fs -type f |
         bulkrename -V -s "$f" -
 }}
@@ -501,10 +407,7 @@ cmd touch %{{
 map D  trash
 map dt trash
 map dT trash
-cmd trash &{{
-    condemn $fx
-    lf -remote "send $id load"
-}}
+cmd trash &condemn $fx
 
 map ,o :show-opts
 cmd show-opts !{{
@@ -521,7 +424,7 @@ cmd chmod ${{
 map cp bulkchmod
 map cx bulkchmod
 cmd bulkchmod ${{
-    . $XDG_CONFIG_HOME/lf/cmds/lf-files
+    . $XDG_CONFIG_HOME/lf/auto/lf-files
     fs -maxdepth 1 |
         bulkchmod -s "$f" -c "$dir"
     lf -remote "send $id reload"
@@ -541,9 +444,7 @@ cmd skeletor ${{
 
 # Editor
 map oe evi
-cmd evi ${{
-    evi "$f"
-}}
+cmd evi $evi "$f"
 
 map ,e edit-config
 cmd edit-config ${{
@@ -608,17 +509,17 @@ map yr copy-remove
 cmd copy-remove %$XDG_CONFIG_HOME/lf/cmds/cut-remove copy
 
 map ,vf :select-files
-cmd select-files %{{
-    . $XDG_CONFIG_HOME/lf/cmds/lf-files
-    { echo "$fs"; fs -maxdepth 1 -type f; } |
+cmd select-files &{{
+    . $XDG_CONFIG_HOME/lf/auto/lf-files
+    { echo "$fs"; fs -maxdepth 1 -not -type d; } |
         sed '/^$/d' | sort | uniq -u |
         xargs -d '\n' -r -I{} lf -remote "send $id toggle \"{}\""
     lf -remote "send $id sync"
 }}
 
 map ,vd :select-dirs
-cmd select-dirs %{{
-    . $XDG_CONFIG_HOME/lf/cmds/lf-files
+cmd select-dirs &{{
+    . $XDG_CONFIG_HOME/lf/auto/lf-files
     { echo "$fs"; fs -maxdepth 1 -type d; } |
         sed '/^$/d' | sort | uniq -u |
         xargs -d '\n' -r -I{} lf -remote "send $id toggle \"{}\""

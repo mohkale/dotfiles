@@ -3,12 +3,12 @@
 #
 # shellcheck disable=SC2154
 
-files=$(lf -remote load | tail -n +2)
+files=$(tail -n +2 "$XDG_DATA_HOME/lf/files")
 newline=$'\n'
 
-# remove empty lines from the file list, because they keep messing
+# Remove empty lines from the file list, because they keep messing
 # up the selection.
 new_files=$(echo "$files${newline}$fx" | sort | uniq | sed --quiet -e '/^$/d' -e 'p')
 
-lf -remote "save${newline}$1${newline}${new_files}${newline}"
-lf -remote "send $id unselect${newline}send $id sync"
+printf "%s\n%s\n" "$1" "$new_files" > "$XDG_DATA_HOME/lf/files"
+lf -remote "send $id unselect${newline}send sync"

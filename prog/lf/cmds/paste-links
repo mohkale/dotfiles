@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+# -*- +indent: 2 -*- Paste any copy/yanked files as symlinks.
+
+read -r -d '' USAGE <<-EOF
+Usage paste-links  [-h] [-r]
+EOF
+
+read -r -d '' HELP <<-EOF
+$USAGE
+
+Optional arguments:
+  -h  Show this help message and exit.
+  -r  Paste links in reverse, moving the marked files to the current
+      directory and pasting symlinks back where they were copied from.
+EOF
+
+reverse=0
+while getopts 'hr' OPTION; do
+  case "$OPTION" in
+    r) reverse=1 ;;
+    h) echo "$HELP"
+       exit 0 ;;
+    \?) echo "$USAGE"
+        exit 1 ;;
+  esac
+done
+
+# All non-empty files in the marked file list
+files=$(sed --quiet -e '/^$/d' -e p "$XDG_DATA_HOME/lf/files")
+
+read -r operation <<< "$files"
+files=$(tail -n +2 <<< "$files")
+
+if [ -z "$files" ]; then
+  lf -remote "send $id echoerr \"No files in cut list\""
+  exit 1
+fi
+
+if [ "$operation" = "move" ]; then
+  link_type=-s
+elif [ "$operation" = "copy" ]; then
+  link_type=-P
+else
+  lf -remote "send $id echoerr \"unknown operation: $operation\""
+  exit 1
+fi
+
+if [ "$reverse" -eq 0 ]; then
+  xargs -d '\n' -r ln "$link_type" -vt "$(dirname "$f")" <<< "$files"
+  lf -remote "send $id :clear"$'\n'"send $id :load"
+else
+  failed=$(mktemp)
+  trap 'rm -f '"$failed" EXIT
+
+  dir=$(readlink -e -- "$(pwd)")
+  while read -r fpath; do
+    base="$(basename "$fpath")"
+    if [ -e "$dir/$base" ] || ! {
+           mv -n -t "$dir" "$fpath" &&
+             ln "$link_type" -vt "$(dirname "$fpath")" "$dir/$base"
+         }; then
+      lf -remote "send $id echoerr \"Destination already exists: $fpath\""
+      echo "$fpath" > "$failed"
+    fi
+  done <<< "$files"
+
+  printf "%s\n%s\n" "$operation" "$(cat "$failed")" > "$XDG_DATA_HOME/lf/files"
+  lf -remote "send :sync"$'\n'"send $id :load"
+fi
