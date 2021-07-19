@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/bin/sh
 # Creates a new floating terminal for interactive program execution.
 
 # forked from: https://github.com/oem/dotfiles/blob/master/fuzzy/fuzzy_win
@@ -30,23 +30,17 @@ EOF
 
 rows=15
 cols=30
-window_name="URxvtFuzzy"
+window_name="${TERMINAL:-URxvtFuzzy}"
 
 while getopts 'hr:c:n:' OPTION; do
     case "$OPTION" in
         h) print_help
            exit 0 ;;
         \?) print_usage >&2
-            exit 0 ;;
-        r) rows=$OPTARG
-           ;;
-        c) cols=$OPTARG
-           ;;
-        n) window_name=$OPTARG
-           ;;
-        *) print_usage >&2
-           exit 1
-           ;;
+            exit 1 ;;
+        r) rows=$OPTARG ;;
+        c) cols=$OPTARG ;;
+        n) window_name=$OPTARG ;;
     esac
 done
 
@@ -54,16 +48,21 @@ shift "$((OPTIND-1))"
 geometry="${cols}x${rows}+400+1"
 
 urxvt_cmd() {
-    # spawn through the urxvtd daemon when active, or just urxvt
-    urxvtc -name "$window_name" -geometry "$geometry" -e "$@" ||
-    urxvt  -name "$window_name" -geometry "$geometry" -e "$@"
+    cmd=urxvt
+    if urxvtc -h >/dev/null 2>&1; then
+        # Spawn through the urxvtd daemon when running
+        cmd=urxvtc
+    fi
+    exec "$cmd" -name "$window_name" -geometry "$geometry" -e "$@"
 }
 
-st_cmd() { st -n "$window_name" -g "$geometry" -e "$@"; }
+st_cmd() { exec st -n "$window_name" -g "$geometry" -e "$@"; }
 
-sh_command=st_cmd
+kitty_cmd() { exec kitty --name "$window_name" "$@"; }
 
-# search for running terminal, if so hide it
-xdotool search --onlyvisible --classname "$window_name" windowunmap \
-    || xdotool search --classname "$window_name" windowmap          \
-    || $sh_command "$@"
+term_cmd=${TERMINAL}_cmd
+if ! command -v "$term_cmd" >/dev/null 2>&1; then
+    term_cmd=st_cmd
+fi
+
+$term_cmd "$@"
