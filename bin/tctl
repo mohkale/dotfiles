@@ -39,6 +39,8 @@ class Operations(enum.IntEnum):
     pause = enum.auto()
     verify = enum.auto()
     remove = enum.auto()
+    queue_top = enum.auto()
+    queue_bottom = enum.auto()
 
 
 FZF_COMMAND = 'fzf'
@@ -410,6 +412,17 @@ if __name__ == '__main__':
                             run_action_callback('torrent-remove', 'removing torrents with ids: %s',
                                                 request_params={'delete-local-data': args.force}),
                             'Remove ' + ('& delete ' if args.force else '') + 'torrents: ',)
+    elif args.cmd == Operations.queue_top:
+        act_on_torrents_cmd(conn,
+                            run_action_callback('queue-move-top', 'Move torrents with ids %s to top of queue',),
+                            'Move to top of queue: ',
+                            'No torrents found',)
+    elif args.cmd == Operations.queue_bottom:
+        act_on_torrents_cmd(conn,
+                            run_action_callback('queue-move-bottom', 'Move torrents with ids %s to bottom of queue',),
+                            'Move to end of queue: ',
+                            'No active torrents found',
+                            torrent_filter=lambda torrents: torrents[torrents['status'] != 0])
     elif args.cmd == Operations.query:
         params = {}
         if args.read_stdin:
