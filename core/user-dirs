@@ -1,7 +1,7 @@
-# -*- mode: conf -*- XDG directory path configuration.
+# -*- mode: conf-unix -*- XDG directory path configuration.
 
 XDG_DOCUMENTS_DIR="$HOME/docs"
-XDG_DOWNLOAD_DIR="$HOME/files"
+XDG_DOWNLOAD_DIR="$HOME/downloads"
 
 # Multimedia directories
 XDG_MUSIC_DIR="$HOME/media/music"

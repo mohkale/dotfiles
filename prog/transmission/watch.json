@@ -1,5 +1,5 @@
 {
-    "torrents-dir": "~/files/torrents",
+    "torrents-dir": "~/downloads/torrents",
     "added-subdir": "@added",
     "rules": [
         {
