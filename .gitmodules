@@ -29,6 +29,3 @@
 [submodule "prog/pass/store"]
 	path = prog/pass/store
 	url = git@github.com:mohkale/pass.git
-[submodule "core/org"]
-	path = core/org
-	url = git@github.com:mohkale/org.git
