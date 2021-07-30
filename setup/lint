@@ -63,7 +63,7 @@ ignore=$(tr '\n' : < ./setup/conf/lint.ignore)
   awk -F ': *' \
       -v shell_lint="
 if command -v shellcheck >/dev/null 2>&1; then
-  $batch_str shellcheck -f gcc
+  $batch_str shellcheck -x -f gcc
 else
   echo 'warn: lint: no linter for shell installed' >&2
   cat >/dev/null

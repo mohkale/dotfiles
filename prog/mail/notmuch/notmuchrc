@@ -59,7 +59,7 @@ tags=new
 #		query will override that exclusion.
 #
 [search]
-exclude_tags = deleted;delete;spam
+exclude_tags = deleted;delete;spam;H
 
 # Maildir compatibility configuration
 #

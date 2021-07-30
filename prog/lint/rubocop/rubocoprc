@@ -27,3 +27,9 @@ Style/SpecialGlobalVars:
 
 Style/ParallelAssignment:
   Enabled: false
+
+Metrics/CyclomaticComplexity:
+   Max: 17
+
+Metrics/PerceivedComplexity:
+   Max: 17

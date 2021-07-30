@@ -8,3 +8,5 @@ image/jpeg=sxiv-ls.desktop
 image/png=sxiv-ls.desktop
 text/plain=nvim.desktop
 text/plain=vim.desktop
+application/vnd.comicbook+zip=sxcv.desktop
+application/vnd.comicbook+rar=sxcv.desktop

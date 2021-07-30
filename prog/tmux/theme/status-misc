@@ -30,11 +30,13 @@ class StatusMiscSegment(abc.ABC):
                               if key.startswith(self.name)})
         self.args = args
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def name(self):
         """The name of the current segment (used in --enable)."""
 
-    @abc.abstractclassmethod
+    @classmethod
+    @abc.abstractmethod
     def parser_args(cls, parser):
         """Assign any command line arguments for this segment.
 

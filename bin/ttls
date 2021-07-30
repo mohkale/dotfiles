@@ -31,10 +31,10 @@ def each_config(cwd, paths = [])
   end
 
   [cwd, *paths].each do |path|
-    local_path = path / Tmuxinator::Config::LOCAL_DEFAULT
-    if local_path.readable?
-      yield local_path, path.basename.to_path, path
-    end
+    local_path = Tmuxinator::Config::LOCAL_DEFAULTS
+                 .map(&path.method(:join))
+                 .find(&:readable?)
+    yield local_path, path.basename.to_path, path if local_path
   end
 end
 

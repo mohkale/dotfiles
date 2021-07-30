@@ -41,19 +41,19 @@ export MANPAGER='less -s -M +Gg'
 export MAN_KEEP_FORMATTING=1
 export INFOPATH=$XDG_DATA_HOME/info:$INFOPATH
 export OPENER='xopen'                                                           # Command used to open files/URLs.
-export ESHELL="$(command -v bash 2>/dev/null || echo /bin/sh)"                  # Shell used by emacs for various shell like purposes.
+ESHELL="$(command -v bash 2>/dev/null || echo /bin/sh)"; export ESHELL          # Shell used by emacs for various shell like purposes.
 export SH_BANNER=0                                                              # Whether to show an ascii art banner on startup.
 
 [ -r "$XDG_CONFIG_HOME/xdg" ] && . "$XDG_CONFIG_HOME/xdg"                       # Source XDG compatibility environment files
 
 # Colorize less pager, format is red, green & white.
-export LESS_TERMCAP_mb=$(printf '\033[1;91m')                                   # Begin blinking
-export LESS_TERMCAP_md=$(printf '\033[1;91m')                                   # Begin bold
-export LESS_TERMCAP_me=$(printf '\033[0m')                                      # End mode
-export LESS_TERMCAP_se=$(printf '\033[0m')                                      # End standout-mode
-export LESS_TERMCAP_ue=$(printf '\033[0m')                                      # End underline
-export LESS_TERMCAP_us=$(printf '\033[1;32m')                                   # Begin underline
-export LESS_TERMCAP_so=$(printf '\033[36m')                                     # Begin standout-mode - info box
+LESS_TERMCAP_mb=$(printf '\033[1;91m');  export LESS_TERMCAP_mb                 # Begin blinking
+LESS_TERMCAP_md=$(printf '\033[1;91m');  export LESS_TERMCAP_md                 # Begin bold
+LESS_TERMCAP_me=$(printf '\033[0m');     export LESS_TERMCAP_me                 # End mode
+LESS_TERMCAP_se=$(printf '\033[0m');     export LESS_TERMCAP_se                 # End standout-mode
+LESS_TERMCAP_ue=$(printf '\033[0m');     export LESS_TERMCAP_ue                 # End underline
+LESS_TERMCAP_us=$(printf '\033[1;32m');  export LESS_TERMCAP_us                 # Begin underline
+LESS_TERMCAP_so=$(printf '\033[36m');    export LESS_TERMCAP_so                 # Begin standout-mode - info box
 
 if [ -e "$XDG_CONFIG_HOME/diricons" ]; then
   # Load icons from human readable config file.
@@ -105,15 +105,16 @@ lines_to_path() {
 
   # I'm too inexperienced with sed to use only one sed process
   # once I get some more familirarity with it I'll optimise this.
-  local conf=$(sed -e 's/ *#.*$//g'             \
-                   -e '/^ *$/d'                 \
-                   -e 's!^~/!'"${HOME}"/'!g'    \
-                   -e '/^\[.\+\]$/!s/.\+$/\0:/' \
-                   -e '/^\[.\+\]$/s/.\+/\n\0/' |
-               sed -e '/^$/d' \
-                   -e ': again; /:$/ { N; /\[.\+\]$/!s/:\n/:/; t again }' |
-               sed -e '/\[.\+\]/ { N; s/\[\(.\+\)\]\n/\1 / }' \
-                   -e 's/:$//')
+  local conf
+  conf=$(sed -e 's/ *#.*$//g'             \
+             -e '/^ *$/d'                 \
+             -e 's!^~/!'"${HOME}"/'!g'    \
+             -e '/^\[.\+\]$/!s/.\+$/\0:/' \
+             -e '/^\[.\+\]$/s/.\+/\n\0/' |
+         sed -e '/^$/d' \
+             -e ': again; /:$/ { N; /\[.\+\]$/!s/:\n/:/; t again }' |
+         sed -e '/\[.\+\]/ { N; s/\[\(.\+\)\]\n/\1 / }' \
+             -e 's/:$//')
 
   local var paths existing
   while IFS=' ' read -r var paths; do
@@ -201,6 +202,7 @@ case "$(ls-platform)" in
     done
     unset var
 
+    # shellcheck disable=SC2155
     export GEM_HOME="$(cygpath --mixed "$GEM_HOME")"
 
     # Assume it's the only platform using the TCP file.

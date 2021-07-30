@@ -664,7 +664,8 @@ class Desktop(abc.ABC):
     def open(self, urls: t.List[str]) -> bool:
         """Open urls with current desktop environment."""
 
-    @abc.abstractclassmethod
+    @classmethod
+    @abc.abstractmethod
     def is_current(cls) -> bool:
         """Assert whether the current environment matches this desktop environment."""
         return False

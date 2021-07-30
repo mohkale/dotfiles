@@ -107,5 +107,5 @@ class Transmission(object):
             try:
                 s.connect((host, port))
                 return True
-            except: # pylint: disable=W0702
+            except socket.error:
                 return False

@@ -407,7 +407,7 @@ cmd touch %{{
 map D  trash
 map dt trash
 map dT trash
-cmd trash &condemn $fx
+cmd trash &{{ condemn $fx; lf -remote "send $id load"; }}
 
 map ,o :show-opts
 cmd show-opts !{{

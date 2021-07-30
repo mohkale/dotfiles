@@ -36,3 +36,5 @@
 	user = mohkale
 [diff "gpg"]
 	textconv = gpg --no-tty --decrypt
+[push]
+	recurseSubmodules = on-demand

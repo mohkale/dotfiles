@@ -321,6 +321,34 @@ with open(sys.argv[1], 'rb') as fd:
 EOF
 }
 
+# do_emacs_bytecode() {
+#   # Adapted from [[https://emacs.stackexchange.com/questions/35936/disassembly-of-a-bytecode-file][here]].
+#   emacs --batch \
+#         --eval '(require (quote cl-print))' \
+#         --eval '
+# (defun disassemble-file (filename)
+#   (let ((inbuf (find-file-noselect filename)))
+#     (with-current-buffer inbuf
+#       (goto-char (point-min)))
+#     (with-current-buffer (get-buffer-create "*file disassembly*")
+#       (erase-buffer)
+#       (condition-case ()
+#           (cl-loop with cl-print-compiled = (quote disassemble)
+#                    for expr = (read inbuf)
+#                    do (pcase expr
+#                         (`(byte-code ,(pred stringp) ,(pred vectorp) ,(pred natnump))
+#                          (princ "TOP-LEVEL byte code:\n" (current-buffer))
+#                          (disassemble-1 expr 0))
+#                         (_ (cl-prin1 expr (current-buffer))))
+#                    do (terpri (current-buffer)))
+#         (end-of-file nil))
+#       (goto-char (point-min))
+#       (princ (buffer-substring (point-min) (point-max))))))
+# ' \
+#         --eval '(disassemble-file (pop argv))' \
+#         "$1"
+# }
+
 do_java_class() {
   javap -private -c "$1" |
     sed 1d |
@@ -355,6 +383,7 @@ case "$FILE_EXTENSION" in
   dff|dsf|wv|wvc)  do_DSDIFF  "$FILE_PATH" ;;
   sqlite|sqlite3)  do_sqlite3 "$FILE_PATH" ;;
   pyc)             do_python_bytecode "$FILE_PATH" ;;
+  # elc)             do_emacs_bytecode "$FILE_PATH" ;;
   class)           do_java_class "$FILE_PATH" ;;
 
   md) highlight_bat -l markdown -- "$FILE_PATH" ;;

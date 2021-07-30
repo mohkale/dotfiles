@@ -138,6 +138,7 @@ class Game(object):
     that can open or install the game.
     """
 
+    # pycodestyle disable=too-many-instance-attributes
     name: str
     cover: t.List[str] = dataclasses.field(default_factory=list)
     _meta: t.List[str] = dataclasses.field(default_factory=list)
@@ -146,6 +147,7 @@ class Game(object):
     gog: t.Optional[str] = None
     epic: t.Optional[str] = None
     steam: t.Optional[id] = None
+    vndb: t.Optional[str] = None
 
     def __post_init__(self):
         """Update the fields of the current game by expanding any path variables
@@ -230,8 +232,8 @@ class Game(object):
         meta = obj.pop('meta', [])
         for new_meta, value in props.items():
             yield cls(**obj,
-                        **{key: value},
-                        _meta=meta if new_meta == 'main' else [*meta, new_meta])
+                      **{key: value},
+                      _meta=meta if new_meta == 'main' else [*meta, new_meta])
 
 
 def _edntag_find(pattern):

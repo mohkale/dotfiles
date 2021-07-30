@@ -8,4 +8,5 @@ se         sudoedit
 xres@file  ~/.Xresources
 
 jctl              journalctl
+jctlr             journalctl --reverse
 jctl-errors       journalctl -p 3 -xb

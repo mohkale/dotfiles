@@ -74,7 +74,7 @@ case "$-" in
       # it removes the alias and then runs it for the first
       # time
 
-      alias fx='eval "$(thefuck --alias 'fx')" && unalias fx && fx'
+      alias fx='eval "$(thefuck --alias fx)" && unalias fx && fx'
     fi
 
     load-aliases() { eval "$(ls-aliases | xargs -d '\n' -r build-aliases -1c -e e)"; }

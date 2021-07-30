@@ -62,7 +62,6 @@ stat_format='%a:%A:%n'
 # shellcheck disable=SC2016
 bulkrename \
   --no-verify \
-  --cd "$dir" \
   --move "$move_script" \
   --trash "$trash_script" \
   --index-pre-command 'xargs -r -d "\n" -a "$1" stat --printf '"$stat_format""'"'\n'"'"' | sponge "$1"' \

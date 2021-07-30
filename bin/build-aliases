@@ -97,6 +97,7 @@ _inline_alias_calls() {
 main() {
   hash=$(md5sum <<< "$@")
   cache_file=$cache_dir/"${hash/ -/}"
+  [ -d "$cache_dir" ] || \mkdir -p "$cache_dir"
 
   {
     # When allowed to output from the cache file we first check it exists
