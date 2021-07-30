@@ -17,7 +17,7 @@ import sys
 import tempfile
 
 import pandas as pd
-from mohkale.transmission import CONFIG_FILE, Transmission
+from mohkale.transmission import CONFIG_FILE, Transmission, TransmissionTorrentStatus
 
 try:
     from hurry.filesize import size
@@ -93,16 +93,7 @@ def get_torrents(conn, select=None, ids=None, fields=TORRENT_FIELDS): # pylint: 
     return torrents
 
 
-# see tr_torrent_activity in transmission.h
-TORRENT_STATUS = {
-    0: 'Stopped',
-    1: 'Check-Wait',
-    2: 'Checking',
-    3: 'Download-Wait',
-    4: 'Downloading',
-    5: 'Seed-Wait',
-    6: 'Seeding',
-}
+TORRENT_STATUS = {x.value: x.name.replace('_', '-').title() for x in TransmissionTorrentStatus}
 
 def render_frame(df, sep='  ', **kwargs): # pylint: disable=W0613
     """Pretty print a data-frame to string.

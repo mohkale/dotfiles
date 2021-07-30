@@ -2,6 +2,7 @@
 Client implementation for the transmission daemon.
 """
 
+import enum
 import os
 import json
 import socket
@@ -12,6 +13,20 @@ from requests import Session
 XDG_HOME = p.Path(os.environ.get('XDG_CONFIG_HOME', '~/.config')).expanduser()
 CONFIG_DIR = XDG_HOME / 'transmission-daemon'
 CONFIG_FILE  = CONFIG_DIR / 'settings.json'
+
+class TransmissionTorrentStatus(enum.IntEnum):
+    """
+    Possible values for the status field in the torrent-get request.
+
+    See the [[https://github.com/transmission/transmission/blob/master/libtransmission/transmission.h#L1652][tr_torrent_activity]] enumeration in the transmission src.
+    """
+    stopped = 0
+    check_wait = 1
+    check = 2
+    download_wait = 3
+    download = 4
+    seed_wait = 5
+    seed = 6
 
 class Transmission(object):
     """Simple interface to the transmission RPC API"""
