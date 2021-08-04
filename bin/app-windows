@@ -1,63 +1,92 @@
 #!/usr/bin/env bash
-# Output the X-window spec for every currently open emacs frame.
+# -*- +indent: 2 -*-
+#
+# Output the X-window spec for every currently open window
+# optionally matching some query.
+#
+# On certain platforms this program takes extra precautions
+# to ensure the behaviour is consistent with what the user
+# expects. For example on KDE activities act as one level
+# above workspaces in the window hirearchy and we filter
+# windows to only those visible in the current KDE activity.
+
+set -e -o pipefail
 
 print_usage() {
-    echo "Usage: app-windows [-h] [-t TITLE] [COMMAND]"
+  echo "Usage: app-windows [-h] [COMMAND]"
 }
 
 print_help() {
-    print_usage
-    cat <<-EOF
+  print_usage
+  cat <<-EOF
 
   list open x-windows running COMMAND.
 
-Options:
-  -t TITLE    only select windows whose x-title matches TITLE.
+Optional Arguments:
+  COMMAND
+    The command name of windows to list. When ommitted we simply
+    consider all windows regardless of which program their tied to.
 EOF
 }
 
-while getopts 'ht:' OPTION; do
-    case "$OPTION" in
-        h) print_help
-           exit 0 ;;
-        \?) print_usage >&2
-            exit 1 ;;
-        t) title_regexp=$OPTARG ;;
-    esac
+while getopts 'h:' OPTION; do
+  case "$OPTION" in
+    h) print_help
+       exit 0 ;;
+    \?) print_usage >&2
+        exit 1 ;;
+  esac
 done
+shift "$((OPTIND-1))"; command="$*"
 
-shift "$((OPTIND-1))"
-command="$1"
+# Strip the key(type) prefix from [[man:xprop][xprop]] output.
+xprop_value() {
+  sed \
+    -e '/:  no such atom on any window\.$/s/^.*$//' \
+    -e 's/^[^[:space:]]\+ = \(.*\)$/\1/' \
+    -e 's/^[^[:space:]]\+: \(.*\)$/\1/'
+}
+
+# xprop filter that only shows windows bound to the current KDE activity.
+kde_activity_sink() {
+  # Current activity script taken from [[https://unix.stackexchange.com/a/643945][here]].
+  local current_activity
+  read -r current_activity <<< "$(
+    dbus-send --session --dest=org.kde.ActivityManager \
+              --type=method_call --print-reply=literal /ActivityManager/Activities \
+              org.kde.ActivityManager.Activities.CurrentActivity)"
+  if [ -z "$current_activity" ]; then
+    echo "app-windows: error: failed to determine the current KDE activity." >&2
+    return 1
+  fi
+
+  local it id activity
+  while read -r it; do
+    read -r id _ <<< "$it"
+    activity=$(xprop -id "$id" _KDE_NET_WM_ACTIVITIES | xprop_value)
+    # shellcheck disable=SC2076
+    if [[ "$activity" =~ "$current_activity" ]]; then
+      echo "$it"
+    fi
+  done
+}
 
 wmctrl -lp |
-  if [ -z "$title_regexp" ]; then
-      cat
-  else
-      awk -v rx="$title_regexp" -e '{
-  res=$5
-  for (i=6; i <= NF; i++) {
-      res = res " " $i
-  }
-  if (match(res, rx)) { print $0 }
-}'
-  fi |
   if [ -z "$command" ]; then
-      cat
+    cat
   else
-      while read -r id workspace pid host row; do
-          print=0
-
-          if [ -n "$command" ]; then
-              pid_cmd=$(xprop -id "$id" _NET_WM_WINDOW_TYPE WM_CLASS |
-                          sed --quiet \
-                              -e '1d' \
-                              -e 's/^WM_CLASS(STRING) = //g' \
-                              -e 's/"\([^"]*\)"/\1/g' \
-                              -e 's/, /\n/gp')
-              # shellcheck disable=SC2076
-              [[ "$pid_cmd" =~ "$command" ]] && print=1
-          fi
-
-          [ "$print" -eq 1 ] && echo "$id $workspace $pid $host $row"
-      done
-  fi
+    while read -r it; do
+      read -r id _ <<< "$it"
+      class=$(xprop -id "$id" WM_CLASS | xprop_value)
+      # shellcheck disable=SC2076
+      if [[ '"'"$class"'"' =~ "$command" ]]; then
+        echo "$it"
+      fi
+    done
+  fi |
+  case "${DESKTOP_SESSION:-}" in
+    plasma)
+      kde_activity_sink ;;
+    *)
+      cat ;;
+  esac

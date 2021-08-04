@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Select an open terminal smartly.
+# Select an open terminal smartly. -*- +indent: 2 -*-
 #
 # If there aren't any open terminals, create a new one. If there's only
 # one select it, otherwise cycle through open terminal instances on each
@@ -9,62 +9,73 @@
 # current workspace having the highest priority and then going in order
 # through remaining workspaces (eventually wrapping back around to the
 # first workspace if necessary).
-#
 
 print_usage() {
-    echo "$0 [-h] [-t TERM]"
+  echo "Usage: term-dwim [-h] [-t TERM]"
+}
+
+print_help() {
+  print_usage
+  cat <<-EOF
+
+  Interactively select an open terminal.
+
+Optional arguments:
+  -t TERM
+    Only select terminals with the class name TERM.
+EOF
 }
 
 while getopts 'ht:' OPTION; do
-    case "$OPTION" in
-        h) print_usage
-           exit 0 ;;
-        \?) print_usage >&2
-            exit 1 ;;
-        t) term=$OPTARG
-           ;;
-    esac
+  case "$OPTION" in
+    h) print_usage
+       exit 0 ;;
+    \?) print_usage >&2
+        exit 1 ;;
+    t) term=$OPTARG ;;
+  esac
 done
 
 windows=$(app-windows "${term:-st-256color}")
 
 if [ -z "$windows" ]; then
-    # no open terminals, let's make one :smile:.
-    st & disown
-    exit $?
+  st & disown; exit "$?"                                                        # No open terminals, let's make one :smile:.
 fi
 
-if [ "$(<<< "$windows" wc -l)" -eq 1 ]; then
-    active_window="$windows"
-else
-    # read a bunch of useful options used for configuration here.
-    IFS=':' read -r desk desk_count active_window_pid rest \
-       < <(xdotool get_desktop get_num_desktops getwindowfocus getwindowpid | tr '\n' :)
+read -r active_window <<< "$windows"                                            # By default when there's only one terminal open we select it.
 
-    # sort all the windows relative to the current workspace.
-    windows=$(<<< "$windows" \
-              awk -v workspace="$desk" \
-                  -v workspace_count="$desk_count" \
-                  -e 'BEGIN { entries[1] = ""; count = 0; }' \
-                  -e '{
+if [ "$(wc -l <<< "$windows")" -gt 1 ]; then
+  # Read a bunch of useful options used for configuration here.
+  IFS=':' read -r desk desk_count active_window_pid rest \
+     < <(xdotool get_desktop get_num_desktops getwindowfocus getwindowpid | tr '\n' :)
+
+  # Sort all the windows relative to the current workspace.
+  windows=$(awk \
+              -v workspace="$desk" \
+              -v workspace_count="$desk_count" \
+              -e 'BEGIN { entries[1] = ""; count = 0; }' \
+              -e '{
   entries[++count] = sprintf("%d %s", ($2-workspace >= 0) ? $2-workspace : $2+workspace_count, $0);
 }' \
-                  -e 'END {
+              -e 'END {
   asort(entries, entries, "@val_num_asc")
   for (i=1; i <= count; i++) {
     pos = index(entries[i], " ")
     print substr(entries[i], pos+1)
   }
-}')
+}' <<< "$windows")
 
-    # shellcheck disable=SC2076
-    if [[ "$(<<< "$windows" cut -d ' ' -f3)" =~ "$active_window_pid" ]]; then # shellcheck disable=2076
-        # currently on a terminal, try to select the next terminal in the list.
+  echo "$windows"
 
-        active_window_wid=$(printf "%x" "$(xdotool getwindowfocus)")
-        # find the current row for the current terminal, then print the next row
-        active_window=$(<<< "$windows" \
-                          awk -e '
+  read -r active_window <<< "$windows"                                            # By default select the first terminal in the (now *sorted*) window list.
+
+  # If we're currently on a terminal then we should try to select the next one.
+  if awk -v active="$active_window_pid" \
+         -e '{ found = $3 == active; if (found) exit(0); }' \
+         -e 'END { if (!found) exit(1) }' <<< "$windows"; then
+    active_window_wid=$(printf "%x" "$(xdotool getwindowfocus)")
+    # Find the current row for the current terminal, then print the next row.
+    next_window=$(awk -e '
 $1 ~ /(0x)?0*'"$active_window_wid"'/ {
   if ((getline nxt) > 0) {
      print nxt
@@ -72,13 +83,13 @@ $1 ~ /(0x)?0*'"$active_window_wid"'/ {
      print "\n"
   }
   exit
-}')
+}' <<< "$windows")
 
-        # when the next row is empty (I.E. we were on the last row), select the first one
-        [ -z "$active_window" ] && active_window=$(<<< "$windows" head -n1)
-    else
-        active_window=$(<<< "$windows" head -n1)
+    if [ -n "$next_window" ]; then
+      active_window=$next_window
     fi
+  fi
 fi
 
-[ -n "$active_window" ] && wmctrl -ia "$(cut -d ' ' -f 1 <<< "$active_window")"
+[ -n "$active_window" ] &&
+  wmctrl -ia "$(cut -d ' ' -f 1 <<< "$active_window")"
