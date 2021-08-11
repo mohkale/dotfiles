@@ -1,118 +1,92 @@
-#!/bin/sh
-# Associate programs with icons using a human readable config, see [[file:~/.config/dotfiles/core/progicons][progicons]].
+#!/usr/bin/env -S gawk -E
+# Associate programs with icons using a human readable config, see [[file:~/.config/dotfiles/core/progicons][progicons]]. -*- mode: awk; +indent: 2 -*-
 
-fallback=""
-conf_file="${XDG_CONFIG_HOME:-$HOME/.config}/progicons"
+@include "getopt.awk"
 
-print_usage() {
-  echo "Usage: $(basename "$0") [-h] [-f] [-x FORMAT] PROG [PROG...]"
+function print_usage() {
+  print "Usage: prog-icons [-h] [-f] [-l] [-x FORMAT] [-c CONF]"
+  print "                  [PROG [PROG...]]"
 }
 
-print_help() {
-  print_usage
-  cat <<-EOF
-
-  Output an icon to associate with the program PROG
-  using the config file at: $conf_file.
-
-Optional Arguments:
-  -h         Print this help message and exit
-  -x FORMAT  Format outputted icons with FORMAT
-  -f         Keep reading program names from stdin and
-             outputting icons. You must still supply an
-             initial program name.
-EOF
+function print_help() {
+  print_usage()
+  print ""
+  print "  Output an icon to associate with the program PROG."
+  print ""
+  print "Optional arguments:"
+  print "  -h         Print this help message and exit"
+  print "  -x FORMAT  Format outputted icons with FORMAT"
+  print "  -c CONF    Read icon configuration from CONF"
+  print "             (defaults to $XDG_CONFIG_HOME/prog-icons)"
+  print "  -l         Flush stdout after every print operation"
+  print "  -f         Read program names from stdin until EOF"
 }
 
-follow=0 format="%s \n"
-while getopts hfx: OPTION; do
-  case "$OPTION" in
-    h) print_help
-       exit 0 ;;
-    \?) print_usage >&2
-        exit 1 ;;
-    f) follow=1 ;;
-    x) format="$OPTARG" ;;
-  esac
-done
-shift "$((OPTIND-1))"
-
-if [ "$#" -lt 1 -a "$follow" -eq 0 ]; then
-  echo "warn: progicons: no program names supplied and follow is false" >&2
-  exit 0
-fi
-
-if ! [ -e "$conf_file" ]; then
-  if [ "$follow" -eq 1 ]; then
-    yes "$(printf "$format" "$fallback")"
-  else
-    printf "$format" "$fallback"
-  fi
-  exit 0
-fi
-
-# extracted from [[file:~/.dotfiles/core/shenv::LF_ICONS=][shenv]].
-icons=$(sed "$conf_file" \
-          -e '/^[ \t]*#/d'       \
-          -e '/^[ \t]*$/d'       \
-          -e 's/[ \t]\+/=/' | tr '\n' ':')
-icons="$icons:"'*='"$fallback"
-
-{
-  while [ "$#" -gt 0 ]; do
-    echo "$1"
-    shift
-  done
-  if [ "$follow" -eq 1 ]; then
-    cat
-  fi
-} |
-  awk -v icon_path="$icons" \
-      -v format="$format" \
-      -e '
-function rfind(str, ch, i) {
-  for (i = length(str); i > 0; i--) {
-    if (substr(str, i, 1) == ch) {
-      return i
+BEGIN {
+  line_buffer = 0
+  follow = 0
+  format = "%s \n"
+  fallback = ""
+  while ((opt = getopt(ARGC, ARGV, "hx:c:lf")) != -1) {
+    opti++
+    if (Optarg)
+      opti++
+    switch (opt) {
+    case "l":
+      line_buffer = 1
+      break
+    case "c":
+      conf_file = Optarg
+      break
+    case "x":
+      format=Optarg
+      break
+    case "f":
+      follow = 1
+      break
+    case "h":
+      print_help()
+      exit
+    case "?":
+      print_help();
+      exit 1
     }
   }
-  return 0
-}
-' \
-      -e 'BEGIN {
-  icon_count = split(icon_path, _icons, ":")
+  ARGC -= opti
+
+  if (!conf_file) {
+    conf_home = ENVIRON["XDG_CONFIG_HOME"]
+    if (!conf_home)
+      conf_home = "~/.config/"
+    conf_file = conf_home "/prog-icons"
+  }
   ic = 1 # icon_counter
-  for (i = 1; i <= icon_count; i++) {
-    icon = _icons[i]
-
-    if (icon ~ /^[:space:]*$/) continue;
-    # extract current pattern/icon pair.
-    sep = rfind(icon, "=")
-    if (sep == 0) {
-      printf("warn: progicons: icon missing pattern: %s\n", icon) > "/dev/stderr";
+  while ((getline line < conf_file) > 0) {
+    if (line ~ /^[[:space:]]*#/ ||
+        line ~ /^[[:space:]]*$/)
       continue
+    if (match(line, /(.+)[[:space:]]+([^[:space:]]+)$/, mtch)) {
+      pattern = substr(line, mtch[1, "start"], mtch[1, "length"])
+      sub(/[[:space:]]+$/, "", pattern) # Trim because greedy capture
+      icon    = substr(line, mtch[2, "start"], mtch[2, "length"])
+
+      # convert pattern to glob
+      gsub("*", ".*", pattern);
+      pattern = "^" pattern "$"
+
+      # store back to icons array
+      icons[ic, "pattern"] = pattern
+      icons[ic, "icon"]    = icon
+      ic++
     }
-    pattern = substr(icon, 1, sep-1)
-    icon    = substr(icon, sep+1)
-
-    # convert pattern to glob
-    gsub("*", ".*", pattern);
-    pattern = "^" pattern "$"
-
-    # store back to icons array
-    icons[ic, "pattern"] = pattern
-    icons[ic, "icon"]    = icon
-    ic++
   }
-}' \
-      -e '{
-  prog = $0
+}
 
+function get_icon(prog, i) {
   # check whether this matches the last program and output
   # the previous icon instead.
   if (prog == last_prog && last_icon) {
-    printf(format, last_icon)
-    next
+    return last_icon
   }
   last_prog = prog
 
@@ -120,9 +94,33 @@ function rfind(str, ch, i) {
     pattern = icons[i, "pattern"]
     icon    = icons[i, "icon"]
     if (prog ~ pattern) {
-      printf(format, icon)
       last_icon = icon
-      next
+      return icon
     }
   }
-}'
+
+  last_icon = fallback
+  return fallback
+}
+
+function print_icon(prog) {
+  printf(format, get_icon(prog))
+  if (line_buffer) {
+    fflush(stdout)
+  }
+}
+
+BEGIN {
+  while (i++ < ARGC-1) {
+    print_icon(ARGV[opti+i])
+  }
+  ARGC -= i
+
+  if (!follow) {
+    exit(0)
+  }
+}
+
+{
+  print_icon($0)
+}
