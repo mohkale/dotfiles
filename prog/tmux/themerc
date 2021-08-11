@@ -148,7 +148,7 @@ set -g status-right " \
 \
 #[default]#{?#{==:#{@theme-sep},}, ,#{@theme-sep}}\
 #{?#{e|>=:#{client_width},#{@theme-hide-host-width}},#{host}(#{=$TMUX_OPT_CMD_MAX_LEN:pane_current_command}) ,}\
-#(echo ""; $TMUX_HOME/theme/tmux-icons -c '#{client_tty}') \
+#(echo ""; $TMUX_HOME/theme/tmux-title -c '#{client_tty}' | prog-icons -lf) \
 #[pop-default]\
 \
 #[default,bg=$TMUX_HL,fg=$TMUX_BG]#[push-default]\

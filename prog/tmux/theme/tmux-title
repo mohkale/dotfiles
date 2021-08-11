@@ -1,0 +1,80 @@
+#!/usr/bin/env -S gawk -E
+# Tail the current pane command for a given [[man:tmux][tmux]] client. -*- mode: awk; +indent: 2 -*-
+#
+# This awk script spawns a dummy command-mode tmux client that follows
+# the active pane in a given client, detecting and then outputting any
+# changes in #{pane_current_command}.
+
+@include "getopt.awk"
+
+function print_usage() {
+  print "Usage: tmux-icons [-h] [-v] [-c CLIENT]"
+}
+
+function print_help() {
+  print_usage()
+  print ""
+  print "  Spawn a dummy client, following CLIENT, that detects"
+  print "  the current active program and prints an icon for it"
+  print ""
+  print "Optional Arguments:"
+  print "  -h"
+  print "     Show this help message and exit"
+  print "  -v"
+  print "     Print unused client output to STDERR"
+  print "  -c CLIENT"
+  print "     Specify the tmux client to follow"
+}
+
+BEGIN {
+  client = ""
+  verbose = 0
+  subscription = "refresh-client -B icon-tail::'#{pane_current_command}'"
+  while ((opt = getopt(ARGC, ARGV, "hvc:")) != -1) {
+    switch (opt) {
+    case "c":
+      client = Optarg
+      break
+    case "v":
+      verbose = 1
+      break
+    case "h":
+      print_help()
+      exit
+    case "?":
+      print_help();
+      exit 1
+    }
+  }
+}
+
+BEGIN {
+  cmd = sprintf("tmux -C attach-session -t %s -fno-output,read-only", client)
+  print subscription |& cmd # kick start the tmux command-mode coprocess
+  while (cmd |& getline out) {
+    count = split(out, a)
+    switch (out) {
+    case /^%subscription-changed/:
+      print a[count]
+      fflush(stdout) # no buffering when in the status-line :P
+      break
+    case /^%client-detached/:
+      if (client == a[2]) {
+        close(cmd);
+      }
+      break
+    case /^%client-session-changed/:
+      # Make sure our icon-tracker tracks the same session as as our clients
+      if (client == a[2]) {
+        print ("switch-client -t " a[3]) |& cmd
+      }
+      break
+    default:
+      if (verbose != 0) {
+        print out > "/dev/stderr"
+      }
+      break
+    }
+  }
+  exit 0
+}
