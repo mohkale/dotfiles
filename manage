@@ -11,7 +11,7 @@ root="$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd -P)"
 dotty_path=$root/setup/dotty
 
 # The url for the latest dotty release.
-dotty_version=v0.0.2
+dotty_version=0.0.3
 dotty_url=https://github.com/mohkale/dotty/releases/download/$dotty_version
 
 # Keep dotty bots cache here.
