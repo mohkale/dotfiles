@@ -7,6 +7,8 @@
 # /___|___/_| |_|_|  \___|
 #
 # Zshell configuration file sourced only in interactive shells.
+#
+# shellcheck shell=bash
 
 if ! [ -d "$ZGEN_DIR" ]; then
   echo "zgen: installation not found, installing now"
@@ -95,7 +97,7 @@ zstyle ':completion:*' completer _expand_alias _complete _ignored               
 source "$XDG_CONFIG_HOME"/bindings/zshell
 
 # Where to look for autoloads.
-fpath=("$fpath[@]")
+fpath=("${fpath[@]}")
 
 autoload -U compinit && compinit
 

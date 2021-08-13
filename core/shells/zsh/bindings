@@ -1,5 +1,7 @@
 #!/usr/bin/env zsh
 # -*- +indent: 2 -*- config file for zshells ZLE.
+#
+# shellcheck shell=bash
 
 # options
 zle_highlight=(  )

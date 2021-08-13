@@ -61,13 +61,27 @@ ignore=$(tr '\n' : < ./setup/conf/lint.ignore)
   done |
   xargs -r -d '\n' file --dereference --mime-type -- |
   awk -F ': *' \
-      -v shell_lint="
+      -v shell_lint='
 if command -v shellcheck >/dev/null 2>&1; then
-  $batch_str shellcheck -x -f gcc
+  # Annoyingly shellcheck treats warnings as errors (in regards to
+  # the exit code) but I only want failures on errors. Not warnings.
+  '"$batch_str"' shellcheck -x -f gcc --exclude SC1091,SC1090 |
+    awk -F : -e '"'"'{
+  if (code == 0) {
+    level = $4
+    sub(/^[ \t]+/, "", level)
+    code = (level == "error") ? 1 : 0
+  }
+  out=$1
+  for (i=2; i <= NF; i++) {
+    out = out FS $i
+  }
+  print(out)
+}'"'"' -e '"'"'END { exit(code) }'"'"'
 else
-  echo 'warn: lint: no linter for shell installed' >&2
+  echo "warn: lint: no linter for shell installed" >&2
   cat >/dev/null
-fi" \
+fi' \
       -v python_lint="
 if command -v pylint >/dev/null 2>&1; then
   $batch_str pylint --rcfile setup/conf/pylintrc --msg-template='{path}:{line}:{column}: {category}: {msg} [{symbol} {msg_id}]' --disable C0103,R0801,E0401 --reports n --score n
@@ -172,7 +186,8 @@ fi
     if (verbose)
       print("lint: error: unknown interpreter for linting (" $2 ") at path: " $1)
   }
-}' || exit=1
+}
+' || exit=1
 
 # Also list broken symlinks as errors.
 while IFS=: read -r src dest; do

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # -*- +indent: 2 -*- Paste any copy/yanked files as symlinks.
+# shellcheck disable=SC2154
 
 read -r -d '' USAGE <<-EOF
 Usage paste-links  [-h] [-r]

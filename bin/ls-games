@@ -130,6 +130,7 @@ class Steam(object):
         return None
 
 
+# pylint: disable=too-many-instance-attributes
 @dataclasses.dataclass
 class Game(object):
     """A game.
@@ -137,8 +138,6 @@ class Game(object):
     Includes enough information about a game to list it and produce a URL
     that can open or install the game.
     """
-
-    # pycodestyle disable=too-many-instance-attributes
     name: str
     cover: t.List[str] = dataclasses.field(default_factory=list)
     _meta: t.List[str] = dataclasses.field(default_factory=list)

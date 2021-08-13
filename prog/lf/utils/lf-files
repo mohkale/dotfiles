@@ -3,6 +3,8 @@
 # Helper to assign $fs (the current lf selection) to the contents of the
 # cwd when it's otherwise unassigned. It also respects the value of the
 # hiddenfiles option.
+#
+# shellcheck disable=SC2154
 
 _lf_hidden_filter() {
   dir="$1"
@@ -54,7 +56,7 @@ fsr() {
       fi
 
       dir=$(dirname "$it")
-      find $it -mindepth 1 "$@" |
+      find "$it" -mindepth 1 "$@" |
         _lf_hidden_filter "$dir"
     done |
       sort -V

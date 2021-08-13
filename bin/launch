@@ -157,6 +157,7 @@ if [ "$#" -gt 0 ]; then
       exit $? ;;
     help)
       echo "launch {describe-desktop,describe-command,list-entries,list-commands} [ARGS]"
+      exit 0
       ;;
     *)
       echo "launch: error: unknown command $1: run 'help' for a list of supported commands." >&3

@@ -11,6 +11,8 @@
 #
 # Place configuration options or declarations you always want to
 # evaluate in here.
+#
+# shellcheck shell=bash
 
 # Use this in liue of zprofile because this will always be
 # run on every shell, meaning we can assign ZDOTDIR here.

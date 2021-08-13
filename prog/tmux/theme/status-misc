@@ -231,6 +231,7 @@ class TransmissionNotificationSegment(StatusMiscSegment):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._transmission = None
+        # pylint: disable=access-member-before-definition
         if not self.sections:
             self.sections = [self.TransmissionSectionStatus.complete,
                              self.TransmissionSectionStatus.incomplete]
@@ -238,6 +239,8 @@ class TransmissionNotificationSegment(StatusMiscSegment):
             self.sections = [self.TransmissionSectionStatus[x] for x in self.sections]
 
     class TransmissionSectionStatus(enum.IntEnum):
+        """Possible count that can be shown on this status segment.
+        """
         downloading = enum.auto()
         downloading_high_priority = enum.auto()
         seeding = enum.auto()
@@ -268,6 +271,7 @@ class TransmissionNotificationSegment(StatusMiscSegment):
                               help="When true don't show empty torrent sections")
 
     def render(self):
+        # pylint: disable=no-member,import-outside-toplevel
         from mohkale import transmission as t
         if not self._transmission:
             self._transmission = t.Transmission.from_conf_file()
@@ -299,7 +303,7 @@ class TransmissionNotificationSegment(StatusMiscSegment):
             torrent['status'] == t.TransmissionTorrentStatus.check
             or torrent['status'] == t.TransmissionTorrentStatus.check_wait,
         }
-        counts = {x: 0 for x in COUNT_PREDICATES.keys()}
+        counts = {x: 0 for x in COUNT_PREDICATES}
         for torrent in torrents:
             for key, pred in COUNT_PREDICATES.items():
                 if pred(torrent):

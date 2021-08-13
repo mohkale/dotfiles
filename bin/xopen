@@ -7,8 +7,7 @@ in my dotfiles. I've had issues with xdg-open not differentiating
 between KDE and KDE5. Forking it seemed to be the most straight forward
 way to keep a persistent version of xdg-open across all my files.
 
-For why this is necessary, look no further than [[https://cgit.freedesktop.org/xdg/xdg-utils/commit/?id=2373d9b2b70652e447b413cde7939bff42fb960d][here]]. This script takes
-more than a little inspiration from [[https://github.com/wor/pyxdg-open][pyxdg-open]].
+This script takes more than a little inspiration from [[https://github.com/wor/pyxdg-open][pyxdg-open]].
 """
 
 # pylint: disable=too-many-lines, missing-module-docstring, line-too-long
