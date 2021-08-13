@@ -372,7 +372,7 @@ cmd bulkrename ${{
 map cr bulkrename-all
 cmd bulkrename-all ${{
     . $XDG_CONFIG_HOME/lf/auto/lf-files
-    fs -type f |
+    fsr -type f |
         bulkrename -V -s "$f" -
 }}
 
