@@ -21,5 +21,20 @@ notmuch tag +deleted -inbox -unread -- folder:'/\[Gmail\]/' and folder:'/Bin$/'
 notmuch tag +spam    -inbox -unread -- folder:'/\[Gmail\]/' and folder:'/Spam$/'
 notmuch tag +deleted -inbox -unread -- folder:'/^kisara\/Trash/'
 
+# We only show a notification when there's some new mail, despite the fact
+# that the notification mentions how much unread mail we have atm. This
+# script was adapted from [[https://github.com/natmey/dotfiles/blob/master/notmuch/notmuch-notification.sh][@natmey]].
+LIMIT=3 # The maximum number of email summaries to show in a notification.
+new_count=$(notmuch count --output=messages tag:new)
+if [ -n "$new_count" -a "$new_count" -gt 0 ]; then
+  unread_count=$(notmuch count --output=messages tag:unread)
+  # Filter the summary for each mail, quoting any embedded HTML.
+  summary=$(notmuch search --format=text --output=summary --limit="$LIMIT" --sort=newest-first tag:unread |
+              sed -e 's/^[^;]*; //' \
+                  -e 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g; s/"/\&quot;/g; s/'"'"'/\&#39;/g' \
+                  -e 's/$/\n/')
+  notify-send -i "mail" "$unread_count unread mesages." "$summary"
+fi
+
 # Remove new tag and attach defaults for rest of new mail
 notmuch tag +inbox +unread -new -- tag:new

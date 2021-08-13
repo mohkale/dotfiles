@@ -72,6 +72,7 @@ rm      rm -v
 mv      mv -iv
 cp      cp -iv
 ln      ln -iv
+dd      dd status=progress
 mkdir   mkdir -v
 chmod   chmod -v
 

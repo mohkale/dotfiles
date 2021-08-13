@@ -385,6 +385,7 @@ case "$FILE_EXTENSION" in
   pyc)             do_python_bytecode "$FILE_PATH" ;;
   # elc)             do_emacs_bytecode "$FILE_PATH" ;;
   class)           do_java_class "$FILE_PATH" ;;
+  mp3)             do_video "$FILE_PATH" ;;
 
   md) highlight_bat -l markdown -- "$FILE_PATH" ;;
   el) highlight_bat -l lisp -- "$FILE_PATH" ;;

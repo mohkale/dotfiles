@@ -22,7 +22,9 @@ nnoremap <leader>fu :let @+ = expand("%:p:h")<CR>:echo expand("%:p:h")<CR>
 nnoremap <leader>f% :let @+ = expand("%:t")<CR>:echo expand("%:t")<CR>
 nnoremap <leader>jd :edit .<cr>
 nnoremap <leader>xd gu
+vnoremap <leader>xd gu
 nnoremap <leader>xu gU
+vnoremap <leader>xu gU
 nnoremap <leader>xc gc
 
 " Manipulate This Configuration File
