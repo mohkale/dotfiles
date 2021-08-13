@@ -113,7 +113,9 @@ bind -r . next-layout
 bind -r , previous-layout
 
 # create a new window/panes
-bind C-t new-window   -c '#{pane_current_path}'
+set -g @new-window-adjacent 1                                                                       # when true, creating a new window is made adjacent to the current window
+
+bind C-t run-shell "tmux new-window #{?@new-window-adjacent,-a,} -c #{q:pane_current_path}"
 bind C-v split-window -c '#{pane_current_path}' -h
 bind C-s split-window -c '#{pane_current_path}'
 
@@ -154,9 +156,9 @@ bind -r C-M-p previous-window -a
 bind -r [ swap-window -d -t -1
 bind -r ] swap-window -d -t +1
 
+## move between panes
 set -g @switch-pane-clamp 1                                                                        # when true, switching a window to the right/left/up/down will wrap around
 
-## move between panes
 bind h if -F '#{&&:#{@switch-pane-clamp},#{pane_at_left}}'   '' 'select-pane -L'
 bind j if -F '#{&&:#{@switch-pane-clamp},#{pane_at_bottom}}' '' 'select-pane -D'
 bind k if -F '#{&&:#{@switch-pane-clamp},#{pane_at_top}}'    '' 'select-pane -U'
