@@ -20,7 +20,7 @@ m       fzman
 o       xopen
 p       cd_repo
 s       $SHELL
-x       fzdmenu
+x       launch
 y       file_path_yank
 z       select_fsmap
 
