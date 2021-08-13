@@ -41,6 +41,9 @@ class Operations(enum.IntEnum):
     remove = enum.auto()
     queue_top = enum.auto()
     queue_bottom = enum.auto()
+    priority_high = enum.auto()
+    priority_normal = enum.auto()
+    priority_low = enum.auto()
 
 
 FZF_COMMAND = 'fzf'
@@ -78,7 +81,7 @@ def tcmd(conn, action, **kwargs):
     return resp
 
 
-def get_torrents(conn, select=None, ids=None, fields=TORRENT_FIELDS): # pylint: disable=W0102
+def get_torrents(conn, select=None, ids=None, fields=TORRENT_FIELDS):  # pylint: disable=W0102
     """Get torrents from transmission with filters and field subsets.
     """
     params = {'fields': fields}
@@ -95,7 +98,7 @@ def get_torrents(conn, select=None, ids=None, fields=TORRENT_FIELDS): # pylint: 
 
 TORRENT_STATUS = {x.value: x.name.replace('_', '-').title() for x in TransmissionTorrentStatus}
 
-def render_frame(df, sep='  ', **kwargs): # pylint: disable=W0613
+def render_frame(df, sep='  ', **kwargs):  # pylint: disable=W0613
     """Pretty print a data-frame to string.
     """
     for col in df.columns[:-1]:
@@ -114,6 +117,7 @@ def render_frame(df, sep='  ', **kwargs): # pylint: disable=W0613
     #     header=False, index=False, **kwargs,
     #     max_rows=math.inf, max_cols=math.inf, line_width=math.inf)
     return buf.read()
+
 
 PROCESS_TORRENTS_ID_FORMAT = '{:4d}'.format
 
@@ -141,7 +145,7 @@ def process_torrents(ts, cols=None):
             ts[col] = ts[col].map(size) + '/s'
     return pd.concat([ts[i].astype(str) for i in cols], axis=1)
 
-def format_torrents(torrents, cols=TORRENT_FIELDS, prefix_id=None): # pylint: disable=W0102
+def format_torrents(torrents, cols=TORRENT_FIELDS, prefix_id=None):  # pylint: disable=W0102
     """Format a collection of torrents into pretty printed table rows.
 
     Paramaters
@@ -196,14 +200,16 @@ def run_action_callback(remote_cmd, running_action_msg, request_params=None,):
     """
     if not request_params:
         request_params = {}
-    def callback(conn, ids, torrents): # pylint: disable=W0613
-        logging.info('Attempting to ' + running_action_msg, ', '.join(map(str, ids))) # pylint: disable=W1201
+
+    def callback(conn, ids, torrents):  # pylint: disable=W0613
+        logging.info('Attempting to ' + running_action_msg, ', '.join(map(str, ids)))  # pylint: disable=W1201
         try:
             tcmd(conn, remote_cmd, ids=ids, **request_params)
             return True
         except TransmissionError:
-            logging.info('Failed to ' + running_action_msg, ', '.join(map(str, ids))) # pylint: disable=W1201
+            logging.info('Failed to ' + running_action_msg, ', '.join(map(str, ids)))  # pylint: disable=W1201
             return False
+
     return callback
 
 def play_torrent_files_cmd(conn, ids, torrents):
@@ -225,7 +231,7 @@ def play_torrent_files_cmd(conn, ids, torrents):
 
     files['percentageComplete'] = (files['bytesCompleted'] / files['length'] * 100).astype(int).map('{:3d}%'.format)
     files = files.drop(['bytesCompleted', 'length'], axis=1)
-    files = files[['torrent_id', 'percentageComplete', 'name'] ]
+    files = files[['torrent_id', 'percentageComplete', 'name'], ]
 
     res = fzf(render_frame(files), '--multi', '--prompt', 'Open files: ', '-d', ':', '--with-nth', '3..')
     for i, row in enumerate(res):
@@ -283,10 +289,11 @@ def act_on_torrents_cmd(conn,
 
     return callback(conn, ids, torrents)
 
+
 if __name__ == '__main__':
     import argparse
 
-    from mohkale.pylog.config import use_config as use_logging_config # pylint: disable=C0412
+    from mohkale.pylog.config import use_config as use_logging_config  # pylint: disable=C0412
 
     parser = argparse.ArgumentParser()
 
@@ -412,8 +419,31 @@ if __name__ == '__main__':
         act_on_torrents_cmd(conn,
                             run_action_callback('queue-move-bottom', 'Move torrents with ids %s to bottom of queue',),
                             'Move to end of queue: ',
-                            'No active torrents found',
-                            torrent_filter=lambda torrents: torrents[torrents['status'] != 0])
+                            'No torrents found',)
+    elif args.cmd == Operations.priority_high:
+        act_on_torrents_cmd(conn,
+                            run_action_callback('torrent-set', 'give torrents with ids %s a high priority',
+                                                {'bandwidthPriority': 1}),
+                            'Increase bandwidth priority: ',
+                            'No torrents found',
+                            torrent_fields=[*TORRENT_FIELDS, 'bandwidthPriority'],
+                            torrent_filter=lambda torrents: torrents[torrents['bandwidthPriority'] < 1],)
+    elif args.cmd == Operations.priority_normal:
+        act_on_torrents_cmd(conn,
+                            run_action_callback('torrent-set', 'give torrents with ids %s a high priority',
+                                                {'bandwidthPriority': 0}),
+                            'Normalise bandwidth priority: ',
+                            'No torrents found',
+                            torrent_fields=[*TORRENT_FIELDS, 'bandwidthPriority'],
+                            torrent_filter=lambda torrents: torrents[torrents['bandwidthPriority'] != 0],)
+    elif args.cmd == Operations.priority_low:
+        act_on_torrents_cmd(conn,
+                            run_action_callback('torrent-set', 'give torrents with ids %s a high priority',
+                                                {'bandwidthPriority': -1}),
+                            'Lower bandwidth priority: ',
+                            'No torrents found',
+                            torrent_fields=[*TORRENT_FIELDS, 'bandwidthPriority'],
+                            torrent_filter=lambda torrents: torrents[torrents['bandwidthPriority'] > -1],)
     elif args.cmd == Operations.query:
         params = {}
         if args.read_stdin:
