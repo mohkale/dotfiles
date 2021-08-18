@@ -1,27 +1,4 @@
 # -*- mode: conf-space -*- [[https://wiki.archlinux.org/title/isync][isync]] configuration file -- vim:syntax=conf:filetype=conf
-# mohkale@kisara.moe
-IMAPAccount kisara
-Host kisara.moe
-User mohkale
-PassCmd "pass server/kisara.moe/mohkale | head -n1"
-# Dumb issues with Self Signed Certificates.
-SSLType None
-
-IMAPStore kisara-remote
-Account kisara
-
-MaildirStore kisara-local
-SubFolders Verbatim
-Path ~/docs/mail/kisara/
-Inbox ~/docs/mail/kisara/Inbox
-
-Channel kisara
-Far :kisara-remote:
-Near :kisara-local:
-Patterns *
-Create both
-SyncState *
-
 # mohkalsin@gmail.com
 IMAPAccount mohkalsin-gmail
 Host imap.gmail.com
@@ -71,6 +48,5 @@ SyncState *
 Patterns * ![Gmail]* "[Gmail]/Sent Mail" "[Gmail]/Starred" "[Gmail]/All Mail" "[Gmail]/Bin"
 
 Group all
-Channel kisara
 Channel mohkalsin-gmail
 Channel mohkalex-gmail

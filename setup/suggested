@@ -33,7 +33,7 @@ presets=(
   [games.linux]="gba"
 
   # Bots to install in a system designed for regular user use.
-  [user]="brave firefox gimp mail"
+  [user]="brave firefox gimp mail.client"
   [user.doc]="General purpose programs for regular interactive use"
   [user.windows]="itunes"
   [user.linux]="lollypop"

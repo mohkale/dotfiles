@@ -1,0 +1,7 @@
+#!/bin/sh
+# -*- +indent: 2 -*- notmuch client mail-fetch script.
+#
+# See [[file:pre-new.server][pre-new.server]], this variant of the script is used to connect
+# to the root mail-store server and fetch mails from there.
+
+muchsync --nonew --upbg kisara

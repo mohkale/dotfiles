@@ -95,6 +95,10 @@ export PGSERVICEFILE="$XDG_CONFIG_HOME/pg/pg_service.conf"
 
 export ZDOTDIR="$XDG_CONFIG_HOME/zshell"                                        # zshell
 
+# Notmuch configuration location. Notmuch itself has XDG compliance but muchsync
+# does not yet.
+export NOTMUCH_CONFIG="$XDG_CONFIG_HOME/notmuch/${NOTMUCH_PROFILE:-default}/config"
+
 # bash/zsh
 if [ -n "$ZSH_VERSION" ]; then
   export HISTFILE="$XDG_STATE_HOME/zshell_history"

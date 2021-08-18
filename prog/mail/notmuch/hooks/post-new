@@ -1,0 +1,28 @@
+#!/bin/sh
+# -*- +indent: 2 -*- notmuch initial tagging script.
+#
+# This script is run by [[man:notmuch-hooks][notmuch]] immediately after any new mail
+# has been added to the inbox. This makes it perfect for auto-
+# taggging new emails and dispatching update notifications.
+
+set -e
+
+sed -e '/^#.*/d' -e '/^[[:space:]]*$/d' <<EOF | notmuch tag --batch
+# Automatically read and flag any emails from myself
+-new +inbox -unread +flagged -- tag:new and from:"mohsin kaleem" and to:"mohsin kaleem"
+
+# Don't mark any replies I make as new emails, their continuations of earlier ones.
+-new +inbox -unread -- tag:new and from:"mohsin kaleem"
+
+# Automatically mark developer related content
+-new +inbox +dev -- tag:new and from:help-debbugs@gnu.org
+-new +inbox +dev -- tag:new and from:@github.com
+
+# Tag any mail in the bin as deleted.
++deleted -inbox -unread -- folder:/\[Gmail\]/ and folder:/Bin$/
++spam    -inbox -unread -- folder:/\[Gmail\]/ and folder:/Spam$/
++deleted -inbox -unread -- folder:/^kisara/Trash/
+
+# Remove new tag and attach defaults for rest of new mail
+notmuch tag +inbox +unread -new -- tag:new
+EOF

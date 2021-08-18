@@ -1,0 +1,22 @@
+#!/bin/sh
+# -*- +indent: 2 -*- notmuch mail-fetch script.
+#
+# This script is run by [[man:notmuch-hooks][notmuch]] prior to indexing any new mails
+# meaning you can place the logic for fetching mails into here
+# and then update by simply running `notmuch new`.
+#
+# Then if you later decide to move to a new syncing program the
+# public interface for updating mails remains the same, meaning
+# you don't have to edit any cronjobs or other configs.
+
+# WARN: For some reason, even when you specify not to, muchsync
+# sends a `mbsync new` call to the remote server whenever a client
+# tries to fetch new mail meaning every time a client tries to sync
+# the server also syncs from any configured isync remote accounts.
+#
+# In the interest of performance this section is commented out and
+# the server is expected to invoke isync manually. Clients can still
+# update by just running `notmuch new`.
+
+# # Sync mail files from all configured remotes using isync
+# mbsync --verbose -c "${XDG_CONFIG_HOME:-$HOME/.config}"/isync/mbsyncrc all

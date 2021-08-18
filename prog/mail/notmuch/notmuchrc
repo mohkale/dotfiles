@@ -8,6 +8,7 @@
 # Notmuch will store its database within a sub-directory of the path
 # configured here named ".notmuch".
 #
+
 [database]
 # TODO: For some reason, MAILDIR is ignored.
 path=/home/mohkale/docs/mail/
@@ -27,6 +28,7 @@ path=/home/mohkale/docs/mail/
 # recipient list of replies, and will set the From address based on the
 # address to which the original email was addressed.
 #
+
 [user]
 name=Mohsin Kaleem
 primary_email=mohkale@kisara.moe
@@ -46,6 +48,7 @@ other_email=mohkalsin@gmail.com;mohkalex@gmail.com;
 #		names will be ignored, independent of its depth/location
 #		in the mail store.
 #
+
 [new]
 tags=new
 
@@ -58,8 +61,9 @@ tags=new
 #		search results by default.  Using an excluded tag in a
 #		query will override that exclusion.
 #
+
 [search]
-exclude_tags = deleted;delete;spam;H
+exclude_tags=deleted;delete;spam;H
 
 # Maildir compatibility configuration
 #
@@ -82,4 +86,5 @@ exclude_tags = deleted;delete;spam;H
 #	and update tags, while the "notmuch tag" and "notmuch restore"
 #	commands will notice tag changes and update flags in filenames
 #
+
 [maildir]
