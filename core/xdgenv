@@ -38,7 +38,7 @@ export POETRY_HOME="$XDG_CONFIG_HOME"/poetry                                    
 export IPYTHONDIR="$XDG_CONFIG_HOME"/jupyter                                    # iPython (jupyter notebooks)
 export JUPYTER_CONFIG_DIR="$XDG_CONFIG_HOME"/jupyter
 
-export VIMINIT=":source $XDG_CONFIG_HOME/vim/init.vim"                          # Vim
+export VIMINIT='let $MYVIMRC = !has("nvim") ? "$XDG_CONFIG_HOME/vim/init.vim" : "$XDG_CONFIG_HOME/nvim/init.vim" | so $MYVIMRC'
 
 export GTK_RC_FILES="$XDG_CONFIG_HOME/gtk-1.0"/gtkrc                            # GTK
 export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0"/gtkrc

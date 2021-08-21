@@ -5,8 +5,9 @@ root: ~/
 startup_window: dash
 
 windows:
-  # dashboard to inspect system
   - dash:
       - gotop || htop || top || exit
   - net:
       - nethogs || nload || iftop || exit
+  - mail:
+      - emacs -nw --eval '(if (require (quote notmuch) nil t) (notmuch-search "tag:inbox") (kill-emacs 1))' --eval '(auto-revert-mode)' || exit

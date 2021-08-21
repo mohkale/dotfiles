@@ -315,6 +315,8 @@ bind -Tm-commands m run -b '\
   FZMAN_CMD=fzman_cmd fzman\
 '
 
+bind C-x run -b 'tmux-popup -w 100% -h 100% launch'
+
 # bind B run -b "$TMUX_HOME/cmds/run-binding -rpv"
 # bind M-a run -b "$TMUX_HOME/cmds/manage-windows -s"
 # bind M-w run -b "$TMUX_HOME/cmds/manage-windows"
