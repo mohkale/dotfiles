@@ -1,0 +1,15 @@
+#!/bin/sh
+# -*- +indent: 2 -*- Output the number of pending updates for your systems package manager.
+
+if ! count=$(
+    false ||
+      ( yay    -Qu | wc -l ) ||
+      ( pacman -Qu | wc -l )); then
+  echo "updates: error: Failed to determine number of outdated packages." >&2
+  exit 1
+fi
+
+[ "$count" -eq 0 ] &&
+  exit 1
+
+echo "$count updates"
