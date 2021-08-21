@@ -1,0 +1,26 @@
+! -*- eval: (rainbow-mode +1) -*-
+
+#define very_light_grey #cbcdd2
+#define light_grey      #848794
+#define grey            #686b78
+#define dark_grey       #45474f
+#define very_dark_grey  #1c1d21
+
+#define black     #3b3d45
+#define red       #eb3d54
+#define orange    #ef7c2a
+#define yellow    #e5cd52
+#define green     #78bd65
+#define blue      #4fb4d8
+#define magenta   #ba78ab
+#define turquoise #67e4c5
+#define white     white
+
+#define bright_black   #525560
+#define bright_red     #f1223e
+#define bright_green   #6cc653
+#define bright_yellow  #edcd2c
+#define bright_blue    #21acde
+#define bright_magenta #ce64b7
+#define bright_cyan    #63e9c7
+#define bright_white   white

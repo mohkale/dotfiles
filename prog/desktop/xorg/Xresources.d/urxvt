@@ -1,0 +1,44 @@
+URxvt.internalBorder: 6
+URxvt.saveLines: 100000
+URxvt.scrollBar: false
+URxvt.secondaryScroll: true
+URxvt.font: xft:Noto Sans Mono:medium:size=10
+URxvt.visualBell: false
+URxvt.secondaryScreen: false
+URxvt.scrollTtyOutput: false
+URxvt.scrollWithBuffer: true
+URxvt.scrollTtyKeypress: true
+URxvt.fading: 30
+URxvtQuake.internalBorder: 30
+URxvtFuzzy.internalBorder: 30
+! hide cursor when not using the mouse
+URxvt.pointerBlank: true
+URxvt.pointerBlankDelay: 1
+
+URxvt.keysym.Shift-Control-V: eval:paste_clipboard
+
+URxvt.cursorBlink: false
+URxvt.cursorUnderline: false
+
+URxvt.color0:  black
+URxvt.color1:  red
+URxvt.color2:  green
+URxvt.color3:  yellow
+URxvt.color4:  blue
+URxvt.color5:  magenta
+URxvt.color6:  cyan
+URxvt.color7:  white
+URxvt.color8:  bright_black
+URxvt.color9:  bright_red
+URxvt.color10: bright_green
+URxvt.color11: bright_yellow
+URxvt.color12: bright_blue
+URxvt.color13: bright_magenta
+URxvt.color14: bright_cyan
+URxvt.color15: bright_white
+
+URxvt.fadeColor:   very_dark_grey
+URxvt.foreground:  #abb2bf
+URxvt.background:  very_dark_grey
+URxvt.cursorColor: blue
+URxvt.borderColor: very_dark_grey

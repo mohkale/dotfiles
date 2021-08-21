@@ -1,0 +1,9 @@
+! ------------------------------------------------------------------------------
+! ROFI [[https://comfoxx.github.io/rofi-old-generator/p11-Generator.html][color theme]]
+! ------------------------------------------------------------------------------
+rofi.color-enabled: true
+
+rofi.color_window: very_dark_grey, bright_black, black
+rofi.color_normal: very_light_grey, white, light_grey, bright_blue, white
+rofi.color_active: bright_blue, very_dark_grey, bright_blue, bright_yellow, very_dark_grey
+rofi.color_urgent: very_light_grey, red, light_grey, red, white
