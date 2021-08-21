@@ -1,0 +1,12 @@
+;  -*- mode: conf-windows -*- vim:ft=dosini
+
+[module/xbacklight]
+type = internal/xbacklight
+format = <label>
+format-prefix = "  "
+format-prefix-foreground = ${colors.background}
+format-prefix-background = ${colors.green}
+
+label = " %percentage%%"
+label-foreground = ${colors.green}
+format-padding = 1

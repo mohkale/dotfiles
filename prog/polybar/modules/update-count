@@ -1,0 +1,12 @@
+;  -*- mode: conf-windows -*- vim:ft=dosini
+
+[module/update-count]
+type = custom/script
+exec = count-updates 2>/dev/null
+format = <label>
+label = " %output%"
+label-padding = 0
+tail = true
+format-foreground = ${colors.green}
+interval = 300
+

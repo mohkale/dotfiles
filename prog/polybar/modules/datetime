@@ -1,0 +1,18 @@
+;  -*- mode: conf-windows -*- vim:ft=dosini
+
+[module/datetime]
+type = internal/date
+interval = 5
+
+date = " %Y-%m-%d"
+date-alt =
+
+time = "%H:%M "
+time-alt = "%H:%M:%S "
+
+format-prefix = "  "
+format-prefix-foreground = ${colors.background}
+format-prefix-background = ${colors.yellow}
+
+label = %date% %time%
+label-foreground = ${colors.yellow}

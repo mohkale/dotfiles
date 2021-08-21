@@ -1,0 +1,22 @@
+;  -*- mode: conf-windows -*- vim:ft=dosini
+
+[module/wlan]
+type = internal/network
+interface = wlan0
+interval = 3.0
+
+format-connected = <ramp-signal> <label-connected>
+label-connected = "%essid% "
+label-connected-foreground = ${colors.pink}
+
+ramp-signal-0 = "  "
+ramp-signal-foreground = ${colors.background}
+ramp-signal-0-background = ${colors.pink}
+
+format-disconnected = <label-disconnected>
+label-disconnected = " Disconnected "
+label-disconnected-foreground = ${colors.red}
+
+format-disconnected-prefix = " 睊 "
+format-disconnected-prefix-foreground = ${colors.background}
+format-disconnected-prefix-background = ${colors.red}

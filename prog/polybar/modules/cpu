@@ -1,0 +1,10 @@
+;  -*- mode: conf-windows -*- vim:ft=dosini
+
+[module/cpu]
+type = internal/cpu
+interval = 2
+format-prefix = "  "
+format-prefix-foreground = ${colors.background}
+format-prefix-background = ${colors.blue}
+label-foreground = ${colors.blue}
+label = " %percentage:02%% "

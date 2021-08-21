@@ -1,0 +1,17 @@
+;  -*- mode: conf-windows; eval: (rainbow-mode +1) -*- vim:ft=dosini
+
+[colors]
+black         = #3b3d45
+gray1         = #45474f
+gray2         = #686b78
+gray3         = #cbcdd2
+blue          = #4fb4d8
+green         = #78bd65
+red           = #eb3d54
+orange        = #ef7c2a
+yellow        = #e5cd52
+pink          = #ba78ab
+highlight     = #67e4c5
+
+background = #1c1d21
+foreground = ${colors.gray3}

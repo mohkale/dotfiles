@@ -1,0 +1,5 @@
+;  -*- mode: conf-windows -*- vim:ft=dosini
+
+[module/space]
+type = custom/text
+content = "  "

@@ -1,0 +1,14 @@
+;  -*- mode: conf-windows -*- vim:ft=dosini
+
+[module/window-list]
+type = custom/script
+exec = $XDG_CONFIG_HOME/polybar/cmds/polywin win-list 2>/dev/null
+format = <label>
+label = %output%
+label-padding = 0
+label-border-bottom-size = 5
+label-border-bottom-color = #f00
+tail = true
+
+; This clips icons, see [[https://github.com/polybar/polybar/issues/991][#991]].
+; format-background = ${colors.separator}
