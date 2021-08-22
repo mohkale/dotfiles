@@ -3,4 +3,5 @@ import -b                                       \
   xorg                                          \
   login/*                                       \
   plasma                                        \
+  bspwm                                         \
   windows

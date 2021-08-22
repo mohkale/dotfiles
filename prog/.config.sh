@@ -47,6 +47,7 @@ import -b                                       \
   vpn/*                                         \
   wget                                          \
   wine                                          \
+  xwallpaper                                    \
   zathura
 
 if bots mail.server mail.client; then
