@@ -1,0 +1,421 @@
+#!/usr/bin/env bash
+# Arch linux installation script, to be used alongside the arch [[https://wiki.archlinux.org/title/installation_guide][installation guide]].
+#
+# Once you've connected the arch installation to the internet and picked out
+# which device partition you want to bootstrap into you can execute this script
+# to walk you through the rest of the process.
+
+# installation config
+name=mohkale
+export user=mohkale
+version=0.0.2
+export dotfile_repo='git@github.com:mohkale/dotfiles.git'
+export dotfile_branch='master'
+default_hostname='arch'
+
+# color setup
+export reset='\e[0m'
+export red='\e[1;31m'
+export black='\e[1;30m'
+export green='\e[1;32m'
+export yellow='\e[1;33m'
+export purple='\e[1;35m'
+export cyan='\e[1;36m'
+export white='\e[1;37m'
+
+# misc vars
+export _debug_level=10
+export _info_level=20
+export _warn_level=30
+export _error_level=40
+export log_level=$_info_level
+
+log_name_to_level() { #(name)
+    local level_name="_$1_level"
+    local level_value="${!level_name}"
+    echo "${level_value:-$_log_debug}"
+}
+export -f log_name_to_level
+
+cat_if_log() { #(cmd, args)
+    local level=$(log_name_to_level "debug")
+
+    if [ "$level" -ge "$log_level" ]; then
+        "$@" 2>&1
+    else
+        "$@" >/dev/null 2>&1
+    fi
+}
+export -f cat_if_log
+
+log() { #(level, message, args)
+    local level_value=$(log_name_to_level "$1")
+
+    if [ "$level_value" -ge "$log_level" ]; then
+        case "$1" in
+            debug) color=$yellow ;;
+            info)  color=$green ;;
+            warn)  color=$yellow ;;
+            error) color=$red ;;
+        esac
+
+        if [ -z "$2" ]; then echo; else
+            printf "[$color$1$reset]: $2\n" "${@:3}"
+        fi
+    fi
+}
+export -f log
+
+debug() { log 'debug' "$@"; }
+info()  { log 'info'  "$@"; }
+warn()  { log 'warn'  "$@"; }
+error() { log 'error' "$@"; }
+export -f debug info warn error
+
+prompt() { #(prompt)
+    local input=
+    printf "$1" >/dev/tty; read -r input </dev/tty
+    sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' <<< "$input"
+}
+export -f prompt
+
+yes_no_prompt() { #(message)
+    local input=
+    while true; do
+        input=$(prompt "[${purple}prompt${reset}] $* (yes or no): ")
+
+        case "$input" in
+            y|yes) return 0 ;;
+            n|no)  return 1 ;;
+            *) echo "must supply either yes or no, not: $input" >/dev/tty
+               ;;
+        esac
+    done
+}
+export -f yes_no_prompt
+
+collection_prompt() { #(prompt)
+    local input=$(cat)
+    local line_count=$(wc -l <<< "$input")
+    fzf --reverse --height "$((line_count+2))" --prompt "$*: " -1 "${@:2}" <<< "$input"
+}
+export -f collection_prompt
+
+read -r -d '' header <<-EOF
+ \e[H\e[2J
+           ${cyan}.
+          ${cyan}/ \\
+         ${cyan}/   \\      ${white}             _     ${cyan} _ _
+        ${cyan}/^.   \\     ${white} ___ ___ ___| |_   ${cyan}| |_|___ _ _ _ _
+       ${cyan}/  .-.  \\    ${white}| .'|  _|  _|   |  ${cyan}| | |   | | |_'_|
+      ${cyan}/  (   ) _\\   ${white}|__,|_| |___|_|_|  ${cyan}|_|_|_|_|___|_,_| ${white}TM
+     ${cyan}/ _.~   ~._^\\
+    ${cyan}/.^         ^.\\ ${reset}\n
+EOF
+
+echo -e "$header"
+
+read -r -d '' usage <<-EOF
+Usage: arch [-h|-V] [-v|-q] [-d REPO]
+
+Options:
+  -h        show this help message and exit
+  -v        raise verbosity of installation output
+  -q        lower verbosity of installation output
+  -D        name of the hard disk device to install to
+  -r REPO   url of users dotfile repository
+            set to the empty string to skip dotfile install
+  -V        print this scripts version info and exit
+
+Notes:
+  * The REPO argument must be the url of a git repository which
+    will be cloned and then have a script named install in the
+    root of the repository executed.
+EOF
+
+while getopts 'hDd:vVqu:' OPTION; do
+    case "$OPTION" in
+        h) echo -e "$usage"
+           exit 0
+           ;;
+        \?) echo -e "$usage" >&2
+            exit 1
+            ;;
+        d) export dotfile_repo="$OPTARG"
+           ;;
+        D) dest_device="$OPTARG"
+           ;;
+        v) export log_level=$_debug_level
+           ;;
+        q) export log_level=$_warn_level
+           ;;
+        u) user="$OPTARG"
+           ;;
+        V) echo "$(basename "$0")@$version"
+           exit 0
+           ;;
+    esac
+done
+
+echo -e "My \e[1;97mArch ${cyan}Linux ${reset}Installation Script, Version $version.\n"
+
+if ! test -t 0; then
+    error 'this install script cannot be run non interactively'
+    exit 1
+fi
+
+install_package() { #(package, args)
+    debug "installing package: $1"
+    cat_if_log pacman -S "$@" --noconfirm --needed
+
+    local exit_code="$?"
+
+    if ! [ "$exit_code" -eq 0 ]; then
+        error 'failed to install package (%s)' "$exit_code"
+        exit 1
+    fi
+}
+export -f install_package
+
+_install_setup_packages() {
+    install_package 'jq'  --asdeps
+    install_package 'fzf' --asdeps
+}
+export -f _install_setup_packages
+
+info 'syncing pacman package database'
+if cat_if_log pacman -Sy; then
+    debug 'updated package database succesfully';
+else
+    error 'failed to update package database (%s)' $?
+    exit 1
+fi
+
+info 'installing setup pre-requisites'
+_install_setup_packages
+
+info 'checking for destination disk/s'
+sd_devices=$(lsblk --json -O | jq -rc '.blockdevices | .[] | select(.name|test("^sd"))' )
+if [ -z "$sd_devices" ]; then
+    error 'unable to locate any standard hard disk devices'
+    exit 1
+fi
+
+[ "$(wc -l <<< "$sd_devices")" -eq 1 ] && warn 'only one hard disk device discovered.'
+
+if [ -z "$dest_device" ]; then
+    dest_device=$(jq -r '"\(.name) (\(.children? | length) partitions, \(.size))"' <<< "$sd_devices" |
+                    collection_prompt 'choose an install device' | cut -d ' ' -f1)
+    dest_device="/dev/$dest_device"
+fi
+if ! [ -e "$dest_device" ]; then
+    error "unable to find device file for destination device: $dest_device"
+    exit 1
+fi
+
+# run fdisk on the destination device, until it exits succesfully or the user
+# decides to no longer run it.
+success=1
+while [ "$success" -ne 0 ]; do
+    if yes_no_prompt "update the partition table of $dest_device?"; then
+        if fdisk "$dest_device"; then
+            # success=0
+            :
+        else
+            warn 'fdisk returned with non 0 exit code'
+        fi
+    else
+        success=0
+    fi
+done
+unset success
+
+# sub partitions on the device we're installing to.
+dest_device_partitions=$(find /dev/ -iregex "$dest_device"'[0-9]')
+
+_choose_device_file() { #(prompt, confirmation_prompt, error_msg, device_choices)
+    local partitions="$4"
+
+    while true; do
+        local dest_device=$(collection_prompt "$1" <<< "$partitions")
+
+        if [ ! -z "$dest_device" -a "$?" -eq 0 ]; then
+            if yes_no_prompt "$(printf "$2" "$dest_device")"; then
+                echo "$dest_device"
+                return 0
+            fi
+        else
+            echo "$dest_device"
+            warn "$3"
+            yes_no_prompt 'cancel arch installation?' && exit 0
+        fi
+    done
+}
+
+if [ -z "$dest_device_partitions" ]; then
+    # device has no subpartitions, user wants to install directly onto it
+    :
+else
+    dest_device=$(_choose_device_file 'choose an install device' \
+                                      'install arch to %s' \
+                                      'failed to determine device file to install arch to' \
+                                      "$dest_device_partitions")
+    dest_device=$(tail -n1 <<< "$dest_device")
+fi
+
+if [ "$(wc -l <<< "$dest_device_partitions")" -gt 1 ] &&
+       yes_no_prompt 'make a temporary filesystem partition as well'; then
+    remaining_partitions=$(awk -e '{ if ($0 != "'"$dest_device"'") print($0) }' <<< "$dest_device_partitions")
+
+    [ "$(wc -l <<< "$remaining_partitions")" -eq 1 ] && warn 'only 1 remaining partition found'
+
+    swap_partition=$(_choose_device_file 'choose partition for swap' \
+                                         'make %s a swap partition' \
+                                         'failed to determine the swap partition' \
+                                         "$remaining_partitions")
+    swap_partition=$(tail -n1 <<< "$swap_partition")
+
+    if ! ( cat_if_log mkswap "$swap_partition" && cat_if_log swapon "$swap_partition" ); then
+        error 'failed to create swap partition at: %s' "$swap_partition"
+        exit 1
+    fi
+fi
+
+info "creating ext4 filesystem"
+device_ftype=$(lsblk -O --json "$dest_device" | jq -r '.blockdevices | .[].fstype')
+
+if [ "$device_ftype" != 'ext4' ] ||
+       yes_no_prompt "device ""$dest_device"" already has a filesystem, overwrite?"; then
+    debug "beginning file system construction on %s" "$dest_device"
+    if ! ( yes | cat_if_log mkfs.ext4 "$dest_device" ); then
+        error 'failed to create ext4 file system'
+        exit 1
+    fi
+fi
+
+info 'mounting new filesystem'
+mount_point=$(mktemp -d -p /mnt/)
+if ! mount "$dest_device" "$mount_point"; then
+    error 'failed to mount %s to %s' "$dest_device" "$mount_point"
+    rmdir "$mount_point"
+    exit 1
+fi
+
+info 'running pacstrap'
+if ! pacstrap "$mount_point" base linux linux-firmware vim; then
+    error "failed to pacstrap '$mount_point'"
+    exit 1
+fi
+
+info 'constructing a new fstab'
+genfstab -U "$mount_point" >> "$mount_point"/etc/fstab || error 'failed to generate new fstab'
+
+info 'changing root to mount directory'
+arch-chroot "$mount_point" /bin/bash <<"EOF"
+info 'reinstalling setup dependencies'
+_install_setup_packages
+
+info 'setting the timezone for the new system'
+zone=$(find /usr/share/zoneinfo -mindepth 2 -maxdepth 2 -type f | collection_prompt 'choose a timezone')
+if [ "$?" -ne 0 ]; then
+    warn 'no timezone selected'
+else
+    ln -sf "$zone" /etc/localtime
+    debug 'updating the hardware clock'
+    hwclock --systohc
+fi
+
+info 'setting system locale'
+echo -e "en_US.UTF-8 UTF-8\nen_GB.UTF-8 UTF-8" > /etc/locale.gen
+
+debug 'running locale-gen'
+if ! locale-gen; then
+    error 'locale generation failed'
+    exit 1
+fi
+
+export LANG=en_GB.UTF-8
+echo  "LANG=en_GB.UTF-8" >> /etc/locale.conf
+
+lang=$(echo "$locales" | collection_prompt 'choose lang for /etc/locale.conf')
+if [ $? -ne 0 ]; then printf "LANG=%s" "$(cut -d' ' -f 1 <<< $lang)" > /etc/locale.conf; fi
+
+info 'setting system keyboard map'
+keymap=$(find /usr/share/kbd/keymaps/ -type f -iname '*.map.gz' |
+             collection_prompt 'choose preffered keyboard layout')
+if [ $? -ne 0 ]; then
+    warn 'no keymap specified, resorting to default.'
+else
+    keymap=$(basename --suffix '.map.gz' "$keymap")
+    debug 'setting default keymap to: %s' "$keymap"
+    printf 'LANG=%s' "$keymap" > /etc/vconsole.conf
+fi
+
+info 'setting hostname'
+hostname=$(prompt "[${purple}prompt${reset}] set system hostname: ")
+if [ -z "$hostname" ]; then
+    warn 'no hostname supplied, defaulting to %s' "$default_hostname"
+    hostname=$default_hostname
+fi
+
+debug 'setting /etc/hostname'
+echo "$hostname" > /etc/hostname
+
+debug 'setting /etc/hosts'
+cat >/etc/hosts <<-XX
+127.0.0.1	localhost
+::1		localhost
+127.0.1.1	$hostname.localdomain	$hostname
+XX
+
+info 'setting the root user password'
+while ! passwd </dev/tty; do :; done
+
+info 'installing core system utilities'
+install_package 'sudo'
+install_package 'python3'
+install_package 'git'
+
+info 'setting up the sudo user group'
+groupadd -f sudo
+echo -e '\n%sudo ALL=(ALL) ALL\n' >> /etc/sudoers
+
+info 'beginning user generation'
+if [ -z "$user" ]; then warn 'no user name specified, skipping user generation'; exit 0; fi
+useradd -m "$user"
+usermod -G sudo -a "$user"
+
+info 'setting new user password'
+while ! passwd "$user" </dev/tty; do :; done
+
+info 'setting up new users home'
+su "$user"
+cd "$HOME"
+
+info 'configuring users dotfiles'
+if [ -z "$dotfile_repo" ]; then
+    warn 'no dotfile repository supplied, skipping dotfile generation'
+    exit 0
+fi
+
+debug 'cloning users dotfile repository'
+if ! cat_if_log git clone "$dotfile_repo" ~/.config/dotfiles; then
+    error 'dotfile clone failed'
+    exit 1
+fi
+
+debug 'running install command'
+cd $HOME/.config/dotfiles/
+if [ -n "$dotfile_branch" ]; then
+    git checkout "$dotfile_branch"
+fi
+./manage install
+exit 0
+EOF
+
+if [ "$?" -ne 0 ]; then
+    error 'installation within new root failed'
+    exit 1
+fi
+
+info "\e[1;97mArch ${cyan}Linux ${reset}Installation Complete"

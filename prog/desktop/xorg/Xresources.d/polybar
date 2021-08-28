@@ -1,0 +1,29 @@
+! -*- eval: (rainbow-mode +1) -*-
+
+!! Dracula Xresources palette
+polybar.foreground: #F8F8F2
+polybar.background: #282A36
+polybar.color0:     #000000
+polybar.color8:     #4D4D4D
+polybar.color1:     #FF5555
+polybar.color9:     #FF6E67
+polybar.color2:     #50FA7B
+polybar.color10:    #5AF78E
+polybar.color3:     #F1FA8C
+polybar.color11:    #F4F99D
+polybar.color4:     #BD93F9
+polybar.color12:    #CAA9FA
+polybar.color5:     #FF79C6
+polybar.color13:    #FF92D0
+polybar.color6:     #8BE9FD
+polybar.color14:    #9AEDFE
+polybar.color7:     #BFBFBF
+polybar.color15:    #E6E6E6
+
+!-- Xft settings -- !
+Xft.antialias:	1
+Xft.hinting:	1
+Xft.autohint:	0
+Xft.hintstyle:	hintslight
+Xft.rgba:	    rgb
+Xft.lcdfilter:	lcddefault

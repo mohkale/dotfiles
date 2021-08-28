@@ -1,0 +1,6 @@
+#+TITLE: Bootstrap
+
+This directory lists installation scripts to bootstrap a new operating system. It
+goes hand in hand with [[file:~/.config/dotfiles/dist/][dist]]. The scripts are here are supposed to be run prior to
+installing dotfiles, taking the role of preparing the host-system for dotfile
+installation.

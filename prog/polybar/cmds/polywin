@@ -1,0 +1,209 @@
+#!/usr/bin/env bash
+# -*- +indent: 2 -*- Program to inspect and operate on X-windows (adapted from [[https://github.com/siduck76/dotfiles/blob/0cdd2a0dd6787386554db7b5088cb02983dfedbb/bars/poly/bsp_one/polybar/scripts/polywins.sh][siduck76]])
+#
+# This script centralises the logic for listing and acting upon windows
+# on the X-org window system. This is required because splitting up
+# listing from actions would need references in this script to external
+# scripts in the polybar format of the win-list command.
+
+max_window_count=10
+ignore_window_classes=( Plasmashell Polybar Conky Gmrun )
+
+usage() {
+  echo "Usage: win-list {OPERATION} [OPTS [OPTS...]]"
+}
+
+help() {
+  usage
+  cat <<-EOF
+  Window manage poly-script.
+
+Operations:
+  help
+    Show this help message and exit.
+  usage
+    Show a shorter help message and exit.
+  win-list
+    Tail the list of open and actionable windows.
+  raise WINDOW-ID
+    Raise or minimise the window with id WINDOW-ID.
+  close WINDOW-ID
+    Close the window with id WINDOW-ID.
+EOF
+}
+
+read -d '' -r get_active_wid <<-'EOF'
+  active_wid=$(xprop -root _NET_ACTIVE_WINDOW)
+  active_wid="${active_wid#*\\# }"
+  active_wid="${active_wid%,*}" # Necessary for XFCE
+  while [ "${#active_wid}" -lt 10 ]; do
+    active_wid="0x0${active_wid#*x}"
+  done
+  echo "$active_wid"
+EOF
+
+get_active_wid() { eval "$get_active_wid"; }
+
+read -d '' -r get_active_workspace <<-'EOF'
+  wmctrl -d |
+    while IFS="[ .]" read -r number active_status _; do
+      if [ "$active_status" = "*" ]; then
+        echo "$number"
+        break
+      fi
+    done
+EOF
+
+get_active_workspace() { eval "$get_active_workspace"; }
+
+raise() {
+  if [ "$(get_active_wid)" = "$1" ]; then
+    wmctrl -ir "$1" -b toggle,hidden
+  else
+    wmctrl -ia "$1"
+  fi
+}
+
+close() {
+  wmctrl -ic "$1"
+}
+
+tail-window-list() {
+  # Tail the list of existing windows continuously, delimiting
+  # the end of a list with a blank line.
+  xprop -root -spy _NET_CLIENT_LIST _NET_ACTIVE_WINDOW |
+    while IFS= read -r _; do
+      wmctrl -lx
+      echo ""
+    done
+}
+
+win-list() {
+  local ignore
+  ignore=$(printf "%s," "${ignore_window_classes[@]}")
+  ignore="${ignore%,}"
+
+  # This is a somewhat long and overbearing awk pipeline but it minimises
+  # the amount of re-parsing and extraneous process calls so I can live with
+  # that.
+  #
+  # tail-window-list keeps outputting the current window-list everytime a window
+  # change is detected. Then this single gawk process parses the window list,
+  # fetches the active window and workspace_id and then renders a polybar formatted
+  # output string displaying the active windows.
+  tail-window-list |
+    gawk \
+      -v action="$0" \
+      -v get_active_workspace="$get_active_workspace" \
+      -v get_active_wid="$get_active_wid" \
+      -v ignore_str="$ignore" \
+      -v max_window_count="$max_window_count" \
+      -e '
+function initialise() {
+    split("", res)
+    count = 0
+    fetch_wid = 1
+}
+
+BEGIN {
+    initialise()
+
+    # Generate hash-set of window-classes to ignore.
+    split(ignore_str, ignore_tmp, ",")
+    for (i in ignore_tmp)
+        ignore[ignore_tmp[i]] = ""
+}
+
+function prog_icon(prog, cmd, res) {
+    cmd = "prog-icons -f -l -x \"%s\n\""
+    print tolower(prog) |& cmd
+    cmd |& getline res
+    return res
+}
+
+function format_res(ret, icon, wid) {
+    if (count == 0) {
+        return "Desktop"
+    }
+
+    for (i=1; i <= count; i++) {
+        if (i != 1)
+            ret = ret " "
+
+        if (i > max_window_count) {
+            ret = ret sprintf("+ %d", count - max_window_count)
+            break
+        }
+
+        icon = res[i, "icon"]
+        wid  = res[i, "id"]
+
+        # TODO: Make colors configurable
+        ret = ret sprintf("%%{A1:%s raise %s:}", action, wid)
+        ret = ret sprintf("%%{A2:%s close %s:}", action, wid)
+        if (wid == active_wid) {
+            icon = sprintf("%%{F%s}", "#21acde") icon "%{F-}"
+            icon = sprintf("%%{+u}%%{u%s}", "#21acde") icon "%{-u}"
+        } else {
+            # icon = sprintf("%%{F%s}", "#6a7078") icon "%{F-}"
+        }
+        ret = ret icon
+        ret = ret "%{A}"
+        ret = ret "%{A}"
+    }
+
+    return ret
+}
+
+$0 == "" {
+    print(format_res())
+    fflush(stdout)
+    initialise()
+    next
+}
+
+fetch_wid != 0 {
+    fetch_wid = 0
+    print get_active_wid |& "bash"
+    "bash" |& getline active_wid
+    close("bash")
+    print get_active_workspace |& "bash"
+    "bash" |& getline active_workspace
+    close("bash")
+}
+
+# Skip windows from other workspaces or that are minimised.
+$2 != active_workspace || $2 == -1 { next }
+
+{
+    cls = $3
+    if ((dot = index(cls, ".")) != 0) {
+        cls = substr(cls, dot+1, length(cls))
+    }
+    if (cls in ignore) {
+        next
+    }
+}
+
+{
+    count++
+    res[count, "icon"] = prog_icon(cls)
+    res[count, "id"] = $1
+}
+'
+}
+
+if [ "$#" -eq 0 ]; then
+  help >&2
+  exit 0
+fi
+
+case "$1" in
+  usage|help|win-list|raise|close)
+    "$@"
+    exit "$?" ;;
+  *)
+    echo "error: polywin: unknown operation $1" >&2
+    usage >&2
+    exit 1 ;;
+esac

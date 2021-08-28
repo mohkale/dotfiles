@@ -1,0 +1,5 @@
+#!/bin/sh
+# Output the index of a session in its session_group_list.
+#
+# Usage: session-index '#{session_group_list}' #{session_name}
+printf "%s" "$1" | awk -v RS=, -v session="$2" -e '$0 == session { print NR; exit }'

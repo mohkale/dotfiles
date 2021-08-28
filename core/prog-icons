@@ -10,6 +10,7 @@ sudo   
 # File Managers
 lf        
 ranger    
+dolphin   
 
 # Archive Managers
 7z       
@@ -45,7 +46,8 @@ ruby       
 rspec      
 irb        
 go         
-rs         
+rust       
+rustc      
 cargo      
 rustup     
 node       
@@ -63,9 +65,8 @@ yarn    
 # Browsers
 explorer      
 edge          
-chrome        
-chromium      
-brave         
+chrom*        
+brave*        
 opera         
 safari        
 firefox       

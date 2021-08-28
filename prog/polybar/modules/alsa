@@ -1,0 +1,24 @@
+;  -*- mode: conf-windows -*- vim:ft=dosini
+
+[module/alsa]
+type = internal/alsa
+
+format-volume = <ramp-volume> <label-volume>
+label-volume = "%percentage%% "
+label-volume-foreground = ${colors.foreground}
+
+ramp-volume-0 = " 奄 "
+ramp-volume-1 = " 奔 "
+ramp-volume-2 = " 墳 "
+ramp-volume-foreground = ${colors.background}
+ramp-volume-0-background = ${colors.red}
+ramp-volume-1-background = ${colors.yellow}
+ramp-volume-2-background = ${colors.green}
+
+format-muted = <label-muted>
+label-muted = " Muted "
+label-muted-foreground = ${colors.red}
+
+format-muted-prefix = "  "
+format-muted-prefix-foreground = ${colors.background}
+format-muted-prefix-background = ${colors.red}

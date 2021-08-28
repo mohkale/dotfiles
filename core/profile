@@ -43,6 +43,7 @@ export INFOPATH=$XDG_DATA_HOME/info:$INFOPATH
 export OPENER='xopen'                                                           # Command used to open files/URLs.
 ESHELL="$(command -v bash 2>/dev/null || echo /bin/sh)"; export ESHELL          # Shell used by emacs for various shell like purposes.
 export SH_BANNER=0                                                              # Whether to show an ascii art banner on startup.
+unset MAILCHECK                                                                 # Turn off "you have mail" notifications.
 
 [ -r "$XDG_CONFIG_HOME/xdg" ] && . "$XDG_CONFIG_HOME/xdg"                       # Source XDG compatibility environment files
 

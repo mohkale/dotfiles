@@ -1,0 +1,15 @@
+#+TITLE: Autoloads
+# LocalWords: Autoloads autoload autoloads zsh
+
+This is where you put auto-loaded commands, meaning shell functions whose loading
+can be deferred.
+The current directory contains scripts for specific shells and operating-systems.
+Standalone auto-loads can be found in the [[file:cmds/][cmds]] directory.
+
+For the purpose of my dotfiles an autoload is a bash-script containing a single
+function matching the name of this script. This format was taken directly from
+zsh.
+
+For shells that support autoloads like zsh these scripts are deferred until their
+invoked. On other shells like bash all the scripts in the scripts directory are
+sourced immediately.

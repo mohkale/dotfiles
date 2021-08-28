@@ -1,6 +1,10 @@
 # -*- mode: conf-space -*- My tmux theme configuration (See [[https://github.com/nicknisi/dotfiles/blob/99b50f3a33c2a2d6ecf73d4f6e94efc8fe36f09a/tmux/base16.sh][base16]]) -- vim:syntax=tmux:filetype=tmux
 # TODO: use `tmux show -gw status-format` to setup status-center
 
+set -g set-titles-string "#{?#{!=:#{host},#{pane_title}},#{pane_title},#W}"
+set -g pane-border-format ' #P: #{pane_current_command} '
+set -g pane-border-lines single
+
 set -g status on
 set -g status-interval 15
 set -g status-justify  left
@@ -71,6 +75,7 @@ set -g @theme-hide-last-winflag 1                                               
 set -g @theme-winum-sep ":"                                                                        # Substring inserted between window number and name
 set -g @theme-winum-current-window 1                                                               # Whether to attach the window number to the current window
 set -g @theme-winflag-sep '[]'                                                                     # Seperators around window flags
+set -g @theme-show-session-group-index 1                                                           # Whether to show the current session position in the session group
 %hidden TMUX_OPT_CMD_MAX_LEN=30                                                                    # Maximum length of command on status line
 %hidden TMUX_OPT_NAME_MAX_LEN=50                                                                   # Maximum length of pane title on status line
 
@@ -106,10 +111,12 @@ set -g status-left "\
 #{?selection_present, COPY ,#{?search_present, FIND ,#{?pane_in_mode, META ,}}}\
 #[default]\
 \
-#[fg=$TMUX_BG,bg=#{@theme-state-prefix},bright]#{?client_prefix, TMUX ,}\
+#[fg=$TMUX_BG,bg=#{@theme-state-prefix},bright]\
+#{?client_prefix, TMUX ,}\
 #[default]\
 \
-#[fg=$TMUX_BG,bg=#{@theme-state-session},bright] #S \
+#[fg=$TMUX_BG,bg=#{@theme-state-session},bright]\
+ #{?#{&&:#{>:#{session_group_size},1},#{session_grouped}},#{session_group}#{?#{@theme-show-session-group-index},[#(echo '?'; $TMUX_HOME/theme/session-index #{q:session_group_list} #{q:session_name})/#{session_group_size}],},#S} \
 #[default] \
 "
 

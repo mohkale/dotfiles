@@ -16,7 +16,6 @@ set -g set-titles on                                                 # update th
 set -g base-index 1                                                  # windows start counting from 1
 set -g pane-base-index 1                                             # panes start counting from 1
 set -g history-limit 100000                                          # a lot of history is a good thing
-set -g set-titles-string 'tmux@#H [#S:#I] #W'                        # title of terminal when running tmux
 set -sg escape-time 10                                               # small enough for nvim and alt-keys :smile:.
 set -ga terminal-overrides ",*256col*:Tc,*24bit*:Tc"                 # enable true-color
 set -s extended-keys on                                              # support [[https://github.com/tmux/tmux/wiki/Modifier-Keys#extended-keys][xterm]] extension keys
@@ -27,6 +26,7 @@ set -g copy-command clip                                             # Set execu
 set -g word-separators " =+!@#$%^&*,.<>/?;:\\|~`(){}[]\"'"           # Specify boundary for new-words (eg: forward-word)
 set -g repeat-time 300                                               # Interval over which you can repeat a repeatable keypress
 set -g wrap-search off                                               # Don't jump back to the first search after going forward from the last search
+set -g pane-border-status off # top                                  # Don't show pane-status-format at the edge of each pane
 
 # Assign the TERM environment variable depending on the current
 # terminal. I'll add support for other true-color terms as I use
@@ -60,11 +60,8 @@ bind \# set-window-option monitor-activity\; display-message "#{?monitor-activit
 bind \~ run "tmux command-prompt -I #{?monitor-silence,#{monitor-silence},10} -p 'Set silence interval (seconds):' 'set monitor-silence %%'"
 bind M show-messages
 
-bind T set -w status #{?#{==:#{status},on},on,off}                                                 # toggle whether to show the status-bar or not
-bind t set status-position #{?#{==:#{status-position},top},bottom,top}                             # toggle the position of the status-bar
-
-bind r command-prompt -I "#W" "rename-window -- '%%'"
-bind R command-prompt -I "#S" "rename-session -- '%%'"
+bind r command-prompt -I "#W" -p "Rename window:" "if-shell \"[ -n '%1' ]\" { rename-window -- '%1' } { set automatic-rename on }"
+bind R command-prompt -I "#S" -p "Rename session:" "rename-session -- '%%'"
 
 bind m   select-pane -m                                                                            # toggle the marked status of the current pane
 bind M-r source "$TMUX_HOME/tmux.conf" \; display-message "Config reloaded..."                     # reload my tmux configuration from conf sources
@@ -80,11 +77,11 @@ bind £ move-window -a -s '{marked}'                                            
 bind $ link-window -a -s '{marked}'                                                                # link marked window to current session
 bind % swap-pane                                                                                   # swap current pane with the marked pane
 
-bind s command-prompt -p "Query:" "find-window -Z -CNTi '%%'"                                      # Show list of windows matching a GLOB pattern
+bind s command-prompt -p "Search windows:" "find-window -Z -CNTi '%%'"                             # Show list of windows matching a GLOB pattern
 
-bind | command-prompt -p "Pipe:" "pipe-pane -o '%%'"
+bind | command-prompt -p "Pipe pane:" "pipe-pane -o '%%'"
 
-bind M-h command-prompt -k -p key "list-keys -1N "%%%""                                            # Inspect the key-symbol bound by tmux
+bind M-h command-prompt -k -p "Describe key:" "list-keys -1N "%%%""                                # Inspect the key-symbol bound by tmux
 
 bind b   choose-tree -Zs
 bind B   choose-tree -Zw
@@ -120,9 +117,9 @@ bind C-v split-window -c '#{pane_current_path}' -h
 bind C-s split-window -c '#{pane_current_path}'
 
 ## variants, where you can specify the command to run.
-bind M-t command-prompt -I "$SHELL" "new-window '%%'"
-bind M-v command-prompt -I "$SHELL" "split-window -h '%%'"
-bind M-s command-prompt -I "$SHELL" "split-window '%%'"
+bind M-t command-prompt -I "$SHELL" -p "Command in new window:"         "new-window '%%'"
+bind M-v command-prompt -I "$SHELL" -p "Command in new split:"          "split-window -h '%%'"
+bind M-s command-prompt -I "$SHELL" -p "Command in new vertical split:" "split-window '%%'"
 
 # vim like, pane resize keys
 bind -r < resize-pane -L 5
@@ -131,10 +128,10 @@ bind -r + resize-pane -U 5
 bind -r - resize-pane -D 5
 
 ## variants where you manually specify the percentage
-bind M-< command-prompt -p "count" "resize-pane -L '%%'"
-bind M-> command-prompt -p "count" "resize-pane -R '%%'"
-bind M-+ command-prompt -p "count" "resize-pane -U '%%'"
-bind M-- command-prompt -p "count" "resize-pane -D '%%'"
+bind M-< command-prompt -p "Expand pane left:"   "resize-pane -L '%%'"
+bind M-> command-prompt -p "Expand pane right:"  "resize-pane -R '%%'"
+bind M-+ command-prompt -p "Expand pane height:" "resize-pane -U '%%'"
+bind M-- command-prompt -p "Shrink pane height:" "resize-pane -D '%%'"
 
 # move between windows, sessions or panes
 bind C-a           select-window -t 1                                                              # jump to the first window in this session
@@ -177,7 +174,7 @@ bind -r C-k if -F '#{&&:#{@switch-pane-clamp},#{pane_at_top}}'    '' 'select-pan
 bind -r C-l if -F '#{&&:#{@switch-pane-clamp},#{pane_at_right}}'  '' 'select-pane -R'
 
 ## Numerical jumps
-bind C-0 command-prompt -p "index: " "select-pane -t ':%%'"
+bind C-0 command-prompt -p 'Select pane at index:' "select-pane -t ':%%'"
 bind C-1 select-pane -t 1
 bind C-2 select-pane -t 2
 bind C-3 select-pane -t 3
@@ -188,7 +185,7 @@ bind C-7 select-pane -t 7
 bind C-8 select-pane -t 8
 bind C-9 select-pane -t 9
 
-bind 0 command-prompt -p index "select-window -t ':%%'"
+bind 0 command-prompt -p 'Select window at index:' "select-window -t ':%%'"
 bind 1 select-window -t 1
 bind 2 select-window -t 2
 bind 3 select-window -t 3
@@ -235,6 +232,12 @@ bind -T off F12 \
   set -u status \;\
   set -u escape-time \;\
   refresh-client -S
+
+bind -T root F11 set -w status #{?#{==:#{status},on},on,off}                                       # toggle whether to show the status-bar or not
+bind -T root F10 set status-position #{?#{==:#{status-position},top},bottom,top}                   # toggle the position of the status-bar
+# TODO: Find something more useful for these bindings.
+bind T set -w status #{?#{==:#{status},on},on,off}                                                 # toggle whether to show the status-bar or not
+bind t set status-position #{?#{==:#{status-position},top},bottom,top}                             # toggle the position of the status-bar
 
 # Script Bindings
 bind M-e run -b 'tmux new-window "tmux capture-pane -t #{pane_id} -p -S - | vipe"'
@@ -314,6 +317,8 @@ bind -Tm-commands m run -b '\
   };\
   FZMAN_CMD=fzman_cmd fzman\
 '
+
+bind C-x run -b 'tmux-popup -w 100% -h 100% launch'
 
 # bind B run -b "$TMUX_HOME/cmds/run-binding -rpv"
 # bind M-a run -b "$TMUX_HOME/cmds/manage-windows -s"
