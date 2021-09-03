@@ -1,5 +1,9 @@
-#include ".config/Xresources/colors"
-#include ".config/Xresources/sxiv"
-#include ".config/Xresources/urxvt"
-#include ".config/Xresources/rofi"
-#include ".config/Xresources/polybar"
+! For some reason you cannot make these relative to the home directory.
+! If you do then the Xinit session script does not change to your home
+! directory before importing meaning your settings are not loaded at
+! startup.
+#include "/home/mohkale/.config/Xresources/colors"
+#include "/home/mohkale/.config/Xresources/sxiv"
+#include "/home/mohkale/.config/Xresources/urxvt"
+#include "/home/mohkale/.config/Xresources/rofi"
+#include "/home/mohkale/.config/Xresources/polybar"

@@ -8,7 +8,7 @@
 @include "getopt.awk"
 
 function print_usage() {
-  print "Usage: tmux-icons [-h] [-v] [-c CLIENT]"
+  print "Usage: tmux-icons [-h] [-v] [-c CLIENT] [-f FORMAT]"
 }
 
 function print_help() {
@@ -24,19 +24,24 @@ function print_help() {
   print "     Print unused client output to STDERR"
   print "  -c CLIENT"
   print "     Specify the tmux client to follow"
+  print "  -f FORMAT"
+  print "     Subscribe to FORMAT instead of pane_current_command"
 }
 
 BEGIN {
   client = ""
   verbose = 0
-  subscription = "refresh-client -B icon-tail::'#{pane_current_command}'"
-  while ((opt = getopt(ARGC, ARGV, "hvc:")) != -1) {
+  subformat = "#{pane_current_command}"
+  while ((opt = getopt(ARGC, ARGV, "hvc:f:")) != -1) {
     switch (opt) {
     case "c":
       client = Optarg
       break
     case "v":
       verbose = 1
+      break
+    case "f":
+      subformat = Optarg
       break
     case "h":
       print_help()
@@ -46,6 +51,7 @@ BEGIN {
       exit 1
     }
   }
+  subscription = "refresh-client -B icon-tail::'" subformat "'"
 }
 
 BEGIN {
@@ -55,7 +61,11 @@ BEGIN {
     count = split(out, a)
     switch (out) {
     case /^%subscription-changed/:
-      print a[count]
+      res = a[8]
+      for (i=9; i <= count; i++) {
+        res = res FS count[i]
+      }
+      print res
       fflush(stdout) # no buffering when in the status-line :P
       break
     case /^%client-detached/:

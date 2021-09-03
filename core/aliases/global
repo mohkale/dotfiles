@@ -66,6 +66,7 @@ nojob   >/dev/null 2>&1 nohup sh -c '"$@"' run
 suniq   sort | uniq
 card    curl -sL kisara.moe/~mohkale/card
 isync   mbsync
+rsync   rsync -r --info=progress2 --info=name0
 
 rm      rm -v
 mv      mv -iv

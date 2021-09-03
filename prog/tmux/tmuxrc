@@ -77,22 +77,23 @@ bind @ join-pane                                                                
 bind £ move-window -a -s '{marked}'                                                                # move marked window to current session
 bind $ link-window -a -s '{marked}'                                                                # link marked window to current session
 bind % swap-pane                                                                                   # swap current pane with the marked pane
+bind ^ swap-window                                                                                 # swap marked window with current one
 
 bind s command-prompt -p "Search windows:" "find-window -Z -CNTi '%%'"                             # Show list of windows matching a GLOB pattern
 
 bind | command-prompt -p "Pipe pane:" "pipe-pane -o '%%'"
 
-bind M-h command-prompt -k -p "Describe key:" "list-keys -1N "%%%""                                # Inspect the key-symbol bound by tmux
+bind M-h command-prompt -k -p "Describe key:" "list-keys -1N '%%'"                                 # Inspect the key-symbol bound by tmux
 
 bind b   choose-tree -Zs
 bind B   choose-tree -Zw
 bind C-b choose-client -Z
 
-bind Z     kill-session
-bind C-S-w kill-session
-
 bind C-w kill-pane
-bind M-w unlink-window -k                                                                          # keeps the window alive in any other sessions if it exists there.
+bind w   unlink-window -k                                                                          # keeps the window alive in any other sessions if it exists there.
+bind W   kill-window
+bind M-w kill-session
+bind Z   kill-session
 
 # transpose window layout
 bind -r C-o rotate-window -ZU
@@ -135,8 +136,8 @@ bind M-+ command-prompt -p "Expand pane height:" "resize-pane -U '%%'"
 bind M-- command-prompt -p "Shrink pane height:" "resize-pane -D '%%'"
 
 # move between windows, sessions or panes
-bind C-a           select-window -t 1                                                              # jump to the first window in this session
-bind C-e run 'tmux select-window -t "#{session_windows}"'                                          # jump to the last window in this session
+bind C-a select-window -t '{start}'                                                                # jump to the first window in this session
+bind C-e select-window -t '{end}'                                                                  # jump to the last window in this session
 
 bind -r )   switch-client -n
 bind -r (   switch-client -p
@@ -153,6 +154,9 @@ bind -r C-M-p previous-window -a
 ## push the current window backwards or forwards
 bind -r [ swap-window -d -t -1
 bind -r ] swap-window -d -t +1
+## push the current window to the end or start of the window-list.
+bind M-[ swap-window -d -t 1
+bind M-] swap-window -d -t '{end}'
 
 ## move between panes
 set -g @switch-pane-clamp 1                                                                        # when true, switching a window to the right/left/up/down will wrap around
@@ -175,7 +179,7 @@ bind -r C-k if -F '#{&&:#{@switch-pane-clamp},#{pane_at_top}}'    '' 'select-pan
 bind -r C-l if -F '#{&&:#{@switch-pane-clamp},#{pane_at_right}}'  '' 'select-pane -R'
 
 ## Numerical jumps
-bind C-0 command-prompt -p 'Select pane at index:' "select-pane -t ':%%'"
+bind C-0 command-prompt -p 'Select pane at index:' "select-pane -t '%%'"
 bind C-1 select-pane -t 1
 bind C-2 select-pane -t 2
 bind C-3 select-pane -t 3
