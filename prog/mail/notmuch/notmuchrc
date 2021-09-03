@@ -32,7 +32,7 @@ path=/home/mohkale/docs/mail/
 [user]
 name=Mohsin Kaleem
 primary_email=mohkale@kisara.moe
-other_email=mohkalsin@gmail.com;mohkalex@gmail.com;
+other_email=mohkalsin@gmail.com;mohkalex@gmail.com
 
 # Configuration for "notmuch new"
 #
@@ -88,3 +88,9 @@ exclude_tags=deleted;delete;spam;H
 #
 
 [maildir]
+
+[query]
+# For some reason I can't match these with REGEXP and notmuch doesn't automatically
+# associate these emails with user.primary_email and user.other_email.
+to-me=to:mohkale@kisara.moe OR to:mohkalsin@gmail.com OR to:mohkalex@gmail.com
+from-me=from:mohkale@kisara.moe OR from:mohkalsin@gmail.com OR from:mohkalex@gmail.com
