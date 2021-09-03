@@ -1,13 +1,15 @@
----
-name: main
-root: ~/
+---  # Main dashboard tmux configuration
 
-startup_window: dash
+session_name: main
+start_directory: ~/
 
 windows:
-  - dash:
+  - window_name: dash
+    panes:
       - gotop || htop || top || exit
-  - net:
+  - window_name: net
+    panes:
       - nethogs || nload || iftop || exit
-  - mail:
-      - emacs -nw --eval '(if (require (quote notmuch) nil t) (notmuch-search "tag:inbox") (kill-emacs 1))' --eval '(auto-revert-mode)' || exit
+  - window_name: mail
+    panes:
+      - emacs -nw --eval '(if (not (require (quote notmuch) nil t)) (kill-emacs 1) (setq auto-revert-interval 60 auto-revert--lockout-interval 60) (add-hook (quote notmuch-search-hook) (quote auto-revert-mode)) (notmuch-search "tag:inbox"))' || exit

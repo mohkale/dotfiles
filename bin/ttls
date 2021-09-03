@@ -1,20 +1,98 @@
-#!/usr/bin/env ruby
+#!/usr/bin/env bash
+# -*- +indent: 2 -*-
+
+print_usage() {
+  echo "Usage: ttls [-h] [-a] [-p]"
+}
+
+print_help() {
+  print_usage
+  cat <<-EOF
+
+  List available tmuxinator/tmuxp configurations.
+
+Optional arguments:
+  -h               Show this help message and exit.
+  -a               List configs in projects as well using ls-project.
+  -p               Pretty print instead of passwd output format.
+EOF
+}
+
+all=0 pretty=0
+while getopts 'hap' OPTION; do
+  case "$OPTION" in
+    h) print_help
+       exit 0 ;;
+    \?) print_usage >&2
+        exit 1 ;;
+    a) all=1 ;;
+    p) pretty=1 ;;
+  esac
+done
+
+
+#  _     _     _      ____                                          _
+# | |   (_)___| |_   / ___|___  _ __ ___  _ __ ___   __ _ _ __   __| |___
+# | |   | / __| __| | |   / _ \| '_ ` _ \| '_ ` _ \ / _` | '_ \ / _` / __|
+# | |___| \__ \ |_  | |__| (_) | | | | | | | | | | | (_| | | | | (_| \__ \
+# |_____|_|___/\__|  \____\___/|_| |_| |_|_| |_| |_|\__,_|_| |_|\__,_|___/
+#
+# The following commands each list configurations for various session
+# managers. Each command recieves a list of projects to also check for
+# configs from standard input.
+#
+# The format of the output should be "command:config-file:cd-dir:id".
+
+list_tmuxp() {
+  local TMUXP_SCRIPT
+  read -r -d '' TMUXP_SCRIPT <<-"EOF"
+import os
+import itertools
+import sys
+import tmuxp
+
+def list_configs():
+    root = tmuxp.cli.get_config_dir()
+    if not (os.path.exists(root) and os.path.isdir(root)):
+        return
+    for f in sorted(os.listdir(root)):
+        basename, ext = os.path.splitext(f)
+        f = os.path.join(root, f)
+        if os.path.isfile(f) and ext in tmuxp.cli.VALID_CONFIG_DIR_FILE_EXTENSIONS:
+            yield f, '', basename
+
+def list_project_configs(dirs):
+    EXTS = ['.tmuxp.yaml', '.tmuxp.yml', '.tmuxp.json']  # Copied from [[file:.local/lib/python3.9/site-packages/tmuxp/cli.py::for ext in \['.tmuxp.yaml', '.tmuxp.yml', '.tmuxp.json'\]][cli.py]].
+    for proj_dir in dirs:
+        for ext in EXTS:
+            conf = os.path.join(proj_dir, ext)
+            if not os.path.exists(conf):
+                continue
+            yield conf, proj_dir, os.path.basename(proj_dir)
+    return []
+
+
+for it in itertools.chain(
+        list_configs(),
+        list_project_configs(sys.stdin.read(-1).split('\n'))):
+    print('tmuxp load -y:' + ':'.join(it))
+EOF
+
+  python3 -c "$TMUXP_SCRIPT"
+}
+
+list_tmuxinator() {
+  local TMUXINATOR_SCRIPT
+  read -r -d '' TMUXINATOR_SCRIPT <<-"EOF"
 # frozen_string_literal: true
 
 # list tmuxinator configs both in the shared config
 # folder and any project local configs (from the cwd).
 
-require 'optparse'
 require 'pathname'
 
 require 'xdg'
 require 'tmuxinator/config'
-
-begin
-  require 'colorize'
-rescue LoadError
-  String.define_method(:green, proc { self })
-end
 
 CWD  = Pathname.new('./').expand_path
 HOME = Pathname.new('~/').expand_path
@@ -26,41 +104,55 @@ def each_config(cwd, paths = [])
   Tmuxinator::Config.directories.map do |directory|
     Dir["#{directory}/**/*.yml"].map(&Pathname.method(:new)).map do |path|
       project_name = path.to_path.gsub("#{directory}/", '').gsub('.yml', '')
-      yield path, project_name, path
+      yield path, '', project_name
     end
   end
 
   [cwd, *paths].each do |path|
     local_path = Tmuxinator::Config::LOCAL_DEFAULTS
-                 .map(&path.method(:join))
-                 .find(&:readable?)
-    yield local_path, path.basename.to_path, path if local_path
+                   .map(&path.method(:join))
+                   .find(&:readable?)
+    yield local_path, path, path.basename.to_path if local_path
   end
-end
-
-def ls_repos
-  IO.popen('ls-projects') do |fd|
-    fd.each_line.map do |path|
-      Pathname.new(path.chomp)
-    end
-  end
-end
-
-opts = {}
-OptionParser.new do |it|
-  it.banner = 'Usage: tangle [options]'
-
-  it.on('-a', '--[no-]all', 'List configs across all projects, not just the current one.')
-  it.on('-p', '--[no-]pretty', 'Pretty print rows instead of passwd like format.')
-end.parse!(into: opts)
-
-def pretty_print(conf, name, project)
-  # rubocop:disable Style/StringConcatenation, Layout/LineLength
-  "#{conf.to_path}:#{project.directory? ? project.to_path : ''}:#{name} [#{project.to_path.gsub(HOME.to_path + '/', '~/').green}]"
-  # rubocop:enable Style/StringConcatenation, Layout/LineLength
 end
 
 $stdout.sync = true
-each_config(CWD, opts[:all] && (ls_repos || [])) do |*args|
-  puts(opts[:pretty] ? pretty_print(*args) : args.join(':'))
+projects = STDIN.each_line.map { |path| Pathname.new(path.chomp) }
+each_config(CWD, projects) do |*args|
+  puts "tmuxinator start --suppress-tmux-version-warning -p:#{args.join(':')}"
 end
+
+EOF
+
+  ruby -e "$TMUXINATOR_SCRIPT"
+}
+
+if [ "$all" -eq 1 ]; then ls-projects; fi |
+  tee --output-error=warn-nopipe \
+      >(list_tmuxp) \
+      >(list_tmuxinator) \
+      >/dev/null |
+  if [ "$pretty" -eq 0 ]; then
+    cat
+  else
+    # Has 3 fields cmd:conf:dir:pretty_output
+    awk -F : \
+        -v color_dir=$'\e[0;32m' \
+        -v color_conf=$'\e[0;34m' \
+        -v color_reset=$'\e[0m' \
+        -v home="$HOME" \
+        -e '{
+  printf("%s:%s:%s:", $1, $2, $3)
+  printf("%s", $4)
+  if ($3) {
+    dir = $3
+    sub(home, "~", dir)
+    printf(" [%s%s%s]", color_dir, dir, color_reset)
+  } else if ($2) {
+    conf = $2
+    sub(home, "~", conf)
+    printf(" [%s%s%s]", color_conf, conf, color_reset)
+  }
+  printf("\n")
+}'
+  fi

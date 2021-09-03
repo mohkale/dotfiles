@@ -53,6 +53,7 @@ PATHS = (f'{XDG_DEV}/.modules/python',
          f'{XDG_CONFIG}/tmux/disk-free.conf',
          f'{XDG_CONFIG}/tmux/tmux-local.conf',
          f'{XDG_CONFIG}/tmuxinator',
+         f'{XDG_CONFIG}/tmuxp',
          # Transmission torrent database
          f'{XDG_CONFIG}/transmission*',
          # Vim shared data (undo history)

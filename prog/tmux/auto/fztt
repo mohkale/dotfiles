@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+fztt() {
+  local fzf_args=( -d : --with-nth 4.. --ansi --preview 'preview {2}' --preview-window=50%
+                   --history "${XDG_DATA_HOME:-$HOME/.locale/share}"/fzf/history/tt )
+  [ -z "$*" ] || fzf_args+=( -q "$*" )
+  local target
+  if target=$(ttls -ap | _fzf "${fzf_args[@]}") && [ -n "$target" ]; then
+    local cmd conf dir
+    IFS=: read -r cmd conf dir _ <<< "$target"
+    sh -c '[ -z "$3" ] || cd "$3"; $1 "$2"' tt-start "$cmd" "$conf" "${dir:-$HOME}"
+  fi
+}

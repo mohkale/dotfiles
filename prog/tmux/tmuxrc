@@ -255,11 +255,11 @@ bind M-l run -b '
 
 bind x switch-client -Tm-commands                                              # Custom key-table prefix
 
-# Proxy to [[/home/mohkale/.config/dotfiles/core/autoload/cmds/fztmuxinator][fztmuxinator]] using a tmux popup.
+# Proxy to [[/home/mohkale/.config/dotfiles/core/autoload/cmds/fztt][fztt]] using a tmux popup.
 bind -Tm-commands x run -b '\
   . $HOME/.config/tmux/cmds/setup-fzf;\
-  . $HOME/.config/autoloads/cmds/fztmuxinator;\
-  fztmuxinator\
+  . $HOME/.config/autoloads/cmds/fztt;\
+  fztt >/dev/null 2>&1\
 '
 
 # Attach to a session interactively using fzf
