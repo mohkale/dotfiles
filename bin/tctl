@@ -44,6 +44,7 @@ class Operations(enum.IntEnum):
     priority_high = enum.auto()
     priority_normal = enum.auto()
     priority_low = enum.auto()
+    monitor = enum.auto()
 
 
 FZF_COMMAND = 'fzf'
@@ -289,6 +290,29 @@ def act_on_torrents_cmd(conn,
 
     return callback(conn, ids, torrents)
 
+def monitor(conn, ids, sleep, width, line_buffer):
+    """"""
+    import time
+    import math
+    while True:
+        files = pd.DataFrame()
+        files_resp = get_torrents(conn, ids=ids, fields=['id', 'files', 'fileStats'])
+        for t_id in files_resp.index:
+            t_files = pd.DataFrame(files_resp.loc[t_id, 'files'])
+            t_files_stats = pd.DataFrame(files_resp.loc[t_id, 'fileStats'])
+            t_files = t_files.join(t_files_stats.drop('bytesCompleted', axis=1), rsuffix='2')
+
+            files = pd.concat([files, t_files], ignore_index=True)
+        files = files[files['wanted']]
+        percentage_complete = files['bytesCompleted'].sum() / files['length'].sum()
+        files_complete = (files['bytesCompleted'] == files['length']).sum()
+        print('[%s%s] %02d/%02d' % (('>' * math.floor(width * percentage_complete)),
+                                    ('-' * math.ceil(width * (1 - percentage_complete))),
+                                    files_complete, len(files)))
+        if line_buffer:
+            sys.stdout.flush()
+        if sleep:
+            time.sleep(sleep)
 
 if __name__ == '__main__':
     import argparse
@@ -364,6 +388,16 @@ if __name__ == '__main__':
                    dest='paused',
                    action='store_const', const=True,
                    help='Start added torrents unpaused')
+
+    subcmds[Operations.monitor].add_argument('torrent', nargs='+', type=int,
+                                             help='IDs of torrents to monitor')
+    subcmds[Operations.monitor].add_argument('-s', '--sleep', type=int, default=3,
+                                             help='When given, wait this duration between outputs')
+    subcmds[Operations.monitor].add_argument('-l', '--line-buffer', action='store_true',
+                                             help='Flush output buffer after each print')
+    subcmds[Operations.monitor].add_argument('-w', '--bar-width', type=int, default=20,
+                                             help='Width of progress bar for monitor')
+
 
     args  = parser.parse_args()
     vargs = vars(args)
@@ -459,6 +493,8 @@ if __name__ == '__main__':
                             play_torrent_files_cmd,
                             'Play files from torrent: ',
                             torrent_fields=['downloadDir', 'incomplete-dir', *TORRENT_FIELDS],)
+    elif args.cmd == Operations.monitor:
+        monitor(conn, args.torrent, args.sleep, args.bar_width, args.line_buffer)
     elif args.cmd == Operations.add:
         args.url = iter(args.url)
         if args.read_stdin:
