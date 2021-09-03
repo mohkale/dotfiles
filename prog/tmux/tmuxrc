@@ -254,6 +254,8 @@ bind M-l run -b '
   fi;\
 '
 
+bind C-r run -b $TMUX_HOME/cmds/fuzzback
+
 bind x switch-client -Tm-commands                                              # Custom key-table prefix
 
 # Proxy to [[/home/mohkale/.config/dotfiles/core/autoload/cmds/fztt][fztt]] using a tmux popup.

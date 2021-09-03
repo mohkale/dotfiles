@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+# Fzf based searcher for tmux scrollback. Adapted from [[https://github.com/roosta/tmux-fuzzback][fuzzback]]. -*- +indent: 2 -*-
+
+set -uo pipefail
+
+tp() { tmux display -p "$@"; }
+
+cursor_up() { # (line_number)
+  tmux send-keys -X -N "$1" cursor-up
+}
+
+cursor_down() { # (line_number)
+  tmux send-keys -X -N "$1" cursor-down
+}
+
+create_head_file() {
+  local head_n="$1"
+  head -n "$head_n" |
+    tac |
+    nl -b 'a' -s ':' |
+    sed 's/^/1:/' |
+    sed '1s/$/[m/'
+}
+
+create_tail_file() {
+  local tail_n="$1"
+  local trimmed
+  trimmed=$(tail -n "$tail_n")
+
+  if [ -n "$trimmed" ]; then
+    echo "$trimmed" |
+      nl -b 'a' -s ':' |
+      tac |
+      sed 's/^/-1:/' |
+      sed 's/$/[m/'
+  fi
+}
+
+get_line_number() {
+  local position line_number
+  position=$(echo "$1" | cut -d':' -f2 | xargs)
+  line_number=$((position - 1))
+  echo "$line_number"
+}
+
+get_direction() {
+  local direction
+  direction=$(echo "$1" | cut -d':' -f1 | xargs)
+  echo "$direction"
+}
+
+pane_id=$(tp '#{session_id}-#{window_index}-#{pane_index}' | sed 's/\$//')
+capture_file=$(mktemp -u "tmux-fuzzback-${pane_id}.XXXXXX")
+trap '\rm -f '"$capture_file" EXIT
+pos=$(tp '#{cursor_y}')
+pane_height="$(tp '#{pane_height}')"
+pos_rev=$((pane_height - pos))
+
+tmux capture-pane -e -p -S - > "$capture_file"
+capture_height=$(wc -l < "$capture_file")
+
+head_n=$(( capture_height - pos_rev + 1 ))
+tail_n=$(( pos_rev - 1 ))
+
+match=$({
+  create_head_file "$head_n" < "$capture_file"
+  create_tail_file "$tail_n" < "$capture_file"
+} |
+  tmux-popup -i -o -w 100% -h 100% -- fzf \
+    --delimiter=":" \
+    --ansi \
+    --with-nth="3.." \
+    --no-multi \
+    --no-sort \
+    --no-preview \
+    --print-query)
+
+if ! [ "$(echo "$match" | wc -l)" -le 1 ]; then
+  exit 0
+fi
+
+query="$(head -n 1 <<< "$match")"
+rest="$(tail -n 1 <<< "$match")"
+trimmed_line=$(echo "$rest" | sed -E 's/-?[0-9]+: +[0-9]+://')
+line_number=$(get_line_number "$rest")
+direction=$(get_direction "$rest")
+
+# max_lines=$(wc -l < "$head_file")
+# max_jump=$(get_max_jump "$max_lines" "$pane_height")
+
+# # Quit copy-mode before starting a new fuzzback session. This solves issues
+# # with starting fuzzback when already in copy-mode
+# tmux copy-mode -q
+# tmux copy-mode
