@@ -59,6 +59,7 @@ bind C-q send-prefix
 bind \# set-window-option monitor-activity\; display-message "#{?monitor-activity,Monitoring,Ignoring} activity in current window"
 bind \~ run "tmux command-prompt -I #{?monitor-silence,#{monitor-silence},10} -p 'Set silence interval (seconds):' 'set monitor-silence %%'"
 bind M show-messages
+bind M-T set -ug @status-message ""                                                                # An optional message shown when the terminal title isn't set.
 
 bind r command-prompt -I "#W" -p "Rename window:" "if-shell \"[ -n '%1' ]\" { rename-window -- '%1' } { set automatic-rename on }"
 bind R command-prompt -I "#S" -p "Rename session:" "rename-session -- '%%'"
