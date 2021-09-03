@@ -38,8 +38,7 @@ la      ls -A
 l1      \ls -1 --quoting-style=literal
 
 t      tmux
-tt     fztmuxinator
-ttt    tmuxinator
+tt     fztt
 ta     $TMUX_HOME/cmds/attach-session
 t?     tmux show-options -g
 tM     tmux display-message
@@ -67,6 +66,7 @@ nojob   >/dev/null 2>&1 nohup sh -c '"$@"' run
 suniq   sort | uniq
 card    curl -sL kisara.moe/~mohkale/card
 isync   mbsync
+rsync   rsync -r --info=progress2 --info=name0
 
 rm      rm -v
 mv      mv -iv

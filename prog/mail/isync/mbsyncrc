@@ -21,7 +21,7 @@ Near :mohkalsin-gmail-local:
 Patterns *
 Create Both
 SyncState *
-Patterns * ![Gmail]* "[Gmail]/Sent Mail" "[Gmail]/Starred" "[Gmail]/All Mail" "[Gmail]/Bin"
+Patterns *
 
 # mohkalex@gmail.com
 IMAPAccount mohkalex-gmail
@@ -45,7 +45,7 @@ Near :mohkalex-gmail-local:
 Patterns *
 Create Both
 SyncState *
-Patterns * ![Gmail]* "[Gmail]/Sent Mail" "[Gmail]/Starred" "[Gmail]/All Mail" "[Gmail]/Bin"
+Patterns *
 
 Group all
 Channel mohkalsin-gmail

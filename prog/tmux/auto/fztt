@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+fztt() {
+  local fzf_args=( -d : --with-nth 4.. --ansi --preview 'preview {2}' --preview-window=50%
+                   --history "${XDG_DATA_HOME:-$HOME/.locale/share}"/fzf/history/tt )
+  [ -z "$*" ] || fzf_args+=( -q "$*" )
+  # Can't spawn multiple sessions from outside of TMUX because the first one
+  # blocks the rest until you exit it and control returns to the master shell.
+  [ -n "$TMUX" ] && fzf_args+=( --multi )
+  local target
+  if target=$(ttls -ap | _fzf "${fzf_args[@]}") && [ -n "$target" ]; then
+    local cmd conf dir targets
+    targets=( )
+    # Can't loop over directly because tmuxp complains about tty device.
+    while read -r it; do targets+=("$it"); done <<< "$target"
+    for it in "${targets[@]}"; do
+      IFS=: read -r cmd conf dir _ <<< "$it"
+      sh -c '[ -z "$3" ] || cd "$3"; $1 "$2"' tt-start "$cmd" "$conf" "${dir:-$HOME}"
+    done
+  fi
+}

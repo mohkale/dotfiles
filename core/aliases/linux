@@ -6,7 +6,9 @@ ywd        pwd | tee /dev/tty | clip -t
 sd         sudo 
 se         sudoedit
 xres@file  ~/.Xresources
+xp         . ~/.xprofile
 
+btctl             bluetoothctl
 jctl              journalctl
 jctlr             journalctl --reverse
 jctl-errors       journalctl -p 3 -xb

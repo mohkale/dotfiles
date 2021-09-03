@@ -1,20 +1,21 @@
----  # -*- mode: yaml -*- Tmuxinator Config File for transmission
-name: tortrans
+---  # Tmux layout configuration for Transmission
+
+session_name: tortrans
 
 windows:
-  - interface:
-      # need to sleep or tremc will crash because daemon isn't recieving yet.
-      panes:
-        - - sleep 1
+  - window_name: interface
+    panes:
+      - shell_command:
+          - sleep 1
           - cd ~/
           - tremc --skip-version-check
-  - watcher:
-      # vertically split with left hand side wider than right.
-      layout: 47f0,228x23,0,0{137x23,0,0,1,90x23,138,0,2}
-      panes:
-        - stdbuf -oL transmission-daemon --foreground --log-error --log-info --log-debug | tee -a "${XDG_STATE_HOME:-$HOME/.local/state}/transmission.log"
-        - $XDG_CONFIG_HOME/transmission-daemon/cmds/watcher -l DEBUG $XDG_CONFIG_HOME/transmission-daemon/watcher.json
-  - puddle:
-      panes:
-        - - cd -q $XDG_DATA_HOME/puddle || exit 0
+  - window_name: watcher
+    layout: 47f0,228x23,0,0{137x23,0,0,1,90x23,138,0,2}
+    panes:
+      - echo stdbuf -oL transmission-daemon --foreground --log-error --log-info --log-debug | tee -a "${XDG_STATE_HOME:-$HOME/.local/state}/transmission.log"
+      - echo $XDG_CONFIG_HOME/transmission-daemon/cmds/watcher -l DEBUG $XDG_CONFIG_HOME/transmission-daemon/watcher.json
+  - window_name: puddle
+    panes:
+      - shell_command:
+          - cd -q $XDG_DATA_HOME/puddle || exit 0
           - npm run serve:production

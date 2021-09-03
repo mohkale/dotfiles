@@ -1,6 +1,10 @@
 # -*- mode: conf-space -*- My tmux theme configuration (See [[https://github.com/nicknisi/dotfiles/blob/99b50f3a33c2a2d6ecf73d4f6e94efc8fe36f09a/tmux/base16.sh][base16]]) -- vim:syntax=tmux:filetype=tmux
 # TODO: use `tmux show -gw status-format` to setup status-center
 
+set -g set-titles-string "#{?#{!=:#{host},#{pane_title}},#{pane_title},#W}"
+set -g pane-border-format ' #P: #{pane_current_command} '
+set -g pane-border-lines single
+
 set -g status on
 set -g status-interval 15
 set -g status-justify  left
@@ -71,6 +75,7 @@ set -g @theme-hide-last-winflag 1                                               
 set -g @theme-winum-sep ":"                                                                        # Substring inserted between window number and name
 set -g @theme-winum-current-window 1                                                               # Whether to attach the window number to the current window
 set -g @theme-winflag-sep '[]'                                                                     # Seperators around window flags
+set -g @theme-show-session-group-index 1                                                           # Whether to show the current session position in the session group
 %hidden TMUX_OPT_CMD_MAX_LEN=30                                                                    # Maximum length of command on status line
 %hidden TMUX_OPT_NAME_MAX_LEN=50                                                                   # Maximum length of pane title on status line
 
@@ -106,10 +111,12 @@ set -g status-left "\
 #{?selection_present, COPY ,#{?search_present, FIND ,#{?pane_in_mode, META ,}}}\
 #[default]\
 \
-#[fg=$TMUX_BG,bg=#{@theme-state-prefix},bright]#{?client_prefix, TMUX ,}\
+#[fg=$TMUX_BG,bg=#{@theme-state-prefix},bright]\
+#{?client_prefix, TMUX ,}\
 #[default]\
 \
-#[fg=$TMUX_BG,bg=#{@theme-state-session},bright] #S \
+#[fg=$TMUX_BG,bg=#{@theme-state-session},bright]\
+ #{?#{&&:#{>:#{session_group_size},1},#{session_grouped}},#{session_group}#{?#{@theme-show-session-group-index},[#(echo '?'; $TMUX_HOME/theme/session-index #{q:session_group_list} #{q:session_name})/#{session_group_size}],},#S} \
 #[default] \
 "
 
@@ -137,14 +144,14 @@ set -g window-status-activity-style ""
 
 set -g status-right " \
 #[default,bg=$TMUX_BG,fg=$TMUX_FG]#[push-default]\
-#{?#{&&:#{!=:#{host},#{pane_title}},#{e|>=:#{client_width},#{@theme-hide-title-width}}},#{=/$TMUX_OPT_NAME_MAX_LEN/...:pane_title}#{?#{==:#{@theme-sep},}, ,#{@theme-sep}},}\
+#{?#{e|>=:#{client_width},#{@theme-hide-title-width}},#{?#{&&:#{!=:#{host},#{pane_title}},#{!=:#{pane_title},}},#{=/$TMUX_OPT_NAME_MAX_LEN/...:pane_title}#{?#{==:#{@theme-sep},}, ,#{@theme-sep}},#{?#{!=:#{E:@status-message},},#{E:@status-message}#{?#{==:#{@theme-sep},}, ,#{@theme-sep}},}},}
 \
-#{?#{e|>=:#{client_width},#{@theme-hide-misc-width}},#(echo ""; $TMUX_HOME/theme/status-misc -u -s 60 --enable nordvpn --enable github --enable transmission --enable notmuch --suffix '#{?#{==:#{@theme-sep},}, ,#{@theme-sep}}' --nordvpn-hide --nordvpn-icon ' ' --nordvpn-active-style '#[fg=$AOH_GREEN]' --nordvpn-inactive-style '#[fg=$AOH_RED]' --notmuch-hide-zero --notmuch-icon ' ' --notmuch-icon-style '#[fg=$AOH_WHITE]' --notmuch-unread-style '#[fg=$AOH_GREEN]' --notmuch-flagged-style '#[fg=$AOH_BRIGHT_MAGENTA]' --github-hide-zero --github-icon ' ' --github-icon-style '#[fg=$AOH_WHITE]' --github-count-style '#[fg=$AOH_BRIGHT_BLUE]' --transmission-icon ' ' --transmission-icon-style '#[fg=$AOH_BRIGHT_BLUE]' --transmission-hide-zero --transmission-sections downloading_high_priority downloading complete --transmission-section-styles '#[fg=$AOH_ORANGE]'),}\
+#{?#{e|>=:#{client_width},#{@theme-hide-misc-width}},#(echo ""; $TMUX_HOME/theme/status-misc -u -s 60 --enable nordvpn --enable github --enable transmission --enable notmuch --suffix '#{?#{==:#{@theme-sep},}, ,#{@theme-sep}}' --nordvpn-hide --nordvpn-icon ' ' --nordvpn-active-style '#[fg=$AOH_GREEN]' --nordvpn-inactive-style '#[fg=$AOH_RED]' --notmuch-hide-zero --notmuch-icon ' ' --notmuch-icon-style '#[fg=$AOH_WHITE]' --notmuch-unread-style '#[fg=$AOH_GREEN]' --notmuch-flagged-style '#[fg=$AOH_BRIGHT_MAGENTA]' --github-hide-zero --github-icon ' ' --github-icon-style '#[fg=$AOH_WHITE]' --github-count-style '#[fg=$AOH_BRIGHT_BLUE]' --transmission-icon ' ' --transmission-icon-style '#[fg=$AOH_BRIGHT_BLUE]' --transmission-hide-zero --transmission-sections downloading_high_priority downloading checking complete --transmission-section-styles '#[fg=$AOH_ORANGE]' '' '#[fg=$AOH_BRIGHT_MAGENTA]'),}\
 \
 #(echo ""; $TMUX_HOME/theme/disk-free -u -s 60 -b -m '#[bold,fg=#{@theme-df-mount}]' -t 80 '#[fg=#{@theme-df-medium}]' -t 95 '#[fg=#{@theme-df-large}]' -t 100 '#[fg=#{@theme-df-full}]')\
 \
 #[default]#{?#{==:#{@theme-sep},}, ,#{@theme-sep}}\
-#(echo ""; $TMUX_HOME/theme/cpu-load  -u -s 1 -t 30 '#[fg=#{@theme-cpu-1}]'  -t 50 '#[fg=#{@theme-cpu-2}]'  -t 70 '#[fg=#{@theme-cpu-3}]'  -t 90 '#[fg=#{@theme-cpu-4}]' -d '•' -j '')\
+#(echo ""; $TMUX_HOME/theme/cpu-load -u -s 1 -t 30 '#[fg=#{@theme-cpu-1}]' -t 50 '#[fg=#{@theme-cpu-2}]' -t 70 '#[fg=#{@theme-cpu-3}]' -t 90 '#[fg=#{@theme-cpu-4}]' -d '•' -j '')\
 \
 #[default]#{?#{==:#{@theme-sep},}, ,#{@theme-sep}}\
 #{?#{e|>=:#{client_width},#{@theme-hide-host-width}},#{host}(#{=$TMUX_OPT_CMD_MAX_LEN:pane_current_command}) ,}\

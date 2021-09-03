@@ -9,10 +9,10 @@ set -e
 
 sed -e '/^#.*/d' -e '/^[[:space:]]*$/d' <<EOF | notmuch tag --batch
 # Automatically read and flag any emails from myself
--new +inbox -unread +flagged -- tag:new and from:"mohsin kaleem" and to:"mohsin kaleem"
+-new +inbox -unread +flagged -- tag:new and query:from-me and query:to-me
 
 # Don't mark any replies I make as new emails, their continuations of earlier ones.
--new +inbox -unread -- tag:new and from:"mohsin kaleem"
+-new +inbox -unread +sent -- tag:new and query:from-me
 
 # Automatically mark developer related content
 -new +inbox +dev -- tag:new and from:help-debbugs@gnu.org
@@ -24,5 +24,5 @@ sed -e '/^#.*/d' -e '/^[[:space:]]*$/d' <<EOF | notmuch tag --batch
 +deleted -inbox -unread -- folder:/^kisara/Trash/
 
 # Remove new tag and attach defaults for rest of new mail
-notmuch tag +inbox +unread -new -- tag:new
++inbox +unread -new -- tag:new
 EOF
