@@ -2,7 +2,9 @@
 (
  (:shell {:desc "Sync emacs dotfiles"
           :cmd "git -C emacs submodule sync --quiet --recursive
-                git submodule update --init --recursive emacs"})
+                if ! [ -e emacs/.git ]; then
+                  git submodule update --init --recursive emacs
+                fi"})
 
  (:packages (:apt "emacs")
             (:choco "emacs")
