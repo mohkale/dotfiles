@@ -33,7 +33,7 @@ if ! [ -e "$dotty_path" ]; then
   pushd "$(mktemp -d)" >/dev/null
 
   arch=$("$root/bin/ls-arch")
-  goos=$("$root/bin/ls-kernel")
+  goos=$("$root/bin/ls-platform")
   dotty_file="dotty-$goos-$arch.tar.gz"
   dotty_url="$dotty_url/$dotty_file"
   if hash curl 2>/dev/null; then
