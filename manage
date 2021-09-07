@@ -32,8 +32,8 @@ if ! [ -e "$dotty_path" ]; then
   echo "install: dotty not found, attempting install"
   pushd "$(mktemp -d)" >/dev/null
 
-  arch=$("$root/setup/arch")
-  goos=$("$root/setup/kernel")
+  arch=$("$root/bin/ls-arch")
+  goos=$("$root/bin/ls-kernel")
   dotty_file="dotty-$goos-$arch.tar.gz"
   dotty_url="$dotty_url/$dotty_file"
   if hash curl 2>/dev/null; then

@@ -1,8 +1,21 @@
 #!/usr/bin/env bash
 # List the current platform (Unix, MacOS, Windows).
 
-case "$OSTYPE" in
-    cygwin*|msys*|win32*) echo "windows" ;;
-    darwin*)              echo "macos"   ;;
-    linux-gnu*)           echo "linux"   ;;
-esac
+if [ -n "$OSTYPE" ]; then
+  case "$OSTYPE" in
+    linux*)   echo "linux";   exit 0 ;;
+    freebsd*) echo "freebsd"; exit 0 ;;
+    darwin*)  echo "macos";   exit 0 ;;
+    win32*|msys*|cygwin*)
+      echo "windows"
+      exit 0 ;;
+  esac
+fi
+
+# maybe cygwin?
+if uname -s | tr '[:upper:]' '[:lower:]' | grep -qEo 'mingw|cygwin|msys'; then
+    echo 'windows'
+    exit 0
+fi
+
+exit 1

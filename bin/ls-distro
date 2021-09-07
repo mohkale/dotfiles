@@ -1,6 +1,6 @@
-#!/usr/bin/sh
-# output the current platform, this could be a linux distribution,
-# an operating system, etc.
+#!/bin/sh
+# Output the current linux distribution, falling back to
+# the platform if it can't be found.
 
 # the nice way, as agreed upon by most distros.
 if [ -f /etc/os-release ]; then
@@ -10,4 +10,4 @@ if [ -f /etc/os-release ]; then
 fi
 
 # I give up, just output the kernel
-"$(dirname "$0")"/kernel
+"$(dirname "$0")"/ls-platform

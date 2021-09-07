@@ -28,7 +28,7 @@
  (:shell "dest_dir=./setup/cache/dist
           rm -rvf $dest_dir/*
 
-          platform=$(./setup/platform)
+          platform=$(./bin/ls-distro)
           if [ ! -z \"$platform\" ]; then
             touch \"$dest_dir/$platform\"
           fi")

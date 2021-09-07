@@ -1,5 +1,6 @@
 #!/usr/bin/sh
 # echo out the architecture of current computer.
+#
 # source [[https://stackoverflow.com/a/48679640/6247387][here]].
 
 case "$(uname -m)" in
