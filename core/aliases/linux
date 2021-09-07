@@ -12,6 +12,7 @@ btctl             bluetoothctl
 jctl              journalctl
 jctlr             journalctl --reverse
 jctl-errors       journalctl -p 3 -xb
+fsck              fsck -M -T
 
 mp                fmpd
 mpq               fmpd queue
