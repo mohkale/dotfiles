@@ -22,6 +22,7 @@ set -o pipefail
 SEP=$'\t'
 BASH="$(which bash)"
 SEEK_STEP=00:00:10
+VOLUME_STEP=5
 
 ACCEPT_BINDING='return'
 RELOAD_BINDING='ctrl-r'
@@ -30,6 +31,7 @@ ENQUEUE_BINDING2='alt-return'                                                   
 VISUALISER_BINDING='ctrl-v'
 PAUSE_BINDING='ctrl-space'
 QUEUE_CLEAR_BINDING='ctrl-x'
+QUEUE_CROP_BINDING='ctrl-z'
 QUEUE_NEXT_BINDING='ctrl-n'
 QUEUE_PREV_BINDING='ctrl-p'
 TOGGLE_RANDOM_BINDING='alt-x'
@@ -40,8 +42,11 @@ QUEUE_SHUFFLE_BINDING='ctrl-s'
 SHOW_QUEUE_BINDING='ctrl-q'
 QUEUE_FORWARD_BINDING='alt-n'
 QUEUE_BACKWARD_BINDING='alt-p'
-SEEK_FORWARD_BINDING='right'
-SEEK_BACKWARD_BINDING='left'
+SEEK_FORWARD_BINDING='alt-right'
+SEEK_BACKWARD_BINDING='alt-left'
+VOLUME_UP_BINDING='alt-up'
+VOLUME_DOWN_BINDING='alt-down'
+YANK_BINDING='ctrl-y'
 
 # TODO: Support coloring for queue membership, and other properties etc.
 COLOR_RESET="$(printf "\e[0m")"
@@ -62,6 +67,7 @@ run_fzf() {
        --bind "$VISUALISER_BINDING"':execute[visualiser]' \
        --bind "$PAUSE_BINDING:execute-silent(mpc toggle)" \
        --bind "$QUEUE_CLEAR_BINDING:execute-silent(mpc clear)" \
+       --bind "$QUEUE_CROP_BINDING:execute-silent(mpc crop)" \
        --bind "$QUEUE_NEXT_BINDING:execute-silent(mpc next)" \
        --bind "$QUEUE_PREV_BINDING:execute-silent(mpc prev)" \
        --bind "$TOGGLE_RANDOM_BINDING:execute-silent(mpc random)+refresh-preview" \
@@ -72,6 +78,8 @@ run_fzf() {
        --bind "$SHOW_QUEUE_BINDING:execute(queue)" \
        --bind "$SEEK_FORWARD_BINDING:execute-silent(mpc seek +$SEEK_STEP)" \
        --bind "$SEEK_BACKWARD_BINDING:execute-silent(mpc seek -$SEEK_STEP)" \
+       --bind "$VOLUME_UP_BINDING:execute-silent(mpc volume +$VOLUME_STEP)+refresh-preview" \
+       --bind "$VOLUME_DOWN_BINDING:execute-silent(mpc volume -$VOLUME_STEP)+refresh-preview" \
        "$@"
 }
 
@@ -81,7 +89,7 @@ run_fzf() {
 # | |__| (_) | | | | | | | | | | | (_| | | | | (_| \__ \
 #  \____\___/|_| |_| |_|_| |_| |_|\__,_|_| |_|\__,_|___/
 
-CMDS=(all albums tags queue playlists)
+CMDS=(all albums files tags queue playlists)
 all() {
   list-tracks |
     ui-tracks --prompt 'Track: ' \
@@ -92,6 +100,12 @@ albums() {
   list-tags Album |
     ui-tag --prompt 'Select album: ' \
            --bind "$RELOAD_BINDING:reload(list-tags Album)"
+}
+
+files() {
+  list-files |
+    ui-tracks --prompt 'File: ' \
+              --bind "$RELOAD_BINDING:reload(list-files)"
 }
 
 tags() {
@@ -108,13 +122,14 @@ queue() {
       --bind "$RELOAD_BINDING:$RELOAD_CMD" \
       --bind "$ACCEPT_BINDING:execute-silent(mpc play {2})+$RELOAD_CMD" \
       --bind "$QUEUE_CLEAR_BINDING:execute-silent(mpc clear)+abort" \
-      --bind "$ENQUEUE_BINDING:execute-silent(mpc mv {1} {2})+$RELOAD_CMD" \
-      --bind "$ENQUEUE_BINDING2:execute-silent(mpc mv {1} {2})+$RELOAD_CMD" \
+      --bind "$ENQUEUE_BINDING:execute-silent(mpc del {2})+$RELOAD_CMD" \
+      --bind "$ENQUEUE_BINDING2:execute-silent(mpc del {2})+$RELOAD_CMD" \
       --bind "$SHOW_QUEUE_BINDING:execute-silent()" \
-      --bind "$QUEUE_FORWARD_BINDING:execute-silent("'pos={2}; mpc move "$pos" "$((pos-1))")'"+$RELOAD_CMD" \
-      --bind "$QUEUE_BACKWARD_BINDING:execute-silent("'pos={2}; mpc move "$pos" "$((pos+1))")'"+$RELOAD_CMD" \
+      --bind "$QUEUE_FORWARD_BINDING:execute-silent("'pos={2}; mpc move "$pos" "$((pos-1))")'"+down+$RELOAD_CMD" \
+      --bind "$QUEUE_BACKWARD_BINDING:execute-silent("'pos={2}; mpc move "$pos" "$((pos+1))")'"+up+$RELOAD_CMD" \
       --bind "$QUEUE_NEXT_BINDING:execute-silent(mpc next)+$RELOAD_CMD" \
-      --bind "$QUEUE_PREV_BINDING:execute-silent(mpc prev)+$RELOAD_CMD"
+      --bind "$QUEUE_PREV_BINDING:execute-silent(mpc prev)+$RELOAD_CMD" \
+      --bind "$YANK_BINDING:execute-silent(echo {3..} | clip)"
 }
 
 playlists() {
@@ -139,6 +154,7 @@ ui-tracks() {
     --bind "$ACCEPT_BINDING:execute-silent(action-add-queue -p {2})" \
     --bind "$ENQUEUE_BINDING:execute-silent(mpc add {2})" \
     --bind "$ENQUEUE_BINDING2:execute-silent(mpc add {2})" \
+    --bind "$YANK_BINDING:execute-silent(echo {2} | clip)" \
     "$@"
 }
 
@@ -147,6 +163,7 @@ ui-tag() {
   run_fzf \
     --with-nth 3.. \
     --bind "$ACCEPT_BINDING:execute[list-tag-tracks {2} {3} | ui-tracks --prompt 'Select {2}: ' --bind '$RELOAD_BINDING:reload(list-tag-tracks '{2}' '{3}')']" \
+    --bind "$YANK_BINDING:execute-silent(echo {3..} | clip)" \
     "$@"
 }
 
@@ -154,6 +171,7 @@ ui-pick-tag() {
   run_fzf \
     --with-nth 3.. \
     --bind "$ACCEPT_BINDING:execute[list-tags {3..} | ui-tag --prompt 'Select {3..}: ' --bind '$RELOAD_BINDING:reload(list-available-tags '{3..}')']" \
+    --bind "$YANK_BINDING:execute-silent(echo {3..} | clip)" \
     "$@"
 }
 
@@ -170,7 +188,11 @@ list-tracks() {
     sed -e "s ^ track$SEP "
 }
 
-CMDS+=(list-queue-tracks)
+list-files() {
+  mpc listall |
+    sed -e "s ^.\+$ track$SEP\0$SEP\0 "
+}
+
 list-queue-tracks() {
   # Also colors the currently playing track.
   current=$(mpc current --format '%position%')
@@ -285,6 +307,9 @@ EOF
     fi
     if [ -z "$queue_size" ]; then
       queue_size=$(get-queue-size)
+    fi
+    if [ -z "$queue_size" ]; then
+      queue_size=0
     fi
   fi
 

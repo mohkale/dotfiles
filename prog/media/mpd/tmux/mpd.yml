@@ -6,10 +6,12 @@ start_directory: ~/
 windows:
   - window_name: dash
     panes:
-      - sleep 2 && fmpd
-  - window_name: view
-    panes:
       - fmpd visualiser
+  - window_name: ctrl
+    panes:
+      - shell_command:
+          - sleep 2
+          - fmpd
   - window_name: daemon
     layout: even-horizontal
     panes:

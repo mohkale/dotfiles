@@ -15,6 +15,7 @@ jctl-errors       journalctl -p 3 -xb
 
 mp                fmpd
 mpq               fmpd queue
+mpf               fmpd files
 mpa               fmpd all
 mpp               fmpd playlists
 mpt               fmpd tags
