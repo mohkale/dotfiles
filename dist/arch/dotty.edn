@@ -7,5 +7,5 @@
                 makepkg -i --syncdeps --rmdeps --noconfirm
                "})
 
- (:link {:src "./auto/*" :dest "$DOTFILES/core/auto/cmds/" :glob true})
+ (:link {:src "./auto/*" :dest "$XDG_CONFIG_HOME/autoloads/cmds/" :glob true})
 )
