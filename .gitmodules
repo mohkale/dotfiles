@@ -29,3 +29,6 @@
 [submodule "prog/pass/store"]
 	path = prog/pass/store
 	url = git@github.com:mohkale/pass.git
+[submodule "core/walls"]
+	path = core/walls
+	url = git@github.com:mohkale/dotfiles-wallpapers.git
