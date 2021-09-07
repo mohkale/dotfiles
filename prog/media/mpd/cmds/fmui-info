@@ -1,0 +1,163 @@
+#!/usr/bin/env bash
+# The info command from [[https://github.com/seebye/fmui/blob/1c88466d24cd003a5e7de51e552459384c92847f/info.sh][fmui]] extracted into a stand-alone script -*- +indent: 2 -*-
+#
+# This script monitors the currently playing mpd track and then shows it in
+# ascii-art that's slowly colored in as you progress through the track.
+
+readonly DEFAULT_SONG_FORMAT='[[[%artist% - ]%title%]|[%file%]]'
+
+function Screen::move_cursor {
+  tput cup "$@"
+}
+
+function Screen::set_foreground {
+  tput setaf "$@"
+}
+
+function Screen::hide_cursor {
+  tput civis
+}
+
+function Screen::show_cursor {
+  tput cnorm
+}
+
+function Screen::new_screen {
+  tput smcup
+}
+
+function Screen::restore_screen {
+  tput rmcup
+}
+
+function Screen::enable_echo {
+  stty echo
+}
+
+function Screen::disable_echo {
+  stty -echo
+}
+
+function Info::cleanup {
+  Screen::enable_echo
+  Screen::show_cursor
+  Screen::restore_screen
+}
+
+function Mpc::get_song_duration {
+  local duration=`mpc current --format "%time%"`
+  local seconds=$((
+                   $(( 10#`grep --only-matching --perl-regexp '([0-9]+)(?=:)' <<< "$duration"` * 60 )) +
+                   10#`grep --only-matching --perl-regexp '(?<=:)([0-9]+)' <<< "$duration"` ))
+  echo -n "${seconds:-1}"
+}
+
+function Mpc::get_song_name {
+  mpc current --format "${song_format:-${DEFAULT_SONG_FORMAT}}"
+}
+
+function Mpc::get_song_progress {
+  Mpc::get_raw_song_info | \
+    grep --only-matching --perl-regexp '(?<=\()[0-9]+(?=%)'
+}
+
+function Mpc::get_raw_song_info {
+  mpc | grep --perl-regexp ']\s*#'
+}
+
+function build_ascii_art {
+  declare $ARRAY ascii_art_char
+  local width=`tput cols`
+  local name="$@"
+  local last_char='' char
+
+  for (( i=0; i<${#song[@]}; i++ )); do
+    song[$i]=""
+  done
+
+  for (( i=0; i<${#name}; i++ )); do
+    char="${name:$i:1}"
+    IFS=$'\n' ascii_art_char=($(toilet --font future --width $width <<< "$char" ))
+
+    if ! [[ "$char" =~ [a-zA-Z0-9\ ÄÖÜäöüß\"\$\(\)*+/:\;=@?_\`\|\&{}-] ]] ||
+        [[ "$char" == ' ' && ( "$last_char" == ' ' || "$last_char" == '' ) ]]; then
+      continue
+    fi
+
+    if (( ${#song[0]} + ${#ascii_art_char[0]} > $width )); then
+      break
+    fi
+
+    for (( j=0; j<${#song[@]}; j++ )); do
+      song[$j]+="${ascii_art_char[$j]}"
+    done
+
+    last_char="$char"
+  done
+}
+
+function Info::main {
+  readonly MILLISECS_PER_SECOND=1000
+  readonly COLOR_PLAYED=15
+  readonly COLOR_OUTSTANDING=8
+  readonly COLOR_NORMAL=8
+  declare $GLOBAL $ARRAY song=('' '' '')
+  local current_song last_song
+  local offset_x offset_y offset_x_normal
+  local timeout=1 timeout_seconds timeout_millisecs
+  local progress
+  local timeout=$(( `Mpc::get_song_duration` / 100 ))
+
+  trap "last_song=''" WINCH
+  trap "Info::cleanup" EXIT
+  Screen::new_screen
+  Screen::hide_cursor
+  Screen::disable_echo
+
+  while
+    # do
+    current_song="`Mpc::get_song_name`"
+
+    if [[ ! -z "$current_song" ]]; then
+      if [[ "$current_song" != "$last_song" ]]; then
+        last_song="$current_song"
+        build_ascii_art "$current_song"
+
+        offset_x=$(( `tput cols` / 2 - ${#song[0]} / 2 ))
+        offset_y=$(( `tput lines` / 2 - ${#song[@]} / 2 ))
+        #offset_x_normal=$(( `tput cols` / 2 - ${#current_song} / 2 ))
+
+        timeout_millisecs=$(( MILLISECS_PER_SECOND * `Mpc::get_song_duration` / ${#song[0]} ))
+        timeout_seconds=$(( timeout_millisecs / MILLISECS_PER_SECOND ))
+        timeout_millisecs=$(( timeout_millisecs % MILLISECS_PER_SECOND ))
+        timeout="${timeout_seconds}.${timeout_millisecs}"
+
+        clear
+      fi
+
+      progress=$(( ${#song[0]} * `Mpc::get_song_progress` / 100 ))
+
+      for (( y=0; y<${#song[@]}; y++ )); do
+        local line="${song[$y]}"
+        Screen::move_cursor $(( offset_y + y )) $offset_x
+
+        Screen::set_foreground $COLOR_PLAYED
+        echo -n "${line:0:$progress}"
+        Screen::set_foreground $COLOR_OUTSTANDING
+        echo -n "${line:$progress:${#line}}"
+      done
+
+      Screen::move_cursor $(( offset_y + ${#song[@]} )) $offset_x
+      Screen::set_foreground $COLOR_NORMAL
+      echo "$current_song"
+    fi
+
+    # while
+    read -rsn 1 -t $timeout input_char
+    [[ "$input_char" != "q" ]]
+  do continue ; done
+
+  Info::cleanup
+}
+
+Info::main

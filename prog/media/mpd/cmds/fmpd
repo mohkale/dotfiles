@@ -245,7 +245,7 @@ show-opts() {
 
 CMDS+=(visualiser)
 visualiser() {
-  cava || vis
+  fmui-info cava || vis
 }
 
 # TODO: Support something like fmui's info command.
