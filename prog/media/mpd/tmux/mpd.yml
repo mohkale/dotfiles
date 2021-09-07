@@ -1,0 +1,19 @@
+---  # mpd - Music Player Daemon management interface
+
+session_name: mpd
+start_directory: ~/
+
+windows:
+  - window_name: dash
+    panes:
+      - sleep 2 && fmpd
+  - window_name: view
+    panes:
+      - fmpd visualiser
+  - window_name: daemon
+    layout: even-horizontal
+    panes:
+      - shell_command:
+          - pgrep mpd || mpd
+          - journalctl --follow | grep --color=never mpd
+      - mpDris2 || exit 1

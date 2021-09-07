@@ -1,0 +1,362 @@
+#!/usr/bin/env bash
+# mpd fuzzy finder interface, inspired by [[https://github.com/seebye/fmui][fmui]]. -*- +indent: 2 -*-
+#
+# Inspired by fmui this program lets you interact with and control mpd
+# from a terminal oriented fzf session. The main difference between this
+# script and fmui is that it doesn't rely on you having your entire music
+# collection in the mpd queue. Instead you can filter tracks based on album
+# title, arbitrary tag and of course queue presence. This script also tries
+# to avoid interfering with fzf's role as a fuzzy finder. All the keybindings
+# make use of a modifier and you're encourage to narrow tracks by searching.
+#
+# At this stage this script lacks a lot of the features of fmui. One that comes
+# to mind is the info feature showing the progress of a track. It also doesn't
+# support visualisers in the same way due to input redirection. It's recommended
+# you start a visualiser in a separate shell or outside of an interactive session.
+#
+# shellcheck disable=SC2120
+
+set -a # export everything
+set -o pipefail
+
+SEP=$'\t'
+BASH="$(which bash)"
+SEEK_STEP=00:00:10
+
+ACCEPT_BINDING='return'
+RELOAD_BINDING='ctrl-r'
+ENQUEUE_BINDING='ctrl-b'                                                        # Only on ui-tracks
+ENQUEUE_BINDING2='alt-return'                                                   # KLUDGE: Better support for dual bindings
+VISUALISER_BINDING='ctrl-v'
+PAUSE_BINDING='ctrl-space'
+QUEUE_CLEAR_BINDING='ctrl-x'
+QUEUE_NEXT_BINDING='ctrl-n'
+QUEUE_PREV_BINDING='ctrl-p'
+TOGGLE_RANDOM_BINDING='alt-x'
+TOGGLE_REPEAT_BINDING='alt-r'
+TOGGLE_SINGLE_BINDING='alt-s'
+TOGGLE_CONSUME_BINDING='alt-c'
+QUEUE_SHUFFLE_BINDING='ctrl-s'
+SHOW_QUEUE_BINDING='ctrl-q'
+QUEUE_FORWARD_BINDING='alt-n'
+QUEUE_BACKWARD_BINDING='alt-p'
+SEEK_FORWARD_BINDING='right'
+SEEK_BACKWARD_BINDING='left'
+
+# TODO: Support coloring for queue membership, and other properties etc.
+COLOR_RESET="$(printf "\e[0m")"
+COLOR_QUEUE_ACTIVE="$(printf "\e[0;31m")"
+
+run_fzf() {
+  SHELL="$BASH" fzf \
+       --ansi \
+       --no-multi \
+       --cycle \
+       --inline-info \
+       --preview "show-opts" \
+       --preview-window "top:1" \
+       --delimiter "$SEP" \
+       --bind "change:top" \
+       --bind "$ENQUEUE_BINDING:execute-silent(echo 'error: enqueue not supported for current ui')" \
+       --bind "$ENQUEUE_BINDING2:execute-silent(echo 'error: enqueue not supported for current ui')" \
+       --bind "$VISUALISER_BINDING"':execute[visualiser]' \
+       --bind "$PAUSE_BINDING:execute-silent(mpc toggle)" \
+       --bind "$QUEUE_CLEAR_BINDING:execute-silent(mpc clear)" \
+       --bind "$QUEUE_NEXT_BINDING:execute-silent(mpc next)" \
+       --bind "$QUEUE_PREV_BINDING:execute-silent(mpc prev)" \
+       --bind "$TOGGLE_RANDOM_BINDING:execute-silent(mpc random)+refresh-preview" \
+       --bind "$TOGGLE_REPEAT_BINDING:execute-silent(mpc repeat)+refresh-preview" \
+       --bind "$TOGGLE_SINGLE_BINDING:execute-silent(mpc single)+refresh-preview" \
+       --bind "$TOGGLE_CONSUME_BINDING:execute-silent(mpc consume)+refresh-preview" \
+       --bind "$QUEUE_SHUFFLE_BINDING:execute-silent(mpc shuffle)" \
+       --bind "$SHOW_QUEUE_BINDING:execute(queue)" \
+       --bind "$SEEK_FORWARD_BINDING:execute-silent(mpc seek +$SEEK_STEP)" \
+       --bind "$SEEK_BACKWARD_BINDING:execute-silent(mpc seek -$SEEK_STEP)" \
+       "$@"
+}
+
+#   ____                                          _
+#  / ___|___  _ __ ___  _ __ ___   __ _ _ __   __| |___
+# | |   / _ \| '_ ` _ \| '_ ` _ \ / _` | '_ \ / _` / __|
+# | |__| (_) | | | | | | | | | | | (_| | | | | (_| \__ \
+#  \____\___/|_| |_| |_|_| |_| |_|\__,_|_| |_|\__,_|___/
+
+CMDS=(all albums tags queue playlists)
+all() {
+  list-tracks |
+    ui-tracks --prompt 'Track: ' \
+              --bind "$RELOAD_BINDING:reload(list-tracks)"
+}
+
+albums() {
+  list-tags Album |
+    ui-tag --prompt 'Select album: ' \
+           --bind "$RELOAD_BINDING:reload(list-tags Album)"
+}
+
+tags() {
+  list-available-tags |
+    ui-pick-tag --prompt 'Available tag: ' \
+                --bind "$RELOAD_BINDING:reload(list-available-tags)"
+}
+
+queue() {
+  RELOAD_CMD='reload(list-queue-tracks)'
+  list-queue-tracks |
+    ui-tracks \
+      --prompt 'Queue track: ' \
+      --bind "$RELOAD_BINDING:$RELOAD_CMD" \
+      --bind "$ACCEPT_BINDING:execute-silent(mpc play {2})+$RELOAD_CMD" \
+      --bind "$QUEUE_CLEAR_BINDING:execute-silent(mpc clear)+abort" \
+      --bind "$ENQUEUE_BINDING:execute-silent(mpc mv {1} {2})+$RELOAD_CMD" \
+      --bind "$ENQUEUE_BINDING2:execute-silent(mpc mv {1} {2})+$RELOAD_CMD" \
+      --bind "$SHOW_QUEUE_BINDING:execute-silent()" \
+      --bind "$QUEUE_FORWARD_BINDING:execute-silent("'pos={2}; mpc move "$pos" "$((pos-1))")'"+$RELOAD_CMD" \
+      --bind "$QUEUE_BACKWARD_BINDING:execute-silent("'pos={2}; mpc move "$pos" "$((pos+1))")'"+$RELOAD_CMD" \
+      --bind "$QUEUE_NEXT_BINDING:execute-silent(mpc next)+$RELOAD_CMD" \
+      --bind "$QUEUE_PREV_BINDING:execute-silent(mpc prev)+$RELOAD_CMD"
+}
+
+playlists() {
+  list-playlists |
+    run_fzf \
+      --prompt 'Playlist: ' \
+      --bind "$RELOAD_BINDING:reload(list-playlists)" \
+      --bind "$ACCEPT_BINDING:execute-silent(mpc clear; mpc load {}; mpc play)" \
+      --bind "$ENQUEUE_BINDING:execute-silent(mpc load {})" \
+      --bind "$ENQUEUE_BINDING2:execute-silent(mpc load {})"
+}
+
+#  _   _                 ___       _             __
+# | | | |___  ___ _ __  |_ _|_ __ | |_ ___ _ __ / _| __ _  ___ ___  ___
+# | | | / __|/ _ \ '__|  | || '_ \| __/ _ \ '__| |_ / _` |/ __/ _ \/ __|
+# | |_| \__ \  __/ |     | || | | | ||  __/ |  |  _| (_| | (_|  __/\__ \
+#  \___/|___/\___|_|    |___|_| |_|\__\___|_|  |_|  \__,_|\___\___||___/
+
+ui-tracks() {
+  run_fzf \
+    --with-nth 3.. \
+    --bind "$ACCEPT_BINDING:execute-silent(action-add-queue -p {2})" \
+    --bind "$ENQUEUE_BINDING:execute-silent(mpc add {2})" \
+    --bind "$ENQUEUE_BINDING2:execute-silent(mpc add {2})" \
+    "$@"
+}
+
+# Support {+f} to select multiple tags or tag entries simultaneously.
+ui-tag() {
+  run_fzf \
+    --with-nth 3.. \
+    --bind "$ACCEPT_BINDING:execute[list-tag-tracks {2} {3} | ui-tracks --prompt 'Select {2}: ' --bind '$RELOAD_BINDING:reload(list-tag-tracks '{2}' '{3}')']" \
+    "$@"
+}
+
+ui-pick-tag() {
+  run_fzf \
+    --with-nth 3.. \
+    --bind "$ACCEPT_BINDING:execute[list-tags {3..} | ui-tag --prompt 'Select {3..}: ' --bind '$RELOAD_BINDING:reload(list-available-tags '{3..}')']" \
+    "$@"
+}
+
+#  _     _     _      ____                                          _
+# | |   (_)___| |_   / ___|___  _ __ ___  _ __ ___   __ _ _ __   __| |___
+# | |   | / __| __| | |   / _ \| '_ ` _ \| '_ ` _ \ / _` | '_ \ / _` / __|
+# | |___| \__ \ |_  | |__| (_) | | | | | | | | | | | (_| | | | | (_| \__ \
+# |_____|_|___/\__|  \____\___/|_| |_| |_|_| |_| |_|\__,_|_| |_|\__,_|___/
+
+LIST_TRACKS_FORMAT="%time% [[[%artist% - ]%title%]|[%file%]]"
+
+list-tracks() {
+  mpc listall --format "%file%$SEP$LIST_TRACKS_FORMAT" |
+    sed -e "s ^ track$SEP "
+}
+
+CMDS+=(list-queue-tracks)
+list-queue-tracks() {
+  # Also colors the currently playing track.
+  current=$(mpc current --format '%position%')
+  mpc playlist --format "%position%$SEP$LIST_TRACKS_FORMAT" |
+    awk -v current="$current" \
+        -v color="$COLOR_QUEUE_ACTIVE" \
+        -v reset="$COLOR_RESET" \
+        -F "$SEP" \
+        -e '
+{
+  if (current && $1 == current) {
+    printf("%s", $1 FS color)
+    for (i=2; i <= NF; i++) {
+      printf("%s", $i ($i != 2 ? FS : ""))
+    }
+    print(reset)
+  } else {
+    print($0)
+  }
+}
+' | sed -e "s ^ track$SEP "
+}
+
+list-tag-tracks() {
+  if [ "$#" -ne 2 ]; then
+    echo "error: fmpd list-tag-tracks must be given a tag and search term" >&2
+    exit 1
+  fi
+
+  mpc find --format="%file%$SEP$LIST_TRACKS_FORMAT" "$1" "$2" |
+    sed -e "s ^ track$SEP "
+}
+
+list-tags() {
+  if [ "$#" -ne 1 ]; then
+    echo "error: fmpd list-tags must be given a tag to list" >&2
+    exit 1
+  fi
+
+  mpc list "$1" |
+    sed -e "s ^.\+$ tags$SEP$1$SEP\0 "
+}
+
+list-available-tags() {
+  # There doesn't seem to be a command for this, so search for a non-existent tag
+  # and then parse the list from there.
+  local it
+  read -r it < <(mpc list '' 2>&1)
+  if [[ "$it" =~ 'Unknown tag ""' ]]; then
+    echo "$it" |
+      sed -e 's/Unknown tag ""; supported tags are: //' -e 's/, /\n/g' |
+      sed -e "s ^.\+$ available-tags$SEP$SEP\0 "
+  else
+    echo "error: fmpd: failed to query tag list from mpd"
+    exit 1
+  fi
+}
+
+list-playlists() {
+  mpc lsplaylists
+}
+
+#     _        _   _                    ___     _____                 _   _
+#    / \   ___| |_(_) ___  _ __  ___   ( _ )   |  ___|   _ _ __   ___| |_(_) ___  _ __  ___
+#   / _ \ / __| __| |/ _ \| '_ \/ __|  / _ \/\ | |_ | | | | '_ \ / __| __| |/ _ \| '_ \/ __|
+#  / ___ \ (__| |_| | (_) | | | \__ \ | (_>  < |  _|| |_| | | | | (__| |_| | (_) | | | \__ \
+# /_/   \_\___|\__|_|\___/|_| |_|___/  \___/\/ |_|   \__,_|_| |_|\___|\__|_|\___/|_| |_|___/
+
+show-opts() {
+  mpc | grep --max-count=1 "volume" | sed 's|:\([^ ]\)|: \1|'
+}
+
+CMDS+=(visualiser)
+visualiser() {
+  cava || vis
+}
+
+# TODO: Support something like fmui's info command.
+# CMDS+=(info)
+# info() {
+#   echo "not yet implemented"
+# }
+
+action-add-queue() {
+  USAGE="fmpd add-queue [-h] [-p] [-a] FILE"
+  read -r -d '' HELP <<-EOF
+$USAGE
+
+Optional arguments:
+  -h           Show this help message and exit.
+  -p           Start playing after queing.
+  -a           Append songs after current in queue.
+EOF
+
+  local play=0 action=add
+  while getopts 'hpa' OPTION; do
+    case "$OPTION" in
+      h) echo "$HELP"
+         exit 0 ;;
+      p) play=1 ;;
+      a) action=insert ;;
+      \?) echo "$USAGE"
+          exit 1 ;;
+    esac
+  done
+  shift $((OPTIND - 1))
+
+  local queue_size=
+  if [ "$play" -eq 1 ]; then
+    if [ "$action" = insert ]; then
+      queue_size="$(mpc current --format '%position%')"
+    fi
+    if [ -z "$queue_size" ]; then
+      queue_size=$(get-queue-size)
+    fi
+  fi
+
+  mpc --wait "$action" "$@"
+  if [ -n "$queue_size" ]; then mpc play "$((queue_size+1))"; fi
+}
+
+get-queue-size() {
+  mpc playlist --format '%position%' | tail -n1
+}
+
+#  ____                        ___        _
+# |  _ \ __ _ _ __ ___  ___   / _ \ _ __ | |_ ___
+# | |_) / _` | '__/ __|/ _ \ | | | | '_ \| __/ __|
+# |  __/ (_| | |  \__ \  __/ | |_| | |_) | |_\__ \
+# |_|   \__,_|_|  |___/\___|  \___/| .__/ \__|___/
+#                                  |_|
+
+print_usage() {
+  local IFS=,
+  echo "Usage: fmpd [-h] {${CMDS[*]}}"
+}
+
+print_help() {
+  print_usage
+  cat <<-EOF
+
+  mpd interface based on fzf.
+
+Optional arguments:
+  -h           Show this help message and exit.
+
+Sub-commands:
+  all
+    Present all tracks in the mpd database as candidates for the queue.
+  albums
+    The default sub-command. This presents all available albums and
+    has you select one to view the tracks from.
+  tags
+    Present all valid tag types (including album) and select one to
+    further filter on.
+  queue
+    View the active mpd queue and playing tracks.
+  playlists
+    View all available playlists and replace the current queue with them
+    or extend it with the playlist contents.
+  visualiser
+    Start an audio visualiser such as cava or vis.
+EOF
+}
+
+while getopts 'h' OPTION; do
+  case "$OPTION" in
+    h) print_help
+       exit 0 ;;
+    \?) print_usage
+        exit 1 ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+if [ "$#" -eq 0 ]; then
+  cmd="albums"
+else
+  cmd="$1"; shift
+fi
+for i in "${CMDS[@]}"; do
+  if [ "$i" = "$cmd" ] ; then
+    "$cmd" "$@"
+    exit "$?"
+  fi
+done
+echo "error: fmpd: unknown command $cmd" >&2
+print_usage >&2
+exit 1

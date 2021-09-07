@@ -12,3 +12,9 @@ btctl             bluetoothctl
 jctl              journalctl
 jctlr             journalctl --reverse
 jctl-errors       journalctl -p 3 -xb
+
+mp                fmpd
+mpq               fmpd queue
+mpa               fmpd all
+mpp               fmpd playlists
+mpt               fmpd tags
