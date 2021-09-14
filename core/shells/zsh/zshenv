@@ -21,3 +21,4 @@ if [[ -o login ]]; then
 fi
 
 ZGEN_DIR="$XDG_CACHE_HOME/zgen"
+ZSHELL_BINDING_STYLE=emacs                                                      # Configure vi or emacs emulation.

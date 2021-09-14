@@ -1,0 +1,65 @@
+#!/usr/bin/env zsh
+# -*- +indent: 2 -*- zshell emacs emulation.
+#
+# shellcheck shell=bash
+
+# shells should be like emacs, not vim :P.
+bindkey -e
+
+# vi like movement commands on hjkl
+bindkey "^b" backward-bashword
+bindkey "^f" forward-bashword
+
+bindkey "^h" backward-char
+bindkey "^l" forward-char
+bindkey "^j" down-line-or-history
+bindkey "^k" up-line-or-history
+
+# same as C-h/C-l except skips over /
+bindkey "^p" vi-backward-blank-word
+bindkey "^n" vi-forward-blank-word
+
+bindkey "^[[1;5C" forward-bashword  # <C-right>
+bindkey "^[[1;5D" backward-bashword # <C-left>
+
+bindkey "^[j" history-search-forward
+bindkey "^[k" history-search-backward
+
+bindkey "^u" universal-argument
+
+bindkey "^[u" undo
+bindkey "^[r" redo
+
+bindkey "^[d" kill-line
+bindkey "^d"  backward-kill-line
+
+bindkey '^w'  backward-kill-bashword
+bindkey '^[w' backward-kill-dir
+
+bindkey "^[^?" kill-whole-line # <M-backspace>
+
+bindkey "^[y" yank
+
+bindkey "^[e" edit-command-line
+bindkey "^[l" clear-screen
+
+bindkey -s "^[i" "^[[Z" # <M-i> = <S-TAB>
+
+# shifttab to autosuggest from history
+# bindkey "^[[Z" autosuggest-fetch
+
+# XTerm compatibility
+bindkey -s "^[[32;2u" " " # <S-Space>
+bindkey '^[[127;5u' backward-kill-word # <C-backspace>
+bindkey -s '^[[105;5u' "	" # <C-i>
+bindkey -s "^[[109;5u" "^M"
+
+# Macros
+bindkey -s '^[xh' "| head -n "
+bindkey -s '^[xl' "| less"
+bindkey -s '^[xc' "| clip"
+bindkey -s '^[x`' '\C-e`\C-a`\C-a'
+bindkey -s '^[xe' 'emacsclient -nw'
+
+bindkey "^i"  complete-word
+bindkey "^[i" expand-word

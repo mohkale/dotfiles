@@ -3,19 +3,20 @@
 #
 # shellcheck shell=bash
 
-# options
-zle_highlight=(  )
-zle_highlight+="isearch:bg=blue,fg=black"
-zle_highlight+="region:fg=black,bg=white"
-zle_highlight+="paste:fg=cyan"
-
 setopt listrowsfirst
 
+if [ -n "$ZSHELL_BINDING_STYLE" ]; then
+  source "$ZDOTDIR/bindings-$ZSHELL_BINDING_STYLE"
+fi
+
 autoload -U select-word-style
-# for some reason, calling this now makes repeat
-# C-w invocations, append to the previous kill.
-# Just like bash :-)
+# for some reason, calling this now makes repeat C-w invocations, append to the
+# previous kill. Just like bash :-)
 select-word-style default
+
+# like bashes edit-and-execute-command, but doesn't autorun
+autoload -z edit-command-line
+zle -N edit-command-line
 
 # some nostalgic bashisms from [[https://github.com/davidshepherd7/dotfiles/blob/master/zsh/.zsh/zsh-bindings.sh#L9][davidshepard7]].
 BASH_WORDCHARS='`~!@#$%^&*()-_=+[{]}\|;:",<.>/?'"'"
@@ -47,73 +48,9 @@ backward-kill-dir () {
 }
 zle -N backward-kill-dir
 
-# like bashes edit-and-execute-command, but doesn't autorun
-autoload -z edit-command-line
-zle -N edit-command-line
-
-# shells should be like emacs, not vim :P.
-bindkey -e
-
-# vi like movement commands on hjkl
-bindkey "^b" backward-bashword
-bindkey "^f" forward-bashword
-
-bindkey "^h" backward-char
-bindkey "^l" forward-char
-bindkey "^j" down-line-or-history
-bindkey "^k" up-line-or-history
-
-bindkey "^[[1;5C" forward-bashword  # <C-right>
-bindkey "^[[1;5D" backward-bashword # <C-left>
-
-bindkey "^[j" history-search-forward
-bindkey "^[k" history-search-backward
-
-bindkey "^u" universal-argument
-
-bindkey "^[u" undo
-bindkey "^[r" redo
-
-bindkey "^[d" kill-line
-bindkey "^d"  backward-kill-line
-
-bindkey '^w'  backward-kill-bashword
-bindkey '^[w' backward-kill-dir
-
-bindkey "^[^?" kill-whole-line # <M-backspace>
-
-bindkey "^[y" yank
-
-bindkey "^[e" edit-command-line
-
-bindkey -s "^[i" "^[[Z" # <M-i> = <S-TAB>
-
-# same as C-h/C-l except skips over /
-bindkey "^[h" vi-backward-blank-word
-bindkey "^[l" vi-forward-blank-word
-
-# shifttab to autosuggest from history
-# bindkey "^[[Z" autosuggest-fetch
-
-# XTerm compatibility
-bindkey -s "^[[32;2u" " " # <S-Space>
-bindkey '^[[127;5u' backward-kill-word # <C-backspace>
-bindkey -s '^[[105;5u' "	" # <C-i>
-bindkey -s "^[[109;5u" "^M"
-
-# Macros
-bindkey -s '^[xh' "| head -n "
-bindkey -s '^[xl' "| less"
-bindkey -s '^[xc' "| clip"
-bindkey -s '^[x`' '\C-e`\C-a`\C-a'
-bindkey -s '^[xe' 'emacsclient -nw'
-
-bindkey "^i"  complete-word
-bindkey "^[i" expand-word
-
 # Autoload bindings
-# Taken from [[https://www.reddit.com/r/zsh/comments/96asgu/how_to_bindkey_shell_commands_a_quick_guide/][here]], let's you run a command inbetween entering
-# something to your shell (  ⚆ _ ⚆ ).
+## Taken from [[https://www.reddit.com/r/zsh/comments/96asgu/how_to_bindkey_shell_commands_a_quick_guide/][here]], let's you run a command inbetween entering
+## something to your shell (  ⚆ _ ⚆ ).
 function zle_eval {
   # echo -en "\e[2K\r"
   echo
@@ -144,6 +81,14 @@ zle -N zle_gx; bindkey "^x^x" zle_gx
 zle_ge() { zle_eval ge; }
 zle -N zle_ge; bindkey "^x^e" zle_ge
 
+# External scripts
+if [ -e /usr/share/fzf/key-bindings.zsh ]; then
+  source /usr/share/fzf/key-bindings.zsh
+  bindkey "^T" transpose-chars                                                  # Restore default ctrl-t binding.
+  bindkey '\ec' capitalize-word                                                 # Restore default alt-c binding.
+  FZF_CTRL_R_OPTS="$FZF_DEFAULT_OPTS $FZF_SHELL_OPTS --history '""$XDG_DATA_HOME""'/fzf/history/sh-history"
+fi
+
 # menuselect
 ## offers interactive completion selection
 zmodload -i zsh/complist
@@ -160,10 +105,3 @@ bindkey -M menuselect "^l" forward-char
 
 # bindkey -M menuselect "^l" accept-line
 bindkey -M menuselect "^o" accept-and-infer-next-history
-
-if [ -e /usr/share/fzf/key-bindings.zsh ]; then
-  . /usr/share/fzf/key-bindings.zsh
-  bindkey "^T" transpose-chars                                                  # Restore default ctrl-t binding.
-  bindkey '\ec' capitalize-word                                                 # Restore default alt-c binding.
-  FZF_CTRL_R_OPTS="$FZF_DEFAULT_OPTS $FZF_SHELL_OPTS --history '""$XDG_DATA_HOME""'/fzf/history/sh-history"
-fi

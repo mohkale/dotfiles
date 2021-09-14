@@ -17,39 +17,9 @@ fi
 ZGEN_RESET_ON_CHANGE=("$ZDOTDIR/.zshrc")
 source "$ZGEN_DIR/zgen.zsh"
 
-# zsh-highlight
-typeset -A ZSH_HIGHLIGHT_STYLES
-ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets cursor)
-## errors and warnings
-ZSH_HIGHLIGHT_STYLES[unknown-token]='fg=red'
-## builtins and syntax specific stuff
-ZSH_HIGHLIGHT_STYLES[reserved-word]='fg=blue'
-ZSH_HIGHLIGHT_STYLES[builtin]='fg=blue'
-ZSH_HIGHLIGHT_STYLES[named-fd]='fg=blue'
-ZSH_HIGHLIGHT_STYLES[numeric-fd]='fg=yellow'
-ZSH_HIGHLIGHT_STYLES[named-fd]='fg=yellow'
-ZSH_HIGHLIGHT_STYLES[precommand]="fg=blue"
-
-ZSH_HIGHLIGHT_STYLES[global-alias]="fg=green"
-ZSH_HIGHLIGHT_STYLES[suffix-alias]="fg=green"
-## color for quoted arguments/bodies
-ZSH_HIGHLIGHT_STYLES[single-quoted-argument]="fg=blue"
-ZSH_HIGHLIGHT_STYLES[dollar-quoted-argument]="fg=blue"
-ZSH_HIGHLIGHT_STYLES[double-quoted-argument]="fg=blue"
-ZSH_HIGHLIGHT_STYLES[single-quoted-argument-unclosed]="fg=black,bold"
-ZSH_HIGHLIGHT_STYLES[double-quoted-argument-unclosed]="fg=black,bold"
-ZSH_HIGHLIGHT_STYLES[dollar-quoted-argument-unclosed]="fg=black,bold"
-ZSH_HIGHLIGHT_STYLES[back-double-quoted-argument]="fg=cyan"
-ZSH_HIGHLIGHT_STYLES[back-dollar-quoted-argument]="fg=cyan"
-
-ZSH_HIGHLIGHT_STYLES[assign]="fg=yellow"
-ZSH_HIGHLIGHT_STYLES[path]="none"
-ZSH_HIGHLIGHT_STYLES[autodirectory]="fg=green"
-
 unset ZSH_AUTOSUGGEST_USE_ASYNC                                                  # See [[https://github.com/zsh-users/zsh-autosuggestions/issues/483][conflict]] with syntax-highlighting.
 
 if ! zgen saved; then
-  # zgen load 'zpm-zsh/ssh'                                                      # Complete ssh hostanmes
   zgen load 'mafredri/zsh-async'                                                 # Asynchronous actions (for prompt)
   zgen load 'zsh-users/zsh-syntax-highlighting'                                  # Highlight keywords/commands as you write
   zgen load 'zsh-users/zsh-autosuggestions'                                      # Preview completions/suggestions
@@ -99,9 +69,9 @@ source "$ZDOTDIR"/bindings
 autoload -U compinit && compinit
 
 if [ "${smart_term:-0}" -eq 1 ]; then
-  source "$ZDOTDIR/prompt"
+  source "$ZDOTDIR/theme"
 fi
 
-if [ "$INSIDE_EMACS" = 'vterm' ]; then
+if [ "$INSIDE_EMACS" = vterm ]; then
   PROMPT="$PROMPT"'%{$(vterm_prompt_end)%}'
 fi

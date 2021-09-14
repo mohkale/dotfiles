@@ -1,0 +1,44 @@
+#!/usr/bin/env zsh
+# -*- +indent: 2 -*- zshell vim emulation.
+#
+# shellcheck shell=bash
+
+bindkey -v
+KEYTIMEOUT=1                                                                    # 10ms for escape keys.
+
+# Support different curosors for different vi-modes.
+# See [[https://ttssh2.osdn.jp/manual/4/en/usage/tips/vim.html][here]] for cursor shapes.
+_cursor_block='\e[2 q'
+_cursor_beam='\e[6 q'
+
+function zle-keymap-select {
+  # Taken from [[https://thevaluable.dev/zsh-install-configure-mouseless/#:~:text=between%20modes%20quicker.-,Changing%20Cursor,-A%20visual%20indicator][here]].
+  if [[ ${KEYMAP} == vicmd ]] ||
+        [[ $1 = 'block' ]]; then
+    echo -ne "$_cursor_block"
+  elif [[ ${KEYMAP} == main ]] ||
+          [[ ${KEYMAP} == viins ]] ||
+          [[ ${KEYMAP} = '' ]] ||
+          [[ $1 = 'beam' ]]; then
+    echo -ne "$_cursor_beam"
+  fi
+}
+
+zle-line-init() {
+  echo -ne "$_cursor_beam"
+}
+
+zle -N zle-keymap-select
+zle -N zle-line-init
+
+bindkey -M viins '^a' beginning-of-line
+bindkey -M viins '^e' end-of-line
+
+bindkey -M viins "^[[1;5C" forward-bashword  # <C-right>
+bindkey -M viins "^[[1;5D" backward-bashword # <C-left>
+
+bindkey -M viins '^w'  backward-kill-bashword
+bindkey -M viins '^[w' backward-kill-dir
+
+bindkey -M viins "^[e" edit-command-line
+bindkey -M viins "^[l" clear-screen
