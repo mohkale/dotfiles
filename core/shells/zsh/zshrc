@@ -56,7 +56,7 @@ if ! zgen saved; then
   zgen save
 fi
 
-. "$XDG_CONFIG_HOME/shenv"
+source "$XDG_CONFIG_HOME/shenv"
 
 setopt shwordsplit                                                              # Allows $foo to expand to multiple space delimeted arguments, instead of just one argument.
 setopt globsubst                                                                # Allow glob substitutions to be expanded when done so inside of variables. eg. foo='*'; find $foo; will behave just as if you type `find *` directly.
@@ -94,15 +94,13 @@ zstyle ':completion:*' completer _expand_alias _complete _ignored               
 # zstyle ':completion:*:matches' group 'yes'
 # zstyle ':completion:*'         group-name ''
 
-source "$XDG_CONFIG_HOME"/bindings/zshell
-
-# Where to look for autoloads.
-fpath=("${fpath[@]}")
+source "$ZDOTDIR"/bindings
 
 autoload -U compinit && compinit
 
-[ "${smart_term:-0}" -eq 1 ] &&
-  . "$XDG_CONFIG_HOME/prompt/zsh"
+if [ "${smart_term:-0}" -eq 1 ]; then
+  source "$ZDOTDIR/prompt"
+fi
 
 if [ "$INSIDE_EMACS" = 'vterm' ]; then
   PROMPT="$PROMPT"'%{$(vterm_prompt_end)%}'

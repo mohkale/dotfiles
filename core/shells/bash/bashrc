@@ -28,7 +28,7 @@ case "$-" in
 	    # We have color support; assume it's compliant with Ecma-48
 	    # (ISO/IEC-6429). Lack of such support is extremely rare, and such
 	    # a case would tend to support setf rather than setaf.
-      . "$XDG_CONFIG_HOME/prompt/bash"
+      . "$XDG_CONFIG_HOME/bash/prompt"
     fi
     ;;
 esac
@@ -40,8 +40,9 @@ shopt -s histappend                                                             
 HISTCONTROL=ignoreboth                                                          # Ignore duplicate lines or lines with spaces.
 bind 'set enable-bracketed-paste on'                                            # Allow paste with newlines
 
-[ -r "$XDG_CONFIG_HOME/bindings/bash" ] &&
-  . "$XDG_CONFIG_HOME/bindings/bash"
+if [ -r "$XDG_CONFIG_HOME/bash/bindings" ]; then
+  . "$XDG_CONFIG_HOME/bash/bindings"
+fi
 
 # Enable programmable completion features
 if ! shopt -oq posix; then

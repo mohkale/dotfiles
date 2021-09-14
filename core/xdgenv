@@ -1,6 +1,6 @@
 # -*- mode: sh -*- XDG compatibility for various programs, see [[https://wiki.archlinux.org/index.php/XDG_Base_Directory][here]].
 
-export INPUTRC="$XDG_CONFIG_HOME"/bindings/readline                             # GNU [[https://tldp.org/LDP/lfs/LFS-BOOK-6.1.1-HTML/chapter07/inputrc.html][readline]]
+export INPUTRC="$XDG_CONFIG_HOME"/inputrc                                       # GNU [[https://tldp.org/LDP/lfs/LFS-BOOK-6.1.1-HTML/chapter07/inputrc.html][readline]]
 
 export PARALLEL_HOME="$XDG_CONFIG_HOME"/parallel                                # GNU [[man:parallel][parallel]]
 

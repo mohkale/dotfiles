@@ -219,7 +219,6 @@ lfrc@file        $XDG_CONFIG_HOME/lf/lfrc
 xdg@file         $XDG_CONFIG_HOME/xdg
 diricons@file    $XDG_CONFIG_HOME/diricons
 dircolors@file   $XDG_CONFIG_HOME/dircolors
-prompt@file      $XDG_CONFIG_HOME/prompt
 emacsrc@file     $XDG_CONFIG_HOME/lisp/+config.el
 tmuxrc@file      $TMUX_HOME/tmux.conf
 brain@dirx       $XDG_DOCUMENTS_DIR/brain
