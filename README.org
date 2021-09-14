@@ -43,6 +43,11 @@ My dotfile repository, happily brought to you by [[https://github.com/mohkale/do
   | prog/langs   | setup multiple programming languages & environments.     |
   | setup        | scripts and binaries related to managing dotfiles.       |
 
+  It's worth noting several programs also have scripts and auto-loads that could be
+  placed in ~bin/~ but are instead placed in a ~cmds/~ sub-directory of their program
+  configuration, just to make maintenance easier. For example tmux has several
+  commands in [[file:prog/tmux/cmds][prog/tmux/cmds]], instead of ~bin/~.
+
 * Notes
 ** Windows
   - Requires [[https://security.stackexchange.com/questions/10194/why-do-you-have-to-be-an-admin-to-create-a-symlink-in-windows#:~:text=By%20default%2C%20only%20administrators%20can,%5CUser%20Rights%20Assignment%5C%20granted.][admin privilages]] to create symlinks.
@@ -54,3 +59,5 @@ My dotfile repository, happily brought to you by [[https://github.com/mohkale/do
   [[file:.github/lf.png]]
 
   [[file:.github/emacs.png]]
+
+#  LocalWords:  tmux
