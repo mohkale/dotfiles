@@ -1,0 +1,56 @@
+#!/bin/sh
+# Run a command within the context of a poetry project. -*- +indent: 2 -*-
+#
+# This script tries to workaround [[https://github.com/python-poetry/poetry/issues/2179][poetry#2179]]. The ability to run a poetry
+# project command while not forcing you to have to change directories to
+# that project.
+
+set -e
+
+print_usage() {
+  echo 'Usage: poetry-do [-h] PROJECT_DIR CMD [ARGS...]'
+}
+
+print_help() {
+  print_usage
+  cat <<-EOF
+
+  Run a poetry command from the current working directory.
+  This command uses a poetry project configuration to run
+  a command but changes the working directory back to the
+  current directory before executing it.
+
+Required arguments:
+  PROJECT_DIR
+    The path to an existing poetry project directory.
+
+Optional arguments:
+  -h    Show this help message and exit the script.
+EOF
+}
+
+while getopts 'h' option; do
+  case "$option" in
+    h) print_help
+       exit 0 ;;
+    \?) print_usage >&2
+        exit 1 ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+if [ "$#" -lt 2 ]; then
+  print_usage >&2
+  exit 1
+fi
+
+START_DIR="$(pwd)"
+PROJECT_DIR="$1"; shift
+
+cd "$PROJECT_DIR"
+# shellcheck disable=SC2016
+exec poetry run bash -c '
+start="$1"; shift
+cd "$start"
+exec "$@"
+' -- "$START_DIR" "$@"
