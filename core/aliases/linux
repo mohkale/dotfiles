@@ -2,7 +2,7 @@
 
 alert      notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(get_last_command)"
 pdf        zathura
-ywd        pwd | tee /dev/tty | clip -t
+ywd        sh -c 'if [ "$#" -gt 0 ]; then cd "$*" || exit 1; fi; pwd | tee /dev/tty | clip -t' ywd
 sd         sudo 
 se         sudoedit
 xres@file  ~/.Xresources

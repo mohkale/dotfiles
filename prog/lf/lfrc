@@ -572,7 +572,7 @@ cmd yank-basename-without-extension &{{
 }}
 
 ### Source local configuration
-${{ if [ -r "$XDG_CONFIG_HOME/lf/lfrc.local" ]; then lf -remote "send $id source $XDG_CONFIG_HOME/lf/lfrc.local"; fi }}
+&{{ if [ -r "$XDG_CONFIG_HOME/lf/lfrc.local" ]; then sleep 1 && lf -remote "send $id source $XDG_CONFIG_HOME/lf/lfrc.local"; fi }}
 
 # Local Variables:
 # electric-pair-preserve-balance: t

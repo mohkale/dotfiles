@@ -125,6 +125,8 @@ passgen sh -c 'cat /dev/urandom | tr -d -c '"'"'[:alnum:]'"'"' | head -c "${1:-5
 extensions py -c $'import pathlib;\import sys;\nfor path in map(lambda x: pathlib.Path(x.rstrip()), sys.stdin): print(path.suffix)'
 ## See [[https://github.com/chubin/wttr.in][wttr.in]]
 weather curl -q -s http://wttr.in/
+## Convert yaml to json, mostly just for previews beecause how YAML is interpreted is confusing.
+yj py -c $'import yaml, json, sys\nfor it in sys.argv[1:]: print(json.dumps(yaml.load(open(it, "r"), Loader=yaml.FullLoader)))'
 
 # Vi stuff
  q      exit
@@ -175,7 +177,7 @@ fzawk _fzf --disabled --print-query --preview 'awk -e {q} -- {}'
 # directory-stack
 qa      pushd
 qd      popd
-qs      dirs -v
+qq      dirs -v
 q1      pushd +1
 q2      pushd +2
 q3      pushd +3
@@ -232,7 +234,7 @@ box@dirx         ~/Dropbox
 dot@dirx         $DOTFILES
 dbin@dirx        $DOTFILES/bin
 em@dirx          $XDG_CONFIG_HOME/emacs
-org@dirx         $DOTFILES/core/org
+org@dirx         $XDG_DOCUMENTS_DIR/org
 cheats@dirx      $XDG_CONFIG_HOME/cheat/cheatsheets/personal
 
 dl@dirx          $XDG_DOWNLOAD_DIR
