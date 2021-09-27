@@ -1,0 +1,5 @@
+#!/bin/sh
+# Sync mail with mail-server through mbsync. -*- +indent: 2 -*-
+
+mbsync --verbose -c "${XDG_CONFIG_HOME:-$HOME/.config}"/isync/mbsyncrc all &&
+  notmuch new
