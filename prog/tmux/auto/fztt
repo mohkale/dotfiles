@@ -1,19 +1,26 @@
 #!/usr/bin/env bash
 fztt() {
-  local fzf_args=( -d : --with-nth 4.. --ansi --preview 'preview {2}' --preview-window=50%
+  local SEP='@'
+  local fzf_args=( -d "$SEP" --with-nth 5.. --ansi --preview-window=50%
+                   --preview '
+case {1} in
+  # TODO: tmux session previews.
+  tmux) echo "tmux session "{3} ;;
+  *) preview {3} ;;
+esac'
                    --history "${XDG_DATA_HOME:-$HOME/.locale/share}"/fzf/history/tt )
   [ -z "$*" ] || fzf_args+=( -q "$*" )
   # Can't spawn multiple sessions from outside of TMUX because the first one
   # blocks the rest until you exit it and control returns to the master shell.
   [ -n "$TMUX" ] && fzf_args+=( --multi )
   local target
-  if target=$(ttls -ap | _fzf "${fzf_args[@]}") && [ -n "$target" ]; then
+  if target=$(ttls -alpq -s "$SEP" | _fzf "${fzf_args[@]}") && [ -n "$target" ]; then
     local cmd conf dir targets
     targets=( )
     # Can't loop over directly because tmuxp complains about tty device.
     while read -r it; do targets+=("$it"); done <<< "$target"
     for it in "${targets[@]}"; do
-      IFS=: read -r cmd conf dir _ <<< "$it"
+      IFS="$SEP" read -r _ cmd conf dir _ <<< "$it"
       sh -c '[ -z "$3" ] || cd "$3"; $1 "$2"' tt-start "$cmd" "$conf" "${dir:-$HOME}"
     done
   fi

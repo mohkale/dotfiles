@@ -57,7 +57,8 @@ map zi :set icons!
 
 ## Misc
 map <c-s> :push /
-map gr :reload; sync
+map gr reload
+map gR :reload; sync
 map cd push :cd<space>
 map ,g push :glob-select<space>
 map ,u push :glob-unselect<space>

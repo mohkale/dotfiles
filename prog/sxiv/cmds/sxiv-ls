@@ -4,11 +4,13 @@
 # Invoke [[man:sxiv][sxiv]] on a file or list of files.
 #
 # Depending on the number of arguments this either opens sxiv on all files
-# in a directory or only the image files passed to this processe directly.
+# in a directory or only the image files passed to this process directly.
 # When only one image is given the former is done and when more than one is
 # given then the latter is done.
 #
 # This allows sxiv to behave like the classic windows image viewer.
+
+set -o noglob
 
 num=1
 
@@ -25,15 +27,12 @@ else
 
   files=$(
     find -L "$(dirname "$1")" \
-          -mindepth 1 -maxdepth 1 -type f \
-          -exec file -L --mime-type {} + |
+          -mindepth 1 -maxdepth 1 -type f |
       sort -V |
-      awk -F: \
-          -v current="$1" \
+      awk -v current="$1" \
           -v num_file="$num_f" \
-          -e '!($2 ~ /image/) { next }' \
-          -e '{ print $1; count++ }' \
-          -e '$1 == current { print count > num_file }')
+          -e '{ print $0; count++ }' \
+          -e '$0 == current { print count > num_file }')
 
   read -r num < "$num_f"
   [ -z "$num" ] && num=1

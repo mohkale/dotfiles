@@ -38,7 +38,7 @@ if [ -z "$LS_COLORS" -a \
   export LF_COLORS="$LS_COLORS:.git/=35:.github/=35"
 fi
 
-SAVEHIST=10000000 HISTSIZE=10000000 HISTFILESIZE=10000000
+export SAVEHIST=10000000 HISTSIZE=10000000 HISTFILESIZE=10000000
 
 FZF_SHELL_OPTS="--height 99% --reverse"                                         # FZF options for use in interactive shells and widgets.
 

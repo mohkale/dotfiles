@@ -67,6 +67,9 @@ suniq   sort | uniq
 card    curl -sL kisara.moe/~mohkale/card
 isync   mbsync
 rsync   rsync -r --info=progress2 --info=name0
+fd      find
+b64     base64 -w 0
+b64d    b64 -d
 
 rm      rm -v
 mv      mv -iv
@@ -145,7 +148,6 @@ etc     et -c
 etd     et -l -
 etcd    etd -c
 we      EMACS_CMD=evi with_emacs 
-emf     emacs-make-frame
 
 # Buku
 buku      buku --np

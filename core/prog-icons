@@ -1,6 +1,6 @@
 # -*- mode: conf-space -*- Program (unicode) icon configuration.
 
-st*    
+st     
 sh     
 zsh    
 bash   
@@ -52,6 +52,9 @@ cargo      
 rustup     
 node       
 gradle     
+cabal      
+ghc*       
+stack      
 
 # Package Managers
 apt     
