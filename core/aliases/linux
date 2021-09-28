@@ -14,6 +14,16 @@ jctlr             journalctl --reverse
 jctl-errors       journalctl -p 3 -xb
 fsck              fsck -M -T
 
+hl                hledger
+hlb               hledger balance
+hlp               hledger import --dry
+hli               hledger import
+hlbs              hledger balancesheet --no-elide
+hlbse             hledger balancesheetequity --no-elide
+hlis              hledger incomestatement --no-elide
+hlr               hledger register
+hla               hledger activity
+
 mp                fmpd
 mpq               fmpd queue
 mpf               fmpd files

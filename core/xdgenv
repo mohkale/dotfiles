@@ -95,7 +95,7 @@ export PSQL_HISTORY="$XDG_STATE_HOME/pg/psql_history"
 export PGPASSFILE="$XDG_CONFIG_HOME/pg/pgpass"
 export PGSERVICEFILE="$XDG_CONFIG_HOME/pg/pg_service.conf"
 
-# export LEDGER_FILE="$XDG_DOCUMENTS_DIR"/finance/ledger.journal                # Ledger
+export LEDGER_FILE="$XDG_DOCUMENTS_DIR"/ledger/main.journal                     # Ledger
 
 export ZDOTDIR="$XDG_CONFIG_HOME/zshell"                                        # zshell
 

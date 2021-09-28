@@ -1,0 +1,7 @@
+---  # ledger2beancount export [[https://ledger2beancount.readthedocs.io/configuration/][configuration]] file.
+
+hledger: true
+
+account_regex:
+  "^revenues$": "Income"
+  "^revenues:(.*)": "Income:$1"
