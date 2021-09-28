@@ -12,17 +12,19 @@ sed -e '/^#.*/d' -e '/^[[:space:]]*$/d' <<EOF | notmuch tag --batch
 -new +inbox -unread +flagged -- tag:new and query:from-me and query:to-me
 
 # Don't mark any replies I make as new emails, their continuations of earlier ones.
--new +inbox -unread +sent -- tag:new and query:from-me
+-new +inbox -unread +sent -- tag:new and query:from-me and -query:to-me
 
 # Automatically mark developer related content
 -new +inbox +dev -- tag:new and from:help-debbugs@gnu.org
 -new +inbox +dev -- tag:new and from:@github.com
 
 # Tag any mail in the bin as deleted.
-+deleted -inbox -unread -- folder:/\[Gmail\]/ and folder:/Bin$/
-+spam    -inbox -unread -- folder:/\[Gmail\]/ and folder:/Spam$/
-+deleted -inbox -unread -- folder:/^kisara/Trash/
+-new +deleted -inbox -unread -- folder:/\[Gmail\]/ and folder:/Bin$/
+-new +spam    -inbox -unread -- folder:/\[Gmail\]/ and folder:/Spam$/
+-new +deleted -inbox -unread -- folder:/^kisara/Trash/
+
+-new +spam -inbox -unread -- tag:new and from:@findeveryjob.co.uk
 
 # Remove new tag and attach defaults for rest of new mail
-+inbox +unread -new -- tag:new
+-new +inbox +unread -- tag:new
 EOF

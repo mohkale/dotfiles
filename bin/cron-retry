@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+# Run a command and only fail if it fails a certain number of times. -*- +indent: 2 -*-
+#
+# Sometime a cron task fails. It could be because of a service issue, missing
+# configuration etc. Whenever this happens cron forwards an email to me saying
+# that it's failed. For commands that're run very often this can very quickly
+# become annoying. This script makes it so that a CMD only exits non-zero if
+# it's exited a non-zero at least a certain number of times continuously.
+# A single valid run of the command is enough to reset the counter.
+
+print_usage() {
+  echo "Usage: cron-retry [-h] [-l LIMIT] TITLE CMD [...ARG]"
+}
+
+print_help() {
+  print_usage
+  cat <<-EOF
+
+  Repeatable cron command proxy.
+
+Optional arguments:
+  -h                Show this help message and exit.
+  -l LIMIT          Set maximum repeat count to LIMIT.
+EOF
+}
+
+limit=12
+while getopts 'hl:' OPTION; do
+  case "$OPTION" in
+    h) print_help
+       exit 0 ;;
+    l) limit="$OPTARG"
+       if ! [[ "$limit" =~ [[:digit:]]+ ]]; then
+         echo "error: cron-retry: argument for limit '$limit' wasn't a number"
+       fi
+       ;;
+    \?) print_usage >&2
+        exit 1 ;;
+  esac
+done
+shift $(("$OPTIND" - 1))
+if [ "$#" -lt 2 ]; then
+  print_usage >&2
+  exit 1
+fi
+
+temp_file="${TMPDIR:-/tmp}"/"$1".$USER-$UID; shift
+
+if "$@"; then
+  echo 0 > "$temp_file"
+else
+  echo "error: cron-retry: command had non-zero exit code, incrementing error count." >&2
+
+  count=0
+  if [ -e "$temp_file" ]; then
+    count=$(cat "$temp_file")
+  fi
+  if ! [[ "$count" =~ [[:digit:]]+ ]]; then
+    count=0
+  fi
+  count=$((count+1))
+  echo "$count" > "$temp_file"
+  if [ "$count" -gt "$limit" ]; then
+    exit 1
+  fi
+fi
