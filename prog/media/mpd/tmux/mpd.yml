@@ -11,11 +11,10 @@ windows:
     panes:
       - shell_command:
           - sleep 2
-          - fmpd
+          - ncmpcpp || ncmpc || fmpd
   - window_name: daemon
     layout: even-horizontal
     panes:
       - shell_command:
           - pgrep mpd || mpd
           - journalctl --follow | grep --color=never mpd
-      - mpDris2 || exit 1
