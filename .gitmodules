@@ -11,8 +11,8 @@
 	path = prog/yakuake/themes/an-old-hope
 	url = git@github.com:mohkale/an-old-hope-yakuake.git
 	branch = master
-[submodule "prog/st/st"]
-	path = prog/st
+[submodule "prog/st/src"]
+	path = prog/st/src
 	url = git@github.com:mohkale/st.git
 	ignore = dirty
 	branch = master
@@ -20,9 +20,9 @@
 	path = prog/bat/an-old-hope
 	url = git@github.com:mohkale/an-old-hope-sublime.git
 	branch = master
-[submodule "prog/sxiv/sxiv"]
+[submodule "prog/sxiv/src"]
 	branch = nsxiv
-	path = prog/sxiv/sxiv
+	path = prog/sxiv/src
 	url = git@github.com:mohkale/sxiv.git
 [submodule "prog/gdb/mammon"]
 	path = prog/gdb/mammon
