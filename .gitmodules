@@ -21,6 +21,7 @@
 	url = git@github.com:mohkale/an-old-hope-sublime.git
 	branch = master
 [submodule "prog/sxiv/sxiv"]
+	branch = nsxiv
 	path = prog/sxiv/sxiv
 	url = git@github.com:mohkale/sxiv.git
 [submodule "prog/gdb/mammon"]

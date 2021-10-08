@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Usage: sxiv-ls FILE [...FILES]
 #
-# Invoke [[man:sxiv][sxiv]] on a file or list of files.
+# Invoke [[man:nsxiv][sxiv]] on a file or list of files.
 #
 # Depending on the number of arguments this either opens sxiv on all files
 # in a directory or only the image files passed to this process directly.
@@ -39,4 +39,4 @@ else
   rm -f "$num_f"
 fi
 
-exec sxiv -i -n "$num" <<< "$files"
+exec nsxiv -i -n "$num" <<< "$files"

@@ -1,2 +1,9 @@
 Sxiv.background: very_dark_grey
 Sxiv.foreground: very_light_grey
+
+Nsxiv.bar.font: Meslo LG M DZ:style=Regular:pixelsize=10
+Nsxiv.window.background: very_dark_grey
+Nsxiv.window.foreground: very_light_grey
+Nsxiv.bar.background: very_light_grey
+Nsxiv.bar.foreground: very_dark_grey
+Nsxiv.mark.foreground: bright_red
