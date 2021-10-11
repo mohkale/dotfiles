@@ -62,7 +62,7 @@ map gR :reload; sync
 map cd push :cd<space>
 map ,g push :glob-select<space>
 map ,u push :glob-unselect<space>
-$lf -remote "send $id map ,r source ${XDG_CONFIG_HOME:-$HOME/.config}/lf/cmds/lf-preview"
+$lf -remote "send $id map ,r source ${XDG_CONFIG_HOME:-$HOME/.config}/lf/lfrc"
 
 ## Readline
 cmap <c-g>  cmd-escape
@@ -124,6 +124,8 @@ cmd cat ${{
         cat -- "$f"
     fi | ${PAGER:-less}
 }}
+
+map od &xopen "$(dirname "$f")"
 
 map oh hexdump
 cmd hexdump ${{

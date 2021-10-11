@@ -74,9 +74,9 @@ bind "'" run -b "$TMUX_HOME/cmds/jump-marked || true"                           
 
 bind ! break-pane                                                                                  # move current pane into its own tab
 bind @ join-pane                                                                                   # join marked pane onto current window
-bind £ move-window -a -s '{marked}'                                                                # move marked window to current session
-bind $ link-window -a -s '{marked}'                                                                # link marked window to current session
-bind % swap-pane                                                                                   # swap current pane with the marked pane
+bind £ swap-pane                                                                                   # swap current pane with the marked pane
+bind $ move-window -a -s '{marked}'                                                                # move marked window to current session
+bind % link-window -a -s '{marked}'                                                                # link marked window to current session
 bind ^ swap-window                                                                                 # swap marked window with current one
 
 bind s command-prompt -p "Search windows:" "find-window -Z -CNTi '%%'"                             # Show list of windows matching a GLOB pattern
@@ -85,7 +85,7 @@ bind | command-prompt -p "Pipe pane:" "pipe-pane -o '%%'"
 
 bind M-h command-prompt -k -p "Describe key:" "list-keys -1N '%%'"                                 # Inspect the key-symbol bound by tmux
 
-bind b   choose-tree -Zs
+bind b   choose-tree -ZsG
 bind B   choose-tree -Zw
 bind C-b choose-client -Z
 

@@ -12,4 +12,4 @@ windows:
       - nethogs || nload || iftop || exit
   - window_name: mail
     panes:
-      - emacs -nw --eval '(if (not (require (quote notmuch) nil t)) (kill-emacs 1) (setq auto-revert-interval 60 auto-revert--lockout-interval 60) (add-hook (quote notmuch-search-hook) (quote auto-revert-mode)) (notmuch-search "tag:inbox"))' || exit
+      - emacs -nw --eval '(if (not (require (quote notmuch) nil t)) (kill-emacs 1) (setq auto-revert-interval 60 auto-revert--lockout-interval 60) (add-hook (quote notmuch-search-hook) (quote auto-revert-mode)) (notmuch) (notmuch-search "tag:inbox"))' || exit

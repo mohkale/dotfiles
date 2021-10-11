@@ -24,9 +24,10 @@ hlis              hledger incomestatement --no-elide
 hlr               hledger register
 hla               hledger activity
 
-mp                fmpd
+mpo               sh -c 'ncmpcpp "$@" || ncmpc "$@" || fmpd "$@"' 'mpd-client'
 mpq               fmpd queue
 mpf               fmpd files
-mpa               fmpd all
+mpt               fmpd all
+mpa               fmpd albums
 mpp               fmpd playlists
 mpt               fmpd tags
