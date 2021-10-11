@@ -1,12 +1,15 @@
 # -*- mode: sh; indent-tabs-mode: t -*- wm independent hotkeys for [[file:bspwmrc][bspwm]].
 
+super + x
+	spawn-term -r 20 -c 50 -n LaunchDialog launch
+
 # Make sxhkd reload its configuration files
 super + Escape
 	pkill -USR1 -x sxhkd
 
 # Lock the screen
 super + alt + Escape
-	xsecurelock
+	lockscreen
 
 # Focus the next/previous desktop in the current monitor
 super + {n,p}

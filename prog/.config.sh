@@ -36,6 +36,7 @@ import -b                                       \
   libinput                                      \
   media/*                                       \
   pass                                          \
+  picom                                         \
   polybar                                       \
   ranger                                        \
   ripgrep                                       \

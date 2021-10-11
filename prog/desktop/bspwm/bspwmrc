@@ -2,10 +2,11 @@
 
 pgrep -x sxhkd >/dev/null || sxhkd & # Enables window manager specific bindings.
 pgrep -x dunst >/dev/null || dunst & # Allows you to recieve notify-send notifications.
-pgrep -x nm-applet >/dev/null || nm-applet &
+pgrep -x nm-applet >/dev/null || nm-applet & # Automatically connect to the internet
 # pgrep -x polybar >/dev/null || polybar default &
-pgrep -x tint2 >/dev/null || tint2 &
-pgrep -x xwallpaper >/dev/null || pick-wallpaper
+pgrep -x tint2 >/dev/null || tint2 & # A pretty and informative taskbar
+pgrep -x picom >/dev/null || picom & # Allow animations and transparency
+pgrep -x xwallpaper >/dev/null || pick-wallpaper # Choose a default wallpaper
 
 bspc monitor -d 1 2 3 4 5 6 7 8 9 10
 
