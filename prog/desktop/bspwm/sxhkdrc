@@ -4,8 +4,15 @@
 super + Escape
 	pkill -USR1 -x sxhkd
 
+# Lock the screen
+super + alt + Escape
+	xsecurelock
+
 # Focus the next/previous desktop in the current monitor
 super + {n,p}
+	bspc desktop --focus {next,prev}.local
+
+super + ctrl + {Right,Left}
 	bspc desktop --focus {next,prev}.local
 
 # Focus the next/previous monitor
@@ -30,17 +37,17 @@ XF86AudioMute
 
 # EOF
 
-#
-# bspwm hotkeys
-#
+#################
+# bspwm hotkeys #
+#################
 
 # quit/restart bspwm
 super + alt + {q,r}
 	bspc {quit,wm -r}
 
 # close and kill
-super + {_,shift + }w
-	bspc node -{c,k}
+super + {w,BackSpace,shift + w}
+	bspc node -{c,c,k}
 
 # alternate between the tiled and monocle layout
 super + m
@@ -66,9 +73,9 @@ super + {t,shift + t,f,s}
 super + ctrl + {m,x,y,z}
 	bspc node -g {marked,locked,sticky,private}
 
-#
-# focus/swap
-#
+##############
+# focus/swap #
+##############
 
 # focus the node in the given direction
 super + {_,shift + }{h,j,k,l}
@@ -96,9 +103,9 @@ super + {o,i}
 super + {_,shift + }{1-9,0}
 	bspc {desktop -f,node -d} '^{1-9,10}'
 
-#
-# preselect
-#
+#############
+# preselect #
+#############
 
 # preselect the direction
 super + ctrl + {h,j,k,l}
@@ -116,9 +123,9 @@ super + ctrl + space
 super + ctrl + shift + space
 	bspc query -N -d | xargs -I id -n 1 bspc node id -p cancel
 
-#
-# move/resize
-#
+###############
+# move/resize #
+###############
 
 # expand a window by moving one of its side outward
 super + alt + {h,j,k,l}

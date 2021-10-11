@@ -1,0 +1,4 @@
+#!/bin/sh
+
+export XSECURELOCK_PASSWORD_PROMPT=asterisks \
+       XSECURELOCK_SAVER="$XDG_CONFIG_HOME/xsecurelock/cmds/xsecurelock_wallpaper"

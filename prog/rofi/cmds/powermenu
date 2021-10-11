@@ -1,0 +1,34 @@
+#!/bin/sh
+
+dir="$HOME/.config/rofi/"
+rofi_command="rofi -theme $dir/powermenu.rasi"
+
+shutdown=" shutdown"
+reboot=" reboot"
+lock=" lock"
+suspend=" suspend"
+logout=" logout"
+
+options="$reboot\n$lock\n$suspend\n$logout\n$shutdown"
+
+chosen="$(echo -e "$options" | fzf --prompt "Uptime: $uptime")"
+
+case "$chosen" in
+	$shutdown)
+		shutdown now ;;
+	$reboot)
+		shutdown -r now ;;
+	# $lock)
+	# 	lockscreen
+    #     ;;
+	# $suspend)
+	# 	pamixer -m
+	# 	loginctl suspend
+    #     ;;
+	# $logout)
+	# 	bspc quit
+    #     ;;
+    *)
+        echo "error: powermenu: not yet implemented: $chosen" >&2
+        exit 1
+esac

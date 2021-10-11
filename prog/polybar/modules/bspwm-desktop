@@ -9,6 +9,6 @@ enable-scroll = false
 
 format = <label-state> <label-mode>
 label-empty =
-label-focused = "%name%:"
+label-focused = "%name%"
 label-urgent =
 label-occupied =

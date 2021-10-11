@@ -42,11 +42,13 @@ import -b                                       \
   sxiv                                          \
   terminal/*                                    \
   thefuck                                       \
+  tint2                                         \
   tmux                                          \
   transmission                                  \
   vpn/*                                         \
   wget                                          \
   wine                                          \
+  xsecurelock                                   \
   xwallpaper                                    \
   zathura
 
