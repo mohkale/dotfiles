@@ -1,0 +1,75 @@
+#!/bin/sh
+
+wall=
+if [ -e "$XDG_DATA_HOME/wallpaper" ]; then
+  wall=$(cat "$XDG_DATA_HOME/wallpaper")
+fi
+if [ -z "$wall" ]; then
+  wall="$(ls-wallpapers | sort -R | head -n1)"
+fi
+
+# We either use a configured wallpaper or blur the current screen.
+if [ -z "$wall" ] || ! [ -e "$wall" ]; then
+  wall="$(mktemp --suffix .png)"
+  trap 'rm -f '"$wall" EXIT
+  import -window root "$wall"
+  convert "$wall" -blur 0x5 "$wall"
+fi
+
+# Determine the size of the current screen.
+width=1920 height=1080
+if res=$(xdpyinfo | awk '/dimensions/ { print $2 }'); then
+  IFS=x read -r width height <<< "$res"
+fi
+
+convert "$wall" -scale "${width}x${height}^" -gravity center -extent "${width}x${height}^" RGB:- |
+  i3lock --nofork \
+         --ignore-empty-password \
+         --raw "$res":rgb --image /dev/stdin \
+         \
+         --indicator \
+         --ind-pos="x+(w + 50)/2:h-60-70" \
+         --line-uses-inside \
+         \
+         --radius=54 \
+         --ring-width=3 \
+         --ring-color=ffffffff \
+         --ringver-color=4fb4d8 \
+         --ringwrong-color=eb3d54 \
+         --inside-color=00000000 \
+         --insidewrong-color=00000000 \
+         --insidever-color=00000000 \
+         --bshl-color=eb3d54 \
+         --keyhl-color=4fb4d8 \
+         \
+         --bar-pos="1070" \
+         --bar-base-width="10" \
+         --bar-orientation=horizontal \
+         --bar-color=161616 \
+         \
+         --clock \
+         --time-color=eceff4ff \
+         --time-str="%H:%M" \
+         --time-font="Rubik Light" \
+         --time-size=72 \
+         --time-pos="x+(w + 72)/2:300" \
+         --time-color=e8e8d3ff \
+         \
+         --date-str="%A, %d %B" \
+         --date-color=e8e8d3ff \
+         --date-font="Rubik Light" \
+         --date-size=18 \
+         --date-pos="x+(w+72)/2:ty+40" \
+         --verif-text="Welcome!" \
+         --verif-font="Rubik Light" \
+         --verif-size=20 \
+         --verif-color=ffffffff \
+         --wrong-text="Try again" \
+         --wrong-font="Rubik Light" \
+         --wrong-size=20 \
+         --wrong-color=eb3d54 \
+         --noinput-text="No input"
+
+# Local Variables:
+# eval: (rainbow-mode +1)
+# End:

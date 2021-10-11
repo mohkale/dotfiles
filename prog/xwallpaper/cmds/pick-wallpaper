@@ -1,17 +1,13 @@
 #!/bin/sh
 # -*- +indent: 2 -*- Pick a new x-wallpaper.
-#
-# By default this script looks in $XDG_PICTURES_DIR/wallpapers for an
-# image non-recursively. If instead you only want a subset of available
-# wallpapers to be chosen from you can create a file at
-# $XDG_CONFIG_HOME/wallpapers listing paths to wallpaper files to select
-# from instead.
 
-wall=$(list-wallpapers | sort -R | head -n1)
+wall=$(ls-wallpapers | sort -R | head -n1)
 if [ -z "$wall" ]; then
   echo "error: pick-wallpaper: no wallpapers found, clearing xwallpaper." >&2
   xwallpaper --clear
   exit 1
 fi
 
-xwallpaper --zoom "$wall"
+if xwallpaper --zoom "$wall"; then
+  printf "%s" "$wall" > "$XDG_DATA_HOME/wallpaper"
+fi

@@ -19,6 +19,7 @@ import -b                                       \
   docker                                        \
   dolphin                                       \
   dropbox                                       \
+  dunst                                         \
   ffmpeg                                        \
   games/*                                       \
   gdb                                           \
@@ -26,6 +27,7 @@ import -b                                       \
   gotop                                         \
   hledger                                       \
   imv                                           \
+  i3lock                                        \
   ipython                                       \
   konsole                                       \
   korganizer                                    \

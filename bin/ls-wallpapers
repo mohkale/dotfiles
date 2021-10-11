@@ -1,4 +1,11 @@
 #!/bin/sh
+# List wallpapers.
+#
+# By default this script looks in $XDG_PICTURES_DIR/wallpapers for an
+# image non-recursively. If instead you only want a subset of available
+# wallpapers to be chosen from you can create a file at
+# $XDG_CONFIG_HOME/wallpapers listing paths to wallpaper files to select
+# from instead.
 
 wall_config="$XDG_CONFIG_HOME/wallpapers"
 found=0
