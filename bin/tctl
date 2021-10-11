@@ -33,6 +33,7 @@ class Operations(enum.IntEnum):
     """
     add = enum.auto()
     list = enum.auto()
+    move = enum.auto()
     play = enum.auto()
     query = enum.auto()
     start = enum.auto()
@@ -365,6 +366,11 @@ if __name__ == '__main__':
                    action='store_const', const=True,
                    help='Start added torrents unpaused')
 
+    subcmds[Operations.move].add_argument('dir', type=os.path.abspath,
+                                          help='Destination directory to move torrents to')
+    subcmds[Operations.move].add_argument('-i', '--inplace', action='store_true',
+                                          help="Don't move torrents from their existing download location")
+
     args  = parser.parse_args()
     vargs = vars(args)
 
@@ -415,6 +421,17 @@ if __name__ == '__main__':
                             run_action_callback('queue-move-top', 'Move torrents with ids %s to top of queue',),
                             'Move to top of queue: ',
                             'No torrents found',)
+    elif args.cmd == Operations.move:
+        run_action = run_action_callback('torrent-set-location',
+                                         f'Move torrents with ids %s to directory {repr(args.dir)}',
+                                         {'move': not args.inplace, 'location': args.dir})
+
+        # Defer directory creation until at least one torrent to be moved is chosen.
+        def callback(*a, **k):
+            os.makedirs(args.dir, exist_ok=True)
+            run_action(*a, **k)
+
+        act_on_torrents_cmd(conn, callback, 'Set torrent location: ', 'No torrents found',)
     elif args.cmd == Operations.queue_bottom:
         act_on_torrents_cmd(conn,
                             run_action_callback('queue-move-bottom', 'Move torrents with ids %s to bottom of queue',),
