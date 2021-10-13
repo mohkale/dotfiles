@@ -12,8 +12,36 @@
 
 set -o noglob
 
-num=1
+print_usage() {
+  echo "Usage: sxiv-ls [-h] [-a] FILES [...FILES]"
+}
 
+print_help() {
+  print_usage
+  cat <<EOF
+
+  View images through sxiv, opening all images in the cwd of the
+  first file (ordered naturally) and selecting the first image
+  when only one image is selected.
+
+Optional arguments
+  -h  Show this help message and exit.
+  -a  Read all files in a directory, not just images.
+EOF
+}
+
+search_flags=( -iregex '.*\.\(jpe?g\|png\|gif\|webp\|tiff\|bmp\)$' )                       # Used to select images in a directory
+while getopts 'ha' OPTION; do
+  case "$OPTION" in
+    a) search_flags=( ) ;;
+    h) print_help
+       exit 0 ;;
+    \?) print_usage >&2
+        exit 1 ;;
+  esac
+done
+
+num=1
 if [ "$#" -gt 1 ]; then
   files=$(printf "%s\n" "$@")
 else
@@ -27,7 +55,7 @@ else
 
   files=$(
     find -L "$(dirname "$1")" \
-          -mindepth 1 -maxdepth 1 -type f |
+          -mindepth 1 -maxdepth 1 -type f "${search_flags[@]}" |
       sort -V |
       awk -v current="$1" \
           -v num_file="$num_f" \
