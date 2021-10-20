@@ -1,0 +1,545 @@
+#!/usr/bin/env python3
+"""
+A simple script to take a list of images and crop them into squares.
+
+This is useful for album art or covers that look best with uniform
+dimensions.
+"""
+import io
+import subprocess
+import tempfile
+import pathlib
+import shlex
+import os
+import sys
+import logging
+import itertools
+import enum
+import random
+import re
+
+from PIL import Image
+
+DEFAULT_OUT = pathlib.Path(".blocks")
+
+
+def _blockify_left(disp, do_horizontally, smaller, larger):
+    return 0, 0, smaller, smaller
+
+
+def _blockify_right(disp, do_horizontally, smaller, larger):
+    return (
+        disp if do_horizontally else 0,
+        disp if not do_horizontally else 0,
+        smaller if not do_horizontally else disp + smaller,
+        smaller if do_horizontally else disp + smaller,
+    )
+
+
+def _blockify_center(disp, do_horizontally, smaller, larger):
+    disp = round(disp / 2)
+    return (
+        disp if do_horizontally else 0,
+        disp if not do_horizontally else 0,
+        smaller if not do_horizontally else disp + smaller,
+        smaller if do_horizontally else disp + smaller,
+    )
+
+
+def _blockify_random(disp, do_horizontally, smaller, larger):
+    disp = random.randint(0, disp)
+
+    return (
+        disp if do_horizontally else 0,
+        disp if not do_horizontally else 0,
+        smaller if not do_horizontally else disp + smaller,
+        smaller if do_horizontally else disp + smaller,
+    )
+
+
+class BlockAlign(enum.Enum):
+    """Specify alignment for blocking operations.
+
+    Each element should be a function that returns a tuple of 4 values
+    indicating the minimium x and y positions and the maximum x and y
+    positions.
+
+    Each of these functions will recieve 4 arguments:
+    + disp. The absolute difference between the width and height of the
+      input image.
+    + do_horizontally. Whether the image is wider than it is tall.
+    + smaller, and larger. The smaller and larger size of the image axis.
+    """
+
+    LEFT = _blockify_left
+    RIGHT = _blockify_right
+    CENTER = _blockify_center
+    RANDOM = _blockify_random
+
+
+def _blockify_apply_offset(delta, is_percentage):
+    """Push an existing blockify alignment by a certain number of pixels."""
+
+    def result(rect, disp, do_horizontally, smaller, larger):
+        rect = list(rect)  # Clone into something modifiable.
+        if delta == 0:
+            return rect  # why even bother
+
+        axis = 0 if do_horizontally else 1  # 0 = 'X', 1 = 'Y'
+
+        delta_value = delta  # capture closure
+        if is_percentage:
+            delta_value = int(delta_value * larger / 100.0)
+
+        max_valid = rect[axis + 2] + delta_value <= larger
+        min_valid = rect[axis + 0] + delta_value >= 0
+
+        if max_valid and min_valid:
+            rect[axis + 2] += delta_value
+            rect[axis + 0] += delta_value
+            return tuple(rect)
+        # Either left or right align since the offset exceeds the size of the image.
+        calc = _blockify_right if delta > 0 else _blockify_left
+        return calc(disp, do_horizontally, smaller, larger)
+
+    return result
+
+
+IMAGE_EXTENSIONS = [".png", ".jpg", ".jpeg", ".webp"]
+
+
+def blockify_paths(paths, out, exclude, nested):
+    """Recursively yield input output paths to blockify."""
+
+    def recursive_do(p: pathlib.Path, o: pathlib.Path):
+        if any(ex == p or p.is_relative_to(ex) for ex in exclude):
+            return
+        if p.is_dir():
+            out2 = o
+            if nested:
+                out2 = o / p.name
+            for f in p.iterdir():
+                yield from recursive_do(f, out2)
+            return
+        # An image is any file (non-dir) ending with an image extension.
+        if any(p.name.endswith(ext) for ext in IMAGE_EXTENSIONS):
+            yield p, o / p.name
+
+    logging.info("Reading image files from source paths recursively")
+    for p in paths:
+        if str(p) != ".":
+            logging.debug("Recursively searching directory: %s", p)
+        yield from recursive_do(p, out)
+
+
+def recursive_find_file(dir, basename, ent={}):
+    if not ent:
+        # We index all of it now, rather than part of it again and again.
+        logging.info("Indexing output directory %s", dir)
+        for dir, _, files in os.walk(dir):
+            for f in files:
+                if f in ent:
+                    raise RuntimeError("Indexing found duplicate basenames %s")
+                ent[f] = dir
+        # Fill an argument you'll never get to avoid re-indexing if dir is empty.
+        ent[True] = ""
+
+    if basename in ent:
+        return pathlib.Path(ent[basename]) / basename
+
+
+class InteractiveSxiv:
+    def __init__(self, args, vargs):
+        self.stdin = io.StringIO()
+
+        # Create custom key-handler script for nsxiv.
+        self.d = tempfile.TemporaryDirectory()
+        dir = os.path.join(self.d.name, "nsxiv", "exec")
+        os.makedirs(dir)
+        with open(
+            os.open(
+                os.path.join(dir, "key-handler"),
+                os.O_CREAT | os.O_WRONLY,
+                0o700,
+            ),
+            "w",
+        ) as h:
+            h.write(self._key_handler_script(args, vargs))
+        self.src = open(os.path.join(self.d.name, "src.txt"), "w")
+
+        # Update env to point to temp directory.
+        env = dict(**os.environ)
+        env["REAL_XDG_CONFIG_HOME"] = env.get("XDG_CONFIG_HOME", "")
+        env["XDG_CONFIG_HOME"] = self.d.name
+        env["BLOCKIFY_DONE_DIR"] = str(args.output / args.interactive)
+
+        self.proc = subprocess.Popen(
+            ["nsxiv", "-i", *shlex.split(args.sxiv_args or '')],
+            stdin=subprocess.PIPE,
+            env=env,
+            encoding="utf-8",
+        )
+
+    @staticmethod
+    def _sxiv_args(args, vargs):
+        return " ".join(
+            [
+                shlex.quote(x)
+                for x in (
+                    __file__,
+                    "--output",
+                    str(args.output),
+                    "--logging-level",
+                    "ERROR",
+                    "--dump-recursive" if args.dump_recursive else None,
+                    "--force",
+                    "--read-stdin",
+                )
+                if isinstance(x, str)
+            ]
+        )
+
+    @classmethod
+    def _key_handler_script(cls, args, vargs):
+        BLOCKIFY_CALL = (
+            'block() {\n  XDG_CONFIG_HOME="$REAL_XDG_CONFIG_HOME" %s "$@";\n}\n'
+            % (cls._sxiv_args(args, vargs))
+        )
+
+        OFFSET_CONTROL_SCRIPT = """
+OFFSET_FILE="$XDG_CONFIG_HOME/sxiv-push.txt"
+get_offset() {
+    local offset files
+    offset="$1"
+    files="$(cat)"
+    if [ -e "$OFFSET_FILE" ]; then
+        read -r offset < "$OFFSET_FILE"
+        # Re-add the following constraints to reset when switching direction.
+        if [ -z "$offset" ] ||
+           ( [ "$offset" -lt 0 ] && [ "$1" -gt 0 ] ) ||
+           ( [ "$offset" -gt 0 ] && [ "$1" -lt 0 ] ) ||
+           ! diff <(echo -n "$files") <(sed 1d "$OFFSET_FILE") >/dev/null; then
+            offset="$1"
+        else
+            offset=$((offset + $1))
+        fi
+    fi
+
+    echo "$offset" > "$OFFSET_FILE"
+    echo -n "$files" >> "$OFFSET_FILE"
+    echo "$offset"
+}
+        """.strip()
+
+        PATH_RESOLVE_SCRIPT = """
+src_paths() {
+    awk -F / \\
+        -v files="$(cat "$XDG_CONFIG_HOME/src.txt")" \\
+        -e 'BEGIN {
+  count = split(files, arr, "\\n")
+  for (i = 1; i <= count; i++) {
+    if (arr[i] == "")
+      continue;
+    count2 = split(arr[i], arr2)
+    base[arr2[count2]] = arr[i]
+  }
+}' \
+        -e '{
+  if ($0 == "") next;
+  if (base[$NF]) {
+    print(base[$NF])
+  } else {
+    print "error: failed to resolve input path: " $0 >"/dev/stderr"
+  }
+}'
+}
+
+src_dest_paths() {
+    out="$(cat)"
+    paste -d: <(echo "$out" | src_paths) <(echo "$out")
+}
+        """.strip()
+
+        COMMAND_CASE = """
+case "$1" in
+    "C-h") src_paths | block +l ;;
+    "C-j")
+        files=$(cat)
+        offset=$(echo -n "$files" | get_offset 5)
+        echo -n "$files" | src_paths | block +l +o "${offset}%"
+        ;;
+    "C-k")
+        files=$(cat)
+        offset=$(echo -n "$files" | get_offset -5)
+        echo -n "$files" | src_paths | block +r +o "${offset/-}%"
+        ;;
+    "C-l") src_paths | block +r ;;
+    "C-c") src_paths | block +c ;;
+    "C-x") src_paths | block ;;
+    "C-a")
+        if ! [ -d "$BLOCKIFY_DONE_DIR" ]; then
+            mkdir -p "$BLOCKIFY_DONE_DIR"
+        fi
+        src_dest_paths |
+            tee >(cut -d ':' -f1 | xargs -d '\\n' -r condemn -) \
+                >(cut -d ':' -f2 | xargs -d '\\n' mv -vt "$BLOCKIFY_DONE_DIR") \
+                >/dev/null
+        ;;
+    "M-e") src_paths | xargs -d '\\n' -r gimp ;;
+    # "M-e")
+    #     src_dest_paths|
+    #         while IFS=: read -r src out; do
+    #             cp -f "$src" "$out" >/dev/null
+    #             echo "$out"
+    #         done |
+    #         xargs -d '\\n' -r gimp
+    #     ;;
+    *) "$REAL_XDG_CONFIG_HOME/nsxiv/exec/key-handler" "$@" ;;
+esac
+        """.strip()
+
+        return f"""
+#!/usr/bin/env bash
+
+# BLOCKIFY_DONE_DIR
+
+{BLOCKIFY_CALL}
+{OFFSET_CONTROL_SCRIPT}
+{PATH_RESOLVE_SCRIPT}
+{COMMAND_CASE}
+        """.strip()
+
+    def write_out(self, *args, **kwargs):
+        self.stdin.write(*args, **kwargs)
+
+    def write_src(self, *args, **kwargs):
+        self.src.write(*args, **kwargs)
+
+    def close(self):
+        try:
+            from mohkale.natural_sort import natural_sort
+        except ImportError:
+            natural_sort = sorted
+        self.proc.communicate(
+            "\n".join(natural_sort(self.stdin.getvalue().split("\n")))
+        )
+
+    def cleanup(self, kill=False):
+        self.src.close()
+        self.close()
+        if kill:
+            self.proc.send_signal(SIGTERM)
+        self.proc.wait()
+        self.d.cleanup()
+
+
+def main(args, vargs, parser):
+    if args.interactive:
+        _sxiv = InteractiveSxiv(args, vargs)
+        proc_fd, cleanup = _sxiv, _sxiv.cleanup
+    else:
+        proc_fd, cleanup = None, lambda *_: None
+
+    failed = False
+    try:
+        for src, out in blockify_paths(
+            args.path, args.output, args.exclude_path, args.dump_recursive
+        ):
+            try:
+                # By default we skip an entry if some file with the same basename exists in
+                # the output directory. If such a file doesn't exist we dump to out. However
+                # when we recieve the force argument we overwrite the existing output file
+                # and disregard out.
+                out_exists = out.exists() or recursive_find_file(args.output, src.name)
+                if not args.force and out_exists:
+                    logging.debug("Skipping path %s because output already exists", src)
+                    continue
+                if isinstance(out_exists, pathlib.Path):
+                    out = out_exists
+
+                image = Image.open(str(src))
+                w, h = image.size
+                if w != h:
+                    mn, mx = min(image.size), max(image.size)
+                    disp = mx - mn  # Total displacement
+                    do_horizontally = mx == image.size[0]
+
+                    rect = args.image_align(disp, do_horizontally, mn, mx)
+                    if args.image_offset:
+                        rect = args.image_offset(rect, disp, do_horizontally, mn, mx)
+
+                    image = image.crop(rect)
+                out.parent.mkdir(parents=True, exist_ok=True)
+                image.save(str(out))
+                logging.debug("Blocking image %s", src)
+                if proc_fd:
+                    proc_fd.write_src(str(src) + "\n")
+                    proc_fd.write_out(str(out) + "\n")
+            except KeyboardInterrupt:
+                logging.error("Recieved SIGINT. exiting...")
+                failed = True
+    finally:
+        cleanup(failed)
+
+
+if __name__ == "__main__":
+    import argparse
+    from mohkale.pylog.config import use_config
+
+    def _argparse_percent_value(arg):
+        if re.match(r"^[-+]?\d+$", arg):  # can't use arg.isdecimal because of sign
+            return int(arg), False
+
+        per_match = re.match(r"^[-+]?(\d+(?:.\d+)?) ?%$", arg)
+        if not per_match:
+            raise ValueError("Unable to parse offset value", arg)
+        value = float(per_match.groups()[0])
+        value = max(min(value, 100), 0)  # Clamp
+        return value, True
+
+    parser = argparse.ArgumentParser(prefix_chars="+-")
+
+    parser.add_argument(
+        "path",
+        type=pathlib.Path,
+        nargs="*",
+        help="Blockify PATH. Handles directories recursively.",
+    )
+    parser.add_argument(
+        "-",
+        "--read-stdin",
+        action="store_true",
+        help="Read file paths to blockify from standard input.",
+    )
+
+    parser.add_argument(
+        "-o",
+        "--output",
+        default=DEFAULT_OUT,
+        type=pathlib.Path,
+        help="Specify output directory to place blocked images.",
+    )
+
+    parser.add_argument(
+        "-l",
+        "--logging-level",
+        metavar="LEVEL",
+        type=lambda x: getattr(logging, x.upper()),
+        help="Set verbosity of logging output to LEVEL.",
+    )
+
+    parser.add_argument(
+        "-e",
+        "--exclude-path",
+        action="append",
+        type=pathlib.Path,
+        help="Exclude all images within path.",
+    )
+
+    parser.add_argument(
+        "-r",
+        "--dump-recursive",
+        action="store_true",
+        help="Dump all images in subdirectories matching their inputs instead of \
+        at the base of the output directory.",
+    )
+
+    parser.add_argument(
+        "-f",
+        "--force",
+        action="store_true",
+        help="Blockify image even when an output file already exists",
+    )
+
+    ops_group = parser.add_argument_group("Interactive")
+
+    ops_group.add_argument(
+        "-i",
+        "--interactive",
+        type=pathlib.Path,
+        metavar="DONE_PATH",
+        help="Run blockify interactively through sxiv. Move accepted paths to DONE_PATH within OUTPUT.",
+    )
+
+    ops_group.add_argument(
+        "--sxiv-args", help="Command line arguments passed directly to sxiv."
+    )
+
+    block_group = parser.add_argument_group("Block Params")
+    block_align_group = block_group.add_mutually_exclusive_group()
+    block_align_group.add_argument(
+        "+l",
+        "++left",
+        dest="image_align",
+        action="store_const",
+        const=BlockAlign.LEFT,
+        help="Align all images to the left.",
+    )
+    block_align_group.add_argument(
+        "+r",
+        "++right",
+        dest="image_align",
+        action="store_const",
+        const=BlockAlign.RIGHT,
+        help="Align all images to the right.",
+    )
+    block_group.add_argument(
+        "+c",
+        "++center",
+        dest="image_align",
+        action="store_const",
+        const=BlockAlign.CENTER,
+        help="Align all images to the right.",
+    )
+    parser.add_argument(
+        "+o",
+        "++offset",
+        dest="image_offset",
+        metavar="OFFSET[%]",
+        type=_argparse_percent_value,
+        help="Push image by OFFSET pixels in blockify direction",
+    )
+
+    args = parser.parse_args()
+    vargs = vars(args)
+
+    # When no path is given we use the cwd. Otherwise we use the supplied paths and
+    # error out when none of them point to an existing location.
+    if vargs.pop("read_stdin"):
+        for it in sys.stdin:
+            args.path.append(pathlib.Path(it.rstrip("\n")))
+        if not args.path:
+            parser.error("No valid paths to blockify given")
+
+    if args.path:
+        new_path = []
+        for it in args.path:
+            if not it.exists():
+                logging.warning("Skipping non-existent path %s", it)
+            else:
+                new_path.append(it)
+        args.path = new_path
+        if not args.path:
+            parser.error("No valid paths to blockify given")
+    else:
+        args.path.append(pathlib.Path("."))
+
+    if not args.exclude_path:
+        args.exclude_path = []
+    args.exclude_path.append(args.output)
+
+    if not args.image_align:
+        args.image_align = BlockAlign.RANDOM
+
+    if args.interactive and not args.dump_recursive:
+        logging.warning("The interactive option requires dump_recursive to be set.")
+        args.dump_recursive = True
+
+    if args.image_offset:
+        offset, is_per = args.image_offset
+        if args.image_align == BlockAlign.RIGHT:
+            offset = -offset
+        args.image_offset = _blockify_apply_offset(offset, is_per)
+
+    use_config("blockify", level=vargs.pop("logging_level"))
+    main(args, vargs, parser)
