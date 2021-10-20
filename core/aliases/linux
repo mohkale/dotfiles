@@ -31,3 +31,5 @@ mpt               fmpd all
 mpa               fmpd albums
 mpp               fmpd playlists
 mpt               fmpd tags
+
+xgeometry         xdotool selectwindow getwindowgeometry

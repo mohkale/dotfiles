@@ -1,5 +1,5 @@
 [$Version]
-update_info=kwin.upd:replace-scalein-with-scale,kwin.upd:port-minimizeanimation-effect-to-js,kwin.upd:port-scale-effect-to-js,kwin.upd:port-dimscreen-effect-to-js,kwin.upd:auto-bordersize,kwin.upd:animation-speed,kwin.upd:desktop-grid-click-behavior,kwin.upd:no-swap-encourage
+update_info=kwin.upd:replace-scalein-with-scale,kwin.upd:port-minimizeanimation-effect-to-js,kwin.upd:port-scale-effect-to-js,kwin.upd:port-dimscreen-effect-to-js,kwin.upd:auto-bordersize,kwin.upd:animation-speed,kwin.upd:desktop-grid-click-behavior,kwin.upd:no-swap-encourage,kwin.upd:make-translucency-effect-disabled-by-default,kwin.upd:remove-flip-switch-effect,kwin.upd:remove-cover-switch-effect,kwin.upd:remove-cubeslide-effect,kwin.upd:remove-xrender-backend
 
 [Compositing]
 OpenGLIsUnsafe=false
@@ -63,7 +63,7 @@ CommandAllWheel=Nothing
 CommandInactiveTitlebar1=Activate and raise
 CommandInactiveTitlebar2=Nothing
 CommandInactiveTitlebar3=Operations menu
-CommandTitlebarWheel=Nothing
+CommandTitlebarWheel=Raise/Lower
 CommandWindow1=Activate, raise and pass click
 CommandWindow2=Activate and pass click
 CommandWindow3=Activate and pass click
@@ -153,6 +153,9 @@ DesktopLayout=org.kde.breeze.desktop
 DesktopListLayout=org.kde.breeze.desktop
 LayoutName=big_icons
 
+[TabBoxAlternative]
+LayoutName=big_icons
+
 [Windows]
 ActiveMouseScreen=true
 AutoRaise=false
@@ -176,7 +179,6 @@ NextFocusPrefersMouse=false
 Placement=Cascade
 RollOverDesktops=false
 SeparateScreenFocus=false
-ShadeHover=false
 ShadeHoverInterval=250
 SnapOnlyWhenOverlapping=false
 TitlebarDoubleClickCommand=Maximize

@@ -87,10 +87,10 @@ DecorationHover=61,174,233
 ForegroundActive=252,252,252
 ForegroundInactive=161,169,177
 ForegroundLink=253,188,75
-ForegroundNegative=218,68,83
-ForegroundNeutral=246,116,0
+ForegroundNegative=176,55,69
+ForegroundNeutral=198,92,0
 ForegroundNormal=252,252,252
-ForegroundPositive=39,174,96
+ForegroundPositive=23,104,57
 ForegroundVisited=155,89,182
 
 [Colors:Tooltip]
@@ -143,6 +143,7 @@ DirSelectDialog Size=844,598
 History Items[$e]=file:$HOME/media/games/,file:$HOME/media/images,file:$HOME/multimedia/images
 
 [General]
+AccentColor=0,0,0,0
 BrowserApplication=brave-browser.desktop
 ColorScheme=BreezeDark
 Name=Breeze Dark
@@ -167,6 +168,7 @@ Theme=Tela-dark
 AnimationDurationFactor=0.7071067811865475
 ColorScheme=Breeze
 LookAndFeelPackage=org.kde.breezedark.desktop
+ScrollbarLeftClickNavigatesByPage=false
 ShowDeleteCommand=true
 ShowIconsInMenuItems=true
 ShowIconsOnPushButtons=true

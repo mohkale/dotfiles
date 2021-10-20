@@ -1,5 +1,6 @@
 # -*- mode: conf-unix -*- [[https://wiki.archlinux.org/title/XDG_MIME_Applications#mimeapps.list][Mimetype]] application configuration.
 [Added Associations]
+application/x-cb7=sxcv.desktop;
 application/x-cue=nvim.desktop;
 audio/flac=vlc.desktop;
 audio/mp4=vlc.desktop;
@@ -18,6 +19,7 @@ video/x-ms-wmv=vlc.desktop;
 application/pdf=org.pwmt.zathura.desktop
 application/vnd.comicbook+rar=sxcv.desktop
 application/vnd.comicbook+zip=sxcv.desktop
+application/x-cb7=sxcv.desktop;
 application/x-cue=nvim.desktop;
 audio/flac=vlc.desktop
 audio/mp4=vlc.desktop
