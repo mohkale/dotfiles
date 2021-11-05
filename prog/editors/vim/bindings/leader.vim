@@ -70,4 +70,6 @@ let g:which_key_map.f.e = { 'name' : '+vim' }
 let g:which_key_map.c = { 'name' : '+compile/comments' }
 let g:which_key_map.b = { 'name' : '+buffers' }
 
-call which_key#register('<Space>', 'g:which_key_map')
+if exists('which_key#register')
+  call which_key#register('<Space>', 'g:which_key_map')
+endif
