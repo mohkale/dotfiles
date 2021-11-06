@@ -18,6 +18,8 @@ Optional arguments:
     to include them in the output: {h: host, #: tags, t: title}
   -C
     Remove color codes from pretty-printed output
+  -a
+    List all bookmarks, including excluded ones.
 EOF
 }
 
@@ -32,7 +34,12 @@ c_title_r=""
 c_url_l=$'\e[32m'
 c_url_r=$'\e[0m'
 
-while getopts 'hd:p:C' OPTION; do
+exclude='^H$'
+if [ -n "$LS_BOOKMARKS_EXCLUDE" ]; then
+  exclude="$LS_BOOKMARKS_EXCLUDE"
+fi
+
+while getopts 'had:p:C' OPTION; do
   case "$OPTION" in
     h) print_help
        exit 0 ;;
@@ -50,6 +57,7 @@ while getopts 'hd:p:C' OPTION; do
        c_url_l=''
        c_url_r=''
        ;;
+    a) exclude='' ;;
     *) print_help >&2
        exit 1 ;;
   esac
@@ -224,4 +232,23 @@ pretty_print() {
              "tor:$HOME/.tor-browser/app/Browser/TorBrowser/Data/Browser/*/places.sqlite"
   do_buku
 } |
-  if [ -n "$pretty_print" ]; then pretty_print "$pretty_print"; else cat; fi
+  if [ -z "$exclude" ]; then cat; else
+    gawk -F "$d" \
+         -v IGNORECASE=1 \
+         -v exc_var="$exclude" \
+         -e 'BEGIN { exc_count = split(exc_var, exc, ":") }' \
+         -e '{
+  for (i = 1; i <= exc_count; i++) {
+    if (!exc[i]) continue;
+    tag_count = split($2, tags, ",")
+    for (j = 1; j <= tag_count; j++) {
+      if (match(tags[j], exc[i]) != 0) {
+        next
+      }
+    }
+  }
+
+  print($0)
+}'
+  fi |
+  if [ -z "$pretty_print" ]; then cat; else pretty_print "$pretty_print"; fi
