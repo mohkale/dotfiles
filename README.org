@@ -53,6 +53,20 @@ My dotfile repository, happily brought to you by [[https://github.com/mohkale/do
   - Requires [[https://security.stackexchange.com/questions/10194/why-do-you-have-to-be-an-admin-to-create-a-symlink-in-windows#:~:text=By%20default%2C%20only%20administrators%20can,%5CUser%20Rights%20Assignment%5C%20granted.][admin privilages]] to create symlinks.
   - [[https://chocolatey.org/][chocolatey]] fails when stderr is the null device.
 
+** Linux
+   Has issues with high DPI screens such as on a macbook. To get this fixed you can
+   set ~Xft.dpi~ to a value greater than 100 in [[file:~/.Xresources]]. This will work for
+   most low level window managers or desktop environments but some more advanced ones
+   (such as KDE) will ignore this setting and instead rely on custom configurations.
+   In this case you should use ~xrandr~ to trick X into thinking the screen is larger
+   than it is and then zoom-in in the settings for your desktop environment until you
+   reach a level of resolution that works.
+
+   #+CAPTION: The command to enlargen the effective resolution of your display.
+   #+begin_src shell
+     xrandr --output eDP1 --fb 3200x1800 --panning 3200x1800 --scale 1.25x1.25
+   #+end_src
+
 * Screenshots
   [[file:.github/gotop.png]]
 

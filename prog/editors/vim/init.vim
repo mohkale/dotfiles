@@ -79,6 +79,7 @@ set selection=old                                                              "
 set undofile                                                                   " Save undo history to undodir and reload on startup
 set undolevels=1000                                                            " Maximum number of undos allowed (has memory cost)
 set mouse=a                                                                    " Enable mouse interactions even in the terminal
+set foldmethod=marker                                                          " Detect folding based on foldexpr
 
 let g:netrw_banner=0                                                           " configure netrw to be more dired like
 let g:netrw_fastbrowse=1                                                       " cache directory entries only when remote

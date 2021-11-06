@@ -63,7 +63,7 @@ tags=new
 #
 
 [search]
-exclude_tags=deleted;delete;spam;H
+exclude_tags=deleted;delete;spam;H;hidden
 
 # Maildir compatibility configuration
 #

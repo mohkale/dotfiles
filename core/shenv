@@ -39,6 +39,7 @@ if [ -z "$LS_COLORS" -a \
 fi
 
 export SAVEHIST=10000000 HISTSIZE=10000000 HISTFILESIZE=10000000
+unset MAILCHECK                                                                 # Turn off "you have mail" notifications.
 
 FZF_SHELL_OPTS="--height 99% --reverse"                                         # FZF options for use in interactive shells and widgets.
 

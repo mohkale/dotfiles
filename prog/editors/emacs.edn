@@ -8,7 +8,7 @@
 
  (:packages (:apt "emacs")
             (:choco "emacs")
-            (:yay "emacs27-git"))
+            (:yay "libgccjit" "emacs-git"))
 
  (:link "emacs" "$XDG_CONFIG_HOME/emacs"
         ;; XDG_CONFIG_DIR has only been supported from emacs 27 forwards
