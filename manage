@@ -1,56 +1,15 @@
 #!/usr/bin/env bash
-# -*- +indent: 2 -*-
 
 set -e
 
 # A way to get the absolute path to this directory using
 # just shell builtins. (source [[https://stackoverflow.com/a/3915420/6247387][here]]).
-root="$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd -P)"
+root="$(cd "$(dirname "${BASH_SOURCE[0]}")" || exit 1; pwd -P)"
 
-# Where should [[https://github.com/mohkale/dotty][dotty]] be placed after downloading.
-dotty_path=$root/setup/dotty
-
-# The url for the latest dotty release.
-dotty_version=0.0.3
-dotty_url=https://github.com/mohkale/dotty/releases/download/$dotty_version
-
-# Keep dotty bots cache here.
-export DOTTY_BOTS_FILE="$root/setup/cache/dotty.bots"
-
-## Cleanup environment for different platforms.
-case "$(uname -s)" in
-  CYGWIN*|MSYS*|MINGW*)
-    SHELL=$(cygpath -m "$SHELL")
-    ;;
-esac
+cd "$root" || exit 1
 
 export HOME="$HOME"
 export SHELL="${SHELL:-/usr/bin/bash}"
-
-# install dotty when it doesn't exist
-if ! [ -e "$dotty_path" ]; then
-  echo "install: dotty not found, attempting install"
-  pushd "$(mktemp -d)" >/dev/null
-
-  arch=$("$root/bin/ls-arch")
-  goos=$("$root/bin/ls-platform")
-  dotty_file="dotty-$goos-$arch.tar.gz"
-  dotty_url="$dotty_url/$dotty_file"
-  if hash curl 2>/dev/null; then
-    curl -o dotty.tar.gz --fail -L# "$dotty_url"
-  elif hash wget 2>/dev/null; then
-    wget -O dotty.tar.gz --progress=dot "$dotty_url"
-  else
-    echo "install: error: unable to find a command to retrieve dotty" >&2
-    exit 1
-  fi
-
-  echo "install: unzipping dotty release"
-  tar -xvzf "dotty.tar.gz"
-  dotty_bin="$(pwd)/dotty"
-  popd >/dev/null
-  mv "$dotty_bin" "$dotty_path"
-fi
 
 # Source and export XDG files for the current platform.
 if [ "$("$root"/bin/ls-platform)" = windows ]; then
@@ -69,5 +28,4 @@ for var in $xdgvars; do
 done
 export DOTFILES="$root"
 
-# Run dotty
-"$dotty_path" "$@"
+./setup/dotty "$@"

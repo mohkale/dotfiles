@@ -1,0 +1,1152 @@
+#!/usr/bin/env bash
+# Dotfile management script in the vein of [[https://github.com/anishathalye/dotbot][dotbot]] and [[https://github.com/bashdot/bashdot][bashdot]].
+#
+# This script is designed to replace [[https://github.com/mohkale/dotty][dotty]] and acts a single file that's
+# to be sourced and by some management script that can subsequently install
+# your dotfiles. I migrated from my initial lispy dotfile manager to this
+# script because I don't always have the freedom to download an external
+# program but any unix environment should have a bash like shell available.
+#
+# Dependencies: bash, readlink
+# Environment variables:
+#  + root: Path to the root of your dotfiles repository.
+# Notes:
+#  + Installation scripts should avoid prompting the user or writing to
+#    stdout unless explicitly required. Some executions of this script
+#    may not have an interactive stdin or terminal stdout.
+
+set -a          # Export everything
+set -o pipefail # Fail a command when anything in its pipeline fails
+shopt -s nullglob # Make globs with no results evaluate to nothing
+
+root="${root:-${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles}"
+exit_code=0
+fail_early=0
+BOTS_FILE="$root/setup/cache/dotty.bots"
+
+# Utils {{{
+#  _   _ _   _ _
+# | | | | |_(_) |___
+# | | | | __| | / __|
+# | |_| | |_| | \__ \
+#  \___/ \__|_|_|___/
+
+_abspath() {
+  local path="$1"
+  if [[ "$path" =~ ^/.* ]]; then
+    echo "$*"
+  elif [[ "$path" =~ ^~/.* ]]; then
+    # WARN: Doesn't account for ~username/ paths.
+    echo "${*/#\~/$HOME}"
+  elif hash realpath 2>/dev/null; then
+    realpath -m -- "$path"
+  elif hash readlink 2>/dev/null; then
+    readlink -m -- "$path"
+  else
+    echo "$(pwd)/$path"
+  fi
+}
+
+_contains() {
+  # TODO: Flexibly handle hashes.
+  local e match="$1"
+  shift
+  for e in "$@"; do
+    if [[ "$e" == "$match" ]]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+_csv() {
+  local IFS=,
+  echo "$*"
+}
+
+_skip_directive() { #(directive)
+  trace 'Checking whether skipping directive %s' "$1"
+  if [ "${#only_directives[@]}" -gt 0 ]; then
+    ! _contains "$1" "${only_directives[@]}"
+  elif [ "${#except_directives[@]}" -gt 0 ]; then
+    _contains "$1" "${except_directives[@]}"
+  else
+    false
+  fi
+  local run="$?"
+  if [ "$run" -ne 0 ]; then
+    debug 'Skipping directive %s because of configuration' "$1"
+  fi
+  return "$run"
+}
+
+# Whenever you need to run a command in the following directives for dotfile
+# installation, you should use run-cmd or run-cmd-xargs instead of running
+# it directly. This lets me preview the instructions my dotfiles will run to
+# install and allow verification or partial execution through vipe.
+dry_run=0
+
+_run_cmd() { #(cmd, args)
+  if [ "$dry_run" -eq 0 ]; then
+    "$@"
+  else
+    printf '%q ' "$@"
+    echo
+  fi
+}
+
+run-cmd() { if ! _skip_directive shell; then _run_cmd "$@"; fi; }
+
+# Should be fully quoted if required.
+_run_cmds() {
+  if [ "$dry_run" -eq 0 ]; then
+    eval "$(cat)"
+  else
+    cat
+  fi
+}
+
+run-cmds() { if ! _skip_directive shell; then _run_cmds; fi; }
+
+# Variant of run-cmd to direct in a specific directory
+_run_cmd_at() { #(dir, cmd)
+  local dir="$1"; shift
+  local dir_quoted; dir_quoted="$(printf %q "$(_abspath "$dir")")"
+  if [ "$dry_run" -eq 0 ]; then
+    if pushd "$1" >/dev/null 2>&1; then
+      "$@"
+      popd >/dev/null || exit 1
+    fi
+  else
+    cat <<-EOF
+if pushd $dir_quoted >/dev/null 2>&1; then
+  $(printf '%q ' "$@")
+  popd >/dev/null || exit 1
+fi
+EOF
+  fi
+}
+
+run-cmd-at() { if ! _skip_directive shell; then _run_cmd_at "$@"; fi; }
+
+_run_cmd_xargs() {
+  local default_flags=( -r -d '\n' )
+  if [ "$dry_run" -eq 0 ]; then
+    xargs "${default_flags[@]}" "$@"
+  else
+    # WARN: Won't work if you pass flags which require separate arguments.
+    local it=
+    while [ "$#" -gt 0 ]; do
+      it="$1"
+      if [[ "$it" =~ ^- ]]; then
+        default_flags+=( "$it" )
+      else
+        break
+      fi
+      shift
+    done
+
+    # -t makes xargs print out the command, quoted, to /dev/null but there's
+    # no way to prevent it from running the command. To get around this we're
+    # making it run an echo of all the arguments which we just throw away.
+    xargs "${default_flags[@]}" -t echo "$@" 2>&1 >/dev/null |
+      awk '/^echo / { sub(/^echo /, "", $0); print $0 }'
+  fi
+}
+
+run-cmd-xargs() { if ! _skip_directive shell; then _run_cmd_xargs "$@"; fi; }
+# Utils }}}
+
+# Color {{{
+#   ____      _
+#  / ___|___ | | ___  _ __
+# | |   / _ \| |/ _ \| '__|
+# | |__| (_) | | (_) | |
+#  \____\___/|_|\___/|_|
+
+COLOR=1
+[ -t 1 ] || COLOR=0
+
+color() { #(color[,colors], args)
+  local color='' it_color=''
+  if [ "$COLOR" -eq 1 ]; then
+    it_color=''
+    while read -d, -r it; do
+      case "$it" in
+        reset) it_color=0 ;;
+        bold) it_color=1 ;;
+        dim) it_color=2 ;;
+        italic) it_color=3 ;;
+        underline) it_color=4 ;;
+        black) it_color=30 ;;
+        red) it_color=31 ;;
+        green) it_color=32 ;;
+        yellow|orange) it_color=33 ;;
+        blue) it_color=34 ;;
+        purple|magenta) it_color=35 ;;
+        cyan) it_color=36 ;;
+        white) it_color=37 ;;
+        bg-black) it_color=40 ;;
+        bg-red) it_color=41 ;;
+        bg-green) it_color=42 ;;
+        bg-yellow|bg-orange) it_color=43 ;;
+        bg-blue) it_color=44 ;;
+        bg-purple|bg-magenta) it_color=45 ;;
+        bg-cyan) it_color=46 ;;
+        bg-white) it_color=47 ;;
+        intense-black) it_color=90 ;;
+        intense-red) it_color=91 ;;
+        intense-green) it_color=92 ;;
+        intense-yellow|intense-orange) it_color=93 ;;
+        intense-blue) it_color=94 ;;
+        intense-purple|intense-magenta) it_color=95 ;;
+        intense-cyan) it_color=96 ;;
+        intense-white) it_color=97 ;;
+        *) echo "color: error: unknown color format $it" >&2 ;;
+      esac
+      if [ -n "$it_color" ]; then
+        if [ -n "$color" ]; then
+          color="$color;"
+        fi
+        color="$color$it_color"
+      fi
+    done <<< "$1,"
+  fi
+  if [ -n "$color" ]; then
+    printf '\e[%sm' "$color"
+  fi
+  shift
+  for it in "$@"; do
+    printf '%s' "$it"
+  done
+  if [ -n "$color" ]; then
+    printf '\e[0m'
+  fi
+  printf '\n'
+}
+# Color }}}
+
+# Logging {{{
+#  _                      _
+# | |    ___   __ _  __ _(_)_ __   __ _
+# | |   / _ \ / _` |/ _` | | '_ \ / _` |
+# | |__| (_) | (_| | (_| | | | | | (_| |
+# |_____\___/ \__, |\__, |_|_| |_|\__, |
+#             |___/ |___/         |___/
+
+LOG_LEVEL=2
+LOG_LEVELS=( )
+
+_log_time_format="+$(color intense-black '%Y-%m-%d %R')"
+_log() { #(lvl, ind, args)
+  local level="$2" format="$3"
+  if [ "$1" -ge "$LOG_LEVEL" ]; then
+    shift; shift; shift
+    printf "%s %s $format\n" "$(date "$_log_time_format")" "$level" "$@" >&2
+  fi
+}
+
+_trace_ind="$(color magenta TRC)"
+LOG_LEVELS+=(trace)
+trace() { _log 0 "$_trace_ind" "$@"; }
+
+_debug_ind="$(color blue DBG)"
+LOG_LEVELS+=(debug)
+debug() { _log 1 "$_debug_ind" "$@"; }
+
+_info_ind="$(color green INF)"
+LOG_LEVELS+=(info)
+info() { _log 2 "$_info_ind" "$@"; }
+
+_warn_ind="$(color yellow WRN)"
+LOG_LEVELS+=(warn)
+warn() { _log 3 "$_warn_ind" "$@"; }
+
+# I'm too lazy to implement proper error handling so lets
+# just treat any error as one justifying a bad exit code.
+_error_ind="$(color red ERR)"
+LOG_LEVELS+=(error)
+error() {
+  # shellcheck disable=SC2034
+  exit_code=1
+  if [ "$fail_early" -eq 1 ]; then
+    exit 1
+  fi
+  _log 4 "$_error_ind" "$@"
+}
+# Logging }}}
+
+# Symlink {{{
+#  ____                  _ _       _
+# / ___| _   _ _ __ ___ | (_)_ __ | | __
+# \___ \| | | | '_ ` _ \| | | '_ \| |/ /
+#  ___) | |_| | | | | | | | | | | |   <
+# |____/ \__, |_| |_| |_|_|_|_| |_|_|\_\
+#        |___/
+
+_link_usage='Usage: link {DEST|SRC:DEST} [{DEST|SRC:DEST}...]'
+read -d '' -r _link_help <<EOF
+$_link_usage
+
+Optional arguments:
+  -h  Show this help message and exit
+  -H  Create a hard link instead of a symlink
+  -r  Relink DEST if its a symlink already
+  -f  Overwrite DEST if it already exists
+  -i  Don't check whether SRC exists, link anyways
+EOF
+link() {
+  local link_args=() symlink=1 relink=0 force=0 ignore_missing=0
+  local OPTIND
+  while getopts 'hHrfi' OPTION; do
+    case "$OPTION" in
+      h) echo "$_link_help"
+         return 0 ;;
+      \?) echo "$_link_usage" >&2
+          return 1 ;;
+      H) symlink=0 ;;
+      r) relink=1 ;;
+      f) force=1 ;;
+      i) ignore_missing=1
+    esac
+  done
+  shift "$((OPTIND-1))"
+  [ "$symlink" -eq 1 ] && link_args+=(-s)
+
+  _skip_directive link && return
+
+  local src='' dest=''
+  while IFS=: read -r src dest; do
+    local l_link_args=( "${link_args[@]}" )
+
+    if [ -z "$dest" ]; then
+      if [ -z "$src" ]; then
+        continue
+      fi
+      # Argument is destination, src is same as argument but without an optional
+      # leading ".".
+      dest="$src"
+      src="$(basename "$src")"
+      src="${src#.}"
+    fi
+    if [ -z "$src" ]; then
+      warn 'No src path for linking to dest %s found' "$dest"
+    fi
+
+    src="$(_abspath "$src")"
+    dest="$(_abspath "$dest")"
+
+    if [ "$src" = "$dest" ]; then
+      continue
+    fi
+
+    if [ "$ignore_missing" -eq 0 ]; then
+      trace 'Checking whether symlink src exists: %s' "$src"
+      if ! [ -e "$src" ]; then
+        error 'Symlink src not found: %s' "$src"
+        continue
+      fi
+    fi
+
+    trace 'Checking whether symlink destination already exists: %s' "$dest"
+    if ! [ -L "$dest" ] && [ -d "$dest" ]; then
+      warn 'Skipping symlinking %s into %s because dest already exists and is a directory' "$dest" "$src"
+      continue
+    fi
+    local existing_src existing_dest
+    existing_src="$(readlink -m "$src")"
+    if [ -L "$dest" ] || [ -e "$dest" ]; then
+      existing_dest="$(readlink -m "$dest")"
+    fi
+    if [ -n "$existing_dest" ]; then
+      if [ -n "$existing_src" ] && [ "$existing_dest" = "$existing_src" ]; then
+        debug 'Skipping symlink because %s already points to %s' "$dest" "$src"
+        continue
+      elif [ "$force" -eq 1 ]; then
+        warn 'Overwriting destination %s with link to %s' "$dest" "$src"
+        l_link_args+=( -f )
+      elif [ "$relink" -ne 1 ] && [ -L "$dest" ]; then
+        warn 'Overwriting existing symlink %s with link to %s' "$dest" "$src"
+      else
+        warn 'Skipping symlinking %s into %s because destination already exists' "$dest" "$src"
+        continue
+      fi
+    fi
+
+    info 'Linking %s to %s' "$src" "$dest"
+    trace 'Checking whether base directory of destination exists'
+    local dir; dir="$(dirname "$dest")"
+    if ! [ -e "$dir" ]; then
+      # KLUDGE: In dry run mode this'll be repeated multiple times.
+      _run_cmd mkdir -p "$dir"
+    fi
+
+    _run_cmd ln "${l_link_args[@]}" -- "$src" "$dest"
+  done <<< "$(printf "%s\n" "$@")"
+}
+
+# A work-around for link which can be used with shell globs
+link-to() { #(dest, file, ...files)
+  if [ "$#" -le 1 ]; then
+    warn 'Link to called with one argument, must supply at least two'
+    return
+  fi
+
+  _skip_directive link && return
+
+  local dest="$1"; shift
+  local args=( )
+  while [ "$#" -ne 0 ]; do
+    args+=( "$1:$dest/$(basename "$1")" )
+    shift
+  done
+
+  link "${args[@]}"
+}
+# Symlink }}}
+
+# mkdir {{{
+#            _       _ _
+#  _ __ ___ | | ____| (_)_ __
+# | '_ ` _ \| |/ / _` | | '__|
+# | | | | | |   < (_| | | |
+# |_| |_| |_|_|\_\__,_|_|_|
+
+_makedir_usage='Usage: makedir [-h] [-m MODE] PATH [PATH...]'
+read -d '' -r _makedir_help <<EOF
+$_makedir_usage
+
+Positional arguments:
+  PATH  path to a directory to create
+
+Optional arguments:
+  -h  Show this help message and exit
+  -m  Set the file modes of any directories
+EOF
+makedir() {
+  local mkdir_args=( )
+  local OPTIND
+  while getopts 'hm:' OPTION; do
+    case "$OPTION" in
+      h) echo "$_makedir_help"
+         return 0 ;;
+      \?) echo "$_makedir_usage" >&2
+          return 1 ;;
+      m) mkdir_args+=( -m "$OPTARG" ) ;;
+    esac
+  done
+  shift "$((OPTIND-1))"
+
+  _skip_directive mkdir makedir && return
+
+  local it
+  while [ "$#" -gt 0 ]; do
+    it="$1"; shift
+    if [ -d "$it" ]; then
+      trace 'Skipping creating directory because it already exists: %s' "$it"
+    elif [ -e "$it" ]; then
+      warn 'Cannot create directory because %s already exists' "$it"
+    else
+      it="$(_abspath "$it")"
+      info 'Creating directory %s' "$it"
+      # shellcheck disable=SC2086
+      _run_cmd mkdir -p "${mkdir_args[@]}" -- "$it"
+    fi
+  done
+}
+# Mkdir }}}
+
+# Clean {{{
+#       _
+#   ___| | ___  __ _ _ __
+#  / __| |/ _ \/ _` | '_ \
+# | (__| |  __/ (_| | | | |
+#  \___|_|\___|\__,_|_| |_|
+
+_clean_usage="Usage: clean [-r] [-f] PATH [PATH...]"
+read -d '' -r _clean_help <<EOF
+$_clean_usage
+
+  Finds and remove any broken links that point to your
+  dotfiles.
+
+Positional arguments:
+  PATH  path to a directory/file that should be cleaned
+
+Optional arguments:
+  -h  Show this help message and exit
+  -r  Recursively traverse PATH if directory for files to clean
+  -f  Remove broken links even those not pointing to dotfiles
+EOF
+clean() {
+  local recursive=0 force=0
+  local OPTIND
+  while getopts 'hrf' OPTION; do
+    case "$OPTION" in
+      h) echo "$_clean_help"
+         return 0 ;;
+      \?) echo "$_clean_usage" >&2
+          return 1 ;;
+      r) recursive=1 ;;
+      f) force=1 ;;
+    esac
+  done
+  shift "$((OPTIND-1))"
+
+  _skip_directive clean && return
+
+  local it
+  while [ "$#" -gt 0 ]; do
+    it="$1"; shift
+    trace 'Checking whether %s is a valid symlink' "$it"
+    if [ -L "$it" ]; then
+      if ! [ -e "$it" ]; then
+        info 'Cleaning %s' "$it"
+        echo "$it:$(readlink -m "$it")"
+      fi
+    elif [ -d "$it" ]; then
+      info 'Cleaning %s' "$it"
+      debug 'Cleaning all files in %s because its a directory' "$it"
+      find_args=( )
+      if [ "${recursive}" -eq 0 ]; then
+        find_args+=( -maxdepth 1 )
+      fi
+      find "$it" -mindepth 1 "${find_args[@]}" -xtype l -not -exec [ -e {} ] ';' -printf '%p:' -exec readlink -m {} ';'
+    fi |
+      if [ "$force" -eq 1 ]; then
+        cut -d: -f1
+      else
+        # only those within a subdirectory of $DOTFILES.
+        while IFS=: read -r src dest; do
+          case "$dest" in
+            "$DOTFILES"/*) echo "$src" ;;
+          esac
+        done
+      fi |
+      _run_cmd_xargs rm
+  done
+}
+# Clean }}}
+
+# Platform {{{
+#  ____  _       _    __
+# |  _ \| | __ _| |_ / _| ___  _ __ _ __ ___
+# | |_) | |/ _` | __| |_ / _ \| '__| '_ ` _ \
+# |  __/| | (_| | |_|  _| (_) | |  | | | | | |
+# |_|   |_|\__,_|\__|_|  \___/|_|  |_| |_| |_|
+
+_platform="$("$DOTFILES/bin/ls-platform")"
+is-linux()   { [ "$_platform" = "linux" ]; }
+is-freebsd() { [ "$_platform" = "freebsd" ]; }
+is-darwin()  { [ "$_platform" = "darwin" ]; }
+is-windows() { [ "$_platform" = "windows" ]; }
+is-unix()    { ! is-windows; }
+# Platform }}}
+
+# Packages {{{
+#  ____            _
+# |  _ \ __ _  ___| | ____ _  __ _  ___  ___
+# | |_) / _` |/ __| |/ / _` |/ _` |/ _ \/ __|
+# |  __/ (_| | (__|   < (_| | (_| |  __/\__ \
+# |_|   \__,_|\___|_|\_\__,_|\__, |\___||___/
+#                            |___/
+
+# This directive is a little more involved than the others because
+# it requires some extra flexibility. For each call to it the first
+# argument is the package manager to use and the rest are arguments
+# to that package manager. If the package manager doesn't exist the
+# command fails and you can branch to another package manager. If
+# called with no packages this directive just checks whether that
+# package manager is available. You can use this to create a branching
+# installer directive such as:
+#   package yay foo bar ||
+#     package pacman foo bar ||
+#     error 'No package manager found, skipping'
+#
+# This first tries installing with yay, then with pacman and if both
+# those don't exist then it outputs and error message and continues.
+
+PACMANS=( )
+
+# Handler for basic package managers that just check and substitue args.
+_package_simple() { #(name, prog, pre-args, prog-args, update-cmd, pkgs)
+  local name="$1"; shift
+  local prog="$1"; shift
+  local pre_args="$1"; shift
+  local prog_args="$1"; shift
+  local update_args="$1"; shift
+
+  local usage="Usage: package $name [-h] PKG [PKGS...]"
+  local OPTIND
+  while getopts 'h' OPTION; do
+    case "$OPTION" in
+      h) cat <<EOF
+$usage
+
+  Install $name packages.
+
+Positional arguments:
+  PKGS  List of packages to install
+
+Optional arguments:
+  -h  Show this help message and exit
+EOF
+         return 0 ;;
+      \?) echo "$usage" >&2
+          return 1 ;;
+    esac
+  done
+  shift "$((OPTIND-1))"
+
+  if ! hash "$prog" 2>/dev/null; then
+    return 1
+  fi
+
+  if [ "$#" -gt 0 ]; then
+    debug 'Installing packages with %s: %s' "$name" "$(_csv "$@")"
+    local prog_args_arr pre_args_arr
+    IFS=, read -r -a prog_args_arr <<< "$prog_args"
+    IFS=, read -r -a pre_args_arr <<< "$pre_args"
+
+    local update_var="_pacman_${name}_update"
+    if [ -n "$update_args" ] &&
+         [ -z "${!update_var}" ]; then
+      local update_args_arr
+      IFS=, read -r -a update_args_arr <<< "$update_args"
+      info 'Syncing package archive for package manager %s' "$name"
+      _run_cmd "${pre_args_arr[@]}" "$prog" "${update_args_arr[@]}"
+      eval "$update_var"=1
+    fi
+
+    # shellcheck disable=SC2086
+    printf '%s\n' "$@" |
+      _run_cmd_xargs "${pre_args_arr[@]}" "$prog" "${prog_args_arr[@]}"
+  fi
+}
+
+# Package manager for the python pip module system.
+# See also https://github.com/sobolevn/dotbot-pip
+PACMANS+=(pip)
+_package_pip_usage="Usage: package pip [-h] [-g] PKG [PKGS...]"
+read -d '' -r _package_pip_help <<EOF
+$_clean_usage
+
+  Install python pip packages.
+
+Positional arguments:
+  PKGS  List of packages to install
+
+Optional arguments:
+  -h  Show this help message and exit
+  -g  Install PKGS globally instead of locally
+EOF
+_package_pip() {
+  local global=0
+  local OPTIND
+  while getopts 'hg' OPTION; do
+    case "$OPTION" in
+      h) echo "$_package_pip_help"
+         return 0 ;;
+      \?) echo "$_package_pip_usage" >&2
+          return 1 ;;
+      g) global=1 ;;
+    esac
+  done
+  shift "$((OPTIND-1))"
+  local flags=()
+  [ "$global" -eq 0 ] &&
+    flags+=( '--user' )
+
+  if ! hash pip 2>/dev/null; then
+    return 1
+  fi
+
+  if [ "$#" -gt 0 ]; then
+    debug 'Installing packages with pip: %s' "$(_csv "$@")"
+    printf '%s\n' "$@" |
+      _run_cmd_xargs python3 -m pip install "${flags[@]}"
+  fi
+}
+
+# Package manager the for golang module system.
+# See also https://github.com/delicb/dotbot-golang
+PACMANS+=(go)
+_package_go() { _package_simple go go '' 'get' '' "$@"; }
+
+# Package manager the for cygwins cyg-get package manager.
+PACMANS+=(cygwin)
+_package_cygwin() { _package_simple cygwin cyg-get.bat '' '' '' "$@"; }
+
+# Package manager for rubygems.
+PACMANS+=(gem)
+_package_gem_usage="Usage: package gem [-h] [-g] PKG [PKGS...]"
+read -d '' -r _package_gem_help <<EOF
+$_clean_usage
+
+  Install ruby gem packages.
+
+Positional arguments:
+  PKGS  List of packages to install
+
+Optional arguments:
+  -h  Show this help message and exit
+  -g  Install PKGS globally instead of locally
+EOF
+_package_gem() {
+  local global=0
+  local OPTIND
+  while getopts 'hg' OPTION; do
+    case "$OPTION" in
+      h) echo "$_package_gem_help"
+         return 0 ;;
+      \?) echo "$_package_gem_usage" >&2
+          return 1 ;;
+      g) global=1 ;;
+    esac
+  done
+  shift "$((OPTIND-1))"
+  local flags=()
+  [ "$global" -eq 0 ] &&
+    flags+=( '--user-install' )
+
+  if ! hash pip 2>/dev/null; then
+    return 1
+  fi
+
+  if [ "$#" -gt 0 ]; then
+    debug 'Installing packages with pip: %s' "$(_csv "$@")"
+    printf '%s\n' "$@" |
+      _run_cmd_xargs gem install "${flags[@]}"
+  fi
+}
+
+# Package manager for the chocolatey (windows) package manager.
+# See also https://chocolatey.org/
+PACMANS+=(choco)
+_package_choco() { _package_simple choco choco '' "install,--yes" '' "$@"; }
+
+# The pacmans ヽ(^‥^=ゞ)
+PACMANS+=(pacman)
+_package_pacman() { _package_simple pacman pacman 'sudo' '-S,--needed,--noconfirm' '-Sy' "$@"; }
+
+PACMANS+=(yay)
+_package_yay() { _package_simple yay yay '' '-S,--needed,--noconfirm' '-Sy' "$@"; }
+
+PACMANS+=(msys)
+_package_msys() { _package_simple pacman pacman.exe '' '-S,--needed,--noconfirm' '-Sy' "$@"; }
+
+PACMANS+=(apt)
+_package_apt() { _package_simple apt apt 'sudo' 'install,--yes' 'update' "$@"; }
+
+package() {
+  _skip_directive package && return
+
+  local pacman="$1"; shift
+  if _contains "$pacman" "${PACMANS[@]}"; then
+    _package_"$pacman" "$@"
+  else
+    warn 'Unknown package manager %s' "$pacman"
+    return 1
+  fi
+}
+
+_packages_usage="Usage: packages [-h] INSTALLER:PKG[,PKG...]"
+read -d '' -r _packages_help <<EOF
+$_clean_usage
+
+  A wrapper around package with a more convenient interface
+
+Positional arguments:
+  INSTALLER  The package manager to use to install PKGS
+  PKGS       List of packages to install
+EOF
+packages() {
+  _skip_directive package && return
+
+  local OPTIND
+  while getopts 'h' OPTION; do
+    case "$OPTION" in
+      h) echo "$_packages_help"
+         return 0 ;;
+      \?) echo "$_packages_usage" >&2
+          return 1 ;;
+    esac
+  done
+  shift "$((OPTIND-1))"
+
+  local pacman pkgs pkgs_str
+  while IFS=: read -r pacman pkgs_str _; do
+    trace 'Checking whether package manager %s is available' "$pacman"
+    if package "$pacman"; then
+      IFS=, read -r -a pkgs <<< "$pkgs_str"
+      package "$pacman" "${pkgs[@]}"
+      return "$?"
+    fi
+  done <<< "$(printf '%s\n' "$@")"
+  error 'No suitable package manager found, tried %s' "$(printf '%s\n' "$@" | cut -d : -f1 | tr '\n' ',')"
+  return 1
+}
+
+# Packages }}}
+
+# Import {{{
+#  ___                            _
+# |_ _|_ __ ___  _ __   ___  _ __| |_
+#  | || '_ ` _ \| '_ \ / _ \| '__| __|
+#  | || | | | | | |_) | (_) | |  | |_
+# |___|_| |_| |_| .__/ \___/|_|   \__|
+#               |_|
+
+BOTS=()
+bots_all=0
+bots() {
+  printf '%s\n' "$@" >&3
+
+  if [ "$bots_all" -eq 1 ]; then
+    return 0
+  fi
+
+  local it
+  for it in "$@"; do
+    trace 'Checking whether installing bot %s' "$it"
+    if _contains "$it" "${BOTS[@]}"; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+_import_usage="Usage: import [-h] PATH [PATH...]"
+read -d '' -r _import_help <<EOF
+$_import_usage
+
+  Import configuration scripts from PATH.
+
+Positional arguments:
+  PATH
+    The PATH to a file or module to be imported. The lookup
+    order for this goes in order of ./PATH.dotty.sh, ./PATH.sh,
+    ./PATH/dotty.sh, ./PATH/PATH.sh, ./PATH/config.sh,
+    ./PATH/.config.sh, ./PATH/.config.
+
+Optional arguments:
+  -b
+    Automatically check whether a bot matching the basename of
+    a path exists.
+EOF
+IMPORTED=()
+import() {
+  local OPTIND check_bots=0
+  while getopts 'hb' OPTION; do
+    case "$OPTION" in
+      h) echo "$_import_help"
+         return 0 ;;
+      b) check_bots=1 ;;
+      \?) echo "$_import_usage" >&2
+          return 1 ;;
+    esac
+  done
+  shift "$((OPTIND-1))"
+
+  local it it_base it_dir
+  while [ "$#" -gt 0 ]; do
+    it="$1"; shift
+    it=$(_abspath "$it")
+    it_base="$(basename "$it")"
+
+    if [ "$check_bots" -eq 1 ] && ! bots "$it_base"; then
+      debug 'Skipping import %s because bot is missing' "$it"
+      continue
+    fi
+
+    local found=0
+    trace 'Trying to import %s' "$it"
+    for file in "$it.dotty.sh" "$it.sh" "$it/dotty.sh" \
+                "$it/$it_base.sh" "$it/config.sh" "$it/.config.sh" \
+                "$it/.config"; do
+      trace 'Checking import path %s' "$file"
+      if [ -f "$file" ] && [ -r "$file" ]; then
+        found=1
+        info 'Importing %s' "$file"
+        if _contains "$file" "${IMPORTED[@]}"; then
+          debug 'Skipping importing %s because its already been imported' "$file"
+          break
+        fi
+        IMPORTED+=( "$file" )
+        echo "$file" >&4
+
+        it_dir="$(dirname "$file")"
+        if ! pushd "$it_dir" >/dev/null 2>&1; then
+          error 'Failed to cd to %s, cannot import %s' "$it_dir" "$file"
+          break
+        fi
+        # shellcheck disable=SC1090
+        . "$file"
+        if ! popd >/dev/null 2>&1; then
+          warn 'Tried to popd out of importing %s but failed' "$file"
+        fi
+        break
+      fi
+    done
+    if [ "$found" -eq 0 ]; then
+      error 'Could not find file to import for %s' "$it"
+    fi
+  done
+}
+# Import }}}
+
+# Sync Submodule {{{
+#  ____                       ____        _                         _       _
+# / ___| _   _ _ __   ___    / ___| _   _| |__  _ __ ___   ___   __| |_   _| | ___
+# \___ \| | | | '_ \ / __|___\___ \| | | | '_ \| '_ ` _ \ / _ \ / _` | | | | |/ _ \
+#  ___) | |_| | | | | (_|_____|__) | |_| | |_) | | | | | | (_) | (_| | |_| | |  __/
+# |____/ \__, |_| |_|\___|   |____/ \__,_|_.__/|_| |_| |_|\___/ \__,_|\__,_|_|\___|
+#        |___/
+
+sync-submodule() { #(path)
+  _skip_directive sync-submodule && return
+
+  local quoted; quoted=$(printf "%q" "$(_abspath "$1")")
+  _run_cmds <<-EOF
+if ! [ -e $quoted/.git ]; then
+  git submodule update --init --recursive $quoted
+fi
+EOF
+}
+# Sync Submodule }}}
+
+# Dotty {{{
+#      _       _   _
+#   __| | ___ | |_| |_ _   _
+#  / _` |/ _ \| __| __| | | |
+# | (_| | (_) | |_| |_| |_| |
+#  \__,_|\___/ \__|\__|\__, |
+#                      |___/
+
+_dotty_usage='Usage: dotty [-h] [-l LEVEL] [-C] {install,run,list-bots,preview}'
+read -d '' -r _dotty_help <<EOF
+$_dotty_usage
+
+  Dotfile installation script.
+
+Subcommands:
+  install    Install any dotfiles and modules you want enabled
+  list-bots  List modules configured across all install scripts
+  list-conf  List configuration files for dotfile installation
+
+Optional arguments:
+  -h|--help
+    Show this help message and exit
+  -l|--logging LEVEL
+    Set the verbosity of logging output
+  -C|--color
+    Always color output logs
+EOF
+
+_dotty_list_bots_usage='Usage: dotty list-bots [-h]'
+read -d '' -r _dotty_list_bots_help <<EOF
+$_dotty_list_bots_usage
+
+  List all bots that are checked for.
+
+Optional arguments:
+  -h|--help
+    Show this help message and exit
+  -a|--all
+    Enable all optional bots calls
+EOF
+
+_dotty_list_conf_usage='Usage: dotty list-conf [-h]'
+read -d '' -r _dotty_list_conf_help <<EOF
+$_dotty_list_conf_usage
+
+  List configurations that are imported.
+
+Optional arguments:
+  -h|--help
+    Show this help message and exit
+  -a|--all
+    Enable all optional bots calls
+EOF
+
+_dotty_install_usage="Usage: dotty install [-h] [-b BOTS[,BOTS...]] [-a] [-d] [-e CMD] [-o CMD] [FILE [FILE...]]"
+read -d '' -r _dotty_install_help <<EOF
+
+  Install dotfiles beginning from the root or a specific
+  module.
+
+Positional arguments:
+  FILE
+    Specify a subset of files to import instead of the
+    root config.
+
+Optional arguments:
+  -h|--help
+    Show this help message and exit
+  -a|--all
+    Enable all optional bots calls
+  -d|--dry-run
+    Don't actually run any commands, just output them
+    as a script.
+  -b|--bots BOTS[,BOTS...]
+    Specify sub-bots that can be optionally invoked by
+    dotty installation scripts.
+  -e|--except CMD
+    Run any directives apart from CMD. Can be given multiple
+    times.
+  -o|--only CMD
+    Ignore all directives excluding CMD (overrides -e).
+EOF
+
+# 3: Where imported filenames are written
+# 4: Where checked bots are written
+exec 3>/dev/null 4>/dev/null
+
+# shellcheck disable=SC2120
+op=''
+import_files=()
+only_directives=()
+except_directives=()
+
+while [ "$#" -gt 0 ]; do
+  arg="$1"; shift
+  case "$op" in
+    install)
+      case "$arg" in
+        -h|--help)
+          echo "$_dotty_install_help"
+          exit 0 ;;
+        -a|--all) bots_all=1 ;;
+        -d|--dry-run)
+          dry_run=1 ;;
+        -o|--only)
+          if [ "$#" -eq 0 ]; then
+            echo "error: dotty: $arg expected an argument" >&2
+            exit 1
+          fi
+          only_directives+=("$1"); shift
+          ;;
+        -e|--except)
+          if [ "$#" -eq 0 ]; then
+            echo "error: dotty: $arg expected an argument" >&2
+            exit 1
+          fi
+          except_directives+=("$1"); shift
+          ;;
+        -b|--bots|--bot)
+          if [ "$#" -eq 0 ]; then
+            echo "error: dotty: $arg expected an argument" >&2
+            exit 1
+          fi
+          IFS=, read -r -a new_bots <<< "$1"
+          BOTS+=( "${new_bots[@]}" ); shift
+          ;;
+        -*) echo "error: dotty: unexpected argument: $arg" >&2
+            echo "$_dotty_install_usage" >&2
+            exit 1 ;;
+        *) import_files+=("$arg")
+           ;;
+      esac
+      ;;
+    list-bots)
+      case "$arg" in
+        -h|--help)
+          echo "$_dotty_list_bots_help" >&2
+          exit 0
+          ;;
+        -a|--all) bots_all=1 ;;
+        *) echo "error: dotty: unexpected argument: $arg" >&2
+           echo "$_dotty_list_bots_usage" >&2
+           exit 1
+           ;;
+      esac
+      ;;
+    list-conf)
+      case "$arg" in
+        -h|--help)
+          echo "$_dotty_list_conf_help" >&2
+          exit 0
+          ;;
+        -a|--all) bots_all=1 ;;
+        *) echo "error: dotty: unexpected argument: $arg" >&2
+           echo "$_dotty_list_conf_usage" >&2
+           exit 1
+           ;;
+      esac
+      ;;
+    *)
+      case "$arg" in
+        -h|--help)
+          echo "$_dotty_help"
+          exit 0 ;;
+        -l|--logging)
+          level="$(echo "$1" | tr A-Z a-z)"; shift
+          count=0
+          LOG_LEVEL=-1
+          for it in "${LOG_LEVELS[@]}"; do
+            if [ "$it" = "$level" ]; then
+              LOG_LEVEL="$count"
+              break
+            fi
+            count+=1
+          done
+          if [ "$LOG_LEVEL" -eq -1 ]; then
+            echo "dotty: error: Invalid log level: $level" >&2
+            exit 1
+          fi
+          ;;
+        -C|--color) COLOR=1 ;;
+        -*) echo "error: dotty: unexpected argument: $arg" >&2
+            echo "$_dotty_usage" >&2
+            exit 1 ;;
+        list-bots)
+          op="$arg"
+          exec 3>&1 1>/dev/null
+          dry_run=1
+          ;;
+        list-conf)
+          op="$arg"
+          exec 4>&1 1>/dev/null
+          dry_run=1
+          ;;
+        install)
+          op="$arg" ;;
+        *) echo "error: dotty: unknown sub-command: $arg"
+           echo "$_dotty_usage" >&2
+           exit 1 ;;
+      esac
+      ;;
+  esac
+done
+
+if [ -z "$op" ]; then
+  echo "$_dotty_help"
+  exit 0
+fi
+
+if [ "${#import_files[@]}" -eq 0 ]; then
+  import_files+=( . )
+fi
+
+for it in "${import_files[@]}"; do
+  import "$it"
+done
+
+if [ "$dry_run" -ne 1 ] &&
+     [ "${#BOTS[@]}" -gt 0 ]; then
+  info 'Updating bots file at %s' "$BOTS_FILE"
+  if {
+    echo "${BOTS[@]}"
+    tr ',' '\n' < "$BOTS_FILE" 2>/dev/null
+  } | sort | uniq | tr '\n' ',' > "$BOTS_FILE.new"; then
+    mv -f "$BOTS_FILE.new" "$BOTS_FILE"
+  fi
+fi
+
+exit "${exit_code:-0}"
+# Dotty }}}
+
+# Local Variables:
+# mode: shell-script
+# mode: evil-vimish-fold
+# End:

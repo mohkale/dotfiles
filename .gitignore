@@ -1,7 +1,5 @@
 README.html
 setup/cache/
-setup/dotty
-setup/dotty.exe
 .ccls-cache/
 !dist/
 *.~*

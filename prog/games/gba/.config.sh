@@ -1,0 +1,1 @@
+packages yay:vbam-wx

@@ -90,7 +90,6 @@ if __name__ == '__main__':
         dest_parent = os.path.dirname(args.output)  # directory
         if dest_parent: os.makedirs(dest_parent, exist_ok=True)
 
-        # pylint: disable=R1732
         args.output = open(args.output, 'w', encoding='utf8')
 
     if not args.chars:

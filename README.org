@@ -21,7 +21,7 @@
 #+HTML: </div>
 #+HTML: <p></p>
 
-My dotfile repository, happily brought to you by [[https://github.com/mohkale/dotty][dotty]] :book:.
+My dotfile repository, happily brought to you by [[file:setup/dotty][dotty]] :book:.
 
 [[file:./.github/main.png]]
 
