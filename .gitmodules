@@ -7,12 +7,12 @@
 	path = prog/konsole/themes/an-old-hope
 	url = git@github.com:mohkale/an-old-hope-konsole.git
 	branch = master
-[submodule "prog/yakuake/themes/an-old-hope"]
-	path = prog/yakuake/themes/an-old-hope
+[submodule "prog/terminal/yakuake/themes/an-old-hope"]
+	path = prog/terminal/yakuake/themes/an-old-hope
 	url = git@github.com:mohkale/an-old-hope-yakuake.git
 	branch = master
-[submodule "prog/st/src"]
-	path = prog/st/src
+[submodule "prog/terminal/st/src"]
+	path = prog/terminal/st/src
 	url = git@github.com:mohkale/st.git
 	ignore = dirty
 	branch = master

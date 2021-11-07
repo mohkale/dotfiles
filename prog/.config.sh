@@ -7,7 +7,6 @@ import                                          \
 import -b langs/*
 
 import -b                                       \
-  alacritty                                     \
   bat                                           \
   browsers/*                                    \
   cava                                          \
@@ -24,7 +23,6 @@ import -b                                       \
   hyper                                         \
   imv                                           \
   ipython                                       \
-  kitty                                         \
   konsole                                       \
   korganizer                                    \
   lf                                            \
@@ -35,15 +33,13 @@ import -b                                       \
   ranger                                        \
   ripgrep                                       \
   spectacle                                     \
-  st                                            \
   sxiv                                          \
+  terminal/*                                    \
   thefuck                                       \
   tmux                                          \
   transmission                                  \
   wget                                          \
-  windows-terminal                              \
   wine                                          \
-  yakuake                                       \
   zathura
 
 if bots mail.server mail.client; then
