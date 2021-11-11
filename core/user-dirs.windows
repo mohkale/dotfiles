@@ -1,4 +1,4 @@
-# -*- mode: conf -*- [[file:xdgdirs][xdgdirs]] configuration file for windows.
+# -*- mode: conf-unix -*- [[file:xdgdirs][xdgdirs]] configuration file for windows.
 
 XDG_DOCUMENTS_DIR="$HOME/Documents"
 XDG_DOWNLOAD_DIR="$HOME/Downloads"
@@ -17,3 +17,4 @@ XDG_TEMP_DIR="$HOME/AppData/Local/Temp"
 XDG_GAMES_DIR="$HOME/Saved Games"
 XDG_DEV_HOME="$HOME/Develop"
 XDG_BIN_DIR="$HOME/Develop/bin"
+XDG_LIB_DIR="$HOME/AppData/Local/Lib"

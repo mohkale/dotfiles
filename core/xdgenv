@@ -12,7 +12,8 @@ export BUNDLE_USER_CACHE="$XDG_CACHE_HOME"/bundle
 export BUNDLE_USER_PLUGIN="$XDG_DATA_HOME"/bundle
 export RBENV_ROOT="$XDG_DATA_HOME"/rbenv                                        # rbenv
 export IRBRC="$XDG_CONFIG_HOME"/irb/irbrc                                       # irb (interactive ruby)
-export GEM_SPEC_CACHE="$XDG_CACHE_HOME"/gem                                     # ruby gems
+export GEM_SPEC_CACHE="$XDG_LIB_HOME"/gem                                       # ruby gems
+export GEM_HOME="$GEM_SPEC_CACHE"
 export SOLARGRAPH_CACHE="$XDG_CACHE_HOME"/solargraph                            # solargraph
 
 export _JAVA_OPTIONS=-Djava.util.prefs.userRoot="$XDG_CONFIG_HOME"/java         # OpenJDK
