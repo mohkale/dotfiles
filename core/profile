@@ -22,7 +22,7 @@
 export XDG_CONFIG_HOME XDG_DATA_HOME XDG_CACHE_HOME XDG_DOCUMENTS_DIR \
        XDG_PICTURES_DIR XDG_MUSIC_DIR XDG_VIDEOS_DIR XDG_DESKTOP_DIR \
        XDG_DOWNLOAD_DIR XDG_TEMP_DIR XDG_GAMES_DIR XDG_DEV_HOME XDG_BIN_DIR \
-       XDG_STATE_HOME XDG_RUNTIME_DIR
+       XDG_STATE_HOME XDG_RUNTIME_DIR XDG_LIB_DIR
 
 if   hash nvim 2>/dev/null; then export EDITOR=nvim
 elif hash vim  2>/dev/null; then export EDITOR=vim
@@ -122,10 +122,10 @@ lines_to_path() {
       var="${var:1}" # strip out : prefix.
     else
       case "$shell" in
-        zshell) existing="${(P)var}" ;;
-        bash)   existing="${!var}" ;;
+        zshell) existing=${(P)var} ;;
+        bash) existing="${!var}" ;;
         # POSIX compliant but ugly and vulnerable
-        *)      existing=$(eval "echo \${$var}") ;;
+        *) existing=$(eval "echo \${$var}") ;;
       esac
 
       if [ -n "$existing" ]; then
@@ -142,17 +142,15 @@ lines_to_path() {
   done <<< "$conf"
 }
 
-export GEM_HOME="$HOME"/prog/.modules/ruby
-
 lines_to_path <<EOF
 [PATH]
 $XDG_BIN_DIR
 $XDG_DEV_HOME/scripts
-$XDG_DEV_HOME/.modules/ruby/bin
-$XDG_DEV_HOME/.modules/go/bin
-$XDG_DATA_HOME/npm/bin
-~/.rvm/bin
+$XDG_LIB_HOME/go/bin
+$XDG_LIB_HOME/npm/bin
+${GEM_HOME:-$HOME/.gem}/bin
 ${POETRY_HOME:-$HOME/.poetry}/bin
+~/.rvm/bin
 
 [CLASSPATH]
 .
@@ -166,23 +164,24 @@ $XDG_DEV_HOME/.modules/java/
 $XDG_DEV_HOME/.modules/java/*
 
 [PYTHONPATH]
+$XDG_LIB_HOME/python
 $XDG_DEV_HOME/.modules/python
 
 [GEM_PATH]
 $GEM_HOME
 
 [GOPATH]
-$XDG_DEV_HOME/.modules/go
+$XDG_LIB_HOME/go
 
 [NODE_PATH]
-$XDG_DEV_HOME/.modules/node
+$XDG_DATA_HOME/npm/lib/node_modules
 
 [:REPO_PATH]
 $XDG_DEV_HOME/repos/
 $XDG_DEV_HOME/upwork/
 $DOTFILES
-$XDG_DEV_HOME/.modules/go/src/*/*/
-$XDG_DEV_HOME/.modules/ruby/gems/
+$XDG_LIB_HOME/go/src/*/*/
+$XDG_LIB_HOME/ruby/gems/
 EOF
 
 unset -f lines_to_path
