@@ -27,6 +27,7 @@ import -b                                       \
   korganizer                                    \
   lf                                            \
   lint/*                                        \
+  mc                                            \
   media/*                                       \
   pass                                          \
   polybar                                       \
