@@ -1,6 +1,6 @@
 clean -rf "$XDG_BIN_DIR"
 
-link \
+link                                            \
   "$XDG_BIN_DIR/ansils"                         \
   "$XDG_BIN_DIR/argv"                           \
   "$XDG_BIN_DIR/blockify"                       \

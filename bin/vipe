@@ -50,7 +50,6 @@ def get_editor():
 
 if __name__ == '__main__':
     import argparse
-    from mohkale.pylog.config import use_config as use_logging_config
 
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      usage='command1 | %(prog)s [options] | command2',
@@ -81,7 +80,13 @@ the pipeline by exiting with the same code.
                         help='Level of logging output.')
 
     args = parser.parse_args()
-    use_logging_config('vipe', level=args.log_level)
+
+    try:
+        from mohkale.pylog.config import use_config as use_logging_config
+    except ImportError:
+        logging.basicConfig(level=args.log_level)
+    else:
+        use_logging_config('vipe', level=args.log_level)
 
     if not args.editor:
         args.editor = get_editor()

@@ -927,7 +927,6 @@ def xopen(urls, generic_only, only_desktops, *args, **kwargs):
 if __name__ == '__main__':
     import signal
     import argparse
-    from mohkale.pylog.config import use_config as use_logging_config
 
     signal.signal(signal.SIGINT, lambda: sys.exit(1))  # for ctrl+c
 
@@ -959,6 +958,12 @@ if __name__ == '__main__':
                       '/usr/share/applications/',
                       '/usr/local/share/applications/']
 
-    use_logging_config('xopen', level=vargs.pop('log_level'))
+    level = vargs.pop('log_level')
+    try:
+        from mohkale.pylog.config import use_config as use_logging_config
+    except ImportError:
+        logging.basicConfig(level=level)
+    else:
+        use_logging_config('xopen', level=level)
 
     sys.exit(0 if xopen(**vargs) else 1)

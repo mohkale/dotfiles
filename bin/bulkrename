@@ -205,7 +205,6 @@ def bulkrename(index, preselect, editor,
 if __name__ == '__main__':
     import signal
     import argparse
-    from mohkale.pylog.config import use_config as use_logging_config
 
     signal.signal(signal.SIGINT, lambda: sys.exit(1)) # for ctrl+c
 
@@ -285,7 +284,13 @@ if __name__ == '__main__':
         args = parser.parse_args()
         vargs = vars(args)
 
-        use_logging_config('bulkrename', level=vargs.pop('log_level'))
+        level = vargs.pop('log_level')
+        try:
+            from mohkale.pylog.config import use_config as use_logging_config
+        except ImportError:
+            logging.basicConfig(level=level)
+        else:
+            use_logging_config('bulkrename', level=level)
 
         return args, vargs
 

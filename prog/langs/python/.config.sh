@@ -14,6 +14,7 @@ packages                                        \
 package pip                                     \
   pylint                                        \
   psutil                                        \
+  pyyaml                                        \
   colorlog                                      \
   requests                                      \
   pyperclip                                     \
