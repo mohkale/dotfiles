@@ -8,7 +8,6 @@
 
 a       fzf_select
 A       fzf_select_all
-b       fzbm
 c       cd
 d       fzf_cd
 D       fzf_cd_all
@@ -23,6 +22,9 @@ s       $SHELL
 x       launch
 y       file_path_yank
 z       select_fsmap
+
+b       fzbm
+ba      FZBM_FLAGS='-a' fzbm
 
 g          git
 gs         git status

@@ -5,9 +5,10 @@ fzbm() {
                       --bind 'ctrl-y:execute-silent(echo {1} | clip)'
                       --no-hscroll
                       --history "${XDG_STATE_HOME:-$HOME/.locale/state}"/fzf/history/bookmarks )
-  # [ -z "$*" ] || fzf_args+=( -q "$*" )
+  [ -z "$*" ] || fzf_args+=( -q "$*" )
 
-  ls-bookmarks -p '' "$@" |
+  # shellcheck disable=SC2086
+  ls-bookmarks $FZBM_FLAGS -p '' |
     sed '/^javascript:/d' |
     _fzf "${fzf_args[@]}" |
     cut -d $'\t' -f 1 |
