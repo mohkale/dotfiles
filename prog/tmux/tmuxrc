@@ -298,8 +298,8 @@ bind -Tm-commands e run -b 'bash -c '"'"'\
 
 bind -Tm-commands b run -b 'bash -c '"'"'\
   . $HOME/.config/tmux/cmds/setup-fzf;\
-  . $HOME/.config/autoloads/cmds/fzbm;\
-  fzbm >/dev/null 2>&1\
+  . $HOME/.config/autoloads/cmds/fzf_bookmarks;\
+  fzf_bookmarks >/dev/null 2>&1\
 '"'"
 
 bind -Tm-commands M run -b 'bash -c '"'"'\
@@ -316,8 +316,8 @@ bind -Tm-commands g run -b 'bash -c '"'"'\
 
 bind -Tm-commands m run -b 'bash -c '"'"'\
   . $HOME/.config/tmux/cmds/setup-fzf;\
-  . $HOME/.config/autoloads/cmds/fzman;\
-  fzman\
+  . $HOME/.config/autoloads/cmds/fzf_man;\
+  fzf_man\
 '"'"
 
 bind C-x run -b 'tmux-popup -w 100% -h 100% launch'

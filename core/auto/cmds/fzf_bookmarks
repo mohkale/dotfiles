@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-fzbm() {
+fzf_bookmarks() {
   local fzf_args=( -d $'\t' --ansi --with-nth '2..' --multi
                       --bind 'alt-return:execute-silent(xopen {1} &)+down'
                       --bind 'ctrl-y:execute-silent(echo {1} | clip)'
@@ -8,7 +8,7 @@ fzbm() {
   [ -z "$*" ] || fzf_args+=( -q "$*" )
 
   # shellcheck disable=SC2086
-  ls-bookmarks $FZBM_FLAGS -p '' |
+  ls-bookmarks ${FZF_BOOKMARK_FLAGS:-} -p '' |
     sed '/^javascript:/d' |
     _fzf "${fzf_args[@]}" |
     cut -d $'\t' -f 1 |

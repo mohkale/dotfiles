@@ -13,9 +13,9 @@ Optional arguments:
   -d SEP
     Specify seperator for the URL, tags, and output
   -p FORMAT
-    Pretty print parsed output for use in fzbm.
-    FORMAT should be a string containing the following
-    to include them in the output: {h: host, #: tags, t: title}
+    Pretty print parsed output. FORMAT should be a
+    string containing the following to include them
+    in the output: {h: host, #: tags, t: title}
   -C
     Remove color codes from pretty-printed output
   -a
@@ -185,7 +185,6 @@ do_buku() {
 }
 
 pretty_print() {
-  # prettify the bookmarks list for use in fzbm.
   gawk -F "$d" \
        -v sep="$d" \
        -v tag_l="$c_tag_l" \

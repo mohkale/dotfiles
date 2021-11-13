@@ -181,7 +181,7 @@ cmd execute-async &{{
 }}
 
 map ob open-bookmark
-cmd open-bookmark $. $XDG_CONFIG_HOME/lf/auto/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/fzbm; fzbm
+cmd open-bookmark $. $XDG_CONFIG_HOME/lf/auto/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/fzf_bookmarks; fzf_bookmarks
 
 map oP open-password
 cmd open-password $bash -c '. $XDG_CONFIG_HOME/lf/auto/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/fzpass; fzpass'

@@ -2,7 +2,7 @@
 # Present all manual pages in a fzf session and choose
 # one or more manual entries to open in your PAGER.
 
-fzman() {
+fzf_man() {
     local fzf_args=( --reverse --multi --no-hscroll
                      --history "${XDG_STATE_HOME:-$HOME/.locale/state}"/fzf/history/man )
     [ -z "$*" ] || fzf_args+=( -q "$*" )
@@ -16,8 +16,8 @@ fzman() {
     [ -z "$targets" ] && return
 
     # see [[https://unix.stackexchange.com/questions/396397/open-multiple-man-pages-in-less][here]] for how the multi-man command works.
-    if [ -n "$FZMAN_CMD" ]; then
-        $FZMAN_CMD
+    if [ -n "$FZF_MAN_CMD" ]; then
+        $FZF_MAN_CMD
     else
         # shellcheck disable=SC2086
         LESSOPEN='|man %s' xargs -r -d '\n' ${MANPAGER:-less} -is

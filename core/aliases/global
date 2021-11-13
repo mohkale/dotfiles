@@ -15,7 +15,7 @@ e       sh --norc -c '$EDITOR "$@"' edit
 f       fzf_file
 F       fzf_file_all
 i       sh -c 'if [ $# -gt 0 ]; then preview "$@"; fi' inspect
-m       fzman
+m       fzf_man
 o       xopen
 p       cd_repo
 s       $SHELL
@@ -23,8 +23,8 @@ x       launch
 y       file_path_yank
 z       select_fsmap
 
-b       fzbm
-ba      FZBM_FLAGS='-a' fzbm
+b       fzf_bookmarks
+ba      FZF_BOOKMARK_FLAGS='-a' fzf_bookmarks
 
 g          git
 gs         git status
