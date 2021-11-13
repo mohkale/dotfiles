@@ -384,7 +384,6 @@ def main(args, vargs, parser):
 
 if __name__ == "__main__":
     import argparse
-    from mohkale.pylog.config import use_config
 
     def _argparse_percent_value(arg):
         if re.match(r"^[-+]?\d+$", arg):  # can't use arg.isdecimal because of sign
@@ -541,5 +540,12 @@ if __name__ == "__main__":
             offset = -offset
         args.image_offset = _blockify_apply_offset(offset, is_per)
 
-    use_config("blockify", level=vargs.pop("logging_level"))
+    level = vargs.pop("logging_level")
+    try:
+        from mohkale.pylog.config import use_config as use_logging_config
+    except ImportError:
+        logging.basicConfig(level=level)
+    else:
+        use_logging_config("blockify", level=level)
+
     main(args, vargs, parser)

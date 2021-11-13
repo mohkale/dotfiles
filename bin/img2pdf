@@ -90,7 +90,6 @@ def create_pdf(files, output_path, append, title,
 
 if __name__ == '__main__':
     import argparse
-    from mohkale.pylog.config import use_config as use_logging_config
 
     def parse_args():
         """parse command line arguments."""
@@ -139,7 +138,13 @@ if __name__ == '__main__':
                 parser.error('unable to locate input file: ' + fd)
         args.paths.extend(vargs.pop('files', []))
 
-        use_logging_config('img2pdf', level=vargs.pop('log_level'))
+        level = vargs.pop('log_level')
+        try:
+            from mohkale.pylog.config import use_config as use_logging_config
+        except ImportError:
+            logging.basicConfig(level=level)
+        else:
+            use_logging_config('img2pdf', level=level)
 
         if not args.paths:
             parser.print_help()

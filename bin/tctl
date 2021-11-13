@@ -294,8 +294,6 @@ def act_on_torrents_cmd(conn,
 if __name__ == '__main__':
     import argparse
 
-    from mohkale.pylog.config import use_config as use_logging_config  # pylint: disable=C0412
-
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--fzf', metavar='CMD', help='Specify command line for fzf')
@@ -380,7 +378,13 @@ if __name__ == '__main__':
 
     args.cmd = Operations[args.cmd]
 
-    use_logging_config('tctl', level=vargs.pop('log_level'))
+    level = vargs.pop('log_level')
+    try:
+        from mohkale.pylog.config import use_config as use_logging_config
+    except ImportError:
+        logging.basicConfig(level=level)
+    else:
+        use_logging_config('tctl', level=level)
 
     conn = Transmission.from_conf_file(CONFIG_FILE)
 

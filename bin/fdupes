@@ -118,7 +118,6 @@ if __name__ == '__main__':
     import sys
     import codecs
     import argparse
-    from mohkale.pylog.config import use_config as use_logging_config
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -164,7 +163,13 @@ files with row seperator (\\n).
     args.field_seperator = codecs.decode(args.field_seperator, 'unicode_escape')
     args.row_seperator = codecs.decode(args.row_seperator, 'unicode_escape')
 
-    use_logging_config('fdupes', level=vargs.pop('log_level'))
+    level = vargs.pop('log_level')
+    try:
+        from mohkale.pylog.config import use_config as use_logging_config
+    except ImportError:
+        logging.basicConfig(level=level)
+    else:
+        use_logging_config('fdupes', level=level)
 
     for _, fs in gen_dups(args.path):
         if args.only_duplicates and len(fs) == 1 or\

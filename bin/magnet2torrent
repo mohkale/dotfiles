@@ -167,7 +167,6 @@ class Magnet2Torrent(object):
 
 if __name__ == '__main__':
     import argparse
-    from mohkale.pylog.config import use_config as use_logging_config
 
     parser = argparse.ArgumentParser(description='convert magnet links to torrent files')
 
@@ -198,7 +197,13 @@ if __name__ == '__main__':
     args  = parser.parse_args()
     vargs = vars(args)
 
-    use_logging_config('magnet2torrent', level=vargs.pop('log_level'))
+    level = vargs.pop('log_level')
+    try:
+        from mohkale.pylog.config import use_config as use_logging_config
+    except ImportError:
+        logging.basicConfig(level=level)
+    else:
+        use_logging_config('magnet2torrent', level=level)
 
     args.uri = args.uri or []  # in case no URI's were passed
 

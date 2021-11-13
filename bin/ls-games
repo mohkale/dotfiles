@@ -296,7 +296,6 @@ def main(args):
 
 if __name__ == '__main__':
     import argparse
-    from mohkale.pylog.config import use_config as use_logging_config
 
     parser = argparse.ArgumentParser()
 
@@ -317,7 +316,13 @@ if __name__ == '__main__':
     vargs = vars(args)
     args.output = args.output or (lambda g: json.dumps({'name': g.name, 'url': g.url, 'meta': g.meta}))
 
-    use_logging_config('ls-games', vargs.pop('log_level'))
+    level = vargs.pop('log_level')
+    try:
+        from mohkale.pylog.config import use_config as use_logging_config
+    except ImportError:
+        logging.basicConfig(level=level)
+    else:
+        use_logging_config('ls-games', vargs.pop('log_level'))
 
     if not args.config.exists():
         parser.error('Failed to find config file: %s' % args.config)
