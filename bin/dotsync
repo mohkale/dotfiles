@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/bin/sh
 # Sync dotfiles through dotty, without any slow setup steps.
 
 cd "$DOTFILES" || exit 1

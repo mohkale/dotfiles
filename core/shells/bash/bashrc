@@ -37,6 +37,7 @@ shopt -s checkwinsize                                                           
 shopt -s globstar                                                               # Enable **/* in shell globing
 shopt -s autocd                                                                 # cd to path automatically.
 shopt -s histappend                                                             # Open history file as a, not w
+shopt -s checkwinsize                                                           # Keep LINES & COLUMNS upto date after every command
 HISTCONTROL=ignoreboth                                                          # Ignore duplicate lines or lines with spaces.
 bind 'set enable-bracketed-paste on'                                            # Allow paste with newlines
 

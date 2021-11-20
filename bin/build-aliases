@@ -64,6 +64,7 @@ read_script() { #(*files)
 }
 
 parse_aliases() {
+  local editor="$(printf %q "$editor")"
   # We replace separator with a null(like) byte so we can keep trailing
   # spaces in the alias (that's how bash/zsh decide to expand the alias
   # arguments).
@@ -71,14 +72,16 @@ parse_aliases() {
     while IFS=$'\x01' read -r key dest; do
       local cut=${key%@*}
       local tag=${key:${#cut}}
+      local cut=$(printf %q "$cut")
+      local dest=$(printf %q "$dest")
       # shellcheck disable=SC2086
       case "$tag" in
-        @file) echo alias  ${cut@Q}=${editor@Q}"' '""${dest@Q}" ;;
-        @dir)  echo alias  ${cut@Q}="'cd '""${dest@Q}" ;;
-        @dirx) echo alias  ${cut@Q}="'cd '""${dest@Q}"
-               echo alias q${cut@Q}="'pushd '""${dest@Q}" ;;
+        @file) echo alias  ${cut}=${editor}"' '""${dest}" ;;
+        @dir)  echo alias  ${cut}="'cd '""${dest}" ;;
+        @dirx) echo alias  ${cut}="'cd '""${dest}"
+               echo alias q${cut}="'pushd '""${dest}" ;;
         *) [ -n "$tag" ] && echo "warn: build-aliases: unknown alias tag: $tag"
-           echo alias ${cut@Q}="${dest@Q}"
+           echo alias ${cut}="${dest}"
            ;;
       esac
     done

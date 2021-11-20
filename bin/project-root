@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/sh
 # Print the root directory for the current project.
 
 print_usage() {

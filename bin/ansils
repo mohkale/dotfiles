@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 # List a bunch of colorcodes. Good for when your double checking what your terminal
 # can do. See [[https://misc.flogisoft.com/bash/tip_colors_and_formatting][here]].
 

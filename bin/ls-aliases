@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/bin/sh
 # List alias files related to the current user environment, see [[file:build-aliases][build-aliases]].
 
 platform=$(ls-platform)

@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/sh
 # List file system mounts with mount device and mount path.
 
 mount | awk '{

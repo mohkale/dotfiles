@@ -75,7 +75,7 @@ write_out=0            # Whether to write popups stdout and stderr to current st
 [ -n "$COLUMNS" ] && columns=$COLUMNS || columns=$(tput cols) || columns=$(tmux display-message -p "#{pane_width}")
 
 # Detect whether popup support is available and enable it by default.
-[ "$(tmux -V | grep -o '[[:digit:]].[[:digit:]]' | tr -d .)" -gt 32 ] && opt="-K -E"
+[ "$(tmux -V | grep -o '[[:digit:]].[[:digit:]]' | tr -d .)" -ge 32 ] && opt="-K -E"
 
 while [ "$#" -gt 0 ]; do
   arg="$1"; shift
@@ -83,8 +83,8 @@ while [ "$#" -gt 0 ]; do
     --help) help
             exit 0 ;;
     # Toggle popup usage
-    -s) [[ "$opt" =~ "-K -E" ]] || opt="-K -E" ;;
-    -P) opt="${opt//-K -E}" ;;
+    -p) [[ "$opt" =~ "-K -E" ]] || opt="-K -E" ;;
+    -s) opt="${opt//-K -E}" ;;
     # Configure popup environment and handling
     -i) read_in=1 ;;
     -o) write_out=1 ;;

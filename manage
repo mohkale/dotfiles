@@ -11,6 +11,12 @@ cd "$root" || exit 1
 export HOME="$HOME"
 export SHELL="${SHELL:-/usr/bin/bash}"
 
+## Cleanup environment for different platforms.
+if [ "$(./bin/ls-platform)" = windows ]; then
+  SHELL=$(cygpath -m "$SHELL")
+  HOME=$(cygpath -m "$HOME")
+fi
+
 # Source and export XDG files for the current platform.
 if [ "$("$root"/bin/ls-platform)" = windows ]; then
   xdg_file="$root/core/user-dirs.windows"

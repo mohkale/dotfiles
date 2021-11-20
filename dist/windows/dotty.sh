@@ -12,7 +12,7 @@ info "Setting msys Home Directory"
 run-cmds <<-'EOF'
 conf_file="c:/tools/msys64/etc/nsswitch.conf"
 if [ -f "$conf_file" ]; then
-  sed -i -e 's/db_home: cygwin desc/db_home: windows/' "$conf_file"
+  sed -i -e 's/# db_home: .+/db_home: \/%H/' \"$conf_file\""})
 else
   echo "Failed to set msys user home directory, conf file doesn't exist" >&2
 fi

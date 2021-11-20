@@ -1,6 +1,7 @@
 link ~/.ignore                                    \
      ~/.profile                                   \
      ~/.config/shenv                              \
+     "$XDG_CONFIG_HOME/shenv"                     \
      "$XDG_CONFIG_HOME/mojis"                     \
      "$XDG_CONFIG_HOME/inputrc"                   \
      "$XDG_CONFIG_HOME/prog-icons"                \

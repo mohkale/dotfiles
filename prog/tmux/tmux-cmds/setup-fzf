@@ -17,5 +17,11 @@ _edit_files_in_new_tmux_window() {
 }
 export SELECT_PATH_EDIT_FILE_CMD=_edit_files_in_new_tmux_window
 
+fzman_cmd() {
+    local targets; targets=$(xargs -r -d "\n" printf "%q ")
+    tmux new-window "LESSOPEN='|man %s' ${MANPAGER:-less} -is $targets"
+}
+export FZMAN_CMD=fzman_cmd
+
 # shellcheck disable=SC1090
 . "$XDG_CONFIG_HOME"/autoloads/cmds/select_path

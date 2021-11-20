@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/bin/sh
 # List all executables findable through your PATH.
 #
 # This script automatically removes duplicate entries in your

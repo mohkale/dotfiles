@@ -261,67 +261,64 @@ bind M-l run -b '
 bind x switch-client -Tm-commands                                              # Custom key-table prefix
 
 # Proxy to [[/home/mohkale/.config/dotfiles/core/autoload/cmds/fztt][fztt]] using a tmux popup.
-bind -Tm-commands x run -b '\
+bind -Tm-commands x run -b 'bash -c '"'"'\
+  exec 2>&1;\
   . $HOME/.config/tmux/cmds/setup-fzf;\
   . $HOME/.config/autoloads/cmds/fztt;\
   fztt >/dev/null 2>&1\
-'
+'"'"
 
 # Attach to a session interactively using fzf
-bind -Tm-commands s run -b "$TMUX_HOME/cmds/attach-session"
+bind -Tm-commands s run -b "bash -c $TMUX_HOME/cmds/attach-session"
 
 # Opens a new tmux window at a projects directory
-bind -Tm-commands p run -b '\
+bind -Tm-commands p run -b 'bash -c '"'"'\
   . $HOME/.config/tmux/cmds/setup-fzf;\
   . $HOME/.config/autoloads/cmds/cd_repo;\
   cd_repo\
-'
+'"'"
 
-bind -Tm-commands z run -b '\
+bind -Tm-commands z run -b 'bash -c '"'"'\
   . $HOME/.config/tmux/cmds/setup-fzf;\
   . $HOME/.config/autoloads/cmds/cd_fsmap;\
   cd_fsmap\
-'
+'"'"
 
-bind -Tm-commands a run -b '\
+bind -Tm-commands a run -b 'bash -c '"'"'\
   . $HOME/.config/tmux/cmds/setup-fzf;\
   . $HOME/.config/autoloads/cmds/select_fsmap;\
   select_fsmap\
-'
+'"'"
 
-bind -Tm-commands e run -b '\
+bind -Tm-commands e run -b 'bash -c '"'"'\
   . $HOME/.config/tmux/cmds/setup-fzf;\
   . $HOME/.config/autoloads/cmds/cd_env;\
   cd_env\
-'
+'"'"
 
-bind -Tm-commands b run -b '\
+bind -Tm-commands b run -b 'bash -c '"'"'\
   . $HOME/.config/tmux/cmds/setup-fzf;\
   . $HOME/.config/autoloads/cmds/fzbm;\
   fzbm >/dev/null 2>&1\
-'
+'"'"
 
-bind -Tm-commands M run -b '\
+bind -Tm-commands M run -b 'bash -c '"'"'\
   . $HOME/.config/tmux/cmds/setup-fzf;\
   . $HOME/.config/autoloads/cmds/cd_mount;\
   cd_mount\
-'
+'"'"
 
-bind -Tm-commands g run -b '\
+bind -Tm-commands g run -b 'bash -c '"'"'\
   . $HOME/.config/tmux/cmds/setup-fzf;\
   . $HOME/.config/autoloads/cmds/open_game;\
   open_game\
-'
+'"'"
 
-bind -Tm-commands m run -b '\
+bind -Tm-commands m run -b 'bash -c '"'"'\
   . $HOME/.config/tmux/cmds/setup-fzf;\
   . $HOME/.config/autoloads/cmds/fzman;\
-  fzman_cmd() {\
-    local targets=$(xargs -r -d "\n" printf "%q ");\
-    tmux new-window "LESSOPEN='"'"'|man %s'"'"' ${MANPAGER:-less} -is $targets";\
-  };\
-  FZMAN_CMD=fzman_cmd fzman\
-'
+  fzman\
+'"'"
 
 bind C-x run -b 'tmux-popup -w 100% -h 100% launch'
 

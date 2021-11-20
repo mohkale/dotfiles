@@ -48,7 +48,7 @@ syntax on
 colorscheme mohkale
 
 " Change the terminals title depending on the current buffer. Format: filename [modifiers ](dirname)
-set title titlestring=%t%(\ %M%)%(\ (%{substitute(getcwd(),\ $HOME,\ '~',\ '')})%)%(\ %a%)
+set title titlestring=%t%(\ %M%)%(\ (%{substitute(getcwd(),\ $HOME,\ '~',\ '')})%)%(\ %a%) titleold=
 
 set relativenumber                                                             " enable relative line numbers
 set clipboard=unnamedplus                                                      " automatically yank into system clipboard when available
