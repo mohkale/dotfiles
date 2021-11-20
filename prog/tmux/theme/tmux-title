@@ -1,4 +1,4 @@
-#!/usr/bin/env -S gawk -E
+#!/usr/bin/gawk -E
 # Tail the current pane command for a given [[man:tmux][tmux]] client. -*- mode: awk; +indent: 2 -*-
 #
 # This awk script spawns a dummy command-mode tmux client that follows

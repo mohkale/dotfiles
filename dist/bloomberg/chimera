@@ -1,0 +1,30 @@
+# Chimera configuration file at ~/.bbprofile
+
+# enable bash shell:
++ flag/bash
+
+# Let Chimera tell us what's going on:
++ flag/verbose
+
+# Favor the gnu core tools:
++ contrib/gnucore
+
+# Adds UTF-8 locale:
++ contrib/utf8
+
+# Include /opt/bb/bin on the PATH:
++ contrib/optbb
+
+# Enable tab-completion for bash commands:
++ contrib/bash_complete
+
+# Enable tab-completion for git commands:
++ contrib/gitshell
++ flag/git_complete
+- flag/git_prompt
+
+# Add support for python
++ contrib/python
+
+# Adds a few training-related definitions:
++ contrib/training

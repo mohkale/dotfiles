@@ -4,7 +4,7 @@ fzf_select() {
     if [ "$#" -gt 0 ]; then
         p="$*"
         # Always make sure there's a trailing slash on the path.
-        [ "${p[${#p}]}" = / ] || p="$p/"
+        [[ "$p" =~ .*/$ ]] || p="$p/"
     else
         p="./"
     fi
@@ -14,8 +14,14 @@ fzf_select() {
     local skip="${#temp}"
 
     # shellcheck disable=SC2086
-    project-files -z ${FZF_SELECT_ARGS:-} -- "$p" |
-        _fzf --read0 \
+
+    project-files ${FZF_SELECT_ARGS:-} -- "$p" |
+      if [ "$p" = "./" ]; then
+        awk -e '! ($0 ~ /\.\//) { printf("%s", "./") }' -e '{ print }'
+      else
+        cat
+      fi |
+        _fzf \
              --multi \
              --preview 'preview {}' \
              --history "${XDG_STATE_HOME:-$HOME/.locale/state}"/fzf/history/paths \

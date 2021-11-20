@@ -1,6 +1,6 @@
 [user]
 	name  = Mohsin Kaleem
-	email = mohkale@kisara.moe
+	email = mkaleem2@bloomberg.net
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f

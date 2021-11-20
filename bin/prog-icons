@@ -1,4 +1,4 @@
-#!/usr/bin/env -S gawk -E
+#!/usr/bin/gawk -E
 # Associate programs with icons using a human readable config, see [[file:~/.config/dotfiles/core/progicons][progicons]]. -*- mode: awk; +indent: 2 -*-
 
 @include "getopt.awk"

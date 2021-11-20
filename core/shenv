@@ -29,11 +29,11 @@ esac
 
 # Apply custom color scheme for ls (for some reason this doesn't
 # work in ~/.profile :?).
-if [ -z "$LS_COLORS" -a \
-     -x /usr/bin/dircolors -a \
-     -r "$XDG_CONFIG_HOME/dircolors" ]; then
-  eval "$(/usr/bin/dircolors -b "$XDG_CONFIG_HOME/dircolors")" ||
-      eval "$(/usr/bin/dircolors -b)"
+if [ -z "$LS_COLORS" ] && \
+     command -v dircolors >/dev/null 2>&1 && \
+     [ -r "$XDG_CONFIG_HOME/dircolors" ]; then
+  eval "$(dircolors -b "$XDG_CONFIG_HOME/dircolors")" ||
+      eval "$(dircolors -b)"
   # shellcheck disable=SC2153
   export LF_COLORS="$LS_COLORS:.git/=35:.github/=35"
 fi
@@ -89,6 +89,7 @@ case "$TERM" in
   *-24bit)
     alias \
       ssh='TERM=screen-256color ssh' \
+      dev='TERM=screen-256color dev' \
       journalctl='TERM=screen-256color journalctl' \
       systemctl='TERM=screen-256color systemctl' \
       bluetoothctl='TERM=screen-256color bluetoothctl'

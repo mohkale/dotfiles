@@ -29,9 +29,11 @@ elif hash vim  2>/dev/null; then export EDITOR=vim
 else                             export EDITOR=vi
 fi
 
+[ -r "$XDG_CONFIG_HOME/bbprofile" ] && . "$XDG_CONFIG_HOME/bbprofile"
+
 export VISUAL="$EDITOR"
 export PAGER=less
-export LESS="-R -S -i --save-marks -x4"
+export LESS="-R -S -i -x4"
 export DOTFILES=$XDG_CONFIG_HOME/dotfiles
 export TMUX_HOME=$XDG_CONFIG_HOME/tmux
 export TMUX_TMPDIR=$XDG_CACHE_HOME/tmux

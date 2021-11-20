@@ -40,5 +40,6 @@ fi
 [ -e "$dist/ubuntu" ] && import dist/ubuntu
 is-windows            && import dist/windows
 is-linux              && import dist/linux
+[ -e /opt/bb ]        && import dist/bloomberg
 
 import bin prog
