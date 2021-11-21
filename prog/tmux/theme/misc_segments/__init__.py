@@ -6,3 +6,4 @@ from .github       import GithubNotificationsSegment
 from .nordvpn      import NordVPNSegment
 from .notmuch      import NotMuchSegment
 from .transmission import TransmissionNotificationSegment
+from .battery_life import BatteryLifeSegment

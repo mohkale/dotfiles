@@ -46,6 +46,10 @@ if __name__ == '__main__':
                         metavar='SEGMENT', action='append', default=[],
                         help='Enable a segment, one of: ' + ', '.join(SEGMENTS.keys()))
 
+    parser.add_argument('--disable',
+                        metavar='SEGMENT',
+                        help='Disable a segment, one of those from --enable.')
+
     parser.add_argument('--sep', metavar='STRING', default=' ',
                         help='Concatenate status indicators with STRING')
     parser.add_argument('-r', '--reset-style', default='#[default]',
