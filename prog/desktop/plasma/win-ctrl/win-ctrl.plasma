@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+_kwin_shortcut() {
+  qdbus org.kde.kglobalaccel /component/kwin org.kde.kglobalaccel.Component.invokeShortcut "$@"
+}
+
+show-workspaces() {
+  _kwin_shortcut "ShowDesktopGrid"
+}
+
+show-workspaces-quit() {
+  # TODO: Some way to check whether showdesktopgrid is active.
+  xdotool key Escape
+}
+
+workspace-next() {
+  _kwin_shortcut "Switch One Desktop to the Right"
+}
+
+workspace-prev() {
+  _kwin_shortcut "Switch One Desktop to the Left"
+}
+
+workspace-up() {
+  _kwin_shortcut "Switch One Desktop Up"
+}
+
+workspace-down() {
+  _kwin_shortcut "Switch One Desktop Down"
+}

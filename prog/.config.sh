@@ -26,6 +26,7 @@ import -b                                       \
   konsole                                       \
   korganizer                                    \
   lf                                            \
+  libinput                                      \
   lint/*                                        \
   media/*                                       \
   pass                                          \

@@ -9,8 +9,8 @@ link -f                                                                 \
    krunnerrc:"$XDG_CONFIG_HOME/krunnerrc"                               \
    kservicemenurc:"$XDG_CONFIG_HOME/kservicemenurc"                     \
    ktrashrc:"$XDG_CONFIG_HOME/ktrashrc"                                 \
-   libinput-gestures.conf:"$XDG_CONFIG_HOME/libinput-gestures.conf"     \
-   web-shortcuts:"$XDG_DATA_HOME/kservices5/searchproviders"
+   web-shortcuts:"$XDG_DATA_HOME/kservices5/searchproviders"            \
+   win-ctrl/win-ctrl.plasma:"$XDG_CONFIG_HOME/win-ctrl/win-ctrl.plasma"
 
 import ../xorg
 

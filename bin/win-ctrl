@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+# Script to provide a single interface to running workspace commands
+# across a myriad of desktop-environments and window managers. This
+# defines a bunch of generic commands to interface with your desktop
+# environment and then sources environment specific commands from a
+# script at $XDG_CONFIG_HOME/win-ctrl.
+#
+# The canonical example of such a script is at [[file:~/.config/dotfiles/prog/desktop/plasma/cmds/win-ctrl][plasma/win-ctrl]].
+#
+# This is useful for setting up bindings to control the desktop environment
+# such as for libinput-gestures.
+
+_no_command() {
+  echo "error: win-ctrl: No command known to $*" >&2
+  return 1
+}
+
+CMDS=( )
+
+show-workspaces() {
+  _no_command "show workspaces"
+}
+CMDS+=( show-workspaces )
+
+show-workspaces-quit() {
+  _no_command "quit showing workspaces"
+}
+CMDS+=( show-workspaces-quit )
+
+workspace-next() {
+  xdotool set_desktop --relative 1
+}
+CMDS+=( workspace-next )
+
+workspace-prev() {
+  xdotool set_desktop --relative 1
+}
+CMDS+=( workspace-prev )
+
+# For desktop environments with grid based workspace layouts.
+workspace-up() {
+  _no_command "move workspace up"
+}
+CMDS+=( workspace-up )
+
+workspace-down() {
+  _no_command "move workspace down"
+}
+CMDS+=( workspace-down )
+
+#  ____  _       _    __                         ___                      _     _
+# |  _ \| | __ _| |_ / _| ___  _ __ _ __ ___    / _ \__   _____ _ __ _ __(_) __| | ___  ___
+# | |_) | |/ _` | __| |_ / _ \| '__| '_ ` _ \  | | | \ \ / / _ \ '__| '__| |/ _` |/ _ \/ __|
+# |  __/| | (_| | |_|  _| (_) | |  | | | | | | | |_| |\ V /  __/ |  | |  | | (_| |  __/\__ \
+# |_|   |_|\__,_|\__|_|  \___/|_|  |_| |_| |_|  \___/  \_/ \___|_|  |_|  |_|\__,_|\___||___/
+
+conf=
+if [ "$XDG_CURRENT_DESKTOP" = KDE ] ||
+     [ -n "$KDE_FULL_SESSION" ]; then
+  conf="$XDG_CONFIG_HOME/win-ctrl/win-ctrl.plasma"
+else
+  echo "warn: win-ctrl: No known ctrl-script for current desktop-environment" >&2
+fi
+
+if [ -n "$conf" ]; then
+  # shellcheck disable=SC1090
+  if ! [ -r "$conf" ] || ! . "$conf"; then
+    echo "warn: win-ctrl: Failed to source desktop-environment config: $conf" >&2
+  fi
+fi
+
+#  _____       _                 ____       _       _
+# | ____|_ __ | |_ _ __ _   _   |  _ \ ___ (_)_ __ | |_
+# |  _| | '_ \| __| '__| | | |  | |_) / _ \| | '_ \| __|
+# | |___| | | | |_| |  | |_| |  |  __/ (_) | | | | | |_
+# |_____|_| |_|\__|_|   \__, |  |_|   \___/|_|_| |_|\__|
+#                       |___/
+
+print_usage() {
+  local cmds; cmds=$(printf "%s," "${CMDS[@]}")
+  cmds="${cmds%,}"
+  echo "Usage: win-ctrl [-h] {$cmds}"
+}
+
+print_help() {
+  print_usage
+  cat <<EOF
+
+  Run commands to control the current desktop environment.
+
+Optional arguments
+  -h  Show this help message and exit.
+EOF
+}
+
+while getopts 'h' OPTION; do
+  case "$OPTION" in
+    h) print_help
+       exit 0 ;;
+    \?) print_usage >&2
+        exit 1 ;;
+  esac
+done
+shift "$((OPTIND - 1))"
+
+if [ "$#" -eq 0 ]; then
+  print_help
+  exit 0
+else
+  cmd="$1"; shift
+fi
+for i in "${CMDS[@]}"; do
+  if [ "$i" = "$cmd" ] ; then
+    "$cmd" "$@"
+    exit "$?"
+  fi
+done
+echo "error: win-ctrl: Unknown command $cmd" >&2
+print_usage >&2
+exit 1
