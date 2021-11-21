@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+
+fzf_dotty() {
+  local fzf_args=( -d ':' --with-nth '2..' --multi
+                   --bind 'ctrl-y:execute-silent(echo {1} | clip)'
+                   --preview 'preview -l bash {1}'
+                   --no-hscroll
+                   --history "${XDG_STATE_HOME:-$HOME/.locale/state}"/fzf/history/dotty )
+  [ -z "$*" ] || fzf_args+=( -q "$*" )
+
+  local root="${DOTFILES:-${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles}"
+  local confs; confs=$("$root/manage" list-conf -a 2>/dev/null |
+    gawk -F / \
+         -v DOTFILES="$root" \
+         -e '
+# -*- mode: awk -*- Pretty print import paths excluding configuration script
+
+function sub_path(upto, suffix, res) {
+    if (upto <= 0) {
+        return ""
+    }
+
+    res = $1
+    for (i = 2; i <= upto; i++) {
+        res = res FS $i
+    }
+    if (res && suffix) res = res FS
+    return res
+}
+
+function color(path, basename) {
+    if (path) {
+        path = path FS
+    }
+    return path basename
+}
+
+{
+    abspath = $0
+    sub(DOTFILES "/", "", $0)
+
+    name = $0
+    if (match($NF, /.config.sh|dotty.sh/)) {
+        name = color(sub_path(NF-2), $(NF-1))
+    } else if (match($NF, /(.+).sh$/, mem)) {
+        basename = substr($NF, mem[1, "start"], mem[1, "length"])
+        name = color(sub_path(NF-1, 1), basename)
+    }
+
+    printf("%s:%s\n", abspath, name)
+    fflush(stdout)
+}
+
+' |
+    _fzf "${fzf_args[@]}" |
+    cut -d: -f1)
+  [ -z "$confs" ] ||
+    xargs -r -d '\n' -a <(echo "$confs") "$root/manage" install
+}

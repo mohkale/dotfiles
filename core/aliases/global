@@ -25,6 +25,7 @@ z       select_fsmap
 
 b       fzf_bookmarks
 ba      FZF_BOOKMARK_FLAGS='-a' fzf_bookmarks
+fdot    fzf_dotty
 
 g          git
 gs         git status

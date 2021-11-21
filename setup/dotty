@@ -862,7 +862,7 @@ import() {
 
     local found=0
     trace 'Trying to import %s' "$it"
-    for file in "$it.dotty.sh" "$it.sh" "$it/dotty.sh" \
+    for file in "$it" "$it.dotty.sh" "$it.sh" "$it/dotty.sh" \
                 "$it/$it_base.sh" "$it/config.sh" "$it/.config.sh" \
                 "$it/.config"; do
       trace 'Checking import path %s' "$file"
