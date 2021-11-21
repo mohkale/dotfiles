@@ -355,6 +355,7 @@ link() {
     fi
     local existing_src existing_dest
     existing_src="$(readlink -m "$src")"
+    existing_dest=
     if [ -L "$dest" ] || [ -e "$dest" ]; then
       existing_dest="$(readlink -m "$dest")"
     fi
@@ -1136,7 +1137,7 @@ if [ "$dry_run" -ne 1 ] &&
      [ "${#BOTS[@]}" -gt 0 ]; then
   info 'Updating bots file at %s' "$BOTS_FILE"
   if {
-    echo "${BOTS[@]}"
+    printf '%s\n' "${BOTS[@]}"
     tr ',' '\n' < "$BOTS_FILE" 2>/dev/null
   } | sort | uniq | tr '\n' ',' > "$BOTS_FILE.new"; then
     mv -f "$BOTS_FILE.new" "$BOTS_FILE"

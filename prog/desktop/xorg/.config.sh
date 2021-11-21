@@ -3,6 +3,7 @@ link ~/.Xresources                                    \
      ~/.xprofile                                      \
      xbindkeysrc:"$XDG_CONFIG_HOME/xbindkeys/config"
 link-to "$XDG_CONFIG_HOME/Xresources/" ./Xresources.d/*
+run-cmd touch "$XDG_CONFIG_HOME/Xresources/local"
 
 packages yay:xorg,xorg-xinit,xbindkeys,xorg-setxkbmap,wmctrl,xdotool
 packages pip:notify-send

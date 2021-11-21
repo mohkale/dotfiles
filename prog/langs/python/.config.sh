@@ -13,7 +13,6 @@ packages                                        \
 # Install the python packages I always want :-)
 package pip                                     \
   pylint                                        \
-  psutil                                        \
   pyyaml                                        \
   colorlog                                      \
   requests                                      \

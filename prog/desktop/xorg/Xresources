@@ -7,3 +7,4 @@
 #include "/home/mohkale/.config/Xresources/urxvt"
 #include "/home/mohkale/.config/Xresources/rofi"
 #include "/home/mohkale/.config/Xresources/polybar"
+#include "/home/mohkale/.config/Xresources/local"

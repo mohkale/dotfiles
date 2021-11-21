@@ -2,7 +2,7 @@
 "              Plugins             "
 """"""""""""""""""""""""""""""""""""
 
-if exists('plug#begin')
+if filereadable($XDG_CONFIG_HOME.'/vim/autoload/plug.vim')
   call plug#begin($XDG_CONFIG_HOME.'/vim/plugged')
 
   Plug 'rbgrouleff/bclose.vim'    " close a buffer without closing window

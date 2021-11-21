@@ -4,6 +4,8 @@ packages                                        \
   yay:tmux-git
 
 packages pip:tmuxp
+# Theme command extensions
+packages pip:pygithub,psutil
 
 clean -r "$XDG_CONFIG_HOME/tmux"
 

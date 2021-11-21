@@ -32,7 +32,7 @@ class TransmissionNotificationSegment(StatusMiscSegment):
 
     @classmethod
     def parser_args(cls, parser):
-        t_parser = parser.add_argument_group('transmission')
+        t_parser = parser.add_argument_group('Transmission')
         t_parser.add_argument(f'--{cls.name}-icon', default='T', metavar='ICON',
                               help='Icon to prefix download status numbers')
         t_parser.add_argument(f'--{cls.name}-icon-style',

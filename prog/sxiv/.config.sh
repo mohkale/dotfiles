@@ -6,5 +6,7 @@ link                                            \
   "$XDG_CONFIG_HOME/nsxiv/exec/key-handler"     \
   "$XDG_CONFIG_HOME/nsxiv/exec/image-info"
 
+import cmds
+
 info 'Installing sxiv'
 run-cmd-at src make install
