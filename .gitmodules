@@ -33,3 +33,6 @@
 [submodule "core/walls"]
 	path = core/walls
 	url = git@github.com:mohkale/dotfiles-wallpapers.git
+[submodule "prog/browsers/brave/startpage"]
+	path = prog/browsers/brave/startpage
+	url = https://github.com/deepjyoti30/startpage.git

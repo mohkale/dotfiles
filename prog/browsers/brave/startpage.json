@@ -1,0 +1,95 @@
+{
+    "squares": [
+        {
+            "name": "Media",
+            "color": "#eb3d54",
+            "links": [
+                {
+                    "name": "Youtube",
+                    "url": "https://youtube.com"
+                },
+                {
+                    "name": "WatchCartoon",
+                    "url": "https://www.thewatchcartoononline.tv"
+                },
+                {
+                    "name": "KissAsian",
+                    "url": "https://kissasian.ch/"
+                },
+                {
+                    "name": "BBC iPlayer",
+                    "url": "https://www.bbc.co.uk/iplayer"
+                }
+            ]
+        },
+        {
+            "name": "Social",
+            "color": "#ef7c2a",
+            "links": [
+                {
+                    "name": "Github",
+                    "url": "https://github.com/"
+                },
+                {
+                    "name": "Gitlab",
+                    "url": "https://gitlab.com/"
+                },
+                {
+                    "name": "TvTime",
+                    "url": "https://www.tvshowtime.com/en"
+                },
+                {
+                    "name": "MyAnimeList",
+                    "url": "https://myanimelist.net/anime/season"
+                }
+            ]
+        },
+        {
+            "name": "Others",
+            "color": "#4fb4d8",
+            "links": [
+                {
+                    "name": "Kernel Index",
+                    "url": "https://lwn.net/Kernel/Index/"
+                },
+                {
+                    "name": "Amazon",
+                    "url": "https://www.amazon.co.uk/"
+                },
+                {
+                    "name": "Steam",
+                    "url": "https://store.steampowered.com/search/?specials=1"
+                },
+                {
+                    "name": "GOG",
+                    "url": "https://www.gog.com/games?page=1&sort=popularity&tab=on_sale"
+                }
+            ]
+        }
+    ],
+    "searchEngine": "Google",
+    "user": "Mohsin",
+    "disableMessage": false,
+    "disableDate": false,
+    "disableSearchBar": true,
+    "disable24Hour": false,
+    "disableWeather": false,
+    "timeZone": "UK/London",
+    "weatherConf": {
+        "location": "London, GB",
+        "unit": "cel"
+    },
+    "settingsIcon": true,
+    "style": {
+        "backgroundColor": "#1c1d21",
+        "messageColor": "#ffffff",
+        "dateColor": "#cbcdd2",
+        "lineColor": "#ffffff",
+        "weatherColor": "#4fb4d8",
+        "searchColor": "#ffffff",
+        "searchBackgroundColor": "#45474f",
+        "autocompleteHighlightBackgroundColor": "#3b3d45",
+        "squareColor": "#cbcdd2",
+        "squareBackgroundColor": "#3b3d45"
+    }
+}
