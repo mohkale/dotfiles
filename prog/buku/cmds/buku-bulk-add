@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+# Adds a bunch of URLs to buku through a YAML editor interface.
+
+print_usage() {
+  echo "Usage: buku-bulk-add [-h] [-t TAGS] [-c COMMENT] [URL [...URLS]]"
+}
+
+print_help() {
+  print_usage
+  cat <<EOF
+
+  Add buku bookmarks in bulk using a readable YAML file.
+
+Optional arguments
+  -h
+     Show this help message and exit.
+  -t TAGS
+     Set default tags for all URLs.
+  -c COMMENT
+     Set default comment for all URLs.
+EOF
+}
+
+# Delimiter for outputted fields.
+d=$'\a'
+
+tags='' comment=''
+while getopts 'ht:c:' OPTION; do
+  case "$OPTION" in
+    t) tags="$OPTARG" ;;
+    c) comment="$OPTARG" ;;
+    h) print_help
+       exit 0 ;;
+    \?) print_usage >&2
+        exit 1 ;;
+  esac
+done
+shift "$((OPTIND-1))"
+
+if ! python3 -c 'import yaml' >/dev/null 2>&1; then
+  echo 'error: buku-bulk-add requires the python YAML module to be installed' >&2
+  exit 1
+fi
+
+yq() {
+  # Convert YAML to JSON and then pass to jq.
+  python3 -c '\
+import sys;\
+import yaml;\
+import json;\
+print(json.dumps(yaml.safe_load(sys.stdin)))' |
+    jq "$@"
+}
+
+{
+  if [ "$#" -gt 0 ]; then
+    printf '%s\n' "$@"
+  else
+    cat
+  fi
+} |
+  awk \
+    -v tags="$tags" \
+    -v comment="$comment" \
+    -e '{
+  if (NR != 1) {
+    print("")
+  }
+  printf("- url: %s\n", $0)
+  printf("  name:\n")
+  if (tags) {
+    printf("  tags: %s\n", tags)
+  }
+  if (comment) {
+    printf("  comment: %s\n", comment)
+  }
+}' \
+    -e 'END {
+  if (NR > 0) {
+    print("")
+    printf("# Local Variables:\n# mode: yaml\n# End:\n")
+    print("# vim:syntax=yaml filetype=yaml")
+  }
+}' |
+  vipe |
+  yq --arg sep "$d" \
+     --raw-output '.[] |
+"\(.url)\($sep)\(.name // "")\($sep)\(.tags // "")\($sep)\(.comments // "")\($sep)"' |
+  while IFS="$d" read -r url name tags comments; do
+    flags=(  )
+    [ -z "$tags" ] || flags+=( --tag "$tags" )
+    [ -z "$name" ] || flags+=( --title "$name" )
+    [ -z "$comments" ] || flags+=( --comment "$comments" )
+    buku --np "${flags[@]}" --add "$url" </dev/null
+  done

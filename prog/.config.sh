@@ -9,6 +9,7 @@ import -b langs/*
 import -b                                       \
   bat                                           \
   browsers/*                                    \
+  buku                                          \
   cava                                          \
   cheat                                         \
   desktop/login/sddm                            \
