@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+# Edit URLs in buku using bulkrename.
+#
+# This is a slightly involved process since bulkrename is line
+# oriented and we want to have the ability to modify multiple
+# bookmarks attributes at the same time. To get around this I'm
+# exporting my bookmark database as compacted JSON and pretty
+# printing it before the editor opens it, then compacting the
+# JSON again before comparing modified lines.
+
+read -r -d '' move_script <<-'EOF'
+sep=$'\a'
+IFS="$sep" read id title uri tags description id2 title2 uri2 tags2 description2 _ \
+   < <(jq --slurp --arg sep "$sep" --raw-output '. | map([.index, .title, .uri, .tags, .description] | join($sep)) | join($sep)' <<< "$1"$'\n'"$2")
+
+if [ "$id" -ne "$id2" ]; then
+  echo 'error: buku-bulk-edit: Cannot change id of existing bookmark' >&2
+  return 1
+fi
+
+flags=( )
+if [ "$title" != "$title2" ]; then
+  flags+=( --title )
+  if [ -n "$title2" ]; then
+    flags+=( "$title2" )
+  fi
+fi
+[ "$tags"        != "$tags2"        ] && flags+=( --tag "$tags2" )
+[ "$uri"         != "$uri2"         ] && flags+=( --url "$uri2" )
+[ "$description" != "$description2" ] && flags+=( --comment "$description2" )
+if [ "${#flags[@]}" -gt 0 ]; then
+  buku --np --update "$id" "${flags[@]}"
+fi
+EOF
+
+# This will fail because of the pretty printing, collapsing blank lines.
+read -r -d '' trash_script <<-'EOF'
+echo "error: buku-bulk-edit: Trash not supported" >&2
+return 1
+EOF
+
+if [ "$#" -eq 0 ]; then
+  set -- --sreg '.'
+fi
+
+# shellcheck disable=SC2016
+buku --np "$@" --json |
+  jq --compact-output '.[] | {index: .index, title: .title, uri: .uri, tags: .tags, description: .description}' |
+  bulkrename - \
+             --no-verify \
+             --no-confirm \
+             --pre-command 'jq . "$1" | sponge "$1"' \
+             --post-command 'jq --compact-output . "$1" | sponge "$1"' \
+             --move "$move_script" \
+             --trash "$trash_script"

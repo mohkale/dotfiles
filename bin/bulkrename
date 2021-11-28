@@ -133,7 +133,7 @@ def zip_fd(path1: pathlib.Path, path2: pathlib.Path):
 # pylint: disable=too-many-arguments, too-many-locals, too-many-return-statements
 def bulkrename(index, preselect, editor,
                move_script, trash_script, confirm,
-               pre_command, index_pre_command, **_) -> bool:
+               pre_command, post_command, index_pre_command, **_) -> bool:
     """Run the bulkrename process and return whether it succeeded or not
     """
     if index_pre_command:
@@ -161,6 +161,14 @@ def bulkrename(index, preselect, editor,
     if not open_editor(editor, index_edit, preselect):
         logging.error('Index edit exited with non-0 exit code')
         return False
+
+    if post_command:
+        logging.info('Running post-command on edit-index')
+        post_command = ['sh', '-c', '--', post_command, 'postcmd', shlex.quote(str(index_edit))]
+        logging.debug('Running shell command: %s', shlex.join(post_command))
+        if subprocess.run(post_command).returncode != 0:
+            logging.error('Post-command exited with non-0 exit code')
+            return False
 
     logging.debug('Checking index and edited-index size')
     index_count = wc_l(index)
@@ -268,6 +276,8 @@ if __name__ == '__main__':
                                 help='Prettify paths before opening bulkrename session')
         conf_group.add_argument('-Y', '--no-confirm', dest='confirm', action='store_false',
                                 help="Don't confirm operation before executing them")
+        conf_group.add_argument('--post-command', metavar='CMD',
+                                help="Run CMD after opening EDITOR on edit-index")
         conf_group.add_argument('-x', '--pre-command', metavar='CMD',
                                 help="Run CMD before opening EDITOR on edit-index")
         conf_group.add_argument('-X', '--index-pre-command', metavar='CMD',

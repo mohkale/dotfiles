@@ -215,7 +215,7 @@ pretty_print() {
     printf("%s%s%s", title_l, title ? title : url, title_r)
   }
 
-  if (show_host && title != "" && match(url, /https?:\/\/(www\.)?([^:/]*)/, a)) {
+  if (show_host && title != "" && match(url, /https?:\/\/(www\.)?([^/]*)/, a)) {
     printf(" [%s%s%s]", url_l, a[2], url_r)
   }
 
