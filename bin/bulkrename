@@ -19,16 +19,16 @@ NOTE: This script was [[https://github.com/mohkale/dotfiles/blob/b6b5ea34b8bd2be
       decently performant for large scale text processing needs ＼（＾ ＾）／.
 """
 
-import re
-import os
-import sys
-import shlex
 import atexit
 import fnmatch
-import pathlib
 import logging
-import tempfile
+import os
+import pathlib
+import re
+import shlex
 import subprocess
+import sys
+import tempfile
 
 from mohkale.terminal import open_tty
 
@@ -43,7 +43,8 @@ EDITOR_MAGIC = """
 # vim:syntax=sh filetype=sh\
 """
 
-def scratch_template(*scripts: [ [str, str, str] ]) -> str:
+
+def scratch_template(*scripts: [[str, str, str]]) -> str:
     """Generate template for a shell script that can be used for
     the bulk-renaming files.
 
@@ -57,17 +58,20 @@ def scratch_template(*scripts: [ [str, str, str] ]) -> str:
         NOTE: We keep the default and the argument one seperate because
               the default one can be inlined whereas the others cannot.
     """
-    value = "# This file will be executed when you close the editor.\n" \
-            "# Please double check everything, clear the file to abort.\n\n"
+    value = (
+        "# This file will be executed when you close the editor.\n"
+        "# Please double check everything, clear the file to abort.\n\n"
+    )
     for name, script, default in scripts:
         if script:
             # Indent script just to make it look nicer inside function
-            script = re.sub(r'^(?!$)', '    ', script, flags=re.MULTILINE)
+            script = re.sub(r"^(?!$)", "    ", script, flags=re.MULTILINE)
             value += name + "() {\n" + script + "\n}\n"
         else:
             value += name + "() { " + default + "; }\n"
     value += "\n"
     return value
+
 
 def mktemp(prefix: str) -> pathlib.Path:
     """Create and return the path to a temporary file.
@@ -75,12 +79,15 @@ def mktemp(prefix: str) -> pathlib.Path:
     A handler will be set-up to automatically unlink the file when this
     process exits.
     """
-    _, index = tempfile.mkstemp(prefix='bulkrename-'+(prefix or 'misc')+'.', text=True)
+    _, index = tempfile.mkstemp(
+        prefix="bulkrename-" + (prefix or "misc") + ".", text=True
+    )
     index = pathlib.Path(index)
     atexit.register(lambda x: x.unlink(), index)
     return index
 
-def open_editor(cmd: str, path: pathlib.Path, preselect: int=None):
+
+def open_editor(cmd: str, path: pathlib.Path, preselect: int = None):
     """Open an editor on a given file.
 
     Parameters
@@ -95,19 +102,22 @@ def open_editor(cmd: str, path: pathlib.Path, preselect: int=None):
         When given (and supported by the editor) the editor should be opened with
         focus on this line.
     """
-    cmdline = cmd + ' ' + shlex.quote(str(path))
+    cmdline = cmd + " " + shlex.quote(str(path))
     if preselect:
-        if fnmatch.fnmatch(cmd, 'vi*') or \
-           fnmatch.fnmatch(cmd, 'nvim*') or \
-           fnmatch.fnmatch(cmd, 'emacs*'):
-            cmdline += f' +{preselect}'
+        if (
+            fnmatch.fnmatch(cmd, "vi*")
+            or fnmatch.fnmatch(cmd, "nvim*")
+            or fnmatch.fnmatch(cmd, "emacs*")
+        ):
+            cmdline += f" +{preselect}"
         else:
             logging.warning("Pre-select is none-empty but editor doesn't support it")
 
     with open_tty() as tty:
-        logging.debug('Running shell command: %s', cmdline)
+        logging.debug("Running shell command: %s", cmdline)
         res = subprocess.run(cmdline, stdin=tty, stdout=tty, shell=True)
         return res.returncode == 0
+
 
 def wc_l(path: pathlib.Path) -> int:
     """Count the number of lines in a file.
@@ -118,108 +128,151 @@ def wc_l(path: pathlib.Path) -> int:
         The file to open and count the lines in.
     """
     count = 0
-    with path.open('r', encoding='utf-8') as fd:
+    with path.open("r", encoding="utf-8") as fd:
         for _ in fd:
             count += 1
     return count
 
+
 def zip_fd(path1: pathlib.Path, path2: pathlib.Path):
-    """Enumerate and zip lines from both input files
-    """
-    with path1.open('r', encoding='utf-8') as fd1, \
-         path2.open('r', encoding='utf-8') as fd2:
+    """Enumerate and zip lines from both input files"""
+    with path1.open("r", encoding="utf-8") as fd1, path2.open(
+        "r", encoding="utf-8"
+    ) as fd2:
         yield from zip(map(str.strip, fd1), map(str.strip, fd2))
 
-# pylint: disable=too-many-arguments, too-many-locals, too-many-return-statements
-def bulkrename(index, preselect, editor,
-               move_script, trash_script, confirm,
-               pre_command, post_command, index_pre_command, **_) -> bool:
-    """Run the bulkrename process and return whether it succeeded or not
-    """
+
+# pylint: disable=too-many-arguments, too-many-locals, too-many-return-statements, too-many-branches, too-many-statements
+def bulkrename(
+    index,
+    preselect,
+    editor,
+    move_script,
+    trash_script,
+    confirm,
+    pre_command,
+    post_command,
+    index_pre_command,
+    **_,
+) -> bool:
+    """Run the bulkrename process and return whether it succeeded or not"""
     if index_pre_command:
-        logging.info('Running pre-command on index')
-        index_pre_command = ['sh', '-c', '--', index_pre_command, 'precmd', shlex.quote(str(index))]
-        logging.debug('Running shell command: %s', shlex.join(index_pre_command))
+        logging.info("Running pre-command on index")
+        index_pre_command = [
+            "sh",
+            "-c",
+            "--",
+            index_pre_command,
+            "precmd",
+            shlex.quote(str(index)),
+        ]
+        logging.debug("Running shell command: %s", shlex.join(index_pre_command))
         if subprocess.run(index_pre_command).returncode != 0:
-            logging.error('Pre-command exited with non-0 exit code')
+            logging.error("Pre-command exited with non-0 exit code")
             return False
 
-    logging.debug('Copying index to edit-index')
-    index_edit = mktemp('edit')
-    with index_edit.open('w', encoding='utf-8') as fd:
-        fd.write(index.open('r', encoding='utf-8').read())
+    logging.debug("Copying index to edit-index")
+    index_edit = mktemp("edit")
+    with index_edit.open("w", encoding="utf-8") as fd:
+        fd.write(index.open("r", encoding="utf-8").read())
 
     if pre_command:
-        logging.info('Running pre-command on edit-index')
-        pre_command = ['sh', '-c', '--', pre_command, 'precmd', shlex.quote(str(index_edit))]
-        logging.debug('Running shell command: %s', shlex.join(pre_command))
+        logging.info("Running pre-command on edit-index")
+        pre_command = [
+            "sh",
+            "-c",
+            "--",
+            pre_command,
+            "precmd",
+            shlex.quote(str(index_edit)),
+        ]
+        logging.debug("Running shell command: %s", shlex.join(pre_command))
         if subprocess.run(pre_command).returncode != 0:
-            logging.error('Pre-command exited with non-0 exit code')
+            logging.error("Pre-command exited with non-0 exit code")
             return False
 
-    logging.debug('Opening editor on edit-index')
+    logging.debug("Opening editor on edit-index")
     if not open_editor(editor, index_edit, preselect):
-        logging.error('Index edit exited with non-0 exit code')
+        logging.error("Index edit exited with non-0 exit code")
         return False
 
     if post_command:
-        logging.info('Running post-command on edit-index')
-        post_command = ['sh', '-c', '--', post_command, 'postcmd', shlex.quote(str(index_edit))]
-        logging.debug('Running shell command: %s', shlex.join(post_command))
+        logging.info("Running post-command on edit-index")
+        post_command = [
+            "sh",
+            "-c",
+            "--",
+            post_command,
+            "postcmd",
+            shlex.quote(str(index_edit)),
+        ]
+        logging.debug("Running shell command: %s", shlex.join(post_command))
         if subprocess.run(post_command).returncode != 0:
-            logging.error('Post-command exited with non-0 exit code')
+            logging.error("Post-command exited with non-0 exit code")
             return False
 
-    logging.debug('Checking index and edited-index size')
+    logging.debug("Checking index and edited-index size")
     index_count = wc_l(index)
     index_edit_count = wc_l(index_edit)
     if index_count != index_edit_count:
-        logging.error("Edited index size doesn't match original index size: %d / %d",
-                      index_count, index_edit_count)
+        logging.error(
+            "Edited index size doesn't match original index size: %d / %d",
+            index_count,
+            index_edit_count,
+        )
         return False
 
-    logging.debug('Generating scratch script for bulkrename')
-    scratch = mktemp('scratch')
+    logging.debug("Generating scratch script for bulkrename")
+    scratch = mktemp("scratch")
     changes_exist = False
-    with scratch.open('w', encoding='utf-8') as fd:
-        scratch_header = scratch_template(('del', trash_script, TRASH_SCRIPT),
-                                          ('map', move_script, MOVE_SCRIPT))
+    with scratch.open("w", encoding="utf-8") as fd:
+        scratch_header = scratch_template(
+            ("del", trash_script, TRASH_SCRIPT), ("map", move_script, MOVE_SCRIPT)
+        )
         fd.write(scratch_header)
         for original, edited in zip_fd(index, index_edit):
             if edited == "":
-                fd.write('del ' + shlex.quote(original) + '\n')
+                fd.write("del " + shlex.quote(original) + "\n")
                 changes_exist = True
             elif original != edited:
-                fd.write('map ' + shlex.quote(original) + ' ' + shlex.quote(edited) + '\n')
+                fd.write(
+                    "map " + shlex.quote(original) + " " + shlex.quote(edited) + "\n"
+                )
                 changes_exist = True
-        fd.write(EDITOR_MAGIC + '\n')
+        fd.write(EDITOR_MAGIC + "\n")
 
     if not changes_exist:
-        logging.info('Skipping bulkrename because no files have been modified')
+        logging.info("Skipping bulkrename because no files have been modified")
         return True
 
-    logging.debug('Opening editor on scratch')
-    scratch_line = None if (trash_script is not None or move_script is not None) else (scratch_header.count('\n')+1)
+    logging.debug("Opening editor on scratch")
+    scratch_line = (
+        None
+        if (trash_script is not None or move_script is not None)
+        else (scratch_header.count("\n") + 1)
+    )
     if confirm and not open_editor(editor, scratch, scratch_line):
-        logging.error('Scratch edit exited with non-0 exit code')
+        logging.error("Scratch edit exited with non-0 exit code")
         return False
 
-    logging.info('Running bulkrename script')
-    if subprocess.run(['sh', scratch]).returncode != 0:
-        logging.warning('Bulkrename script exited with non-0 exit code')
+    logging.info("Running bulkrename script")
+    if subprocess.run(["sh", scratch]).returncode != 0:
+        logging.warning("Bulkrename script exited with non-0 exit code")
         return False
     return True
 
-if __name__ == '__main__':
-    import signal
-    import argparse
 
-    signal.signal(signal.SIGINT, lambda: sys.exit(1)) # for ctrl+c
+if __name__ == "__main__":
+    import argparse
+    import signal
+
+    signal.signal(signal.SIGINT, lambda: sys.exit(1))  # for ctrl+c
 
     def read_paths(fd: pathlib.Path):
-        """Read paths from a file-descriptor, skipping over any empty entries.
-        """
-        yield from map(pathlib.Path, filter(lambda x: x.strip() != '', fd.read(-1).split('\n')))
+        """Read paths from a file-descriptor, skipping over any empty entries."""
+        yield from map(
+            pathlib.Path, filter(lambda x: x.strip() != "", fd.read(-1).split("\n"))
+        )
 
     def enumerate_paths(paths: [pathlib.Path], stdin: bool, files: [pathlib.Path]):
         """Enumerate paths from multiple sources, including applying any pre-processing
@@ -230,77 +283,139 @@ if __name__ == '__main__':
         list of files to read paths from (like stdin).
         """
         if len(paths) > 0:
-            logging.info('Supplied %d path from the command line', len(paths))
+            logging.info("Supplied %d path from the command line", len(paths))
             yield from map(pathlib.Path, paths)
 
         if stdin:
-            logging.info('Reading paths from stdin')
+            logging.info("Reading paths from stdin")
             yield from read_paths(sys.stdin)
 
         for f in files:
-            with f.open('r', encoding='utf-8') as fd:
-                logging.info('Reading paths from file: %s', f)
+            with f.open("r", encoding="utf-8") as fd:
+                logging.info("Reading paths from file: %s", f)
                 yield from read_paths(fd)
 
     def paths_equal(p1, p2):
-        """Assert whether p1 and p2 both point to the same file.
-        """
+        """Assert whether p1 and p2 both point to the same file."""
         # KLUDGE: Expensive but easy comparison
         return p1.absolute() == p2.absolute()
 
     def parse_args():
-        """Parse command line arguments.
-        """
+        """Parse command line arguments."""
         parser = argparse.ArgumentParser()
 
-        source_group = parser.add_argument_group('Sources')
-        source_group.add_argument('paths', nargs='*', default=[], help='Include file in session')
-        source_group.add_argument('-', '--read-stdin', action='store_true',
-                                  help='Read filenames from stdin')
-        source_group.add_argument('-f', '--file', dest='files', metavar='FILE',
-                                  default=[], type=pathlib.Path,
-                                  action='append', help='Read filenames from FILE')
+        source_group = parser.add_argument_group("Sources")
+        source_group.add_argument(
+            "paths", nargs="*", default=[], help="Include file in session"
+        )
+        source_group.add_argument(
+            "-", "--read-stdin", action="store_true", help="Read filenames from stdin"
+        )
+        source_group.add_argument(
+            "-f",
+            "--file",
+            dest="files",
+            metavar="FILE",
+            default=[],
+            type=pathlib.Path,
+            action="append",
+            help="Read filenames from FILE",
+        )
 
-        conf_group = parser.add_argument_group('Config')
-        conf_group.add_argument('-l', '--log-level', metavar='LEVEL',
-                                type=lambda x: getattr(logging, x.upper()),
-                                help='Set verbosity of logging output')
-        conf_group.add_argument('-e', '--editor', metavar='CMD',
-                                default=os.getenv('VISUAL', os.getenv('EDITOR', 'vi')),
-                                help='Specify command line for EDITOR')
-        conf_group.add_argument('-c', '--cd', metavar='PATH', type=pathlib.Path,
-                                help='Change to PATH before doing anything')
-        conf_group.add_argument('-V', '--no-verify', dest='verify', action='store_false',
-                                help='Verify any session files exist before processing')
-        conf_group.add_argument('-P', '--no-prettify', dest='prettify', action='store_false',
-                                help='Prettify paths before opening bulkrename session')
-        conf_group.add_argument('-Y', '--no-confirm', dest='confirm', action='store_false',
-                                help="Don't confirm operation before executing them")
-        conf_group.add_argument('--post-command', metavar='CMD',
-                                help="Run CMD after opening EDITOR on edit-index")
-        conf_group.add_argument('-x', '--pre-command', metavar='CMD',
-                                help="Run CMD before opening EDITOR on edit-index")
-        conf_group.add_argument('-X', '--index-pre-command', metavar='CMD',
-                                help="Run CMD on original index before creating edit-index")
-        conf_group.add_argument('-s', '--select', metavar='FILE', type=pathlib.Path,
-                                help='Preselect FILE in index if editor supports this')
+        conf_group = parser.add_argument_group("Config")
+        conf_group.add_argument(
+            "-l",
+            "--log-level",
+            metavar="LEVEL",
+            type=lambda x: getattr(logging, x.upper()),
+            help="Set verbosity of logging output",
+        )
+        conf_group.add_argument(
+            "-e",
+            "--editor",
+            metavar="CMD",
+            default=os.getenv("VISUAL", os.getenv("EDITOR", "vi")),
+            help="Specify command line for EDITOR",
+        )
+        conf_group.add_argument(
+            "-c",
+            "--cd",
+            metavar="PATH",
+            type=pathlib.Path,
+            help="Change to PATH before doing anything",
+        )
+        conf_group.add_argument(
+            "-V",
+            "--no-verify",
+            dest="verify",
+            action="store_false",
+            help="Verify any session files exist before processing",
+        )
+        conf_group.add_argument(
+            "-P",
+            "--no-prettify",
+            dest="prettify",
+            action="store_false",
+            help="Prettify paths before opening bulkrename session",
+        )
+        conf_group.add_argument(
+            "-Y",
+            "--no-confirm",
+            dest="confirm",
+            action="store_false",
+            help="Don't confirm operation before executing them",
+        )
+        conf_group.add_argument(
+            "--post-command",
+            metavar="CMD",
+            help="Run CMD after opening EDITOR on edit-index",
+        )
+        conf_group.add_argument(
+            "-x",
+            "--pre-command",
+            metavar="CMD",
+            help="Run CMD before opening EDITOR on edit-index",
+        )
+        conf_group.add_argument(
+            "-X",
+            "--index-pre-command",
+            metavar="CMD",
+            help="Run CMD on original index before creating edit-index",
+        )
+        conf_group.add_argument(
+            "-s",
+            "--select",
+            metavar="FILE",
+            type=pathlib.Path,
+            help="Preselect FILE in index if editor supports this",
+        )
 
-        scripts_group = parser.add_argument_group('Scripts')
-        scripts_group.add_argument('-m', '--move', dest='move_script', metavar='CMD',
-                                   help='Override the default rename command')
-        scripts_group.add_argument('-t', '--trash', dest='trash_script', metavar='CMD',
-                                   help='Override the default trash command')
+        scripts_group = parser.add_argument_group("Scripts")
+        scripts_group.add_argument(
+            "-m",
+            "--move",
+            dest="move_script",
+            metavar="CMD",
+            help="Override the default rename command",
+        )
+        scripts_group.add_argument(
+            "-t",
+            "--trash",
+            dest="trash_script",
+            metavar="CMD",
+            help="Override the default trash command",
+        )
 
         args = parser.parse_args()
         vargs = vars(args)
 
-        level = vargs.pop('log_level')
+        level = vargs.pop("log_level")
         try:
             from mohkale.pylog.config import use_config as use_logging_config
         except ImportError:
             logging.basicConfig(level=level)
         else:
-            use_logging_config('bulkrename', level=level)
+            use_logging_config("bulkrename", level=level)
 
         return args, vargs
 
@@ -310,37 +425,40 @@ if __name__ == '__main__':
         os.chdir(args.cd)
     cwd = os.getcwd()
 
-    if vargs.pop('prettify'):
+    if vargs.pop("prettify"):
+
         def prettify(path):
-            """Reduce extra verbose paths by making them relative when possible.
-            """
+            """Reduce extra verbose paths by making them relative when possible."""
             if path.is_absolute():
                 path_s = str(path.resolve(strict=False))
                 if path_s.startswith(cwd):
-                    new_path = pathlib.Path(path_s[len(cwd)+1:])
-                    if new_path.name != '':
+                    new_path = pathlib.Path(path_s[len(cwd) + 1 :])
+                    if new_path.name != "":
                         return new_path
             return path
+
     else:
         prettify = lambda x: x
 
-    main_index = mktemp('index')
-    preselect_line = None # line number of file to pre-select
-    wrote_path = False # whether at least one path has been saved
-    with main_index.open('w', encoding='utf-8') as index_fd:
-        it = enumerate_paths(vargs.pop('paths'),
-                             vargs.pop('read_stdin'),
-                             vargs.pop('files'))
+    main_index = mktemp("index")
+    preselect_line = None  # line number of file to pre-select
+    wrote_path = False  # whether at least one path has been saved
+    with main_index.open("w", encoding="utf-8") as index_fd:
+        it = enumerate_paths(
+            vargs.pop("paths"), vargs.pop("read_stdin"), vargs.pop("files")
+        )
         for i, path in enumerate(it, start=1):
             if args.verify and not path.exists():
                 logging.warning("Skipping path because it doesn't exist: %s", path)
                 continue
             if not preselect_line and args.select and paths_equal(path, args.select):
-                logging.debug('Found pre-select path at index %d in input', i)
+                logging.debug("Found pre-select path at index %d in input", i)
                 preselect_line = i
-            index_fd.write(str(prettify(path)) + '\n')
+            index_fd.write(str(prettify(path)) + "\n")
             wrote_path = True
 
     if not wrote_path:
         sys.exit(0)
-    sys.exit(0 if bulkrename(index=main_index, preselect=preselect_line, **vargs) else 1)
+    sys.exit(
+        0 if bulkrename(index=main_index, preselect=preselect_line, **vargs) else 1
+    )

@@ -1,5 +1,4 @@
 #!/bin/sh
-# -*- +indent: 2 -*-
 # Helper to assign $fs (the current lf selection) to the contents of the
 # cwd when it's otherwise unassigned. It also respects the value of the
 # hiddenfiles option.

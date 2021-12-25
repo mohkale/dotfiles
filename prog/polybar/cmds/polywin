@@ -7,7 +7,7 @@
 # scripts in the polybar format of the win-list command.
 
 max_window_count=10
-ignore_window_classes=( Plasmashell Polybar Conky Gmrun )
+ignore_window_classes=(Plasmashell Polybar Conky Gmrun)
 
 usage() {
   echo "Usage: win-list {OPERATION} [OPTS [OPTS...]]"
@@ -199,11 +199,13 @@ if [ "$#" -eq 0 ]; then
 fi
 
 case "$1" in
-  usage|help|win-list|raise|close)
-    "$@"
-    exit "$?" ;;
-  *)
-    echo "error: polywin: unknown operation $1" >&2
-    usage >&2
-    exit 1 ;;
+usage | help | win-list | raise | close)
+  "$@"
+  exit "$?"
+  ;;
+*)
+  echo "error: polywin: unknown operation $1" >&2
+  usage >&2
+  exit 1
+  ;;
 esac

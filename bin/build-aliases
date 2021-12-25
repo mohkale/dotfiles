@@ -64,19 +64,20 @@ read_script() { #(*files)
 }
 
 parse_aliases() {
-  local editor="$(printf %q "$editor")"
+  local ed; ed="$(printf %q "$editor")"
   # We replace separator with a null(like) byte so we can keep trailing
   # spaces in the alias (that's how bash/zsh decide to expand the alias
   # arguments).
+  local key dest
   sed 's/^\([^ ]\+\) *\(.\+\)$/\1\x01\2/' |
     while IFS=$'\x01' read -r key dest; do
       local cut=${key%@*}
       local tag=${key:${#cut}}
-      local cut=$(printf %q "$cut")
-      local dest=$(printf %q "$dest")
+      cut=$(printf %q "$cut")
+      dest=$(printf %q "$dest")
       # shellcheck disable=SC2086
       case "$tag" in
-        @file) echo alias  ${cut}=${editor}"' '""${dest}" ;;
+        @file) echo alias  ${cut}=${ed}"' '""${dest}" ;;
         @dir)  echo alias  ${cut}="'cd '""${dest}" ;;
         @dirx) echo alias  ${cut}="'cd '""${dest}"
                echo alias q${cut}="'pushd '""${dest}" ;;

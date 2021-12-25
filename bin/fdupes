@@ -34,13 +34,13 @@ The following command produces exactly the same output as the equivelant
 fdupes command: find ~/multifolder/ -type f | fdupes - -r '\n\n' -s '\n' -o
 """
 
-import os
-import logging
-
+import collections
 import filecmp
 import hashlib
 import itertools
-import collections
+import logging
+import os
+
 
 def is_duplicate(f1, f2):
     """Assert whether two files are equal.
@@ -49,23 +49,25 @@ def is_duplicate(f1, f2):
     # perform a shallow check first and a full check only
     # when the shallow check fails.
     # ( get_hash(f1) == get_hash(f2) and
-    return filecmp.cmp(f1, f2, shallow=True) or \
-          filecmp.cmp(f1, f2, shallow=False)
+    return filecmp.cmp(f1, f2, shallow=True) or filecmp.cmp(f1, f2, shallow=False)
 
-_get_hash_type = collections.namedtuple('HashType', ['hash', 'time'])
-def get_hash(fp, buf_size=8192, mem={}): # pylint: disable=W0102
+
+_get_hash_type = collections.namedtuple("HashType", ["hash", "time"])
+
+
+def get_hash(fp, buf_size=8192, mem={}):  # pylint: disable=W0102
     """Get the hash for the file at `fp'.
     Employs a caching mechanism to avoid recalculating the
     hash for a file you've already supplied. The cache is
     invalidated if the file pointed to by `fp' has been
     modified since we last calculated a hash value.
     """
-    logging.debug('Getting hash for file: %s', fp)
+    logging.debug("Getting hash for file: %s", fp)
     mtime = os.stat(fp).st_mtime
     if fp not in mem or mtime != mem[fp].time:
-        logging.debug('Hash not in memory, generating from file path')
+        logging.debug("Hash not in memory, generating from file path")
         m = hashlib.md5()
-        with open(fp, 'rb') as fd:
+        with open(fp, "rb") as fd:
             data = fd.read(buf_size)
             while data:
                 m.update(data)
@@ -74,6 +76,7 @@ def get_hash(fp, buf_size=8192, mem={}): # pylint: disable=W0102
         mem[fp] = _get_hash_type(fp_hash, mtime)
 
     return mem[fp].hash
+
 
 def group_equals(iterable, key=lambda a, b: a == b):
     """Group equivalent elements together in a collection.
@@ -92,9 +95,9 @@ def group_equals(iterable, key=lambda a, b: a == b):
             groups.append([it])
     return groups
 
+
 def gen_dups(paths):
-    """Enumerate entries in `paths` grouped by duplicates.
-    """
+    """Enumerate entries in `paths` grouped by duplicates."""
     # Turns out itertools.groupby only groups sequentially matching items
     # like `uniq`. We're gonna have to find and keep track of all the file
     # hashes in advance until I get a chance to implement a lazy groupby.
@@ -102,8 +105,8 @@ def gen_dups(paths):
     for fp in paths:
         try:
             hashes[fp] = get_hash(fp)
-        except: # pylint: disable=W0702
-            logging.exception('Failed to get hash for file at path: %s', fp)
+        except:  # pylint: disable=W0702
+            logging.exception("Failed to get hash for file at path: %s", fp)
     paths = sorted(hashes.keys(), key=hashes.__getitem__)
 
     for fhash, path_gen in itertools.groupby(paths, key=hashes.__getitem__):
@@ -114,65 +117,90 @@ def gen_dups(paths):
             yield fhash, eq_paths
 
 
-if __name__ == '__main__':
-    import sys
-    import codecs
+if __name__ == "__main__":
     import argparse
+    import codecs
+    import sys
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        description="Compare and group duplicate files.")
+        description="Compare and group duplicate files.",
+    )
 
-    read_group = parser.add_argument_group('Read Paths')
-    read_group.add_argument('path', nargs='*', help='Specify paths to check.')
-    read_group.add_argument('-', '--stdin', action='store_true',
-                            help='Read paths to check from stdin.')
+    read_group = parser.add_argument_group("Read Paths")
+    read_group.add_argument("path", nargs="*", help="Specify paths to check.")
+    read_group.add_argument(
+        "-", "--stdin", action="store_true", help="Read paths to check from stdin."
+    )
 
-    output_group = parser.add_argument_group('Output',
-                                             description="""
+    output_group = parser.add_argument_group(
+        "Output",
+        description="""
 Configure how this program outputs results. By default it joins
 each equal file with a field seperator (:) and seperates unequal
 files with row seperator (\\n).
-                                                """.strip())
-    output_group.add_argument('-s', '--field-seperator',
-                              default=':', metavar='SEP',
-                              help='Seperator for identicle files in the same column')
-    output_group.add_argument('-r', '--row-seperator',
-                              default='\n', metavar='SEP',
-                              help='Seperator for identicle files in the same column')
+                                                """.strip(),
+    )
+    output_group.add_argument(
+        "-s",
+        "--field-seperator",
+        default=":",
+        metavar="SEP",
+        help="Seperator for identicle files in the same column",
+    )
+    output_group.add_argument(
+        "-r",
+        "--row-seperator",
+        default="\n",
+        metavar="SEP",
+        help="Seperator for identicle files in the same column",
+    )
 
     # dup_pred_group = output_group.add_argument_group()
     dup_pred_group = output_group.add_mutually_exclusive_group()
-    dup_pred_group.add_argument('-o', '--only',
-                                action='store_true', dest='only_duplicates',
-                                help='Only print files with at least one duplicate.')
-    dup_pred_group.add_argument('-O', '--except',
-                                action='store_true', dest='no_duplicates',
-                                help='Only print files that have no duplicates.')
+    dup_pred_group.add_argument(
+        "-o",
+        "--only",
+        action="store_true",
+        dest="only_duplicates",
+        help="Only print files with at least one duplicate.",
+    )
+    dup_pred_group.add_argument(
+        "-O",
+        "--except",
+        action="store_true",
+        dest="no_duplicates",
+        help="Only print files that have no duplicates.",
+    )
 
-    parser.add_argument('-l', '--log-level', metavar='LEVEL',
-                        type=lambda X: getattr(logging, X.upper()),
-                        help='Level of logging output.')
+    parser.add_argument(
+        "-l",
+        "--log-level",
+        metavar="LEVEL",
+        type=lambda X: getattr(logging, X.upper()),
+        help="Level of logging output.",
+    )
 
-    args  = parser.parse_args()
+    args = parser.parse_args()
     vargs = vars(args)
 
     if args.stdin:
-        args.path = itertools.chain(args.path, map(lambda x: x.rstrip(os.linesep), sys.stdin))
+        args.path = itertools.chain(
+            args.path, map(lambda x: x.rstrip(os.linesep), sys.stdin)
+        )
 
-    args.field_seperator = codecs.decode(args.field_seperator, 'unicode_escape')
-    args.row_seperator = codecs.decode(args.row_seperator, 'unicode_escape')
+    args.field_seperator = codecs.decode(args.field_seperator, "unicode_escape")
+    args.row_seperator = codecs.decode(args.row_seperator, "unicode_escape")
 
-    level = vargs.pop('log_level')
+    level = vargs.pop("log_level")
     try:
         from mohkale.pylog.config import use_config as use_logging_config
     except ImportError:
         logging.basicConfig(level=level)
     else:
-        use_logging_config('fdupes', level=level)
+        use_logging_config("fdupes", level=level)
 
     for _, fs in gen_dups(args.path):
-        if args.only_duplicates and len(fs) == 1 or\
-           args.no_duplicates and len(fs) != 1:
+        if args.only_duplicates and len(fs) == 1 or args.no_duplicates and len(fs) != 1:
             continue
         print(args.field_seperator.join(fs), end=args.row_seperator)

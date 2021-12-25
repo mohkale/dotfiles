@@ -8,7 +8,9 @@ import atexit
 import os
 import readline
 
-histfile = os.environ.get('XDG_CONFIG_HOME', os.path.expanduser("~/.cache")) + "/pdb_history"
+histfile = (
+    os.environ.get("XDG_CONFIG_HOME", os.path.expanduser("~/.cache")) + "/pdb_history"
+)
 try:
     readline.read_history_file(histfile)
 except IOError:

@@ -5,92 +5,118 @@ Convert an image to some asciified text.
 
 import os
 import sys
+
 from PIL import Image, ImageStat
 
-SIMPLE_CHARS  = '@%#*+=-:. '
-COMPLEX_CHARS = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. "
+SIMPLE_CHARS = "@%#*+=-:. "
+COMPLEX_CHARS = (
+    "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. "
+)
+
 
 def make_image_monochrome(image):
-    """Remove the color from an `image`.
-    """
+    """Remove the color from an `image`."""
     if image.mode != "L":
-        image2 = image.convert('L')
-        image.close()   # dispose
+        image2 = image.convert("L")
+        image.close()  # dispose
         image = image2  # replace
 
     return image
 
+
 def asciify_image(image, dest_file, chars=SIMPLE_CHARS, cols=None):
-    """Perform the asciification conversion process.
-    """
+    """Perform the asciification conversion process."""
     image = make_image_monochrome(image)
 
     width, height = image.size
-    if not cols: cols = width
+    if not cols:
+        cols = width
 
-    cell_width  = width / cols
+    cell_width = width / cols
     cell_height = 2 * cell_width
 
     rows = int(height / cell_height)
 
     if cols > width or rows > height:
-        raise ValueError('too many columns or rows')
+        raise ValueError("too many columns or rows")
 
     get_x = lambda X: X * cell_width
     get_y = lambda Y: Y * cell_height
 
     for i in range(rows):
         for j in range(cols):
-            cell   = (get_x(j), get_y(i), get_x(j+1), get_y(i+1))
+            cell = (get_x(j), get_y(i), get_x(j + 1), get_y(i + 1))
             region = image.crop(cell)  # extract cell from image
             regavg = ImageStat.Stat(region).mean[0]  # average
 
             char = chars[min(len(chars) - 1, int(regavg * len(chars) / 255))]
             dest_file.write(char)
-        dest_file.write('\n')
+        dest_file.write("\n")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     from argparse import ArgumentParser
 
     parser = ArgumentParser()
 
     # pylint: disable=C0301
-    parser.add_argument('input',
-                        help='file descriptor of file to asciify. pass - to read from stdin.')
-    parser.add_argument('-o', '--output', type=os.path.normpath,
-                        help='path to the output file for the asciified text. defaults to stdout.')
-    parser.add_argument('-C', '--cols',
-                        type=int, dest='columns',
-                        help='number of columns for output art. Defaults to width of input image.')
+    parser.add_argument(
+        "input", help="file descriptor of file to asciify. pass - to read from stdin."
+    )
+    parser.add_argument(
+        "-o",
+        "--output",
+        type=os.path.normpath,
+        help="path to the output file for the asciified text. defaults to stdout.",
+    )
+    parser.add_argument(
+        "-C",
+        "--cols",
+        type=int,
+        dest="columns",
+        help="number of columns for output art. Defaults to width of input image.",
+    )
 
     char_choice_argument_group = parser.add_mutually_exclusive_group()
-    char_choice_argument_group.add_argument("-s", "--simple",
-                                            dest='chars', action='store_const', const=SIMPLE_CHARS,
-                                            help='use simple characters for converted ascii.')
-    char_choice_argument_group.add_argument("-c", "--complex",
-                                            dest='chars', action='store_const',
-                                            const=COMPLEX_CHARS,
-                                            help='use complex characters for converted ascii.')
-    char_choice_argument_group.add_argument("--chars",
-                                            help='specify characters for converted ascii yourself. characters should go from darkes to lightest.')
+    char_choice_argument_group.add_argument(
+        "-s",
+        "--simple",
+        dest="chars",
+        action="store_const",
+        const=SIMPLE_CHARS,
+        help="use simple characters for converted ascii.",
+    )
+    char_choice_argument_group.add_argument(
+        "-c",
+        "--complex",
+        dest="chars",
+        action="store_const",
+        const=COMPLEX_CHARS,
+        help="use complex characters for converted ascii.",
+    )
+    char_choice_argument_group.add_argument(
+        "--chars",
+        help="specify characters for converted ascii yourself. characters should go from darkes to lightest.",
+    )
 
-    args  = parser.parse_args()
+    args = parser.parse_args()
     vargs = vars(args)
 
     try:
-        args.input = Image.open(args.input if args.input != '-' else sys.stdin)
+        args.input = Image.open(args.input if args.input != "-" else sys.stdin)
     except (OSError, IOError) as e:
-        print("__main__::init() : unable to read image file: %s" % e, file=sys.stderr)
+        print(f"__main__::init() : unable to read image file: {e}", file=sys.stderr)
         sys.exit(1)
 
     if not args.output:
         args.output = sys.stdout
     else:
         dest_parent = os.path.dirname(args.output)  # directory
-        if dest_parent: os.makedirs(dest_parent, exist_ok=True)
+        if dest_parent:
+            os.makedirs(dest_parent, exist_ok=True)
 
-        args.output = open(args.output, 'w', encoding='utf8')
+        # pylint: disable=consider-using-with
+        args.output = open(args.output, "w", encoding="utf8")
 
     if not args.chars:
         args.chars = SIMPLE_CHARS  # enforce default

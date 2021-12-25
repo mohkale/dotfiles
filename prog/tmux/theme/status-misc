@@ -9,9 +9,9 @@ I haven't created any dedicated scripts for (... yet).
 from misc_segments import StatusMiscSegment
 from shared import print_loop, render_loop
 
+
 def status_misc(args):
-    """Closure around args continually outputting meta-segments.
-    """
+    """Closure around args continually outputting meta-segments."""
     statuses = [x.render for x in args.enable]
 
     def wrapped():
@@ -26,47 +26,70 @@ def status_misc(args):
         msgs = [x for x in msgs if x]
         if msgs:
             return args.sep.join(msgs) + args.suffix
-        return ''
+        return ""
+
     return wrapped
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
 
     SEGMENTS = {x.name: x for x in StatusMiscSegment.__subclasses__()}
 
-    parser.add_argument('--suffix',
-                        metavar='FORMAT', default='',
-                        help='Suffix output with FORMAT.')
+    parser.add_argument(
+        "--suffix", metavar="FORMAT", default="", help="Suffix output with FORMAT."
+    )
 
     # NOTE: The orders of these determines order in output.
-    parser.add_argument('--enable',
-                        metavar='SEGMENT', action='append', default=[],
-                        help='Enable a segment, one of: ' + ', '.join(SEGMENTS.keys()))
+    parser.add_argument(
+        "--enable",
+        metavar="SEGMENT",
+        action="append",
+        default=[],
+        help="Enable a segment, one of: " + ", ".join(SEGMENTS.keys()),
+    )
 
-    parser.add_argument('--disable',
-                        metavar='SEGMENT',
-                        help='Disable a segment, one of those from --enable.')
+    parser.add_argument(
+        "--disable",
+        metavar="SEGMENT",
+        help="Disable a segment, one of those from --enable.",
+    )
 
-    parser.add_argument('--sep', metavar='STRING', default=' ',
-                        help='Concatenate status indicators with STRING')
-    parser.add_argument('-r', '--reset-style', default='#[default]',
-                        help='Specify style for resetting styles')
-    parser.add_argument('-u', '--unbuffer', action='store_true',
-                        help='Immeadiately flush output after writing')
-    parser.add_argument('-s', '--sleep', type=int,
-                        help='When given, wait this duration between outputting')
+    parser.add_argument(
+        "--sep",
+        metavar="STRING",
+        default=" ",
+        help="Concatenate status indicators with STRING",
+    )
+    parser.add_argument(
+        "-r",
+        "--reset-style",
+        default="#[default]",
+        help="Specify style for resetting styles",
+    )
+    parser.add_argument(
+        "-u",
+        "--unbuffer",
+        action="store_true",
+        help="Immeadiately flush output after writing",
+    )
+    parser.add_argument(
+        "-s",
+        "--sleep",
+        type=int,
+        help="When given, wait this duration between outputting",
+    )
 
     for segment in StatusMiscSegment.__subclasses__():
         segment.parser_args(parser)
 
-    args  = parser.parse_args()
+    args = parser.parse_args()
 
     for i, segment in enumerate(args.enable):
         if segment not in SEGMENTS:
-            parser.error(f'Unknown segment enabled: {segment}')
+            parser.error(f"Unknown segment enabled: {segment}")
         args.enable[i] = SEGMENTS[segment](args)
 
     try:

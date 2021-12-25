@@ -121,6 +121,7 @@ lines_to_path() {
     if [ "${var:0:1}" = ":" ]; then
       var="${var:1}" # strip out : prefix.
     else
+      # shellcheck disable=SC2296
       case "$shell" in
         zshell) existing=${(P)var} ;;
         bash) existing="${!var}" ;;
@@ -152,6 +153,7 @@ ${GEM_HOME:-$HOME/.gem}/bin
 ${POETRY_HOME:-$HOME/.poetry}/bin
 ~/.rvm/bin
 $XDG_DATA_HOME/npm/bin
+$XDG_DATA_HOME/yarn/global/node_modules/.bin
 
 [CLASSPATH]
 .

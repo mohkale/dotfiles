@@ -5,58 +5,60 @@ Output all the code-points in a given font-files.
 Adapted from [[https://stackoverflow.com/a/19438403][here]].
 """
 
-import sys
 import codecs
 import logging
+import sys
 
 from fontTools.ttLib import TTFont, TTLibError
 from fontTools.unicode import Unicode
 
+
 def open_font(path):
-    """Open the font-file at `path`.
-    """
-    return TTFont(path, 0, allowVID=0,
-           ignoreDecompileErrors=True,
-           fontNumber=-1)
+    """Open the font-file at `path`."""
+    return TTFont(path, 0, allowVID=0, ignoreDecompileErrors=True, fontNumber=-1)
+
 
 def unicode_title(num):
-    """Return the plaintext representation of a code-point `num`.
-    """
+    """Return the plaintext representation of a code-point `num`."""
     title = Unicode[num]
-    if title == '????':
-        title = ''
+    if title == "????":
+        title = ""
     return title
 
+
 def enumerate_glyphs(path):
-    """Enumerate the glyphs in a font-file.
-    """
+    """Enumerate the glyphs in a font-file."""
     with open_font(path) as ttf:
-        for x in ttf['cmap'].tables:
+        for x in ttf["cmap"].tables:
             yield from x.cmap.items()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     import argparse
     import pathlib
 
     parser = argparse.ArgumentParser(
-        description=" Output code points in one or more font files.")
+        description=" Output code points in one or more font files."
+    )
 
-    parser.add_argument('font', nargs='+', type=pathlib.Path,
-                        help='Path to font file to load')
+    parser.add_argument(
+        "font", nargs="+", type=pathlib.Path, help="Path to font file to load"
+    )
 
-    out_group = parser.add_argument_group('out')
-    out_group.add_argument('-d', '--delimiter', default=':',
-                            help='Specify the delimiter for code points')
+    out_group = parser.add_argument_group("out")
+    out_group.add_argument(
+        "-d", "--delimiter", default=":", help="Specify the delimiter for code points"
+    )
 
-    args  = parser.parse_args()
+    args = parser.parse_args()
     vargs = vars(args)
 
-    args.delimiter = codecs.decode(args.delimiter, 'unicode_escape')
+    args.delimiter = codecs.decode(args.delimiter, "unicode_escape")
 
     exit_code = 0
     for font in args.font:
         if not font.exists():
-            logging.warning('Font file not found: %s', font)
+            logging.warning("Font file not found: %s", font)
             exit_code = 1
             continue
 
@@ -64,7 +66,7 @@ if __name__ == '__main__':
             for ch, title in enumerate_glyphs(font):
                 print(args.delimiter.join((unicode_title(ch), title, str(ch), chr(ch))))
         except TTLibError as e:
-            logging.exception('Failed to load font file at path: %s', font)
+            logging.exception("Failed to load font file at path: %s", font)
             exit_code = 1
         except BrokenPipeError:
             break

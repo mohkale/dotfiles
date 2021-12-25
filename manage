@@ -4,7 +4,10 @@ set -e
 
 # A way to get the absolute path to this directory using
 # just shell builtins. (source [[https://stackoverflow.com/a/3915420/6247387][here]]).
-root="$(cd "$(dirname "${BASH_SOURCE[0]}")" || exit 1; pwd -P)"
+root="$(
+  cd "$(dirname "${BASH_SOURCE[0]}")" || exit 1
+  pwd -P
+)"
 
 cd "$root" || exit 1
 

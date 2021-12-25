@@ -15,15 +15,20 @@ args=""
 
 while getopts 'ho:wsr' OPTION; do
     case "$OPTION" in
-        h) print_usage
-           exit 0 ;;
-        \?) print_usage >&2
-            exit 1 ;;
-        o) dest=$OPTARG
-           ;;
-        w) args="$args --activewindow" ;;
-        r) args="$args --region" ;;
-        s) args="$args --nonotify" ;;
+    h)
+        print_usage
+        exit 0
+        ;;
+    \?)
+        print_usage >&2
+        exit 1
+        ;;
+    o)
+        dest=$OPTARG
+        ;;
+    w) args="$args --activewindow" ;;
+    r) args="$args --region" ;;
+    s) args="$args --nonotify" ;;
     esac
 done
 

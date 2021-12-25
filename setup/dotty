@@ -672,7 +672,7 @@ _package_pip() {
 # Package manager the for golang module system.
 # See also https://github.com/delicb/dotbot-golang
 PACMANS+=(go)
-_package_go() { _package_simple go go '' 'get' '' "$@"; }
+_package_go() { _package_simple go go '' get '' "$@"; }
 
 # Package manager for the node-package-manager.
 # See also https://github.com/npm/cli
@@ -734,20 +734,20 @@ _package_gem() {
 # Package manager for the chocolatey (windows) package manager.
 # See also https://chocolatey.org/
 PACMANS+=(choco)
-_package_choco() { _package_simple choco choco '' "install,--yes" '' "$@"; }
+_package_choco() { _package_simple choco choco '' install,--yes '' "$@"; }
 
 # The pacmans ヽ(^‥^=ゞ)
 PACMANS+=(pacman)
-_package_pacman() { _package_simple pacman pacman 'sudo' '-S,--needed,--noconfirm' '-Sy' "$@"; }
+_package_pacman() { _package_simple pacman pacman 'sudo' -S,--needed,--noconfirm -Sy "$@"; }
 
 PACMANS+=(yay)
-_package_yay() { _package_simple yay yay '' '-S,--needed,--noconfirm' '-Sy' "$@"; }
+_package_yay() { _package_simple yay yay '' -S,--needed,--noconfirm -Sy "$@"; }
 
 PACMANS+=(msys)
-_package_msys() { _package_simple pacman pacman.exe '' '-S,--needed,--noconfirm' '-Sy' "$@"; }
+_package_msys() { _package_simple pacman pacman.exe '' -S,--needed,--noconfirm -Sy "$@"; }
 
 PACMANS+=(apt)
-_package_apt() { _package_simple apt apt 'sudo' 'install,--yes' 'update' "$@"; }
+_package_apt() { _package_simple apt apt sudo install,--yes update "$@"; }
 
 package() {
   _skip_directive package && return
@@ -1091,7 +1091,7 @@ while [ "$#" -gt 0 ]; do
           echo "$_dotty_help"
           exit 0 ;;
         -l|--logging)
-          level="$(echo "$1" | tr A-Z a-z)"; shift
+          level="$(echo "$1" | tr '[:upper:]' '[:lower:]')"; shift
           count=0
           LOG_LEVEL=-1
           for it in "${LOG_LEVELS[@]}"; do

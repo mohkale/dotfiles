@@ -5,29 +5,35 @@ A simple script to take a list of images and crop them into squares.
 This is useful for album art or covers that look best with uniform
 dimensions.
 """
-import io
-import subprocess
-import tempfile
-import pathlib
-import shlex
-import os
-import sys
-import logging
-import itertools
 import enum
+import io
+import logging
+import os
+import pathlib
 import random
 import re
+import shlex
+import signal
+import subprocess
+import sys
+import tempfile
 
 from PIL import Image
 
 DEFAULT_OUT = pathlib.Path(".blocks")
 
+# pylint: disable=missing-function-docstring
 
-def _blockify_left(disp, do_horizontally, smaller, larger):
+
+def _blockify_left(
+    disp, do_horizontally, smaller, larger
+):  # pylint: disable=unused-argument
     return 0, 0, smaller, smaller
 
 
-def _blockify_right(disp, do_horizontally, smaller, larger):
+def _blockify_right(
+    disp, do_horizontally, smaller, larger
+):  # pylint: disable=unused-argument
     return (
         disp if do_horizontally else 0,
         disp if not do_horizontally else 0,
@@ -36,7 +42,9 @@ def _blockify_right(disp, do_horizontally, smaller, larger):
     )
 
 
-def _blockify_center(disp, do_horizontally, smaller, larger):
+def _blockify_center(
+    disp, do_horizontally, smaller, larger
+):  # pylint: disable=unused-argument
     disp = round(disp / 2)
     return (
         disp if do_horizontally else 0,
@@ -46,7 +54,9 @@ def _blockify_center(disp, do_horizontally, smaller, larger):
     )
 
 
-def _blockify_random(disp, do_horizontally, smaller, larger):
+def _blockify_random(
+    disp, do_horizontally, smaller, larger
+):  # pylint: disable=unused-argument
     disp = random.randint(0, disp)
 
     return (
@@ -132,39 +142,46 @@ def blockify_paths(paths, out, exclude, nested):
         yield from recursive_do(p, out)
 
 
-def recursive_find_file(dir, basename, ent={}):
+def recursive_find_file(
+    directory, basename, ent={}
+):  # pylint: disable=dangerous-default-value
     if not ent:
         # We index all of it now, rather than part of it again and again.
-        logging.info("Indexing output directory %s", dir)
-        for dir, _, files in os.walk(dir):
+        logging.info("Indexing output directory %s", directory)
+        for subdir, _, files in os.walk(directory):
             for f in files:
                 if f in ent:
                     raise RuntimeError("Indexing found duplicate basenames %s")
-                ent[f] = dir
+                ent[f] = subdir
         # Fill an argument you'll never get to avoid re-indexing if dir is empty.
         ent[True] = ""
 
     if basename in ent:
         return pathlib.Path(ent[basename]) / basename
+    return None
 
 
 class InteractiveSxiv:
+    """Run an SXIV instance for blockifying."""
+
     def __init__(self, args, vargs):
         self.stdin = io.StringIO()
 
         # Create custom key-handler script for nsxiv.
+        # pylint: disable=consider-using-with
         self.d = tempfile.TemporaryDirectory()
-        dir = os.path.join(self.d.name, "nsxiv", "exec")
-        os.makedirs(dir)
+        directory = os.path.join(self.d.name, "nsxiv", "exec")
+        os.makedirs(directory)
         with open(
             os.open(
-                os.path.join(dir, "key-handler"),
+                os.path.join(directory, "key-handler"),
                 os.O_CREAT | os.O_WRONLY,
                 0o700,
             ),
             "w",
         ) as h:
             h.write(self._key_handler_script(args, vargs))
+        # pylint: disable=consider-using-with
         self.src = open(os.path.join(self.d.name, "src.txt"), "w")
 
         # Update env to point to temp directory.
@@ -173,15 +190,16 @@ class InteractiveSxiv:
         env["XDG_CONFIG_HOME"] = self.d.name
         env["BLOCKIFY_DONE_DIR"] = str(args.output / args.interactive)
 
+        # pylint: disable=consider-using-with
         self.proc = subprocess.Popen(
-            ["nsxiv", "-i", *shlex.split(args.sxiv_args or '')],
+            ["nsxiv", "-i", *shlex.split(args.sxiv_args or "")],
             stdin=subprocess.PIPE,
             env=env,
             encoding="utf-8",
         )
 
     @staticmethod
-    def _sxiv_args(args, vargs):
+    def _sxiv_args(args):
         return " ".join(
             [
                 shlex.quote(x)
@@ -200,10 +218,11 @@ class InteractiveSxiv:
         )
 
     @classmethod
-    def _key_handler_script(cls, args, vargs):
+    def _key_handler_script(cls, args, vargs):  # pylint: disable=unused-argument
         BLOCKIFY_CALL = (
+            # pylint: disable=consider-using-f-string
             'block() {\n  XDG_CONFIG_HOME="$REAL_XDG_CONFIG_HOME" %s "$@";\n}\n'
-            % (cls._sxiv_args(args, vargs))
+            % (cls._sxiv_args(args))
         )
 
         OFFSET_CONTROL_SCRIPT = """
@@ -328,12 +347,13 @@ esac
         self.src.close()
         self.close()
         if kill:
-            self.proc.send_signal(SIGTERM)
+            self.proc.send_signal(signal.SIGTERM)
         self.proc.wait()
         self.d.cleanup()
 
 
-def main(args, vargs, parser):
+def main(args, vargs, parser):  # pylint: disable=unused-argument
+    """Run blockify."""
     if args.interactive:
         _sxiv = InteractiveSxiv(args, vargs)
         proc_fd, cleanup = _sxiv, _sxiv.cleanup

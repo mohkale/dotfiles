@@ -72,24 +72,27 @@ results in the following entries being produced:
   {:name "Foo" :file "file2" :meta ("bar")}
 """
 
-import os
-import sys
+import dataclasses
+import functools
 import glob
 import json
 import logging
+import os
 import pathlib
-import dataclasses
-import functools
+import sys
 import typing as t
+
 import edn_format as edn
 from mohkale.edn import process_edn
 
-DEFAULT_CONFIG = pathlib.Path(os.environ.get('XDG_CONFIG_HOME', os.path.expanduser('~/.config'))) / 'games.edn'
+DEFAULT_CONFIG = (
+    pathlib.Path(os.environ.get("XDG_CONFIG_HOME", os.path.expanduser("~/.config")))
+    / "games.edn"
+)
 
 
 class Steam(object):
-    """Utilities for accessing game metadata stored by steam.
-    """
+    """Utilities for accessing game metadata stored by steam."""
 
     @staticmethod
     @functools.lru_cache()
@@ -98,35 +101,36 @@ class Steam(object):
         if it exists.
         """
         # List of directories that may be the root of the steam configuration
-        for d in (pathlib.Path('~/.local/share/Steam').expanduser(),):
-            logging.debug('Checking for steam root at: %s', d)
+        for d in (pathlib.Path("~/.local/share/Steam").expanduser(),):
+            logging.debug("Checking for steam root at: %s", d)
             if d.exists() and d.is_dir():
                 return d
         return None
 
     @classmethod
     def minutes_played(cls, steam_id) -> t.Optional[str]:
-        """How many minutes I've played the game with id `steam_id`.
-        """
+        """How many minutes I've played the game with id `steam_id`."""
         root = cls.root()
         if not root:
             return None
-        lc = root.glob(f'userdata/*/config/librarycache/{steam_id}.json')
+        lc = root.glob(f"userdata/*/config/librarycache/{steam_id}.json")
         try:
             lc = next(lc)
         except StopIteration:
             return None
         try:
-            stats = json.load(lc.open('r'))
+            stats = json.load(lc.open("r"))
         except json.decoder.JSONDecodeError:
             return None
         for key, obj in stats:
-            if key != 'friends':
+            if key != "friends":
                 continue
-            my_data = obj.get('data', {}).get('your_info', {})
-            minutes = my_data.get('minutes_played_forever', my_data.get('minutes_played', None))
+            my_data = obj.get("data", {}).get("your_info", {})
+            minutes = my_data.get(
+                "minutes_played_forever", my_data.get("minutes_played", None)
+            )
             if minutes:
-                return f'{minutes} minutes played'
+                return f"{minutes} minutes played"
         return None
 
 
@@ -138,6 +142,7 @@ class Game(object):
     Includes enough information about a game to list it and produce a URL
     that can open or install the game.
     """
+
     name: str
     cover: t.List[str] = dataclasses.field(default_factory=list)
     _meta: t.List[str] = dataclasses.field(default_factory=list)
@@ -163,44 +168,45 @@ class Game(object):
 
     @property
     def url(self):
-        """The url (file or store or application) to open this game.
-        """
+        """The url (file or store or application) to open this game."""
 
         # These each don't have a predictable install location and the client doesn't support
         # a run-this-game URL so we have to keep both a source slug and a file URL for it.
         #
         # When the file does not exist all we can do is open the store page for the game so
         # the user can then install it (and maybe then tell us where to find it).
-        for url_f, field in {'https://www.gog.com/game/%s': self.gog,
-                             'https://www.epicgames.com/store/en-US/product/%s/home': self.epic}.items():
+        for url_f, field in {
+            "https://www.gog.com/game/%s": self.gog,
+            "https://www.epicgames.com/store/en-US/product/%s/home": self.epic,
+        }.items():
             if field and (not self.file or os.path.exists(self.file)):
                 return url_f.format(field)
         if self.file:
             for path in self._iter_file_paths():
                 if os.path.exists(path):
-                    return f'file://{path}'
-            logging.warning('File for game not found: %s', self.file)
-            return f'file://{self.file}'
+                    return f"file://{path}"
+            logging.warning("File for game not found: %s", self.file)
+            return f"file://{self.file}"
         if self.steam:
-            return f'steam://run/{self.steam}'
-        raise ValueError('Game initialised with no method to run', repr(self.name))
+            return f"steam://run/{self.steam}"
+        raise ValueError("Game initialised with no method to run", repr(self.name))
 
     def _iter_file_paths(self):
         yield self.file
         for p in pathlib.Path(self.file).parents:
-            for ftype in ('.7z', ):
+            for ftype in (".7z",):
                 yield p.parent / (p.name + ftype)
 
     def pretty(self):
-        """Pretty print this game url.
-        """
-        meta = ' '.join(self.meta) if self.meta else ''
-        return f'{self.url}:{self.name}' + (f' [\033[0;32m{meta}\033[0m]' if meta else '')
+        """Pretty print this game url."""
+        meta = " ".join(self.meta) if self.meta else ""
+        return f"{self.url}:{self.name}" + (
+            f" [\033[0;32m{meta}\033[0m]" if meta else ""
+        )
 
     @property
     def meta(self):
-        """Metadata tied to the current game.
-        """
+        """Metadata tied to the current game."""
         m = self._meta
         if self.steam:
             sm = Steam.minutes_played(self.steam)
@@ -210,51 +216,56 @@ class Game(object):
 
     @classmethod
     def enumerate_games(cls, obj):
-        """Enumerate a :games configuration, yielding Game insance.
-        """
+        """Enumerate a :games configuration, yielding Game insance."""
         if isinstance(obj, (list, tuple)):
             for subobj in obj:
                 yield from filter(lambda x: x is not None, cls.enumerate_games(subobj))
             return []
 
         props = None
-        for key in ('epic', 'gog', 'file', 'steam'):  # possible permutation attributes
+        for key in ("epic", "gog", "file", "steam"):  # possible permutation attributes
             if key in obj:
                 props = obj.pop(key)
                 break
         else:
-            logging.warning('Encountered game with no file or steam field')
+            logging.warning("Encountered game with no file or steam field")
             return None
         if not isinstance(props, dict):
-            props = {'main': props}
+            props = {"main": props}
 
-        meta = obj.pop('meta', [])
+        meta = obj.pop("meta", [])
         for new_meta, value in props.items():
-            yield cls(**obj,
-                      **{key: value},
-                      _meta=meta if new_meta == 'main' else [*meta, new_meta])
+            yield cls(
+                **obj,
+                **{key: value},
+                _meta=meta if new_meta == "main" else [*meta, new_meta],
+            )
 
 
 def _edntag_find(pattern):
     arr = []
     for path in glob.glob(pattern):
         _, ext = os.path.splitext(path)
-        arr.append({'name': os.path.basename(path)[:-len(ext)],
-                    'file': os.path.join(os.getcwd(), path)})
+        arr.append(
+            {
+                "name": os.path.basename(path)[: -len(ext)],
+                "file": os.path.join(os.getcwd(), path),
+            }
+        )
     return arr
 
 
 def _edntag_load(path):
     if not os.path.exists(path):
-        logging.error('Failed to load games from file at path: %s', path)
+        logging.error("Failed to load games from file at path: %s", path)
         return []
 
     cwd = os.getcwd()
     _dir = os.path.dirname(path)
     try:
-        if _dir != '':
+        if _dir != "":
             os.chdir(_dir)
-        with open(path, 'r') as fd:
+        with open(path, "r") as fd:
             return edn.loads(fd.read(), debug=False)
     finally:
         os.chdir(cwd)
@@ -265,28 +276,31 @@ def _edntag_setenv(obj):
     return obj
 
 
-edn.add_tag('game/load-games', _edntag_load)
-edn.add_tag('game/set-env', _edntag_setenv)
-edn.add_tag('game/find', _edntag_find)
-edn.add_tag('game/expand', os.path.expandvars)
+edn.add_tag("game/load-games", _edntag_load)
+edn.add_tag("game/set-env", _edntag_setenv)
+edn.add_tag("game/find", _edntag_find)
+edn.add_tag("game/expand", os.path.expandvars)
 
 
 def main(args):
-    """List games.
-    """
+    """List games."""
     conf = process_edn(_edntag_load(str(args.config)))
-    games = Game.enumerate_games(conf.get('games', []))
+    games = Game.enumerate_games(conf.get("games", []))
 
     ok = True
-    if args.cmd == 'doctor':
+    if args.cmd == "doctor":
         for game in games:
             if game.file and not os.path.exists(game.file):
                 ok = True
-                logging.error('Failed to find file for game %s: %s', repr(game.name), game.file)
+                logging.error(
+                    "Failed to find file for game %s: %s", repr(game.name), game.file
+                )
             for cover in game.cover:
                 if not os.path.exists(cover):
                     ok = True
-                    logging.error('Missing cover image for game %s: %s', repr(game.name), cover)
+                    logging.error(
+                        "Missing cover image for game %s: %s", repr(game.name), cover
+                    )
         return ok
 
     for g in games:
@@ -294,37 +308,52 @@ def main(args):
     return ok
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
 
-    sp_gen = parser.add_subparsers(dest='cmd')
-    sp_gen.add_parser('doctor', help='Check your current configuration is upto date')
+    sp_gen = parser.add_subparsers(dest="cmd")
+    sp_gen.add_parser("doctor", help="Check your current configuration is upto date")
 
-    parser.add_argument('-p', '--prettify', dest='output',
-                        action='store_const', const=Game.pretty,
-                        help='Pretty print output rather than using json')
-    parser.add_argument('-c', '--config',
-                        type=pathlib.Path, default=DEFAULT_CONFIG,
-                        help='Specify local game configuration file')
-    parser.add_argument('-l', '--log-level', metavar='LEVEL',
-                        type=lambda x: getattr(logging, x.upper()),
-                        help='Set verbosity of logging output')
+    parser.add_argument(
+        "-p",
+        "--prettify",
+        dest="output",
+        action="store_const",
+        const=Game.pretty,
+        help="Pretty print output rather than using json",
+    )
+    parser.add_argument(
+        "-c",
+        "--config",
+        type=pathlib.Path,
+        default=DEFAULT_CONFIG,
+        help="Specify local game configuration file",
+    )
+    parser.add_argument(
+        "-l",
+        "--log-level",
+        metavar="LEVEL",
+        type=lambda x: getattr(logging, x.upper()),
+        help="Set verbosity of logging output",
+    )
 
     args = parser.parse_args()
     vargs = vars(args)
-    args.output = args.output or (lambda g: json.dumps({'name': g.name, 'url': g.url, 'meta': g.meta}))
+    args.output = args.output or (
+        lambda g: json.dumps({"name": g.name, "url": g.url, "meta": g.meta})
+    )
 
-    level = vargs.pop('log_level')
+    level = vargs.pop("log_level")
     try:
         from mohkale.pylog.config import use_config as use_logging_config
     except ImportError:
         logging.basicConfig(level=level)
     else:
-        use_logging_config('ls-games', vargs.pop('log_level'))
+        use_logging_config("ls-games", vargs.pop("log_level"))
 
     if not args.config.exists():
-        parser.error('Failed to find config file: %s' % args.config)
-    logging.getLogger('edn_format').setLevel(logging.ERROR)
+        parser.error(f"Failed to find config file: {args.config}")
+    logging.getLogger("edn_format").setLevel(logging.ERROR)
     sys.exit(0 if main(args) else 1)

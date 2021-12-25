@@ -16,7 +16,7 @@
 #     bindkey -s '^o' 'lfcd\n'  # zsh
 #
 
-lfcd () {
+lfcd() {
     tmp="$(mktemp)"
     signal=EXIT
     [ -n "$BASH_VERSION" ] && signal=RETURN

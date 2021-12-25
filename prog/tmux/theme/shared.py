@@ -3,13 +3,14 @@
 Shared helpers for tmux status scripts.
 """
 
-import time
 import sys
+import time
 
 # Maximum duration before which a status script MUST output something.
 # This is required to prevent tmux auto-killing the process because it's
 # been silent for too long. See `format_job_tidy' in [[orgit:tmux][tmux]]/format.c.
 MAX_OUTPUT_INTERVAL = 3600 * 0.95
+
 
 def render_loop(wrap):
     """Call and generate items from `wrap`, silently suppressing any errors.
@@ -29,7 +30,8 @@ def render_loop(wrap):
             break
         except Exception as e:  # pylint: disable=broad-except,unused-variable
             # print('error', e)
-            yield ''
+            yield ""
+
 
 def print_loop(it, unbuffer=False, sleep=False):
     """Read lines to output from `it` performing the minimum number of writes required.
@@ -44,8 +46,8 @@ def print_loop(it, unbuffer=False, sleep=False):
       How long to wait between sequential requests to `it`.
 
     """
-    last_output = None                                                          # The last string we printed.
-    last_print = 0                                                              # The last time we printed at.
+    last_output = None  # The last string we printed.
+    last_print = 0  # The last time we printed at.
     for line in it:
         if line != last_output or time.time() - last_print >= MAX_OUTPUT_INTERVAL:
             print(line)

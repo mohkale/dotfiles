@@ -116,6 +116,7 @@ tags() {
 
 queue() {
   RELOAD_CMD='reload(list-queue-tracks)'
+  # shellcheck disable=SC2016
   list-queue-tracks |
     ui-tracks \
       --prompt 'Queue track: ' \

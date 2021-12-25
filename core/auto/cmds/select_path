@@ -37,7 +37,7 @@ select_path() {
            local tty=
            if tty="/dev/$(ps -o tty= -p $$)"; then
                # shellcheck disable=SC2086,SC2094
-               xargs -r -d '\n' -a <(printf "%s\n" "${files[@]}") ${VISUAL-${$EDITOR-vi}} >"$tty" <"$tty"
+               xargs -r -d '\n' -a <(printf "%s\n" "${files[@]}") ${VISUAL-${EDITOR-vi}} >"$tty" <"$tty"
            else
                echo "select_path: error: failed to read tty" >&2
            fi

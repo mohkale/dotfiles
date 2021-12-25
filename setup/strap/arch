@@ -6,12 +6,11 @@
 # to walk you through the rest of the process.
 
 # installation config
-name=mohkale
 export user=mohkale
 version=0.0.2
 export dotfile_repo='git@github.com:mohkale/dotfiles.git'
 export dotfile_branch='master'
-default_hostname='arch'
+export default_hostname='arch'
 
 # color setup
 export reset='\e[0m'
@@ -38,7 +37,7 @@ log_name_to_level() { #(name)
 export -f log_name_to_level
 
 cat_if_log() { #(cmd, args)
-    local level=$(log_name_to_level "debug")
+    local level; level=$(log_name_to_level "debug")
 
     if [ "$level" -ge "$log_level" ]; then
         "$@" 2>&1
@@ -49,7 +48,7 @@ cat_if_log() { #(cmd, args)
 export -f cat_if_log
 
 log() { #(level, message, args)
-    local level_value=$(log_name_to_level "$1")
+    local level_value; level=$(log_name_to_level "$1")
 
     if [ "$level_value" -ge "$log_level" ]; then
         case "$1" in
@@ -95,8 +94,8 @@ yes_no_prompt() { #(message)
 export -f yes_no_prompt
 
 collection_prompt() { #(prompt)
-    local input=$(cat)
-    local line_count=$(wc -l <<< "$input")
+    local input; input=$(cat)
+    local line_count; line_count=$(wc -l <<< "$input")
     fzf --reverse --height "$((line_count+2))" --prompt "$*: " -1 "${@:2}" <<< "$input"
 }
 export -f collection_prompt
@@ -237,9 +236,9 @@ _choose_device_file() { #(prompt, confirmation_prompt, error_msg, device_choices
     local partitions="$4"
 
     while true; do
-        local dest_device=$(collection_prompt "$1" <<< "$partitions")
+        local dest_device; dest_device=$(collection_prompt "$1" <<< "$partitions")
 
-        if [ ! -z "$dest_device" -a "$?" -eq 0 ]; then
+        if [ -n "$dest_device" -a "$?" -eq 0 ]; then
             if yes_no_prompt "$(printf "$2" "$dest_device")"; then
                 echo "$dest_device"
                 return 0
@@ -413,6 +412,7 @@ fi
 exit 0
 EOF
 
+# shellcheck disable=SC2181
 if [ "$?" -ne 0 ]; then
     error 'installation within new root failed'
     exit 1

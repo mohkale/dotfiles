@@ -16,28 +16,24 @@ This script takes more than a little inspiration from [[https://github.com/wor/p
 
 # TODO: finish add async support.
 
-import os
-import re
-import sys
-
-import shlex
-import subprocess
-
 import abc
-import json
+import configparser
+import dataclasses
 import enum
-import urllib
-import locale
-import logging
 import functools
 import itertools
-import dataclasses
-import configparser
-
-import typing as t
-from collections import namedtuple
-
+import json
+import locale
+import logging
 import mimetypes as mime
+import os
+import re
+import shlex
+import subprocess
+import sys
+import typing as t
+import urllib
+from collections import namedtuple
 
 HAS_MAGIC = True
 try:
@@ -51,7 +47,7 @@ except ImportError:
 
 # default terminal emulator, used when (literally) no alternative is found
 # on this system.
-DEFAULT_TERM = 'xterm'
+DEFAULT_TERM = "xterm"
 
 # ┌─────────────────┐
 # │      Utils      │
@@ -59,7 +55,9 @@ DEFAULT_TERM = 'xterm'
 #
 # Functions that're used in a bunch of other places.
 
-T = t.TypeVar('T')
+T = t.TypeVar("T")
+
+
 def first(it: t.Sequence[T]) -> t.Union[None, T]:
     """extract the first value from the iterator `it'."""
     try:
@@ -72,6 +70,7 @@ def first(it: t.Sequence[T]) -> t.Union[None, T]:
 def can_exec(path):
     """Asseert whether `path` is executable."""
     return os.path.isfile(path) and os.access(path, os.X_OK)
+
 
 @functools.lru_cache()
 def which(program: str):
@@ -100,9 +99,11 @@ def which(program: str):
                 return exe_file
     return None
 
+
 # pylint: disable=too-many-arguments
-def nrwalk(top, mindepth=0, maxdepth=sys.maxsize,
-           dirfilter=None, filefilter=None, onerror=None):
+def nrwalk(
+    top, mindepth=0, maxdepth=sys.maxsize, dirfilter=None, filefilter=None, onerror=None
+):
     """Non-recursive directory tree generator.
 
     TODO why not just os.walk?
@@ -131,6 +132,7 @@ def nrwalk(top, mindepth=0, maxdepth=sys.maxsize,
         onerror: func. See os.walk().
         followlinks: bool. See os.walk().
     """
+
     def process_dir(root):
         try:
             names = os.listdir(root)
@@ -157,24 +159,28 @@ def nrwalk(top, mindepth=0, maxdepth=sys.maxsize,
 
     _, join, isdir = os.path.islink, os.path.join, os.path.isdir
 
-    Dir_node = namedtuple('Dir_node', ['root', 'dirs', 'nondirs'])
-    travelsal_stack = list()
-    travelsal_stack.append(Dir_node(top, *process_dir(top)))
-    if maxdepth >= len(travelsal_stack) - 1 >= mindepth:
-        yield travelsal_stack[0]
+    Dir_node = namedtuple("Dir_node", ["root", "dirs", "nondirs"])
+    traversal_stack = []
+    traversal_stack.append(Dir_node(top, *process_dir(top)))
+    if maxdepth >= len(traversal_stack) - 1 >= mindepth:
+        yield traversal_stack[0]
 
     while True:
-        if not travelsal_stack:
+        if not traversal_stack:
             break
-        if travelsal_stack[len(travelsal_stack) - 1].dirs and \
-                maxdepth >= len(travelsal_stack):
-            _new_root = join(travelsal_stack[len(travelsal_stack) - 1].root,
-                             travelsal_stack[len(travelsal_stack) - 1].dirs.pop())
-            travelsal_stack.append(Dir_node(_new_root, *process_dir(_new_root)))
-            if len(travelsal_stack) - 1 >= mindepth:
-                yield travelsal_stack[len(travelsal_stack) - 1]
+        if traversal_stack[len(traversal_stack) - 1].dirs and maxdepth >= len(
+            traversal_stack
+        ):
+            _new_root = join(
+                traversal_stack[len(traversal_stack) - 1].root,
+                traversal_stack[len(traversal_stack) - 1].dirs.pop(),
+            )
+            traversal_stack.append(Dir_node(_new_root, *process_dir(_new_root)))
+            if len(traversal_stack) - 1 >= mindepth:
+                yield traversal_stack[len(traversal_stack) - 1]
         else:
-            travelsal_stack.pop()
+            traversal_stack.pop()
+
 
 def parse_comma_sep_list(csl_str):
     """Parses comma separated list string to a list.
@@ -185,6 +191,7 @@ def parse_comma_sep_list(csl_str):
     sl = [os.path.expanduser(s.strip()) for s in sl]
     return sl
 
+
 # ┌───────────────────────────────┐
 # │      Generic File Opener      │
 # └───────────────────────────────┘
@@ -192,6 +199,7 @@ def parse_comma_sep_list(csl_str):
 # For opening files without a platform specific file opener. Defaults to
 # using mimelist and desktop entries to find the first installed program
 # which claims to be able to open the supplied URLs.
+
 
 def desktop_list_parser(desktop_list_fn, mime_type_find=None, find_all=False):
     # TODO remove find_all
@@ -212,7 +220,9 @@ def desktop_list_parser(desktop_list_fn, mime_type_find=None, find_all=False):
             (^[^[]+)    # mimetype, line doesn't start with [
             =
             (.+)[;]?$   # desktop file, ignore possible ';' at the end
-            """, re.I | re.X)
+            """,
+        re.I | re.X,
+    )
     mime_type_desktop_map = {}
     desktop_files = []
     with open(desktop_list_fn) as f:
@@ -240,10 +250,10 @@ def desktop_list_parser(desktop_list_fn, mime_type_find=None, find_all=False):
         return desktop_files
     return mime_type_desktop_map if mime_type_desktop_map else None
 
+
 @dataclasses.dataclass
 class URL(object):
-    """Store a URL alongside it's parsed protocol, target and mimetype.
-    """
+    """Store a URL alongside it's parsed protocol, target and mimetype."""
 
     url: str
     protocol: str = ""
@@ -258,7 +268,7 @@ class URL(object):
             if not self.protocol:
                 self.protocol = prot
             if not self.target:
-                self.target   = tar
+                self.target = tar
             canon_target = canon_target or prot == "file"
 
         if canon_target:
@@ -276,19 +286,16 @@ class URL(object):
         m = re.match(r"([a-z]+):(\?|//)", url, re.I)
         if m:
             protocol = m.groups()[0].lower()
-            target   = urllib.parse.unquote(url[m.span()[1]:])
+            target = urllib.parse.unquote(url[m.span()[1] :])
             return protocol, target
         return "file", url
 
     # concreate mimetypes for application/octet-stream
-    app_mimetypes = {
-        '.chm': 'application/x-chm',
-        '.sdf': 'application/x-spring-demo'
-    }
+    app_mimetypes = {".chm": "application/x-chm", ".sdf": "application/x-spring-demo"}
 
     # mimetypes for specific URL protocols
     protocol_mimetypes = {
-        'magnet': 'application/x-bittorrent',
+        "magnet": "application/x-bittorrent",
     }
 
     @classmethod
@@ -297,26 +304,30 @@ class URL(object):
         if protocol == "file":
             if not os.path.exists(target):  # guess from extension
                 ext = os.path.splitext(target)[1]
-                logging.debug('Guessing mimetype from file extension: %s', ext)
+                logging.debug("Guessing mimetype from file extension: %s", ext)
                 if len(ext) <= 1:
                     return None
 
                 mtype = mime.types_map.get(ext, None)
                 if not mtype:
-                    logging.warning("mimetypes could not determine mimetype"
-                                    "from extension: %s", ext)
+                    logging.warning(
+                        "mimetypes could not determine mimetype" "from extension: %s",
+                        ext,
+                    )
                 return mtype
 
-            logging.info('Finding mime type for file at path: %s', target)
+            logging.info("Finding mime type for file at path: %s", target)
             mtype = mime.guess_type(target)[0]
             if HAS_MAGIC:
                 magic_mtype = magic.from_file(target, mime=True)
                 if mtype != magic_mtype:
-                    logging.warning('-------- mimetypes differed from magic --------')
-                    logging.warning('%s != %s', repr(mtype), repr(magic_mtype))
-                    logging.warning('-----------------------------------------------')
+                    logging.warning("-------- mimetypes differed from magic --------")
+                    logging.warning("%s != %s", repr(mtype), repr(magic_mtype))
+                    logging.warning("-----------------------------------------------")
                 if not mtype and magic_mtype:
-                    logging.debug('Preffering magic type over missing mimetype: %s', mtype)
+                    logging.debug(
+                        "Preffering magic type over missing mimetype: %s", mtype
+                    )
                     mtype = magic_mtype
 
             if mtype == "application/octet-stream":
@@ -335,15 +346,16 @@ class URL(object):
         mtype = mime.guess_type(url)
         if not mtype:
             mtype = "x-scheme-handler/" + protocol
-            logging.info("Defaulted protocol '%s' to mime type: '%s'",
-                         protocol, mtype)
+            logging.info("Defaulted protocol '%s' to mime type: '%s'", protocol, mtype)
         return mtype
 
+
 class DesktopFindSearchOrder(enum.IntEnum):
-    """Represents the order in which DesktopFind can proceed.
-    """
+    """Represents the order in which DesktopFind can proceed."""
+
     LIST_FILES = enum.auto()
     DESKTOP_FP = enum.auto()
+
 
 @dataclasses.dataclass
 class DesktopFind(object):
@@ -390,7 +402,7 @@ class DesktopFind(object):
                 logging.debug("Running search on desktop files from path")
                 yield from self.search_files(key, value)
             else:
-                logging.warning('Unknown value in search order: %s', order)
+                logging.warning("Unknown value in search order: %s", order)
         return []
 
     @staticmethod
@@ -401,7 +413,7 @@ class DesktopFind(object):
         logging.debug("Parsing desktop file: %s", fpath)
         df = configparser.ConfigParser()
         try:
-            with open(fpath, 'r') as fd:
+            with open(fpath, "r") as fd:
                 df.read_file(fd)
                 return df._sections  # pylint: disable=protected-access
         except:  # pylint: disable=bare-except
@@ -416,9 +428,16 @@ class DesktopFind(object):
         """
 
         # Next try to find correct desktop file by parsing invidual desktop files
-        logging.debug("Find desktop file by search with key/value: %s", repr((key, value),))
+        logging.debug(
+            "Find desktop file by search with key/value: %s",
+            repr(
+                (key, value),
+            ),
+        )
         for path in self.paths:
-            for root, _, files in nrwalk(path, filefilter=lambda f, _: not f.endswith(".desktop")):
+            for root, _, files in nrwalk(
+                path, filefilter=lambda f, _: not f.endswith(".desktop")
+            ):
                 for f in files:
                     df_name = os.path.join(root, f)
                     df = self.read_desktop_file(df_name)
@@ -427,7 +446,7 @@ class DesktopFind(object):
 
                     try:
                         # TODO maybe check if XDG allows MimeType in other sections
-                        if value in df['Desktop Entry']['MimeType']:
+                        if value in df["Desktop Entry"]["MimeType"]:
                             yield df_name, df
                     except KeyError:
                         pass
@@ -477,14 +496,19 @@ class DesktopFind(object):
                         continue  # TODO check whether this is needed
                     df_fp = self._resolve_fullpath(desktop_file)
                     if not df_fp:
-                        logging.info("Skipping not found (list) desktop file "
-                                     "%s, mentioned in %s", repr(desktop_file), repr(list_file))
+                        logging.info(
+                            "Skipping not found (list) desktop file "
+                            "%s, mentioned in %s",
+                            repr(desktop_file),
+                            repr(list_file),
+                        )
                         continue
 
                     logging.info("Found desktop file from list: %s", list_file)
                     df = self.read_desktop_file(df_fp)
                     if df:
                         yield df_fp, df
+
 
 @dataclasses.dataclass
 class GenericOpener(object):
@@ -502,34 +526,37 @@ class GenericOpener(object):
     def __post_init__(self):
         # enforce a default for the terminal options, uses the [[https://wiki.archlinux.org/index.php/I3#Terminal_emulator][i3]] config variable.
         self.finder = DesktopFind(self.paths, self.list_files, self.search_order)
-        self.terminal = self.terminal or os.environ.get('TERMINAL')
+        self.terminal = self.terminal or os.environ.get("TERMINAL")
         if not self.terminal:
-            logging.info('Trying to find terminal emulator from desktop files')
-            _, terminal_df = self.finder.get_file('Categories', 'TerminalEmulator')
-            self.terminal = terminal_df.get('Desktop Entry', {}).get('Exec', DEFAULT_TERM)
+            logging.info("Trying to find terminal emulator from desktop files")
+            _, terminal_df = self.finder.get_file("Categories", "TerminalEmulator")
+            self.terminal = terminal_df.get("Desktop Entry", {}).get(
+                "Exec", DEFAULT_TERM
+            )
         self._success = True  # whether we've sucesfully managed to open all URLs
         self._desktop_map = {}  # maps found desktop files to the file contents
 
     def _process_urls(self, urls, on_fail):
         for url in map(URL, urls):
-            logging.info('Working on URL: %s', url.url)
-            logging.debug('Protocol for url is: %s', url.protocol)
-            logging.debug('Target for url is: %s', url.target)
-            logging.debug('Mimetype for url is: %s', url.mimetype)
+            logging.info("Working on URL: %s", url.url)
+            logging.debug("Protocol for url is: %s", url.protocol)
+            logging.debug("Target for url is: %s", url.target)
+            logging.debug("Mimetype for url is: %s", url.mimetype)
 
             if not url.mimetype:
-                logging.error('Skipping url because no mimetype was found: %s',
-                              url.mimetype)
+                logging.error(
+                    "Skipping url because no mimetype was found: %s", url.mimetype
+                )
                 on_fail(url)
                 continue
 
-            df_path, dfile = self.finder.get_file('MimeType', url.mimetype)
+            df_path, dfile = self.finder.get_file("MimeType", url.mimetype)
             if not dfile:
-                logging.error('Could not find desktop file for url: %s', url.url)
+                logging.error("Could not find desktop file for url: %s", url.url)
                 on_fail(url)
                 continue
 
-            logging.info('Found desktop file: %s', df_path)
+            logging.info("Found desktop file: %s", df_path)
             url.desktop_file = df_path
             self._desktop_map[df_path] = dfile
             yield url
@@ -538,19 +565,22 @@ class GenericOpener(object):
         """Open URLs using generic platform agnostic method.
         This mostly involves relying on mimetypes and desktop entry configurations.
         """
-        def on_fail(): self._success = False
 
-        for desktop_key, urls in itertools.groupby(self._process_urls(url, on_fail),
-                                                   lambda x: x.desktop_file):
+        def on_fail():
+            self._success = False
+
+        for desktop_key, urls in itertools.groupby(
+            self._process_urls(url, on_fail), lambda x: x.desktop_file
+        ):
             df = self._desktop_map[desktop_key]
-            cmd = df.get('Desktop Entry', {}).get('exec')
+            cmd = df.get("Desktop Entry", {}).get("exec")
             if cmd is None:
-                logging.error('Desktop entry lacks exec: %s', desktop_key)
+                logging.error("Desktop entry lacks exec: %s", desktop_key)
                 self._success = False
                 continue
 
             for cmd in self.generate_cmds(cmd, df, desktop_key, list(urls)):
-                logging.debug('Running command: %s', cmd)
+                logging.debug("Running command: %s", cmd)
                 if subprocess.run(cmd, shell=True).returncode != 0:
                     self._success = False
 
@@ -566,33 +596,44 @@ class GenericOpener(object):
         URLs substituted with the empty string ''.
         """
         cmd = self.format_cmd(cmd, entry, entry_path)
-        if entry.get('Desktop Entry', {}).get('terminal', '').lower() == 'true':
+        if entry.get("Desktop Entry", {}).get("terminal", "").lower() == "true":
+
             def transform(cmd):
-                return self.terminal + ' -e ' + cmd
+                return self.terminal + " -e " + cmd
+
         else:
+
             def transform(x):
                 return x
 
-        url_flags = ('%F', '%U', '%f', '%u')
+        url_flags = ("%F", "%U", "%f", "%u")
         if len(urls) == 0:
             # The spec states that if you want to run a command without any URLs
             # replace these flags with the empty string.
-            yield transform(functools.reduce(lambda ex, flag: ex.replace(flag, ''), url_flags, cmd))
+            yield transform(
+                functools.reduce(lambda ex, flag: ex.replace(flag, ""), url_flags, cmd)
+            )
             return []
 
         specifier = first(filter(lambda x: cmd.find(x) != -1, url_flags))
         # The spec states each Exec cmd line can only contain one of cmd_flags
-        target = (lambda url: url.target) if specifier.lower() == '%f' else (lambda url: url.url)
+        target = (
+            (lambda url: url.target)
+            if specifier.lower() == "%f"
+            else (lambda url: url.url)
+        )
         # useful lambda to extract the desired field for the target specifier
 
-        if specifier in ('%f', '%u'):
+        if specifier in ("%f", "%u"):
             # Each exec line can only take upto one URL, so substitute that URL
             # into cmd once for each URL.
             for url in urls:
                 yield transform(cmd.replace(specifier, shlex.quote(target(url))))
-        elif specifier in ('%F', '%U'):
+        elif specifier in ("%F", "%U"):
             # WARN this might end up exceeding the command line limit, TODO test.
-            yield transform(cmd.replace(specifier, " ".join(shlex.quote(target(x)) for x in urls)))
+            yield transform(
+                cmd.replace(specifier, " ".join(shlex.quote(target(x)) for x in urls))
+            )
         else:
             # this exec string doesn't depend on any urls.
             yield cmd
@@ -606,27 +647,28 @@ class GenericOpener(object):
         # TODO: '%' char escaping is not considered yet
         # http://standards.freedesktop.org/desktop-entry-spec/latest/ar01s06.html
 
-        de = entry.get('Desktop Entry', {})
+        de = entry.get("Desktop Entry", {})
 
         # First remove/ignore deprecated
-        cmd = cmd.replace('%d', "")
-        cmd = cmd.replace('%D', "")
-        cmd = cmd.replace('%n', "")
-        cmd = cmd.replace('%N', "")
-        cmd = cmd.replace('%v', "")
-        cmd = cmd.replace('%m', "")
+        cmd = cmd.replace("%d", "")
+        cmd = cmd.replace("%D", "")
+        cmd = cmd.replace("%n", "")
+        cmd = cmd.replace("%N", "")
+        cmd = cmd.replace("%v", "")
+        cmd = cmd.replace("%m", "")
 
-        cmd = cmd.replace('%i', de.get('Icon', ""))
+        cmd = cmd.replace("%i", de.get("Icon", ""))
 
         # Replace locale dependent name
         if cmd.find("%c") != -1:
             loc = locale.getlocale()[0]
-            name = de.get(f'Name[{loc}]', de.get(f"Name[{loc.partition('_')[0]}]", ""))
-            cmd = cmd.replace('%c', shlex.quote(name))
+            name = de.get(f"Name[{loc}]", de.get(f"Name[{loc.partition('_')[0]}]", ""))
+            cmd = cmd.replace("%c", shlex.quote(name))
 
         # TODO: file name in URI form if not local (vholder?)
-        cmd = cmd.replace('%k', shlex.quote(os.path.basename(entry_path)))
+        cmd = cmd.replace("%k", shlex.quote(os.path.basename(entry_path)))
         return cmd
+
 
 # ┌────────────────────────────────────────┐
 # │      Desktop Environment Checkers      │
@@ -642,22 +684,24 @@ class GenericOpener(object):
 #
 # TODO remove this warning once I've tested all implemented openers.
 
+
 @functools.lru_cache()
 def xdg_current_desktop():  # pylint: disable=missing-function-docstring
-    return os.environ.get('XDG_CURRENT_DESKTOP', '')
+    return os.environ.get("XDG_CURRENT_DESKTOP", "")
+
 
 @functools.lru_cache()
 def desktop_session():  # pylint: disable=missing-function-docstring
-    return os.environ.get('DESKTOP_SESSION', '')
+    return os.environ.get("DESKTOP_SESSION", "")
+
 
 class Desktop(abc.ABC):
-    """Abstract base class for a desktop environment with it's own `open' command.
-    """
+    """Abstract base class for a desktop environment with it's own `open' command."""
 
     def __init__(self, *args, **kwargs):
-        self.args   = args
+        self.args = args
         self.kwargs = kwargs
-        self.interactive = kwargs.get('interactive', False)
+        self.interactive = kwargs.get("interactive", False)
 
     @abc.abstractmethod
     def open(self, urls: t.List[str]) -> bool:
@@ -678,38 +722,53 @@ class Desktop(abc.ABC):
         the generic url opener is used instead.
         """
         for spec in specs:
-            cmd  = spec['cmd']
-            args = spec['exec']
+            cmd = spec["cmd"]
+            args = spec["exec"]
 
-            logging.debug('Checking for url opener: %s', cmd)
+            logging.debug("Checking for url opener: %s", cmd)
             cmd = which(cmd)
             if not cmd:
                 continue
 
             args = [a for a in args if a is not None]
-            logging.info('Opening urls with: %s', cmd)
-            logging.debug('Running command: %s', json.dumps(args))
+            logging.info("Opening urls with: %s", cmd)
+            logging.debug("Running command: %s", json.dumps(args))
             return subprocess.run(args).returncode == 0
 
-        logging.info('Failed to find url opener for desktop: %s', type(self).__name__)
+        logging.info("Failed to find url opener for desktop: %s", type(self).__name__)
         if run_generic:
-            logging.info('Running generic open command')
-            return GenericOpener.from_kwargs(*self.args, **self.kwargs).open(self.kwargs['urls'])
+            logging.info("Running generic open command")
+            return GenericOpener.from_kwargs(*self.args, **self.kwargs).open(
+                self.kwargs["urls"]
+            )
         return False
+
 
 class KDE(Desktop):
     def open(self, urls):
         res = True
         for url in urls:
             res = res and self.run_opener(
-                {'cmd': 'kde-open',
-                 'exec': ['kde-open', url]},
-                {'cmd': 'kde-open5',
-                 'exec': ['kde-open5', '--interactive' if self.interactive else None, '--', url]},
-                {'cmd': 'kfmclient',
-                 'exec': ['kfmclient', 'exec', url]},
-                {'cmd': 'kioclient5',
-                 'exec': ['kioclient5', '--interactive' if self.interactive else '', 'exec', url]},
+                {"cmd": "kde-open", "exec": ["kde-open", url]},
+                {
+                    "cmd": "kde-open5",
+                    "exec": [
+                        "kde-open5",
+                        "--interactive" if self.interactive else None,
+                        "--",
+                        url,
+                    ],
+                },
+                {"cmd": "kfmclient", "exec": ["kfmclient", "exec", url]},
+                {
+                    "cmd": "kioclient5",
+                    "exec": [
+                        "kioclient5",
+                        "--interactive" if self.interactive else "",
+                        "exec",
+                        url,
+                    ],
+                },
             )
         return res
 
@@ -730,43 +789,45 @@ class KDE(Desktop):
 
     @classmethod
     def is_current(cls) -> bool:
-        return xdg_current_desktop() == 'KDE' or \
-            os.environ.get('KDE_FULL_SESSION') is not None
+        return (
+            xdg_current_desktop() == "KDE"
+            or os.environ.get("KDE_FULL_SESSION") is not None
+        )
+
 
 class Enlightenment(Desktop):
     def open(self, urls):
         return self.run_opener(
-            {'cmd': 'enlightenment_open',
-             'exec': ['enlightenment_open', *urls]}
+            {"cmd": "enlightenment_open", "exec": ["enlightenment_open", *urls]}
         )
 
     @classmethod
     def is_current(cls) -> bool:
-        return 'ENLIGHTENMENT' in xdg_current_desktop() or \
-            os.environ.get('DESKTOP', '').startswith('Enlightenment')
+        return "ENLIGHTENMENT" in xdg_current_desktop() or os.environ.get(
+            "DESKTOP", ""
+        ).startswith("Enlightenment")
+
 
 class Deepin(Desktop):
     def open(self, urls):
-        return self.run_opener(
-            {'cmd': 'dde-open',
-             'exec': ['dde-open', *urls]}
-        )
+        return self.run_opener({"cmd": "dde-open", "exec": ["dde-open", *urls]})
 
     @classmethod
     def is_current(cls) -> bool:
-        return xdg_current_desktop() in ['DEEPIN', 'Deepin', 'deepin']
+        return xdg_current_desktop() in ["DEEPIN", "Deepin", "deepin"]
+
 
 class LXDE(Desktop):
     def open(self, urls):
-        return self.run_opener(
-            {'cmd': 'pcmanfm',
-             'exec': ['pcmanfm', *urls]}
-        )
+        return self.run_opener({"cmd": "pcmanfm", "exec": ["pcmanfm", *urls]})
 
     @classmethod
     def is_current(cls) -> bool:
-        return xdg_current_desktop() == 'LXDE' or \
-            desktop_session() in ('LXDE', 'Lubuntu')
+        return xdg_current_desktop() == "LXDE" or desktop_session() in (
+            "LXDE",
+            "Lubuntu",
+        )
+
 
 class LXQt(Desktop):
     def open(self, urls):
@@ -774,116 +835,140 @@ class LXQt(Desktop):
 
     @classmethod
     def is_current(cls) -> bool:
-        return xdg_current_desktop() == 'LXQt' or \
-            os.environ.get('LXQT_SESSION_CONFIG') is not None
+        return (
+            xdg_current_desktop() == "LXQt"
+            or os.environ.get("LXQT_SESSION_CONFIG") is not None
+        )
+
 
 class MATE(Desktop):
     def open(self, urls):
         return self.run_opener(
-            {'cmd': 'gio',
-             'exec': ['gio', 'open', *urls]},
-            {'cmd': 'gvfs-open',
-             'exec': ['gvfs-open', *urls]},
-            {'cmd': 'mate-open',
-             'exec': ['mate-open', *urls]},
+            {"cmd": "gio", "exec": ["gio", "open", *urls]},
+            {"cmd": "gvfs-open", "exec": ["gvfs-open", *urls]},
+            {"cmd": "mate-open", "exec": ["mate-open", *urls]},
         )
 
     @classmethod
     def is_current(cls) -> bool:
-        return xdg_current_desktop() == 'MATE' or \
-            os.environ.get('MATE_DESKTOP_SESSION_ID') is not None or \
-            desktop_session() == 'MATE'
+        return (
+            xdg_current_desktop() == "MATE"
+            or os.environ.get("MATE_DESKTOP_SESSION_ID") is not None
+            or desktop_session() == "MATE"
+        )
+
 
 class XFCE(Desktop):
     def open(self, urls):
         return self.run_opener(
-            {'cmd': 'exo-open',
-             'exec': ['exo-open', *urls]},
-            {'cmd': 'gio',
-             'exec': ['gio', 'open', *urls]},
-            {'cmd': 'gvfs-open',
-             'exec': ['gvfs-open', *urls]},
+            {"cmd": "exo-open", "exec": ["exo-open", *urls]},
+            {"cmd": "gio", "exec": ["gio", "open", *urls]},
+            {"cmd": "gvfs-open", "exec": ["gvfs-open", *urls]},
         )
 
     @classmethod
     def is_current(cls) -> bool:
         # elif xprop -root _DT_SAVE_MODE 2> /dev/null | grep ' = \"xfce4\"$' >/dev/null 2>&1; then DE=xfce;
         # elif xprop -root 2> /dev/null | grep -i '^xfce_desktop_window' >/dev/null 2>&1; then DE=xfce
-        return xdg_current_desktop() == 'XFCE' or \
-            desktop_session in ('xfce', 'xfce4', 'Xfce Session')
+        return xdg_current_desktop() == "XFCE" or desktop_session in (
+            "xfce",
+            "xfce4",
+            "Xfce Session",
+        )
+
 
 class Darwin(Desktop):
     def open(self, urls):
         return self.run_opener(
-            {'cmd': 'open',
-             'exec': ['open', *urls]},
+            {"cmd": "open", "exec": ["open", *urls]},
         )
 
     @classmethod
     def is_current(cls) -> bool:
-        return sys.platform.startswith('darwin')
+        return sys.platform.startswith("darwin")
+
 
 class Windows(Desktop):
     def open(self, urls):
         res = True
         for url in urls:
             res = res and self.run_opener(
-                {'cmd': 'cygstart',
-                 'exec': ['cygstart', url]},
-                {'cmd': 'start',
-                 'exec': ['start', '', url]}
+                {"cmd": "cygstart", "exec": ["cygstart", url]},
+                {"cmd": "start", "exec": ["start", "", url]},
             )
         return res
 
     @classmethod
     def is_current(cls) -> bool:
-        return sys.platform.startswith('cygwin') or \
-            sys.platform.startswith('msys') or\
-            os.name == 'nt'
+        return (
+            sys.platform.startswith("cygwin")
+            or sys.platform.startswith("msys")
+            or os.name == "nt"
+        )
+
 
 class Flatpak(Desktop):
     def open(self, urls):
         return self.run_opener(
-            {'cmd': 'gdbus',
-             'exec': ['gdbus', 'call', '--session',
-                      '--dest', 'org.freedesktop.portal.Desktop',
-                      '--object-path', '/org/freedesktop/portal/desktop',
-                      '--method', 'org.freedesktop.portal.OpenURI.OpenURI',
-                      "", *urls, '{}']}
+            {
+                "cmd": "gdbus",
+                "exec": [
+                    "gdbus",
+                    "call",
+                    "--session",
+                    "--dest",
+                    "org.freedesktop.portal.Desktop",
+                    "--object-path",
+                    "/org/freedesktop/portal/desktop",
+                    "--method",
+                    "org.freedesktop.portal.OpenURI.OpenURI",
+                    "",
+                    *urls,
+                    "{}",
+                ],
+            }
         )
 
     @classmethod
     def is_current(cls) -> bool:
         # TODO maybe get 1000 from uid
-        xdg_runtime_dir = os.environ.get('XDG_RUNTIME_DIR', '/run/user/1000')
-        return os.path.isfile(os.path.join(xdg_runtime_dir, 'flatpak-info'))
+        xdg_runtime_dir = os.environ.get("XDG_RUNTIME_DIR", "/run/user/1000")
+        return os.path.isfile(os.path.join(xdg_runtime_dir, "flatpak-info"))
+
 
 class GNOME(Desktop):
     def open(self, urls):
         return self.run_opener(
-            {'cmd': 'gio',
-             'exec': ['gio', 'open', *urls]},
-            {'cmd': 'gvfs-open',
-             'exec': ['gvfs-open', *urls]},
-            {'cmd': 'gnome-open',
-             'exec': ['gnome-open', *urls]},
+            {"cmd": "gio", "exec": ["gio", "open", *urls]},
+            {"cmd": "gvfs-open", "exec": ["gvfs-open", *urls]},
+            {"cmd": "gnome-open", "exec": ["gnome-open", *urls]},
         )
 
     @staticmethod
     def is_cinnamon():
         """Check whether this environment is like cinnamon"""
-        return xdg_current_desktop() in ['Cinnamon', 'X-Cinnamon']
+        return xdg_current_desktop() in ["Cinnamon", "X-Cinnamon"]
 
     @classmethod
     def is_current(cls) -> bool:
-        return xdg_current_desktop().startswith('GNOME') or \
-            os.environ.get('GNOME_DESKTOP_SESSION_ID') is not None or \
-            desktop_session() == 'gnome' or \
-            cls.is_cinnamon() or \
-            which('gnome-default-applications-properties') is not None or \
-            subprocess.run(['dbus-send', '--print-reply', '--dest=org.freedesktop.DBus',
-                            '/org/freedesktop/DBus', 'org.freedesktop.DBus.GetNameOwner',
-                            'string:org.gnome.SessionManager']).returncode == 0
+        return (
+            xdg_current_desktop().startswith("GNOME")
+            or os.environ.get("GNOME_DESKTOP_SESSION_ID") is not None
+            or desktop_session() == "gnome"
+            or cls.is_cinnamon()
+            or which("gnome-default-applications-properties") is not None
+            or subprocess.run(
+                [
+                    "dbus-send",
+                    "--print-reply",
+                    "--dest=org.freedesktop.DBus",
+                    "/org/freedesktop/DBus",
+                    "org.freedesktop.DBus.GetNameOwner",
+                    "string:org.gnome.SessionManager",
+                ]
+            ).returncode
+            == 0
+        )
 
 
 SUPPORTED_DESKTOP_ENVIRONMENTS = Desktop.__subclasses__()
@@ -893,18 +978,19 @@ def detect_desktop(only):
     """Find and return the first desktop environment for which
     `is_current` is True
     """
-    logging.info('Checking current desktop environment')
+    logging.info("Checking current desktop environment")
     envs = SUPPORTED_DESKTOP_ENVIRONMENTS
     if only:
         envs = filter(lambda x: x.__name__ in only, envs)
 
     for de in envs:
-        logging.debug('Asserting desktop is: %s', de.__name__)
+        logging.debug("Asserting desktop is: %s", de.__name__)
         if de.is_current():
-            logging.info('Found current desktop environment: %s', de.__name__)
+            logging.info("Found current desktop environment: %s", de.__name__)
             return de
-    logging.warning('Failed to find supported desktop environment')
+    logging.warning("Failed to find supported desktop environment")
     return None
+
 
 # ┌──────────────────┐
 # │      Opener      │
@@ -912,9 +998,10 @@ def detect_desktop(only):
 #
 # The actual main function used for opening URLs.
 
+
 def xopen(urls, generic_only, only_desktops, *args, **kwargs):
     """Open urls"""
-    logging.debug('Got URLs: %s', urls)
+    logging.debug("Got URLs: %s", urls)
 
     if not generic_only:
         desktop = detect_desktop(only_desktops)
@@ -924,46 +1011,69 @@ def xopen(urls, generic_only, only_desktops, *args, **kwargs):
     return GenericOpener.from_kwargs(*args, **kwargs).open(urls)
 
 
-if __name__ == '__main__':
-    import signal
+if __name__ == "__main__":
     import argparse
+    import signal
 
     signal.signal(signal.SIGINT, lambda: sys.exit(1))  # for ctrl+c
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('urls', metavar='URLs', nargs='+',
-                        help='Path to file or URL to open')
-    parser.add_argument('-l', '--log-level', metavar='LEVEL',
-                        type=lambda x: getattr(logging, x.upper()),
-                        help='Set verbosity of logging output')
-    parser.add_argument('-i', '--interactive', action='store_true',
-                        help='When supported, use message boxes and other native notifications')
+    parser.add_argument(
+        "urls", metavar="URLs", nargs="+", help="Path to file or URL to open"
+    )
+    parser.add_argument(
+        "-l",
+        "--log-level",
+        metavar="LEVEL",
+        type=lambda x: getattr(logging, x.upper()),
+        help="Set verbosity of logging output",
+    )
+    parser.add_argument(
+        "-i",
+        "--interactive",
+        action="store_true",
+        help="When supported, use message boxes and other native notifications",
+    )
     desktop_names = [x.__name__ for x in SUPPORTED_DESKTOP_ENVIRONMENTS]
-    parser.add_argument('-d', '--desktop',
-                        dest='only_desktops', nargs='+',
-                        metavar='DESKTOP', choices=desktop_names,
-                        help='Only check the given desktop environments. Supported options are: ' + json.dumps(desktop_names))
-    parser.add_argument('-g', '--generic',
-                        dest='generic_only', action='store_true',
-                        help="Don't bother checking desktop environments at all")
+    parser.add_argument(
+        "-d",
+        "--desktop",
+        dest="only_desktops",
+        nargs="+",
+        metavar="DESKTOP",
+        choices=desktop_names,
+        help="Only check the given desktop environments. Supported options are: "
+        + json.dumps(desktop_names),
+    )
+    parser.add_argument(
+        "-g",
+        "--generic",
+        dest="generic_only",
+        action="store_true",
+        help="Don't bother checking desktop environments at all",
+    )
     pargs = parser.parse_args()
     vargs = vars(pargs)
 
     # TODO move these to a configuration file
-    vargs['list_files'] = ['mimeapps.list', 'defaults.list']
-    vargs['search_order'] = [DesktopFindSearchOrder.LIST_FILES,
-                             DesktopFindSearchOrder.DESKTOP_FP]
-    vargs['paths'] = [os.path.expanduser('~/.local/share/applications/'),
-                      '/usr/share/applications/',
-                      '/usr/local/share/applications/']
+    vargs["list_files"] = ["mimeapps.list", "defaults.list"]
+    vargs["search_order"] = [
+        DesktopFindSearchOrder.LIST_FILES,
+        DesktopFindSearchOrder.DESKTOP_FP,
+    ]
+    vargs["paths"] = [
+        os.path.expanduser("~/.local/share/applications/"),
+        "/usr/share/applications/",
+        "/usr/local/share/applications/",
+    ]
 
-    level = vargs.pop('log_level')
+    level = vargs.pop("log_level")
     try:
         from mohkale.pylog.config import use_config as use_logging_config
     except ImportError:
         logging.basicConfig(level=level)
     else:
-        use_logging_config('xopen', level=level)
+        use_logging_config("xopen", level=level)
 
     sys.exit(0 if xopen(**vargs) else 1)

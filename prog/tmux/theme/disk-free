@@ -6,25 +6,27 @@ at various mount-points on your file-system and output the results in a form tha
 can be substituted a form that can be substituted back into the tmux status-line.
 """
 
-import os
-import time
 import dataclasses
+import os
 import shutil
+import time
 from pathlib import Path
 
 from mohkale import hurry
-from shared import render_loop, print_loop
+
+from shared import print_loop, render_loop
 
 DEFAULT_CONFIG = ["/:/"]
-DEFAULT_CONFIG_PATH = Path(os.path.expandvars('$TMUX_HOME/disk-free.conf'))
+DEFAULT_CONFIG_PATH = Path(os.path.expandvars("$TMUX_HOME/disk-free.conf"))
 
 
 @dataclasses.dataclass
 class ConfigEntry(object):
-    """Struct containing fields from a config file.
-    """
+    """Struct containing fields from a config file."""
+
     name: str
     mount: str
+
 
 def _should_read_config(config):
     """Closure around config which continually checks
@@ -36,9 +38,11 @@ def _should_read_config(config):
         try:
             # Config must exist, be a file and be have a modification time
             # newer than the last time we returned true
-            readp = config.exists() and \
-                config.is_file() and \
-                args.config.stat().st_mtime > last_read_time
+            readp = (
+                config.exists()
+                and config.is_file()
+                and args.config.stat().st_mtime > last_read_time
+            )
             yield readp
             if readp:
                 last_read_time = time.time()
@@ -46,6 +50,7 @@ def _should_read_config(config):
             break
         except OSError:
             yield False
+
 
 def parse_config(body):
     """Parse an iterable over the contents of a configuration file
@@ -57,32 +62,30 @@ def parse_config(body):
     res = []
     try:
         for line in body:
-            args = line.rstrip().split(':')
+            args = line.rstrip().split(":")
             args[1] = Path(args[1])
             res.append(ConfigEntry(*args))
         return res
     finally:
-        if hasattr(body, 'close'):
+        if hasattr(body, "close"):
             body.close()
 
 
 def format_percentage(usage, percent):
-    """Format a usage amount as a percentage value.
-    """
+    """Format a usage amount as a percentage value."""
     # pylint: disable=unused-argument
-    return str(percent) + '%'
+    return str(percent) + "%"
 
 
 def format_free_bytes(usage, percent):
-    """Format a usage amount as a byte count (eg: 1MB).
-    """
+    """Format a usage amount as a byte count (eg: 1MB)."""
     # pylint: disable=unused-argument
-    return '%d%s' % hurry.bytes(usage.free, 1000)
+    size, suffix = hurry.bytes(usage.free, 1000)
+    return f"{int(size)}{suffix}"
 
 
 def format_mount(entry, fmt, args):
-    """Format a mount points usage value as a string.
-    """
+    """Format a mount points usage value as a string."""
     try:
         if not entry.mount.exists():
             return None
@@ -90,9 +93,9 @@ def format_mount(entry, fmt, args):
     except Exception:  # pylint: disable=broad-except
         return None
     percent = round(100 * usage.used / float(usage.total))
-    res = ''
+    res = ""
     res += args.mount_style + entry.name + args.reset_style
-    res += ':' + args.value_style
+    res += ":" + args.value_style
     for threshold, style in args.thresholds:
         if percent >= threshold:
             res += style
@@ -100,9 +103,9 @@ def format_mount(entry, fmt, args):
     res += fmt(usage, percent)
     return res
 
+
 def disk_free(args):
-    """Generator continually fetching and yielding the string to be output.
-    """
+    """Generator continually fetching and yielding the string to be output."""
     fmt = format_percentage
     if args.show_bytes:
         fmt = format_free_bytes
@@ -116,49 +119,79 @@ def disk_free(args):
         nonlocal cfg
         if cfg is None or should_read_conf:
             cfg = parse_config(
-                args.config.open('r', encoding='utf-8')
-                if should_read_conf else DEFAULT_CONFIG)
+                args.config.open("r", encoding="utf-8")
+                if should_read_conf
+                else DEFAULT_CONFIG
+            )
 
         formatted = (format_mount(it, fmt, args) for it in cfg)
-        return ' '.join(x for x in formatted if x)
+        return " ".join(x for x in formatted if x)
+
     return wrapped
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-c', '--config', type=Path,
-                        default=DEFAULT_CONFIG_PATH,
-                        help='Specify mount map configuration file')
-    parser.add_argument('-b', '--show-bytes', action='store_true',
-                        help='Show bytes remaining instead of percentage used')
+    parser.add_argument(
+        "-c",
+        "--config",
+        type=Path,
+        default=DEFAULT_CONFIG_PATH,
+        help="Specify mount map configuration file",
+    )
+    parser.add_argument(
+        "-b",
+        "--show-bytes",
+        action="store_true",
+        help="Show bytes remaining instead of percentage used",
+    )
 
-    parser.add_argument('-m', '--mount-style', default='',
-                        help='Specify style for mount points')
-    parser.add_argument('-r', '--reset-style', default='#[default]',
-                        help='Specify style for resetting styles')
-    parser.add_argument('-v', '--value-style', default='',
-                        help='Specify style for value points')
-    parser.add_argument('-t', '--thresholds',
-                        nargs=2, metavar=('PERCENT', 'STYLE'),
-                        action='append', default=[],
-                        help='Specify style thresholds')
+    parser.add_argument(
+        "-m", "--mount-style", default="", help="Specify style for mount points"
+    )
+    parser.add_argument(
+        "-r",
+        "--reset-style",
+        default="#[default]",
+        help="Specify style for resetting styles",
+    )
+    parser.add_argument(
+        "-v", "--value-style", default="", help="Specify style for value points"
+    )
+    parser.add_argument(
+        "-t",
+        "--thresholds",
+        nargs=2,
+        metavar=("PERCENT", "STYLE"),
+        action="append",
+        default=[],
+        help="Specify style thresholds",
+    )
 
-    parser.add_argument('-u', '--unbuffer', action='store_true',
-                        help='Immeadiately flush output after writing')
-    parser.add_argument('-s', '--sleep', type=int,
-                        help='When given, wait this duration between outputting')
+    parser.add_argument(
+        "-u",
+        "--unbuffer",
+        action="store_true",
+        help="Immeadiately flush output after writing",
+    )
+    parser.add_argument(
+        "-s",
+        "--sleep",
+        type=int,
+        help="When given, wait this duration between outputting",
+    )
 
-    args  = parser.parse_args()
+    args = parser.parse_args()
     vargs = vars(args)
 
     for it in args.thresholds:
         try:
             it[0] = float(it[0])
         except ValueError:
-            parser.error('Threshold values must be a number, not: %s' % it[0])
+            parser.error(f"Threshold values must be a number, not: {it[0]}")
     args.thresholds = sorted(args.thresholds, key=lambda x: x[0], reverse=True)
 
     try:

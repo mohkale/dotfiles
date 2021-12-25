@@ -20,25 +20,42 @@ working directory, run `file-path -h` for a list of available options.
 """
 
 import os
-import sys
 import shlex
+import sys
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(
         add_help=False,
-        description='prints input paths shell escaped and in absolute form.')
-    parser.add_argument('-h', '--help', action='store_true', help='show this help message and exit.')
-    parser.add_argument('paths', metavar='PATH', nargs='*', help='paths to print back out.')
-    parser.add_argument('-c', '--cd', dest='cwd', metavar='DIR', help='set working directory to DIR.')
-    parser.add_argument('-o', '--output', metavar='DIR', help='set parent of all relative paths to DIR.')
-    parser.add_argument('-i', '--ignore-warnings', action='store_true',
-                        help="print input paths, even if they don't exist.")
+        description="prints input paths shell escaped and in absolute form.",
+    )
+    parser.add_argument(
+        "-h", "--help", action="store_true", help="show this help message and exit."
+    )
+    parser.add_argument(
+        "paths", metavar="PATH", nargs="*", help="paths to print back out."
+    )
+    parser.add_argument(
+        "-c", "--cd", dest="cwd", metavar="DIR", help="set working directory to DIR."
+    )
+    parser.add_argument(
+        "-o", "--output", metavar="DIR", help="set parent of all relative paths to DIR."
+    )
+    parser.add_argument(
+        "-i",
+        "--ignore-warnings",
+        action="store_true",
+        help="print input paths, even if they don't exist.",
+    )
 
     file_type_group = parser.add_mutually_exclusive_group()
-    file_type_group.add_argument('-f', '--only-files', action='store_true', help='print only files.')
-    file_type_group.add_argument('-d', '--only-dirs', action='store_true', help='print only directories.')
+    file_type_group.add_argument(
+        "-f", "--only-files", action="store_true", help="print only files."
+    )
+    file_type_group.add_argument(
+        "-d", "--only-dirs", action="store_true", help="print only directories."
+    )
 
     args = parser.parse_args()
     if args.help:
@@ -47,7 +64,7 @@ if __name__ == '__main__':
 
     if args.cwd:
         if not os.path.exists(args.cwd) or not os.path.isdir(args.cwd):
-            parser.error('unable to locate directory: ' + args.cwd)
+            parser.error("unable to locate directory: " + args.cwd)
         os.chdir(args.cwd)
 
     if not args.output:
@@ -64,7 +81,7 @@ if __name__ == '__main__':
     first = True
     for path in args.paths:
         if not os.path.exists(path):
-            print('warning, unable to locate input path: ' + path, file=sys.stderr)
+            print("warning, unable to locate input path: " + path, file=sys.stderr)
 
             if not args.ignore_warnings:
                 continue
@@ -73,8 +90,9 @@ if __name__ == '__main__':
             path = os.path.join(args.output, path)
         path = os.path.realpath(path)
 
-        if not first: print(' ', end='')
-        print(shlex.quote(path), end='')
+        if not first:
+            print(" ", end="")
+        print(shlex.quote(path), end="")
         first = False
 
     if sys.stdout.isatty():

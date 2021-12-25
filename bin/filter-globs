@@ -3,9 +3,10 @@
 Filter stdin based on glob patterns.
 """
 
+import fnmatch
 import os
 import sys
-import fnmatch
+
 
 def exists(it):
     """assert whether `it` has a next element"""
@@ -15,73 +16,109 @@ def exists(it):
     except StopIteration:
         return False
 
+
 def basename_iter(path):
     """iterate over path basenames from basename to root."""
     dirn, base = os.path.split(path)
-    if base != '':
+    if base != "":
         yield base
-    if dirn != '':
+    if dirn != "":
         yield from basename_iter(dirn)
+
 
 def glob_filter(args):
     """Return a predicate function that checks whether a line matches
     a collection of globs.
     """
     globber = fnmatch.fnmatchcase if args.case_sensitive else fnmatch.fnmatch
+
     def matches(line):
         """line matches some glob in the glob list"""
         return exists(filter(lambda glob: globber(line, glob), args.globs))
 
     if args.basename_all:
+
         def do_filter_all(line):
             for base in basename_iter(line):
                 if matches(base):
                     return not args.invert
             return args.invert
+
         return do_filter_all
 
     def do_filter(line):
         return matches(line) != args.invert
+
     if args.basename:
         return lambda line: do_filter(os.path.basename(line))
     return do_filter
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser(
-        description="filter lines from STDIN that match (or don't match) GLOB")
+        description="filter lines from STDIN that match (or don't match) GLOB"
+    )
 
-    globs_group = parser.add_argument_group('Glob')
-    globs_group.add_argument('globs', metavar='GLOB', default=[], nargs='*', help='GLOB to match')
-    globs_group.add_argument('-p', '--path', metavar='PATH', action='append',
-                             help='read globs from PATH seperated with DELIMETER')
-    globs_group.add_argument('-d', '--seperator', metavar='DELIMITER', default=':',
-                             help='DELIMITER used with PATH')
-    globs_group.add_argument('-b', '--basename', action='store_true',
-                             help='only match against basenames')
-    globs_group.add_argument('-a', '--basename-all', action='store_true',
-                             help='only match if at least one basename in the entire \
+    globs_group = parser.add_argument_group("Glob")
+    globs_group.add_argument(
+        "globs", metavar="GLOB", default=[], nargs="*", help="GLOB to match"
+    )
+    globs_group.add_argument(
+        "-p",
+        "--path",
+        metavar="PATH",
+        action="append",
+        help="read globs from PATH seperated with DELIMETER",
+    )
+    globs_group.add_argument(
+        "-d",
+        "--seperator",
+        metavar="DELIMITER",
+        default=":",
+        help="DELIMITER used with PATH",
+    )
+    globs_group.add_argument(
+        "-b", "--basename", action="store_true", help="only match against basenames"
+    )
+    globs_group.add_argument(
+        "-a",
+        "--basename-all",
+        action="store_true",
+        help="only match if at least one basename in the entire \
                              path matches a glob. This implies -b. WARN this has massive \
-                             performance costs :/, so use sparingly if you can.')
+                             performance costs :/, so use sparingly if you can.",
+    )
 
-    parser.add_argument('-v', '--invert', action='store_true',
-                        help="only show a line that doesn't match a GLOB")
-    parser.add_argument('-i', '--icase', action='store_false',
-                        dest='case_sensitive',
-                        help='make pattern matching case insensitive')
+    parser.add_argument(
+        "-v",
+        "--invert",
+        action="store_true",
+        help="only show a line that doesn't match a GLOB",
+    )
+    parser.add_argument(
+        "-i",
+        "--icase",
+        action="store_false",
+        dest="case_sensitive",
+        help="make pattern matching case insensitive",
+    )
 
-    args  = parser.parse_args()
+    args = parser.parse_args()
     vargs = vars(args)
 
     if args.path:
-        seperator = vargs.pop('seperator')
-        for path in vargs.pop('path'):
+        seperator = vargs.pop("seperator")
+        for path in vargs.pop("path"):
             args.globs.extend(path.split(seperator))
 
     if not args.globs:
-        print('filter-globs: warning: no globs supplied, catting input', file=sys.stderr)
-        for line in iter(sys.stdin.readline, ''):
-            print(line, end='')
+        print(
+            "filter-globs: warning: no globs supplied, catting input", file=sys.stderr
+        )
+        for line in iter(sys.stdin.readline, ""):
+            print(line, end="")
         sys.exit(0)
 
     for f in filter(glob_filter(args), map(lambda s: s.rstrip(os.linesep), sys.stdin)):

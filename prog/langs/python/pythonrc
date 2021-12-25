@@ -4,11 +4,14 @@ Top level python repl configuration file.
 """
 
 import os
+import pathlib
 import re
 import sys
-import pathlib
 
-histfile = pathlib.Path(os.environ.get('XDG_STATE_HOME', '~/.local/state')).expanduser() / 'python_history'
+histfile = (
+    pathlib.Path(os.environ.get("XDG_STATE_HOME", "~/.local/state")).expanduser()
+    / "python_history"
+)
 try:
     import atexit
     import readline
@@ -28,15 +31,14 @@ del histfile
 del atexit
 del readline
 
-if re.search(r'(-color|-256color|-24bit)$',
-             os.environ.get('TERM')):
+if re.search(r"(-color|-256color|-24bit)$", os.environ.get("TERM")):
     # pylint: disable=C0301
     # The \001 and \002 fix length calculations, see [[https://stackoverflow.com/questions/30998499/why-my-gdb-prompt-shows-wrong-after-i-change-its-color][here]].
-    sys.ps1 = '\001\033[32m\002>>> \001\033[0m\002'
-    sys.ps2 = '\001\033[31m\002... \001\033[0m\002'
+    sys.ps1 = "\001\033[32m\002>>> \001\033[0m\002"
+    sys.ps2 = "\001\033[31m\002... \001\033[0m\002"
 else:
-    sys.ps1 = '>>> '
-    sys.ps2 = '... '
+    sys.ps1 = ">>> "
+    sys.ps2 = "... "
 
 # [[https://gist.github.com/vierno/977774][source]]: pretty print repr(value) values.
 def _pretty_print_display_hook(value):
@@ -46,6 +48,7 @@ def _pretty_print_display_hook(value):
         try:
             try:
                 import __builtin__
+
                 __builtin__._ = value
             except ImportError:
                 __builtins__._ = value
@@ -53,6 +56,7 @@ def _pretty_print_display_hook(value):
             pass
 
         import pprint
+
         pprint.pprint(value)
         del pprint
 

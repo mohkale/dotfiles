@@ -6,17 +6,18 @@ status-line.
 """
 
 import sys
-from shared import render_loop, print_loop
+
+from shared import print_loop, render_loop
 
 try:
     import psutil
 except ImportError:
     sys.exit("Failed to import 'psutil'")
 
+
 def format_cpu(percent, args):
-    """Format a CPU percentage into a string conforming to `args`.
-    """
-    res = ''
+    """Format a CPU percentage into a string conforming to `args`."""
+    res = ""
     percent = round(percent)
     for threshold, st in args.thresholds:
         if percent >= threshold:
@@ -24,36 +25,57 @@ def format_cpu(percent, args):
             break
     else:
         res += args.reset_style
-    res += args.symbol if args.symbol else ('%3d%%' % percent)
+    res += args.symbol if args.symbol else f"{percent:3d}%"
     return res
 
+
 def cpu_load(args):
-    """Closure around args that generates formatted CPU entries.
-    """
-    return lambda: args.join.join(format_cpu(x, args) for x in psutil.cpu_percent(percpu=True))
+    """Closure around args that generates formatted CPU entries."""
+    return lambda: args.join.join(
+        format_cpu(x, args) for x in psutil.cpu_percent(percpu=True)
+    )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-d', '--symbol',
-                        help='Show symbol instead of percentage per CPU')
+    parser.add_argument(
+        "-d", "--symbol", help="Show symbol instead of percentage per CPU"
+    )
 
-    parser.add_argument('-t', '--thresholds',
-                        nargs=2, metavar=('PERCENT', 'STYLE'),
-                        action='append', default=[],
-                        help='Specify style thresholds')
-    parser.add_argument('-j', '--join', default=' ',
-                        help='Specify character to join CPU indicators')
+    parser.add_argument(
+        "-t",
+        "--thresholds",
+        nargs=2,
+        metavar=("PERCENT", "STYLE"),
+        action="append",
+        default=[],
+        help="Specify style thresholds",
+    )
+    parser.add_argument(
+        "-j", "--join", default=" ", help="Specify character to join CPU indicators"
+    )
 
-    parser.add_argument('-r', '--reset-style', default='#[default]',
-                        help='Specify style for resetting styles')
-    parser.add_argument('-u', '--unbuffer', action='store_true',
-                        help='Immeadiately flush output after writing')
-    parser.add_argument('-s', '--sleep', type=int,
-                        help='When given, wait this duration between outputting')
+    parser.add_argument(
+        "-r",
+        "--reset-style",
+        default="#[default]",
+        help="Specify style for resetting styles",
+    )
+    parser.add_argument(
+        "-u",
+        "--unbuffer",
+        action="store_true",
+        help="Immeadiately flush output after writing",
+    )
+    parser.add_argument(
+        "-s",
+        "--sleep",
+        type=int,
+        help="When given, wait this duration between outputting",
+    )
 
     args = parser.parse_args()
     vargs = vars(args)
@@ -62,7 +84,7 @@ if __name__ == '__main__':
         try:
             it[0] = float(it[0])
         except ValueError:
-            parser.error('Threshold values must be a number, not: %s' % it[0])
+            parser.error(f"Threshold values must be a number, not: {it[0]}")
     args.thresholds = sorted(args.thresholds, key=lambda x: x[0], reverse=True)
 
     try:

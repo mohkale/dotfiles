@@ -47,6 +47,7 @@ def raise_timeout(signum, frame):
     """Throw a timeout error."""
     raise TimeoutError()
 
+
 @contextmanager
 def timeout(time):
     """
@@ -67,57 +68,60 @@ def timeout(time):
     else:
         yield
 
+
 @dataclass
 class Torrent(object):
     """
     Struct containing fields for a fetched torrent.
     """
+
     torrent: io.BytesIO
     name: str
     creator: str
     comment: str
-    size: int # in bytes
+    size: int  # in bytes
+
 
 class Magnet2Torrent(object):
     """
     Constroller for this script.
     """
+
     def __init__(self, delay, timeout=None):
-        logging.debug('making session')
+        logging.debug("making session")
         self.delay = delay
         self.timeout = timeout
         self.ses = lt.session()
         self.tempdir = tempfile.mkdtemp()
-        logging.debug('temp directory set to: %s', self.tempdir)
+        logging.debug("temp directory set to: %s", self.tempdir)
 
-    def __del__(self,):
+    def __del__(
+        self,
+    ):
         self.cleanup()
 
     def convert(self, magnet_url):
-        """Convert a magnet URL to a torrent file.
-        """
-        logging.debug('constructing handle: %s', magnet_url)
-        handle = lt.add_magnet_uri(
-            self.ses, magnet_url,
-            self.get_params(magnet_url))
+        """Convert a magnet URL to a torrent file."""
+        logging.debug("constructing handle: %s", magnet_url)
+        handle = lt.add_magnet_uri(self.ses, magnet_url, self.get_params(magnet_url))
         handle.resume()
 
-        logging.info('waiting to recieve torrent data')
+        logging.info("waiting to recieve torrent data")
         try:
             with timeout(self.timeout):
                 while not handle.has_metadata():
                     sleep(self.delay)
-                    logging.debug('ping')
+                    logging.debug("ping")
         except TimeoutError:
-            logging.error('reached timeout, cancelling torrent.')
+            logging.error("reached timeout, cancelling torrent.")
             handle.pause()
             # for some reason, pausing it isn't enough to stop
             # libtorrent from making disk calls.
             self.ses.remove_torrent(handle)
             return None
 
-        logging.info('recieved metadata for magnet url')
-        logging.debug('pausing torrent downloading')
+        logging.info("recieved metadata for magnet url")
+        logging.debug("pausing torrent downloading")
         handle.pause()
         # self.ses.pause()
 
@@ -136,19 +140,18 @@ class Magnet2Torrent(object):
             creator=tor_info.creator(),
             # date=tor_info.creation_date(),
             comment=tor_info.comment(),
-            size=tor_info.total_size()
+            size=tor_info.total_size(),
         )
 
         self.ses.remove_torrent(handle)
         return torrent_data
 
-    def get_params(self, magnet_url): # pylint: disable=W0613
-        """Get default parameters for querying a torrent from libtorrent.
-        """
+    def get_params(self, magnet_url):  # pylint: disable=W0613
+        """Get default parameters for querying a torrent from libtorrent."""
         return {
-            'save_path': self.tempdir,
-            'storage_mode': lt.storage_mode_t(2),
-            'flags': lt.torrent_flags.auto_managed,
+            "save_path": self.tempdir,
+            "storage_mode": lt.storage_mode_t(2),
+            "flags": lt.torrent_flags.auto_managed,
             # 'paused': False,
             # 'auto_managed': True,
             # TODO reconsider, maybe ensure magnet_url is uniq
@@ -159,72 +162,118 @@ class Magnet2Torrent(object):
         """Cleanup libtorrent connection and temporarily downloaded
         files from the temp directory.
         """
-        logging.info('cleaning up')
-        logging.debug('closing libtorrent session')
+        logging.info("cleaning up")
+        logging.debug("closing libtorrent session")
         self.ses.pause()
-        logging.debug('deleting temp directory')
+        logging.debug("deleting temp directory")
         shutil.rmtree(str(self.tempdir))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description='convert magnet links to torrent files')
+    parser = argparse.ArgumentParser(
+        description="convert magnet links to torrent files"
+    )
 
-    parser.add_argument('-d', '--delay', type=int, metavar='DURATION', default=1,
-                        help='wait DURATION period to check if metadata has arrived.')
-    parser.add_argument('-t', '--timeout', type=int, metavar='DURATION',
-                        help='cancel magnet link retrieval after timeout seconds')
+    parser.add_argument(
+        "-d",
+        "--delay",
+        type=int,
+        metavar="DURATION",
+        default=1,
+        help="wait DURATION period to check if metadata has arrived.",
+    )
+    parser.add_argument(
+        "-t",
+        "--timeout",
+        type=int,
+        metavar="DURATION",
+        help="cancel magnet link retrieval after timeout seconds",
+    )
 
-    inputs_group = parser.add_argument_group('input')
-    inputs_group.add_argument('-', action='store_const', const=sys.stdin,
-                              dest='file', help='read magnets from STDIN.')
-    inputs_group.add_argument('-r', '--read', type=argparse.FileType('r'),
-                              metavar='FILE', dest='file', help='read magnets from FILE')
-    inputs_group.add_argument('uri', metavar='URI', nargs='*',
-                              help='convert the given magnet link (URIs)')
+    inputs_group = parser.add_argument_group("input")
+    inputs_group.add_argument(
+        "-",
+        action="store_const",
+        const=sys.stdin,
+        dest="file",
+        help="read magnets from STDIN.",
+    )
+    inputs_group.add_argument(
+        "-r",
+        "--read",
+        type=argparse.FileType("r"),
+        metavar="FILE",
+        dest="file",
+        help="read magnets from FILE",
+    )
+    inputs_group.add_argument(
+        "uri", metavar="URI", nargs="*", help="convert the given magnet link (URIs)"
+    )
 
-    outputs_group = parser.add_argument_group('output')
-    outputs_group.add_argument('-o', '--output', type=p.Path, default=p.Path(os.getcwd()),
-                               help='specify output directory for torrents (default is cwd).')
-    outputs_group.add_argument('-f', '--format', metavar='PATH', default='{name}.torrent',
-                               help='specify the filename format for output files.')
-    outputs_group.add_argument('-n', '--counter', type=int, default=1, metavar='NUM',
-                               help='start format counter from NUM')
+    outputs_group = parser.add_argument_group("output")
+    outputs_group.add_argument(
+        "-o",
+        "--output",
+        type=p.Path,
+        default=p.Path(os.getcwd()),
+        help="specify output directory for torrents (default is cwd).",
+    )
+    outputs_group.add_argument(
+        "-f",
+        "--format",
+        metavar="PATH",
+        default="{name}.torrent",
+        help="specify the filename format for output files.",
+    )
+    outputs_group.add_argument(
+        "-n",
+        "--counter",
+        type=int,
+        default=1,
+        metavar="NUM",
+        help="start format counter from NUM",
+    )
 
-    parser.add_argument('-l', '--log-level', metavar='LEVEL',
-                        type=lambda x: getattr(logging, x.upper()),
-                        help='verbosity of logging output')
-    args  = parser.parse_args()
+    parser.add_argument(
+        "-l",
+        "--log-level",
+        metavar="LEVEL",
+        type=lambda x: getattr(logging, x.upper()),
+        help="verbosity of logging output",
+    )
+    args = parser.parse_args()
     vargs = vars(args)
 
-    level = vargs.pop('log_level')
+    level = vargs.pop("log_level")
     try:
         from mohkale.pylog.config import use_config as use_logging_config
     except ImportError:
         logging.basicConfig(level=level)
     else:
-        use_logging_config('magnet2torrent', level=level)
+        use_logging_config("magnet2torrent", level=level)
 
     args.uri = args.uri or []  # in case no URI's were passed
 
-    fd = vargs.pop('file')
+    fd = vargs.pop("file")
     if fd:
-        args.uri.extend([x for x in fd.read().split('\n') if len(x) != 0])
+        args.uri.extend([x for x in fd.read().split("\n") if len(x) != 0])
 
     if len(args.uri) == 0:
-        logging.warning('no uris specified')
+        logging.warning("no uris specified")
 
     m2t = Magnet2Torrent(args.delay, args.timeout)
     exit_code = 0
     try:
         for i, uri in enumerate(args.uri, args.counter):
-            logging.info('working on torrent: %d', i)
+            logging.info("working on torrent: %d", i)
             try:
                 data = m2t.convert(uri)
             except KeyboardInterrupt as e:
                 raise e
-            except: # pylint: disable=W0702
-                logging.exception('error: skipping magnet %d', i)
+            except:  # pylint: disable=W0702
+                logging.exception("error: skipping magnet %d", i)
                 continue
 
             if not data:
@@ -232,28 +281,32 @@ if __name__ == '__main__':
 
             # torrent = data.torrent
             basename = str.format(
-                args.format, counter=i,
-                name=data.name, size=data.size,
-                creator=data.creator, comment=data.comment)
+                args.format,
+                counter=i,
+                name=data.name,
+                size=data.size,
+                creator=data.creator,
+                comment=data.comment,
+            )
             dest_file = args.output / basename
 
             try:
                 dest_file.parent.mkdir(parents=True, exist_ok=True)
-                logging.info('writing torrent to file: %s', str(dest_file))
-                with dest_file.open('wb') as fd:
+                logging.info("writing torrent to file: %s", str(dest_file))
+                with dest_file.open("wb") as fd:
                     fd.write(data.torrent.read())
                 print(dest_file)
             except KeyboardInterrupt as e:
                 raise e
-            except: # pylint: disable=W0702
-                logging.exception('failed to write torrent: %s', dest_file)
+            except:  # pylint: disable=W0702
+                logging.exception("failed to write torrent: %s", dest_file)
                 if dest_file.exists() and dest_file.is_file():
                     dest_file.unlink()
                 exit_code = 1
     except KeyboardInterrupt:
-        logging.info('recieved SIGINT, exiting...')
+        logging.info("recieved SIGINT, exiting...")
         exit_code = 1
 
-    logging.debug('deleting libtorrent session')
+    logging.debug("deleting libtorrent session")
     del m2t
     sys.exit(exit_code)

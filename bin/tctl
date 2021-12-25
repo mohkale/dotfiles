@@ -22,15 +22,17 @@ from mohkale.transmission import CONFIG_FILE, Transmission, TransmissionTorrentS
 try:
     from hurry.filesize import size
 except ImportError:
+
     def size(b):
         """Human readable file-size conversion"""
-        return str(b) + 'B'
+        return str(b) + "B"
 
 
 class Operations(enum.IntEnum):
     """
     The operations this script supports.
     """
+
     add = enum.auto()
     list = enum.auto()
     move = enum.auto()
@@ -47,19 +49,19 @@ class Operations(enum.IntEnum):
     priority_low = enum.auto()
 
 
-FZF_COMMAND = 'fzf'
-DEFAULT_FZF_ARGS = ['--reverse', '--no-hscroll']
+FZF_COMMAND = "fzf"
+DEFAULT_FZF_ARGS = ["--reverse", "--no-hscroll"]
 
 TORRENT_FIELDS = [
-    'id',
-    'percentDone',
-    'downloadedEver',
+    "id",
+    "percentDone",
+    "downloadedEver",
     # 'eta',
-    'rateDownload',
-    'rateUpload',
-    'uploadRatio',
-    'status',
-    'name',
+    "rateDownload",
+    "rateUpload",
+    "uploadRatio",
+    "status",
+    "name",
 ]
 
 
@@ -68,40 +70,42 @@ class TransmissionError(Exception):
 
 
 def tcmd(conn, action, **kwargs):
-    """Run a command on transmission with logging.
-    """
-    logging.info('Making request to transmission with action %s', repr(action))
-    logging.debug('Request params are: %s', json.dumps(kwargs))
+    """Run a command on transmission with logging."""
+    logging.info("Making request to transmission with action %s", repr(action))
+    logging.debug("Request params are: %s", json.dumps(kwargs))
 
     resp = conn.command(action, **kwargs)
 
     if resp.get("result") != "success":
-        logging.error('Transmission responded with non-success result')
+        logging.error("Transmission responded with non-success result")
         raise TransmissionError()
 
     return resp
 
 
-def get_torrents(conn, select=None, ids=None, fields=TORRENT_FIELDS):  # pylint: disable=W0102
-    """Get torrents from transmission with filters and field subsets.
-    """
-    params = {'fields': fields}
+def get_torrents(
+    conn, select=None, ids=None, fields=TORRENT_FIELDS
+):  # pylint: disable=W0102
+    """Get torrents from transmission with filters and field subsets."""
+    params = {"fields": fields}
     if ids:
-        params['ids'] = ids
+        params["ids"] = ids
     resp = tcmd(conn, "torrent-get", **params)
 
-    torrents = pd.DataFrame(resp["arguments"]['torrents']).set_index('id')
+    torrents = pd.DataFrame(resp["arguments"]["torrents"]).set_index("id")
     if select:
         torrents = select(torrents)
 
     return torrents
 
 
-TORRENT_STATUS = {x.value: x.name.replace('_', '-').title() for x in TransmissionTorrentStatus}
+TORRENT_STATUS = {
+    x.value: x.name.replace("_", "-").title() for x in TransmissionTorrentStatus
+}
 
-def render_frame(df, sep='  ', **kwargs):  # pylint: disable=W0613
-    """Pretty print a data-frame to string.
-    """
+
+def render_frame(df, sep="  ", **kwargs):  # pylint: disable=W0613
+    """Pretty print a data-frame to string."""
     for col in df.columns[:-1]:
         width = df[col].map(str.__len__).max()
         df[col] = df[col].str.rjust(width)
@@ -112,7 +116,7 @@ def render_frame(df, sep='  ', **kwargs):  # pylint: disable=W0613
             buf.write(value)
             buf.write(sep)
         buf.write(items[-1][1])
-        buf.write('\n')
+        buf.write("\n")
     buf.seek(0)
     # return df.to_string(
     #     header=False, index=False, **kwargs,
@@ -120,33 +124,38 @@ def render_frame(df, sep='  ', **kwargs):  # pylint: disable=W0613
     return buf.read()
 
 
-PROCESS_TORRENTS_ID_FORMAT = '{:4d}'.format
+PROCESS_TORRENTS_ID_FORMAT = "{:4d}".format
+
 
 def process_torrents(ts, cols=None):
-    """Perform any conversion or intermediate steps on a torrents response.
-    """
+    """Perform any conversion or intermediate steps on a torrents response."""
     if not cols:
         cols = ts.columns
-    ts['id'] = ts.index.astype(int)
-    ts['id'] = ts['id'].map(PROCESS_TORRENTS_ID_FORMAT)
-    if 'percentDone' in ts.columns:
-        ts.loc[ts['percentDone'] == 1, 'id'] += '*'
-        ts.loc[~(ts['percentDone'] == 1), 'id'] += ' '
-        ts['percentDone'] *= 100
-        ts['percentDone'] = ts['percentDone'].astype(int).map('{:3d}%'.format)
-    if 'status' in ts.columns:
-        ts['status'] = ts['status'].map(TORRENT_STATUS.__getitem__)
-    if 'uploadRatio' in ts.columns:
-        ts.loc[ts['uploadRatio'] < 0, 'uploadRatio'] = 0
-        ts['uploadRatio'] = ts['uploadRatio'].map('{:.3f}'.format)
-    if 'downloadedEver' in ts.columns:
-        ts['downloadedEver'] = ts['downloadedEver'].map(size)
-    for col in ('rateDownload', 'rateUpload'):
+    ts["id"] = ts.index.astype(int)
+    ts["id"] = ts["id"].map(PROCESS_TORRENTS_ID_FORMAT)
+    if "percentDone" in ts.columns:
+        ts.loc[ts["percentDone"] == 1, "id"] += "*"
+        ts.loc[~(ts["percentDone"] == 1), "id"] += " "
+        ts["percentDone"] *= 100
+        # pylint: disable=consider-using-f-string
+        ts["percentDone"] = ts["percentDone"].astype(int).map("{:3d}%".format)
+    if "status" in ts.columns:
+        ts["status"] = ts["status"].map(TORRENT_STATUS.__getitem__)
+    if "uploadRatio" in ts.columns:
+        ts.loc[ts["uploadRatio"] < 0, "uploadRatio"] = 0
+        # pylint: disable=consider-using-f-string
+        ts["uploadRatio"] = ts["uploadRatio"].map("{:.3f}".format)
+    if "downloadedEver" in ts.columns:
+        ts["downloadedEver"] = ts["downloadedEver"].map(size)
+    for col in ("rateDownload", "rateUpload"):
         if col in ts.columns:
-            ts[col] = ts[col].map(size) + '/s'
+            ts[col] = ts[col].map(size) + "/s"
     return pd.concat([ts[i].astype(str) for i in cols], axis=1)
 
-def format_torrents(torrents, cols=TORRENT_FIELDS, prefix_id=None):  # pylint: disable=W0102
+
+def format_torrents(
+    torrents, cols=TORRENT_FIELDS, prefix_id=None
+):  # pylint: disable=W0102
     """Format a collection of torrents into pretty printed table rows.
 
     Paramaters
@@ -169,11 +178,12 @@ def format_torrents(torrents, cols=TORRENT_FIELDS, prefix_id=None):  # pylint: d
     rendered = render_frame(ts)
     if prefix_id is not None:
         buf = io.StringIO()
-        for tid, line in zip(ts.index.astype(str), rendered.split('\n')):
-            buf.write(tid + prefix_id + line + '\n')
+        for tid, line in zip(ts.index.astype(str), rendered.split("\n")):
+            buf.write(tid + prefix_id + line + "\n")
         buf.seek(0)
         rendered = buf.read()
     return rendered
+
 
 def fzf(cands, *args):
     """Pass cands interactively to a fzf process and return chosen ones.
@@ -184,96 +194,130 @@ def fzf(cands, *args):
             input_fd.flush()
             cmd = f"cat {shlex.quote(input_fd.name)} |\
                     {FZF_COMMAND} {shlex.join(DEFAULT_FZF_ARGS)} {shlex.join(args)} > {shlex.quote(output_fd.name)}"
-            p = subprocess.run(['sh', '-c', cmd])
+            p = subprocess.run(["sh", "-c", cmd])
             if not p.returncode == 0:
-                logging.warning('fzf exited with non-zero exit code: %d', p.returncode)
+                logging.warning("fzf exited with non-zero exit code: %d", p.returncode)
                 return []
         return [line.decode().strip(os.linesep) for line in output_fd.readlines()]
 
 
 def fzf_torrents(torrents, delimiter, *args):
     """Variant of fzf which parses and extracts the torrent ids from the output"""
-    return [int(row[:row.find(delimiter)]) for row in
-            fzf(torrents, '--delimiter', delimiter, '--with-nth', '2..', *args)]
+    return [
+        int(row[: row.find(delimiter)])
+        for row in fzf(torrents, "--delimiter", delimiter, "--with-nth", "2..", *args)
+    ]
 
-def run_action_callback(remote_cmd, running_action_msg, request_params=None,):
-    """Helper for running a remote cmd with `tcmd`.
-    """
+
+def run_action_callback(
+    remote_cmd,
+    running_action_msg,
+    request_params=None,
+):
+    """Helper for running a remote cmd with `tcmd`."""
     if not request_params:
         request_params = {}
 
     def callback(conn, ids, torrents):  # pylint: disable=W0613
-        logging.info('Attempting to ' + running_action_msg, ', '.join(map(str, ids)))  # pylint: disable=W1201
+        logging.info(
+            "Attempting to " + running_action_msg, ", ".join(map(str, ids))
+        )  # pylint: disable=W1201
         try:
             tcmd(conn, remote_cmd, ids=ids, **request_params)
             return True
         except TransmissionError:
-            logging.info('Failed to ' + running_action_msg, ', '.join(map(str, ids)))  # pylint: disable=W1201
+            logging.info(
+                "Failed to " + running_action_msg, ", ".join(map(str, ids))
+            )  # pylint: disable=W1201
             return False
 
     return callback
 
+
 def play_torrent_files_cmd(conn, ids, torrents):
-    """Command to open a file from a subset of torrents using OPENER.
-    """
+    """Command to open a file from a subset of torrents using OPENER."""
     files = pd.DataFrame()
-    files_resp = get_torrents(conn, ids=ids, fields=['id', 'files'])
+    files_resp = get_torrents(conn, ids=ids, fields=["id", "files"])
     for t_id in files_resp.index:
-        t_files = pd.DataFrame(files_resp.loc[t_id, 'files'])
+        t_files = pd.DataFrame(files_resp.loc[t_id, "files"])
         t_files = t_files.assign(torrent_id=str(t_id))
 
         pretty_t_id = PROCESS_TORRENTS_ID_FORMAT(t_id)
-        if 'percentDone' in torrents.columns:
-            pretty_t_id += '*'
+        if "percentDone" in torrents.columns:
+            pretty_t_id += "*"
 
         # torrent_id, then file_id
-        t_files['torrent_id'] = t_files['torrent_id'] + ':' + t_files.index.astype(str) + ':' + pretty_t_id
+        t_files["torrent_id"] = (
+            t_files["torrent_id"] + ":" + t_files.index.astype(str) + ":" + pretty_t_id
+        )
         files = pd.concat([files, t_files], ignore_index=True)
 
-    files['percentageComplete'] = (files['bytesCompleted'] / files['length'] * 100).astype(int).map('{:3d}%'.format)
-    files = files.drop(['bytesCompleted', 'length'], axis=1)
-    files = files[['torrent_id', 'percentageComplete', 'name'], ]
+    # pylint: disable=consider-using-f-string
+    files["percentageComplete"] = (
+        (files["bytesCompleted"] / files["length"] * 100)
+        .astype(int)
+        .map("{:3d}%".format)
+    )
+    files = files.drop(["bytesCompleted", "length"], axis=1)
+    files = files[
+        ["torrent_id", "percentageComplete", "name"],
+    ]
 
-    res = fzf(render_frame(files), '--multi', '--prompt', 'Open files: ', '-d', ':', '--with-nth', '3..')
+    res = fzf(
+        render_frame(files),
+        "--multi",
+        "--prompt",
+        "Open files: ",
+        "-d",
+        ":",
+        "--with-nth",
+        "3..",
+    )
     for i, row in enumerate(res):
-        ind1 = row.find(':')
-        ind2 = row.find(':', ind1 + 1)
-        res[i] = (int(row[:ind1]), int(row[ind1 + 1:ind2]))
+        ind1 = row.find(":")
+        ind2 = row.find(":", ind1 + 1)
+        res[i] = (int(row[:ind1]), int(row[ind1 + 1 : ind2]))
 
     urls = []
     for t_id, file_ix in res:
-        d = torrents.loc[t_id, 'downloadDir']
-        f = files_resp.loc[t_id, 'files'][file_ix]['name']
+        d = torrents.loc[t_id, "downloadDir"]
+        f = files_resp.loc[t_id, "files"][file_ix]["name"]
         # TODO: Try global download directory
         paths = (
             os.path.join(d, f),
-            os.path.join(d, f + '.part'),
+            os.path.join(d, f + ".part"),
         )
         for path in paths:
             if os.path.exists(path):
                 urls.append(path)
                 break
         else:
-            logging.error('Could not find file with path: %s', f)
+            logging.error("Could not find file with path: %s", f)
             continue
 
     if len(urls) > 0:
-        proc = subprocess.run([os.getenv('OPENER', 'xdg-open'), *urls],
-                              capture_output=True)
+        proc = subprocess.run(
+            [os.getenv("OPENER", "xdg-open"), *urls], capture_output=True
+        )
         if proc.returncode != 0:
-            logging.error('Opener errored with output: %s\n', proc.stderr)
+            logging.error("Opener errored with output: %s\n", proc.stderr)
 
         return proc.returncode == 0
     return False
 
+
 # pylint: disable=W0102,R0913
-def act_on_torrents_cmd(conn,
-                        callback,
-                        prompt,
-                        no_torrent_msg='No torrents found',
-                        format_cols=[x for x in TORRENT_FIELDS if x not in ('downloadDir', 'incomplete-dir')],
-                        torrent_filter=None,
-                        torrent_fields=TORRENT_FIELDS,):
+def act_on_torrents_cmd(
+    conn,
+    callback,
+    prompt,
+    no_torrent_msg="No torrents found",
+    format_cols=[
+        x for x in TORRENT_FIELDS if x not in ("downloadDir", "incomplete-dir")
+    ],
+    torrent_filter=None,
+    torrent_fields=TORRENT_FIELDS,
+):
     """Generic wrapper for commands that ask the user to select a bunch of torrents
     and then run some remote command on them.
     """
@@ -282,50 +326,63 @@ def act_on_torrents_cmd(conn,
         logging.warning(no_torrent_msg)
         return True
 
-    ids = fzf_torrents(format_torrents(torrents, format_cols, prefix_id=':'),
-                       ':', '--multi', '--prompt', prompt)
+    ids = fzf_torrents(
+        format_torrents(torrents, format_cols, prefix_id=":"),
+        ":",
+        "--multi",
+        "--prompt",
+        prompt,
+    )
     if len(ids) == 0:
-        logging.warning('No torrents selected, skipping remaining actions')
+        logging.warning("No torrents selected, skipping remaining actions")
         return True
 
     return callback(conn, ids, torrents)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--fzf', metavar='CMD', help='Specify command line for fzf')
+    parser.add_argument("--fzf", metavar="CMD", help="Specify command line for fzf")
 
-    parser.add_argument('-l', '--log-level', metavar='LEVEL',
-                        type=lambda X: getattr(logging, X.upper()),
-                        help='Level of logging output.')
+    parser.add_argument(
+        "-l",
+        "--log-level",
+        metavar="LEVEL",
+        type=lambda X: getattr(logging, X.upper()),
+        help="Level of logging output.",
+    )
 
-    subparser = parser.add_subparsers(dest='cmd', help='Specify operation to execute')
+    subparser = parser.add_subparsers(dest="cmd", help="Specify operation to execute")
     subcmds = {}
     for op in Operations:
         subcmds[op] = subparser.add_parser(op.name)
 
-    subcmds[Operations.start]\
-        .add_argument('-n', '--now',
-                      action='store_true',
-                      help='Start the chosen torrents immeadiately')
+    subcmds[Operations.start].add_argument(
+        "-n",
+        "--now",
+        action="store_true",
+        help="Start the chosen torrents immeadiately",
+    )
 
-    subcmds[Operations.remove]\
-        .add_argument('-f', '--force',
-                      action='store_true',
-                      help='Remove the local torrent and associated files')
+    subcmds[Operations.remove].add_argument(
+        "-f",
+        "--force",
+        action="store_true",
+        help="Remove the local torrent and associated files",
+    )
 
     # pylint: disable=C0301
-    subcmds[Operations.query]\
-        .add_argument('action',
-                      help='Specify the API endpoint to target from: \
-                      https://github.com/transmission/transmission/blob/master/extras/rpc-spec.txt')
+    subcmds[Operations.query].add_argument(
+        "action",
+        help="Specify the API endpoint to target from: \
+                      https://github.com/transmission/transmission/blob/master/extras/rpc-spec.txt",
+    )
 
     class JSONMergeAction(argparse.Action):
-        """Argparse action which merges arguments into a json object.
-        """
+        """Argparse action which merges arguments into a json object."""
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
@@ -335,41 +392,62 @@ if __name__ == '__main__':
         def __call__(self, parser, namespace, values, option_string=None):
             getattr(namespace, self.dest).update([[values[0], json.loads(values[1])]])
 
-    subcmds[Operations.query].add_argument('-a', '--param',
-                                           dest='params',
-                                           action=JSONMergeAction,
-                                           help='Send the given arg with the query')
+    subcmds[Operations.query].add_argument(
+        "-a",
+        "--param",
+        dest="params",
+        action=JSONMergeAction,
+        help="Send the given arg with the query",
+    )
 
-    subcmds[Operations.query].add_argument('-', '--read-stdin',
-                                           action='store_true',
-                                           help='Read JSON params from stdin')
+    subcmds[Operations.query].add_argument(
+        "-", "--read-stdin", action="store_true", help="Read JSON params from stdin"
+    )
 
-    subcmds[Operations.add].add_argument('-', '--read-stdin',
-                                         action='store_true',
-                                         help='Read magnet links to add from stdin')
+    subcmds[Operations.add].add_argument(
+        "-",
+        "--read-stdin",
+        action="store_true",
+        help="Read magnet links to add from stdin",
+    )
 
-    subcmds[Operations.add].add_argument('url', nargs='*',
-                                         help='Add magnet link to transmission')
+    subcmds[Operations.add].add_argument(
+        "url", nargs="*", help="Add magnet link to transmission"
+    )
 
-    subcmds[Operations.add].add_argument('-o', '--output', metavar='DIR',
-                                         help='Specify output directory')
+    subcmds[Operations.add].add_argument(
+        "-o", "--output", metavar="DIR", help="Specify output directory"
+    )
 
     _ = subcmds[Operations.add].add_mutually_exclusive_group()
-    _.add_argument('-s', '--start',
-                   dest='paused',
-                   action='store_const', const=False,
-                   help='Start added torrents paused')
-    _.add_argument('-S', '--no-start',
-                   dest='paused',
-                   action='store_const', const=True,
-                   help='Start added torrents unpaused')
+    _.add_argument(
+        "-s",
+        "--start",
+        dest="paused",
+        action="store_const",
+        const=False,
+        help="Start added torrents paused",
+    )
+    _.add_argument(
+        "-S",
+        "--no-start",
+        dest="paused",
+        action="store_const",
+        const=True,
+        help="Start added torrents unpaused",
+    )
 
-    subcmds[Operations.move].add_argument('dir', type=os.path.abspath,
-                                          help='Destination directory to move torrents to')
-    subcmds[Operations.move].add_argument('-i', '--inplace', action='store_true',
-                                          help="Don't move torrents from their existing download location")
+    subcmds[Operations.move].add_argument(
+        "dir", type=os.path.abspath, help="Destination directory to move torrents to"
+    )
+    subcmds[Operations.move].add_argument(
+        "-i",
+        "--inplace",
+        action="store_true",
+        help="Don't move torrents from their existing download location",
+    )
 
-    args  = parser.parse_args()
+    args = parser.parse_args()
     vargs = vars(args)
 
     if not args.cmd:
@@ -378,13 +456,14 @@ if __name__ == '__main__':
 
     args.cmd = Operations[args.cmd]
 
-    level = vargs.pop('log_level')
+    level = vargs.pop("log_level")
     try:
+        # pylint: disable=ungrouped-imports
         from mohkale.pylog.config import use_config as use_logging_config
     except ImportError:
         logging.basicConfig(level=level)
     else:
-        use_logging_config('tctl', level=level)
+        use_logging_config("tctl", level=level)
 
     conn = Transmission.from_conf_file(CONFIG_FILE)
 
@@ -398,73 +477,131 @@ if __name__ == '__main__':
     if args.cmd == Operations.list:
         print(format_torrents(get_torrents(conn)))
     elif args.cmd == Operations.pause:
-        act_on_torrents_cmd(conn,
-                            run_action_callback('torrent-stop', 'pause torrents with ids: %s',),
-                            'Pause torrents: ',
-                            'No active torrents found',
-                            format_cols=['id', 'percentDone', 'name'],
-                            torrent_filter=lambda torrents: torrents[torrents['status'] != 0])
+        act_on_torrents_cmd(
+            conn,
+            run_action_callback(
+                "torrent-stop",
+                "pause torrents with ids: %s",
+            ),
+            "Pause torrents: ",
+            "No active torrents found",
+            format_cols=["id", "percentDone", "name"],
+            torrent_filter=lambda torrents: torrents[torrents["status"] != 0],
+        )
     elif args.cmd == Operations.start:
-        act_on_torrents_cmd(conn,
-                            run_action_callback('torrent-start' + ('-now' if args.now else ''), 'start torrents with ids: %s',),
-                            'Start torrents' + (' now' if args.now else '') + ': ',
-                            'No paused torrents found',
-                            torrent_filter=lambda torrents: torrents[~ ((torrents['status'] == 4) | (torrents['status'] == 6))])
+        act_on_torrents_cmd(
+            conn,
+            run_action_callback(
+                "torrent-start" + ("-now" if args.now else ""),
+                "start torrents with ids: %s",
+            ),
+            "Start torrents" + (" now" if args.now else "") + ": ",
+            "No paused torrents found",
+            torrent_filter=lambda torrents: torrents[
+                ~((torrents["status"] == 4) | (torrents["status"] == 6))
+            ],
+        )
     elif args.cmd == Operations.verify:
-        act_on_torrents_cmd(conn,
-                            run_action_callback('torrent-verify', 'verify torrents with ids: %s',),
-                            'Verify torrents: ',
-                            'No torrents found',)
+        act_on_torrents_cmd(
+            conn,
+            run_action_callback(
+                "torrent-verify",
+                "verify torrents with ids: %s",
+            ),
+            "Verify torrents: ",
+            "No torrents found",
+        )
     elif args.cmd == Operations.remove:
-        act_on_torrents_cmd(conn,
-                            run_action_callback('torrent-remove', 'removing torrents with ids: %s',
-                                                request_params={'delete-local-data': args.force}),
-                            'Remove ' + ('& delete ' if args.force else '') + 'torrents: ',)
+        act_on_torrents_cmd(
+            conn,
+            run_action_callback(
+                "torrent-remove",
+                "removing torrents with ids: %s",
+                request_params={"delete-local-data": args.force},
+            ),
+            "Remove " + ("& delete " if args.force else "") + "torrents: ",
+        )
     elif args.cmd == Operations.queue_top:
-        act_on_torrents_cmd(conn,
-                            run_action_callback('queue-move-top', 'Move torrents with ids %s to top of queue',),
-                            'Move to top of queue: ',
-                            'No torrents found',)
+        act_on_torrents_cmd(
+            conn,
+            run_action_callback(
+                "queue-move-top",
+                "Move torrents with ids %s to top of queue",
+            ),
+            "Move to top of queue: ",
+            "No torrents found",
+        )
     elif args.cmd == Operations.move:
-        run_action = run_action_callback('torrent-set-location',
-                                         f'Move torrents with ids %s to directory {repr(args.dir)}',
-                                         {'move': not args.inplace, 'location': args.dir})
+        run_action = run_action_callback(
+            "torrent-set-location",
+            f"Move torrents with ids %s to directory {repr(args.dir)}",
+            {"move": not args.inplace, "location": args.dir},
+        )
 
-        # Defer directory creation until at least one torrent to be moved is chosen.
         def callback(*a, **k):
+            """Defer directory creation until at least one torrent to be moved is chosen."""
             os.makedirs(args.dir, exist_ok=True)
             run_action(*a, **k)
 
-        act_on_torrents_cmd(conn, callback, 'Set torrent location: ', 'No torrents found',)
+        act_on_torrents_cmd(
+            conn,
+            callback,
+            "Set torrent location: ",
+            "No torrents found",
+        )
     elif args.cmd == Operations.queue_bottom:
-        act_on_torrents_cmd(conn,
-                            run_action_callback('queue-move-bottom', 'Move torrents with ids %s to bottom of queue',),
-                            'Move to end of queue: ',
-                            'No torrents found',)
+        act_on_torrents_cmd(
+            conn,
+            run_action_callback(
+                "queue-move-bottom",
+                "Move torrents with ids %s to bottom of queue",
+            ),
+            "Move to end of queue: ",
+            "No torrents found",
+        )
     elif args.cmd == Operations.priority_high:
-        act_on_torrents_cmd(conn,
-                            run_action_callback('torrent-set', 'give torrents with ids %s a high priority',
-                                                {'bandwidthPriority': 1}),
-                            'Increase bandwidth priority: ',
-                            'No torrents found',
-                            torrent_fields=[*TORRENT_FIELDS, 'bandwidthPriority'],
-                            torrent_filter=lambda torrents: torrents[torrents['bandwidthPriority'] < 1],)
+        act_on_torrents_cmd(
+            conn,
+            run_action_callback(
+                "torrent-set",
+                "give torrents with ids %s a high priority",
+                {"bandwidthPriority": 1},
+            ),
+            "Increase bandwidth priority: ",
+            "No torrents found",
+            torrent_fields=[*TORRENT_FIELDS, "bandwidthPriority"],
+            torrent_filter=lambda torrents: torrents[torrents["bandwidthPriority"] < 1],
+        )
     elif args.cmd == Operations.priority_normal:
-        act_on_torrents_cmd(conn,
-                            run_action_callback('torrent-set', 'give torrents with ids %s a high priority',
-                                                {'bandwidthPriority': 0}),
-                            'Normalise bandwidth priority: ',
-                            'No torrents found',
-                            torrent_fields=[*TORRENT_FIELDS, 'bandwidthPriority'],
-                            torrent_filter=lambda torrents: torrents[torrents['bandwidthPriority'] != 0],)
+        act_on_torrents_cmd(
+            conn,
+            run_action_callback(
+                "torrent-set",
+                "give torrents with ids %s a high priority",
+                {"bandwidthPriority": 0},
+            ),
+            "Normalise bandwidth priority: ",
+            "No torrents found",
+            torrent_fields=[*TORRENT_FIELDS, "bandwidthPriority"],
+            torrent_filter=lambda torrents: torrents[
+                torrents["bandwidthPriority"] != 0
+            ],
+        )
     elif args.cmd == Operations.priority_low:
-        act_on_torrents_cmd(conn,
-                            run_action_callback('torrent-set', 'give torrents with ids %s a high priority',
-                                                {'bandwidthPriority': -1}),
-                            'Lower bandwidth priority: ',
-                            'No torrents found',
-                            torrent_fields=[*TORRENT_FIELDS, 'bandwidthPriority'],
-                            torrent_filter=lambda torrents: torrents[torrents['bandwidthPriority'] > -1],)
+        act_on_torrents_cmd(
+            conn,
+            run_action_callback(
+                "torrent-set",
+                "give torrents with ids %s a high priority",
+                {"bandwidthPriority": -1},
+            ),
+            "Lower bandwidth priority: ",
+            "No torrents found",
+            torrent_fields=[*TORRENT_FIELDS, "bandwidthPriority"],
+            torrent_filter=lambda torrents: torrents[
+                torrents["bandwidthPriority"] > -1
+            ],
+        )
     elif args.cmd == Operations.query:
         params = {}
         if args.read_stdin:
@@ -472,38 +609,41 @@ if __name__ == '__main__':
         if args.params:
             params.update(args.params)
         try:
-            print(json.dumps(tcmd(conn, args.action, **params)['arguments']))
+            print(json.dumps(tcmd(conn, args.action, **params)["arguments"]))
         except TransmissionError:
             pass
     elif args.cmd == Operations.play:
-        act_on_torrents_cmd(conn,
-                            play_torrent_files_cmd,
-                            'Play files from torrent: ',
-                            torrent_fields=['downloadDir', 'incomplete-dir', *TORRENT_FIELDS],)
+        act_on_torrents_cmd(
+            conn,
+            play_torrent_files_cmd,
+            "Play files from torrent: ",
+            torrent_fields=["downloadDir", "incomplete-dir", *TORRENT_FIELDS],
+        )
     elif args.cmd == Operations.add:
         args.url = iter(args.url)
         if args.read_stdin:
-            logging.debug('Reading magnet-link list from STDIN')
-            args.url = itertools.chain(args.url,
-                                       (x for x in map(str.strip, sys.stdin) if not x == ''))
+            logging.debug("Reading magnet-link list from STDIN")
+            args.url = itertools.chain(
+                args.url, (x for x in map(str.strip, sys.stdin) if not x == "")
+            )
         download_params = {}
         if args.paused is not None:
-            download_params['paused'] = args.paused
+            download_params["paused"] = args.paused
         if args.output:
-            download_params['download-dir'] = args.output
-        logging.debug('Download parameters set to: %s', download_params)
+            download_params["download-dir"] = args.output
+        logging.debug("Download parameters set to: %s", download_params)
 
         is_empty = True
         try:
             for url in args.url:
                 try:
-                    tcmd(conn, 'torrent-add', filename=url, **download_params)
+                    tcmd(conn, "torrent-add", filename=url, **download_params)
                 except TransmissionError:
-                    logging.warning('Failed to add torrent: %s', url)
+                    logging.warning("Failed to add torrent: %s", url)
                 is_empty = False
         except KeyboardInterrupt:
             pass
         if is_empty:
-            logging.warning('No url/s supplied, no torrents added')
+            logging.warning("No url/s supplied, no torrents added")
     else:
-        parser.error('Unknown command %s' % repr(args.cmd))
+        parser.error(f"Unknown command {args.cmd!r}")

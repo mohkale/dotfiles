@@ -1,3 +1,4 @@
+"""Status misc segment for showing battery level information."""
 import logging
 import math
 
@@ -5,6 +6,8 @@ from .base import StatusMiscSegment
 
 
 class BatteryLifeSegment(StatusMiscSegment):
+    """Status line segment showing battery life."""
+
     name = "battery"
 
     def __init__(self, *args, **kwargs):
@@ -14,6 +17,8 @@ class BatteryLifeSegment(StatusMiscSegment):
             key=lambda it: it[0],
             reverse=True,
         )
+
+    # pylint: disable=no-member
 
     @classmethod
     def parser_args(cls, parser):
