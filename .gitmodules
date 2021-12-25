@@ -36,3 +36,4 @@
 [submodule "prog/browsers/brave/startpage"]
 	path = prog/browsers/brave/startpage
 	url = https://github.com/deepjyoti30/startpage.git
+	ignore = dirty

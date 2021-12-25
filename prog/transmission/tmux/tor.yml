@@ -12,7 +12,7 @@ windows:
   - window_name: watcher
     layout: 47f0,228x23,0,0{137x23,0,0,1,90x23,138,0,2}
     panes:
-      - stdbuf -oL transmission-daemon --foreground --log-error --log-info --log-debug | tee -a "${XDG_STATE_HOME:-$HOME/.local/state}/transmission.log"
+      - pgrep transmission && exit || stdbuf -oL transmission-daemon --foreground --log-error --log-info --log-debug | tee -a "${XDG_STATE_HOME:-$HOME/.local/state}/transmission.log"
       - $XDG_CONFIG_HOME/transmission-daemon/cmds/watcher -l DEBUG $XDG_CONFIG_HOME/transmission-daemon/watcher.json
   - window_name: puddle
     panes:

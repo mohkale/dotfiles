@@ -151,6 +151,7 @@ $XDG_LIB_HOME/npm/bin
 ${GEM_HOME:-$HOME/.gem}/bin
 ${POETRY_HOME:-$HOME/.poetry}/bin
 ~/.rvm/bin
+$XDG_DATA_HOME/npm/bin
 
 [CLASSPATH]
 .

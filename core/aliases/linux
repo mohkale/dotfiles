@@ -1,17 +1,18 @@
 # -*- mode: conf-space -*-
 
-alert      notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(get_last_command)"
 pdf        zathura
 ywd        sh -c 'if [ "$#" -gt 0 ]; then cd "$*" || exit 1; fi; pwd | tee /dev/tty | clip -t' ywd
 sd         sudo 
 se         sudoedit
 xres@file  ~/.Xresources
 xp         . ~/.xprofile
+iproute    traceroute
 
 btctl             bluetoothctl
-jctl              journalctl
+jctl              journalctl --no-pager
 jctlr             journalctl --reverse
-jctl-errors       journalctl -p 3 -xb
+jctl-errors       journalctl --priority 3 --catalog --boot
+jctl-purge        sudo journalctl --vacuum-time=1w
 fsck              fsck -M -T
 
 hl                hledger

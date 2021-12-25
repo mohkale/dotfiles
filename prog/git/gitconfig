@@ -23,6 +23,7 @@
 	r = rebase
 	p = push
 	f = pull
+    magit = !emacs-magit
 	unstage = reset HEAD --
 	fzlog = !git-fzlog
 	z = !git-fzlog

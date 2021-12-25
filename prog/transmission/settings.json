@@ -73,6 +73,8 @@
     "rpc-whitelist": "127.0.0.1",
     "rpc-whitelist-enabled": true,
     "scrape-paused-torrents-enabled": true,
+    "script-torrent-added-enabled": false,
+    "script-torrent-added-filename": "",
     "script-torrent-done-enabled": true,
     "script-torrent-done-filename": "/home/mohkale/.config/transmission-daemon/cmds/on-complete",
     "seed-queue-enabled": true,

@@ -28,6 +28,7 @@ ba      FZF_BOOKMARK_FLAGS='-a' fzf_bookmarks
 fdot    fzf_dotty
 
 g          git
+gg         git magit
 gs         git status
 gistat     git ls-tree --full-tree --full-name -r --name-only HEAD \
            | awk -v home="$DOTFILES" '{ printf("%s/%s\0", home, $1) }' \
@@ -242,7 +243,7 @@ em@dirx          $XDG_CONFIG_HOME/emacs
 org@dirx         $XDG_DOCUMENTS_DIR/org
 cheats@dirx      $XDG_CONFIG_HOME/cheat/cheatsheets/personal
 ledger@dirx      $XDG_DOCUMENTS_DIR/ledger
-journal@dirx      $XDG_DOCUMENTS_DIR/ledger
+journal@dirx     $XDG_DOCUMENTS_DIR/ledger
 
 dl@dirx          $XDG_DOWNLOAD_DIR
 docs@dirx        $XDG_DOCUMENTS_DIR
