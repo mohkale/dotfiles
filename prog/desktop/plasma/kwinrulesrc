@@ -1,0 +1,67 @@
+[$Version]
+update_info=kwinrules.upd:replace-placement-string-to-enum,kwinrules.upd:use-virtual-desktop-ids
+
+[1]
+Description=brave-picture-in-picture
+above=true
+aboverule=3
+noborder=true
+noborderrule=0
+skippager=true
+skippagerrule=3
+skipswitcher=true
+skipswitcherrule=3
+skiptaskbar=true
+skiptaskbarrule=3
+title=Picture in picture
+titlematch=3
+types=4294967295
+wmclass=
+wmclasscomplete=false
+wmclassmatch=1
+
+[17522fe0-3f8d-490d-b84d-6d99ee93784b]
+Description=brave-picture-in-picture
+above=true
+aboverule=3
+opacityinactive=90
+opacityinactiverule=2
+skippager=true
+skippagerrule=3
+skipswitcher=true
+skipswitcherrule=3
+skiptaskbar=true
+skiptaskbarrule=3
+title=Picture in picture
+titlematch=3
+wmclassmatch=1
+
+[2]
+Description=brave-picture-in-picture
+above=true
+aboverule=3
+title=Picture in picture
+titlematch=3
+wmclassmatch=1
+
+[General]
+count=3
+rules=ffb5eadb-ed09-41f4-baae-c7afafb15094,d02de047-9e5e-429f-a69f-f3fc839882ae,17522fe0-3f8d-490d-b84d-6d99ee93784b
+
+[d02de047-9e5e-429f-a69f-f3fc839882ae]
+Description=brave-no-titlebar
+noborder=true
+noborderrule=2
+types=1
+wmclass=brave-browser brave-browser
+wmclasscomplete=true
+wmclassmatch=1
+
+[ffb5eadb-ed09-41f4-baae-c7afafb15094]
+Description=brave-popup-title-bar
+noborderrule=3
+windowrole=pop-up
+windowrolematch=1
+wmclass=brave-browser brave-browser
+wmclasscomplete=true
+wmclassmatch=1

@@ -10,7 +10,8 @@ link -f                                                                 \
    kservicemenurc:"$XDG_CONFIG_HOME/kservicemenurc"                     \
    ktrashrc:"$XDG_CONFIG_HOME/ktrashrc"                                 \
    web-shortcuts:"$XDG_DATA_HOME/kservices5/searchproviders"            \
-   win-ctrl/win-ctrl.plasma:"$XDG_CONFIG_HOME/win-ctrl/win-ctrl.plasma"
+   win-ctrl/win-ctrl.plasma:"$XDG_CONFIG_HOME/win-ctrl/win-ctrl.plasma" \
+   kwinrulesrc:"$XDG_CONFIG_HOME/kwinrulesrc"
 
 import ../xorg
 

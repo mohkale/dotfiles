@@ -154,6 +154,7 @@ DesktopListLayout=org.kde.breeze.desktop
 LayoutName=big_icons
 
 [TabBoxAlternative]
+DesktopMode=0
 LayoutName=big_icons
 
 [Windows]
