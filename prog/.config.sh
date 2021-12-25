@@ -40,6 +40,7 @@ import -b                                       \
   thefuck                                       \
   tmux                                          \
   transmission                                  \
+  vpn/*                                         \
   wget                                          \
   wine                                          \
   zathura
