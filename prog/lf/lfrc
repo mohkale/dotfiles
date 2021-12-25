@@ -233,7 +233,7 @@ map ga goto-fsmap
 cmd goto-fsmap $. $XDG_CONFIG_HOME/lf/auto/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/select_fsmap; select_fsmap
 
 map gp goto-repo
-cmd goto-repo $. $XDG_CONFIG_HOME/lf/auto/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/cd_repo; cd_repo
+cmd goto-repo $. $XDG_CONFIG_HOME/lf/auto/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/cd_project; cd_project
 
 map gx goto-executable
 cmd goto-executable $. $XDG_CONFIG_HOME/lf/auto/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/edit_executables; edit_executables

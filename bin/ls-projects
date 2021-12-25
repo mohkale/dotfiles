@@ -8,6 +8,37 @@
 # REPO_PATH can contain globs such as ~/foo/*/*/ and all of the directories expanded
 # by the glob will also be considered as potential repository containers.
 
+sep=':'
+
+print_usage() {
+  echo "Usage: ls-projects [-h] [-r]"
+}
+
+print_help() {
+  print_usage
+  cat <<-EOF
+
+  List projects findable through REPO_PATH.
+
+Optional arguments:
+  -h  Show this help message and exit.
+  -r  Recursively look for sub-projects.
+  -s  Specify separator for output fields.
+EOF
+}
+
+recursive=0
+while getopts 'hrs:' OPTION; do
+  case "$OPTION" in
+    h) print_help
+       exit 0 ;;
+    r) recursive=1 ;;
+    s) sep="$OPTARG" ;;
+    \?) print_usage
+        exit 1 ;;
+  esac
+done
+
 # NOTE: This script can use GNU parallel or xargs, but parallel is better
 # because you can spawn a single find process with multiple paths. For xargs
 # each path gets it's own find process, causing a general decrease in speed
@@ -51,6 +82,26 @@ maybe_repos() {
     exec 3>&-
 }
 
+include_submodules() {
+  while read -r it; do
+    it_base="$(basename "$it")"
+    echo "$it$sep$it_base"
+    if [ -e "$it/.gitmodules" ]; then
+      git config --file "$it/.gitmodules" --get-regexp path |
+        awk -v root="$it" \
+            -v base="$it_base" \
+            -v sep="$sep" \
+            -e '{
+it = $2
+for (i=3; i <= NF; i++) {
+  it = it FS $i
+}
+print(root "/" it sep base "/" it)
+}'
+    fi
+  done
+}
+
 # The condition used to check whether a directory {} is a code repository or not.
 # this can be any shell expression that can be passed to `find -exec`.
 repo_assert=( [ -e '{}/.git' -o -e '{}/GemFile' -o -e '{}/__main__.py' -o -e '{}/CMakeLists.txt' -o -e '{}/.projectile' ] )
@@ -60,4 +111,9 @@ repo_assert=( [ -e '{}/.git' -o -e '{}/GemFile' -o -e '{}/__main__.py' -o -e '{}
 # shellcheck disable=SC2068
 maybe_repos |
   "${batch[@]}" \
-    find % -mindepth 0 -maxdepth 0 -exec ${repo_assert[@]} ';' -print
+    find % -mindepth 0 -maxdepth 0 -exec ${repo_assert[@]} ';' -print |
+  if [ "$recursive" -eq 1 ]; then
+    include_submodules
+  else
+    sed 's ^\(.\+\)/\([^\/]\+\) \0'"$sep"'\2 '
+  fi

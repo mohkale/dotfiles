@@ -17,7 +17,7 @@ F       fzf_file_all
 i       sh -c 'if [ $# -gt 0 ]; then preview "$@"; fi' inspect
 m       fzf_man
 o       xopen
-p       cd_repo
+p       cd_project
 s       $SHELL
 x       launch
 y       file_path_yank
@@ -105,7 +105,7 @@ gd      fzf_cd
 ge      cd_env
 gf      fzf_file
 gm      cd_mount
-gp      cd_repo
+gp      cd_project
 gs      fzf_grep
 gu      cd_project_root
 gx      edit_executables
