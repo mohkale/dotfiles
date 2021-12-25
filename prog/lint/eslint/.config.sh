@@ -1,3 +1,3 @@
 link eslintrc:~/.eslintrc.js
 
-# packages npm:eslint
+packages yarn:eslint npm:eslint

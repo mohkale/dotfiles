@@ -674,6 +674,16 @@ _package_pip() {
 PACMANS+=(go)
 _package_go() { _package_simple go go '' 'get' '' "$@"; }
 
+# Package manager for the node-package-manager.
+# See also https://github.com/npm/cli
+PACMANS+=(npm)
+_package_npm() { _package_simple npm npm '' install,-g '' "$@"; }
+
+# Package manager for yarn.
+# See also https://github.com/yarnpkg/yarn
+PACMANS+=(yarn)
+_package_yarn() { _package_simple yarn yarn '' global,add '' "$@"; }
+
 # Package manager the for cygwins cyg-get package manager.
 PACMANS+=(cygwin)
 _package_cygwin() { _package_simple cygwin cyg-get.bat '' '' '' "$@"; }
