@@ -926,6 +926,18 @@ EOF
 }
 # Sync Submodule }}}
 
+# manage {{{
+manage() {
+  if [ "$dry_run" -eq 0 ]; then
+    for it in "$@"; do
+      import "$it"
+    done
+  else
+    run-cmd "$DOTFILES/manage" install --dry-run "$@"
+  fi
+}
+# }}}
+
 # Dotty {{{
 #      _       _   _
 #   __| | ___ | |_| |_ _   _

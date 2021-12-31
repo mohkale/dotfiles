@@ -35,6 +35,7 @@ IFS=$'\n'
 for var in $xdgvars; do
   export "${var?}"
 done
+[ -e dotenv.local ] && source dotenv.local
 export DOTFILES="$root"
 
 ./setup/dotty "$@"

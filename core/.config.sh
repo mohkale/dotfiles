@@ -43,6 +43,6 @@ fi
 
 link-to "$XDG_CONFIG_HOME/aliases" ./aliases/*
 
-import auto shells/bash
+import auto shells/bash repos
 bots zsh        && import shells/zsh
 bots powershell && import shells/pwsh

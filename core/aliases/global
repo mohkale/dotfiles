@@ -240,7 +240,7 @@ box@dirx         ~/Dropbox
 dot@dirx         $DOTFILES
 dbin@dirx        $DOTFILES/bin
 em@dirx          $XDG_CONFIG_HOME/emacs
-org@dirx         $XDG_DOCUMENTS_DIR/org
+org@dirx         $DOTFILES/core/repos/org
 cheats@dirx      $XDG_CONFIG_HOME/cheat/cheatsheets/personal
 ledger@dirx      $XDG_DOCUMENTS_DIR/ledger
 journal@dirx     $XDG_DOCUMENTS_DIR/ledger
