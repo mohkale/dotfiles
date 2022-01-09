@@ -44,4 +44,6 @@ dcd               docker-compose down
 dce               docker-compose exec
 dcr               docker-compose run
 
+pj@dirx           /c/Projects
+
 xgeometry         xdotool selectwindow getwindowgeometry

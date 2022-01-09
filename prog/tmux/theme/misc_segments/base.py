@@ -8,7 +8,7 @@ class StatusMiscSegment(abc.ABC):
     """
 
     def __init__(self, args):
-        self.__dict__.update({key.removeprefix(self.name + '_'): value
+        self.__dict__.update({key[len(self.name)+1:]: value
                               for key, value in vars(args).items()
                               if key.startswith(self.name)})
         self.args = args

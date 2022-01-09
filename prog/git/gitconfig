@@ -7,6 +7,7 @@
 	process = git-lfs filter-process
 	required = true
 [core]
+    filemode = false
 	autocrlf = input
 	excludesfile = ~/.config/git/gitignore
 [alias]
@@ -39,3 +40,5 @@
 	textconv = gpg --no-tty --decrypt
 [push]
 	recurseSubmodules = on-demand
+[url "bbgithub:"]
+    insteadof = https://bbgithub.dev.bloomberg.com/
