@@ -1,7 +1,7 @@
-link "$XDG_CONFIG_HOME/transmission/settings.json" \
-     settings.json:"$XDG_CONFIG_HOME/transmission-cli" \
+link settings.json:"$XDG_CONFIG_HOME/transmission-cli"    \
+     "$XDG_CONFIG_HOME/transmission/settings.json"        \
      "$XDG_CONFIG_HOME/transmission-daemon/settings.json" \
-     watch.json:"$XDG_CONFIG_HOME/transmission-daemon/watcher.json" \
+     "$XDG_CONFIG_HOME/transmission-daemon/watcher.json"  \
      tremcrc:"$XDG_CONFIG_HOME/tremc/settings.cfg"
 link-to "$XDG_CONFIG_HOME/tmuxp/" ./tmux/*
 

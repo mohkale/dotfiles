@@ -1,0 +1,18 @@
+{
+  "torrents-dir": "~/downloads/torrents",
+  "added-subdir": "@added",
+  "rules": [
+    {
+      "directory": "@high-priority",
+      "overrides": {
+        "bandwidthPriority": 1
+      }
+    },
+    {
+      "directory": "@start",
+      "overrides": {
+        "paused": false
+      }
+    }
+  ]
+}

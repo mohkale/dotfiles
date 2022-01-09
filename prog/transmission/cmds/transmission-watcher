@@ -1,0 +1,215 @@
+#!/usr/bin/env python3
+"""
+Watch a torrents root directory for new .torrent files, automatically
+loading them into transmission as they're loaded.
+
+This script depends on JSON configuration file (mine can be found [[file:~/.dotfiles/programs/transmission/watch.json][here]]),
+specifying the general torrent directories and, more importantly, the
+directory containing to watch for torrents.
+"""
+
+import json
+import logging
+import os
+import pathlib
+import sys
+import time
+import functools
+from typing import Any, Dict, Optional
+
+import inotify.adapters
+
+import transmission
+
+WATCHER_FILE = (
+    pathlib.Path(os.environ.get("XDG_CONFIG_HOME", "~/.config")).expanduser()
+    / "transmission-daemon"
+    / "watcher.json"
+)
+
+
+class WatcherConfig(object):
+    """Parse a directory watcher configuration into an object."""
+
+    def __init__(self, cfg: dict):
+        self.root = pathlib.Path(cfg["torrents-dir"]).expanduser()
+        self.added = self.root / cfg["added-subdir"]
+
+        self.added.mkdir(parents=True, exist_ok=True)
+
+        self.rules = [*cfg["rules"]]
+
+    @functools.lru_cache()
+    def calc_overrides(self, path: pathlib.Path) -> Optional[Dict[str, Any]]:
+        "Determine torrent-add request overrides."
+        overrides = {}
+        for rule in self.rules:
+            if path.parts[0] == rule["directory"]:
+                overrides.update(rule["overrides"])
+                path = pathlib.Path(*path.parts[1:])
+        return path, overrides
+
+
+@transmission.retry(5)
+def add_torrent(
+    connection: transmission.Transmission, url: str, overrides: Dict[str, any]
+):
+    """Add a torrent to transmission."""
+    print(f"Adding torrent {url} with overrides {overrides}")
+    resp = connection.command("torrent-add", filename=url, **overrides)
+    if resp["result"] != "success":
+        raise transmission.StatusException("Encountered non-sucess status")
+    args = resp["arguments"]
+    key = "torrent-duplicate" if "torrent-duplicate" in args else "torrent-added"
+    return args[key]["hashString"]
+
+
+def rename_added_torrent(src: pathlib.Path, dest: pathlib.Path):
+    """Rename a torrent file after adding it to transmission."""
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    logging.info("Moving torrent file to: %s", dest)
+    if dest.exists():
+        logging.warning("Destination for new torrent already exists: %s", dest)
+        return
+    src.rename(dest)
+
+
+def add_rename_torrent(
+    config: WatcherConfig, connection: transmission.Transmission, path: pathlib.Path
+):
+    """Add a torrent to transmission then rename its torrent file."""
+    logging.info("Adding existing torrent: %s", path)
+    literal_path, overrides = config.calc_overrides(path.relative_to(config.root))
+    try:
+        hash_str = add_torrent(connection, str(path), overrides)
+    except transmission.StatusException:
+        return False
+
+    dest = config.added / literal_path.parent / (hash_str + ".torrent")
+    rename_added_torrent(path, dest)
+    return True
+
+
+def add_all_recursively(config: WatcherConfig, connection: transmission.Transmission):
+    """Add all the torrents in watcher directories.
+
+    This is done in case some torrent files were populated while the watcher
+    wasn't running, and ensures the initial state of transmission is up to
+    date with what the user expects.
+    """
+    logging.info("Adding all torrents already in watcher root")
+    failed = False
+    added = list(config.added.relative_to(config.root).parts)
+    for root, dirs, files in os.walk(config.root):
+        if added:
+            head = added[0]
+            if head in dirs:
+                dirs[:] = [it for it in dirs if it != added[0]]
+                added.pop()
+        for file in files:
+            if not file.endswith(".torrent"):
+                logging.warning(
+                    "Found file but not adding because of no torrent suffix: %s",
+                    f"{root}/{file}",
+                )
+                continue
+            if not add_rename_torrent(config, connection, pathlib.Path(root) / file):
+                failed = True
+    return not failed
+
+
+def main(config: WatcherConfig, connection: transmission.Transmission):
+    """Run the transmission-watcher."""
+    ok = True
+    if not add_all_recursively(config, connection):
+        ok = False
+
+    notifier = inotify.adapters.InotifyTree(str(config.root))
+    logging.info("Started watching root directory: %s", config.root)
+    try:
+        for _, event_types, path, filename in notifier.event_gen(yield_nones=False):
+            if not filename:
+                continue
+
+            path = pathlib.Path(path) / filename
+
+            logging.debug(
+                "Encountered events %s at path: %s", ",".join(event_types), path
+            )
+
+            if not path.exists():
+                # watcher already moved the torrent by the time we recieve the event
+                continue
+            if path.is_relative_to(config.added):
+                logging.debug(
+                    "Skipping event because filename is in added directory: %s", path
+                )
+                continue
+            if not filename.endswith(".torrent"):
+                logging.debug(
+                    "Skipping event because filename doesn't end with .torrent: %s",
+                    path,
+                )
+                continue
+            if not {"IN_MOVED_TO", "IN_CREATE"}.intersection(event_types):
+                logging.debug("Skipping event because of undesired event types")
+                continue
+
+            logging.info("Adding new torrent: %s", path)
+            time.sleep(1)
+            if not add_rename_torrent(config, connection, path):
+                ok = False
+    except KeyboardInterrupt:
+        pass
+    except RuntimeError as err:
+        logging.exception("Encountered error: %s", err)
+        ok = False
+    return ok
+
+
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "config",
+        type=argparse.FileType("r", encoding="utf8"),
+        help="config file for the watcher daemon",
+    )
+
+    parser.add_argument(
+        "-t",
+        "--transmission-config",
+        metavar="FILE",
+        default=transmission.CONFIG_FILE,
+        type=pathlib.Path,
+        help="transmission watcher configuration file",
+    )
+
+    parser.add_argument(
+        "-l",
+        "--log-level",
+        metavar="LEVEL",
+        type=lambda x: getattr(logging, x.upper()),
+        help="verbosity of logging output",
+    )
+
+    args = parser.parse_args()
+    vargs = vars(args)
+
+    try:
+        from mohkale.pylog.config import use_config as use_logging_config
+    except ImportError:
+        logging.basicConfig(level=vargs.pop("log_level"))
+    else:
+        use_logging_config("transmission-watcher", level=vargs.pop("log_level"))
+
+    args.config = WatcherConfig(json.load(args.config))
+    args.connection = transmission.Transmission.from_conf_file(args.transmission_config)
+
+    if not args.connection.check():
+        parser.error(
+            "Unable to connect to transmission daemon at: " + args.connection.url
+        )
+
+    sys.exit(0 if main(args.config, args.connection) else 0)

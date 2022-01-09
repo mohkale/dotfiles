@@ -40,7 +40,6 @@ link                                            \
   "$XDG_BIN_DIR/ls-mount"                       \
   "$XDG_BIN_DIR/ls-platform"                    \
   "$XDG_BIN_DIR/ls-projects"                    \
-  "$XDG_BIN_DIR/magnet2torrent"                 \
   "$XDG_BIN_DIR/moji"                           \
   "$XDG_BIN_DIR/preview"                        \
   "$XDG_BIN_DIR/prog-icons"                     \
@@ -49,7 +48,6 @@ link                                            \
   "$XDG_BIN_DIR/pschain"                        \
   "$XDG_BIN_DIR/show-banners"                   \
   "$XDG_BIN_DIR/spawn-term"                     \
-  "$XDG_BIN_DIR/tctl"                           \
   "$XDG_BIN_DIR/tmux-popup"                     \
   "$XDG_BIN_DIR/vipe"                           \
   "$XDG_BIN_DIR/win-ctrl"                       \

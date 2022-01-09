@@ -76,7 +76,7 @@
     "script-torrent-added-enabled": false,
     "script-torrent-added-filename": "",
     "script-torrent-done-enabled": true,
-    "script-torrent-done-filename": "/home/mohkale/.config/transmission-daemon/cmds/on-complete",
+    "script-torrent-done-filename": "/home/mohkale/.config/transmission-daemon/cmds/transmission-on-complete",
     "seed-queue-enabled": true,
     "seed-queue-size": 3,
     "show-backup-trackers": false,

@@ -1,0 +1,195 @@
+#!/usr/bin/env python3
+"""
+A script invoked by transmission once a download completes.
+See [[https://github.com/transmission/transmission/wiki/Scripts][here]].
+"""
+
+import json
+import logging
+import os
+import pathlib
+import subprocess
+from typing import Optional
+
+import transmission
+import transmission_watcher
+
+
+def notify(msg, /, title=None, icon=None):
+    """Send a notification through the system notification API."""
+    cmd = ["notify-send"]
+    if icon:
+        cmd += ["-i", icon]
+    if title:
+        cmd.append(title)
+        cmd.append(msg)
+    if subprocess.call(cmd) != 0:
+        logging.error("Failed to notify user, msg was: %s", msg)
+
+
+def torrent_path(root: pathlib.Path, hash_str: str) -> Optional[pathlib.Path]:
+    """Determine the path for a given torrent in the watched directory."""
+    filenames = {f"{hash_str}.torrent", f"{hash_str}.magnet"}
+    for path, _, files in os.walk(str(root)):
+        found_files = filenames.intersection(files)
+        if found_files:
+            found_file = pathlib.Path(path) / found_files.pop()
+            try:
+                logging.debug("Removing redundant watched torrent file")
+                found_file.unlink()
+            except OSError:
+                logging.exception("Failed to remove watched file")
+            return pathlib.Path(path).relative_to(root)
+    return None
+
+
+@transmission.retry(5)
+def move_torrent(connection: transmission.Transmission, torrent_id: int, dest_dir: str):
+    """Move a completed torrent to a new location."""
+    resp = connection.command(
+        "torrent-set-location", ids=torrent_id, move=True, location=dest_dir
+    )
+    if resp["result"] != "success":
+        raise transmission.StatusException("Encountered non-sucess status")
+
+
+def main(args):
+    """Run transmission-on-complete."""
+    try:
+        notify(
+            f"Completed torrent: {args.basename}",
+            icon="torrents",
+            title="transmission",
+        )
+    except OSError:
+        logging.exception("Failed to notify user")
+
+    if not args.location.exists():
+        logging.error(
+            "Unable to move completed torrent, source doesn't exist: %s", args.location
+        )
+        return False
+
+    if not args.location.is_relative_to(args.incomplete_dir):
+        logging.info(
+            "Skipping moving downloaded torrent because it isn't in the \
+default incomplete directory: %s",
+            args.location,
+        )
+        return True
+
+    logging.info("Determining path file for torrent with id: %s", str(args.id))
+    dest_path = args.default_dest  # the default path where completed torrents go.
+    new_path = torrent_path(args.watch_config.added, args.hash)
+    if new_path is not None and new_path != pathlib.Path("."):
+        dest_path = args.download_root / new_path
+    logging.info("Moving completed torrent to %s", dest_path)
+    try:
+        move_torrent(args.connection, args.id, str(dest_path))
+    except transmission.StatusException:
+        logging.exception("Failed to move torrent to new destionation")
+        return False
+    return True
+
+
+if __name__ == "__main__":
+    import argparse
+    import sys
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "-c",
+        "--config",
+        metavar="FILE",
+        default=transmission.CONFIG_FILE,
+        type=pathlib.Path,
+        help="transmission watcher configuration file",
+    )
+
+    parser.add_argument(
+        "-w",
+        "--watcher",
+        metavar="FILE",
+        default=transmission_watcher.WATCHER_FILE,
+        type=pathlib.Path,
+        help="transmission daemon configuration file",
+    )
+
+    parser.add_argument(
+        "-l",
+        "--log-level",
+        metavar="LEVEL",
+        type=lambda x: getattr(logging, x.upper()),
+        help="verbosity of logging output",
+    )
+    env_group = parser.add_argument_group("Environment Overrides")
+    env_group.add_argument(
+        "-H",
+        "--hash",
+        default=os.getenv("TR_TORRENT_HASH"),
+        help="hash for the completed torrent",
+    )
+    env_group.add_argument(
+        "-t",
+        "--transmission-version",
+        default=os.getenv("TR_APP_VERSION"),
+        metavar="VERSION",
+        help="version of the transmission server running",
+    )
+    DEFAULT_TORRENT_ID = os.getenv("TR_TORRENT_ID")
+    env_group.add_argument(
+        "-i",
+        "--id",
+        default=int(DEFAULT_TORRENT_ID) if DEFAULT_TORRENT_ID else None,
+        type=int,
+        metavar="ID",
+        help="id for the completed torrent",
+    )
+    env_group.add_argument(
+        "-b",
+        "--basename",
+        default=os.getenv("TR_TORRENT_NAME"),
+        metavar="NAME",
+        help="name of file/directory where torrent is located",
+    )
+    env_group.add_argument(
+        "-d",
+        "--directory",
+        default=os.getenv("TR_TORRENT_DIR"),
+        metavar="DIR",
+        help="the absolute path to the directory containing NAME",
+    )
+
+    args = parser.parse_args()
+    vargs = vars(args)
+
+    try:
+        from mohkale.pylog.config import use_config as use_logging_config
+    except ImportError:
+        use_logging_config("on-complete", level=vargs.pop("log_level"))
+    else:
+        logging.basicConfig(level=vargs.pop("log_level"))
+
+    if not args.config.exists():
+        parser.error("Config file doesn't exist: " + str(args.config))
+    args.config = json.loads(args.config.open().read())
+    if not args.watcher.exists():
+        parser.error("Watcher config file doesn't exist: " + str(args.watcher))
+    args.watch_config = transmission_watcher.WatcherConfig(
+        json.loads(args.watcher.open().read())
+    )
+
+    args.location = pathlib.Path(args.directory, args.basename).resolve()
+
+    args.connection = transmission.Transmission.from_conf(args.config)
+    if not args.connection.check():
+        parser.error(
+            "Unable to connect to transmission daemon at: " + args.connection.url
+        )
+
+    args.incomplete_dir = pathlib.Path(args.config["download-dir"]).resolve()
+    args.download_root = args.incomplete_dir.parent
+    args.default_dest = args.download_root / "random"
+
+    sys.exit(0 if main(args) else 1)

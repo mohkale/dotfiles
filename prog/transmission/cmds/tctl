@@ -218,10 +218,12 @@ def run_action_callback(
     if not request_params:
         request_params = {}
 
-    def callback(conn, ids, torrents):  # pylint: disable=W0613
+    # pylint: disable=W0613
+    def callback(conn, ids, torrents):
+        # pylint: disable=logging-not-lazy
         logging.info(
             "Attempting to " + running_action_msg, ", ".join(map(str, ids))
-        )  # pylint: disable=W1201
+        )
         try:
             tcmd(conn, remote_cmd, ids=ids, **request_params)
             return True

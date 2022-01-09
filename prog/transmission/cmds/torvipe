@@ -1,0 +1,84 @@
+#!/usr/bin/env python3
+"""
+Bulk add torrents using your editor.
+
+Opens a YAML file where you can place magnet links for downloading
+in a hirearchal way. If the configuration is a string, then that is
+the magnet link. If it is an array then it's an array of configurations.
+If a dictionary the key is a directory level and it's value is another
+configuration. Dictionaries can nest into each other, which will result
+in a directory joining operation for them.
+"""
+
+import json
+import os
+import pathlib
+import subprocess
+import sys
+import tempfile
+
+import transmission
+import transmission_watcher
+
+try:
+    import yaml
+except ImportError:
+    print("error: torvipe: Script requires pyyaml to be installed", file=sys.stderr)
+    sys.exit(1)
+
+
+def recurse_data(data):
+    """Recursively collapse data into a series of tuples."""
+    if isinstance(data, dict):
+        for key, value in data.items():
+            yield from ((key, *it) for it in recurse_data(value))
+    elif isinstance(data, list):
+        for item in data:
+            yield from recurse_data(item)
+    elif isinstance(data, str):
+        yield (data,)
+    else:
+        print(
+            f"Warning: unexpected data type in stream: {type(data)}/{data}",
+            file=sys.stderr,
+        )
+
+
+connection = transmission.Transmission.from_conf_file(transmission.CONFIG_FILE)
+if not connection.check():
+    print(
+        f"error: torvipe: Unable to connect to transmission daemon at: {connection.url}",
+        file=sys.stderr,
+    )
+
+with open(transmission_watcher.WATCHER_FILE, "r") as watcher_config:
+    watcher = transmission_watcher.WatcherConfig(json.load(watcher_config))
+
+with tempfile.NamedTemporaryFile(suffix=".yml") as file_fd:  # Will be deleted on close.
+    file = file_fd.name
+
+    if subprocess.call([os.getenv("VISUAL", os.getenv("EDITOR", "vim")), file]) != 0:
+        print("error: torvipe: Failed to run editor on torvipe index", file=sys.stderr)
+        sys.exit(1)
+
+    data = yaml.load(file_fd, Loader=yaml.SafeLoader)
+    for item in recurse_data(data):
+        magnet_link = item[-1]
+        magnet_path = pathlib.Path(*item[:-1])
+
+        literal_path, overrides = watcher.calc_overrides(magnet_path / "torvipe.magnet")
+        try:
+            hash_str = transmission_watcher.add_torrent(
+                connection, magnet_link, overrides
+            )
+        except transmission.StatusException:
+            print(
+                f"error: torvipe: Failed to add magnet link {magnet_link}",
+                file=sys.stderr,
+            )
+            continue
+        magnet_added_path = watcher.added / literal_path.parent / (hash_str + ".magnet")
+        magnet_added_path.parent.mkdir(parents=True, exist_ok=True)
+        with magnet_added_path.open("w") as magnet_file:
+            magnet_file.write(magnet_link)
+        print(f"info: torvipe: wrote {magnet_added_path}")
