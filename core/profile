@@ -148,7 +148,7 @@ lines_to_path <<EOF
 $XDG_BIN_DIR
 $XDG_DEV_HOME/scripts
 $XDG_LIB_HOME/go/bin
-$XDG_LIB_HOME/npm/bin
+$XDG_DATA_HOME/npm/bin
 ${GEM_HOME:-$HOME/.gem}/bin
 ${POETRY_HOME:-$HOME/.poetry}/bin
 ~/.rvm/bin

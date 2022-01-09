@@ -36,4 +36,12 @@ mpa               fmpd albums
 mpp               fmpd playlists
 mpt               fmpd tags
 
+dd                docker
+dc                docker-compose
+dcb               docker-compose build
+dcu               docker-compose up
+dcd               docker-compose down
+dce               docker-compose exec
+dcr               docker-compose run
+
 xgeometry         xdotool selectwindow getwindowgeometry

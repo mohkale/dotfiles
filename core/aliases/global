@@ -147,6 +147,7 @@ ee      ec --no-wait --suppress-output
 ex      emacs
 sx      smacs
 et      emacs-tangle --cd "$XDG_CONFIG_HOME/emacs" --interactive --dependency etc/+config.el
+enw     emacs -nw
 etnw    et && emacs -nw
 etc     et -c
 etd     et -l -

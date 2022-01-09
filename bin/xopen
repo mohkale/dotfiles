@@ -27,6 +27,7 @@ import locale
 import logging
 import mimetypes as mime
 import os
+import platform
 import re
 import shlex
 import subprocess
@@ -893,6 +894,7 @@ class Windows(Desktop):
         res = True
         for url in urls:
             res = res and self.run_opener(
+                {"cmd": "wslview", "exec": ["wslview", url]},
                 {"cmd": "cygstart", "exec": ["cygstart", url]},
                 {"cmd": "start", "exec": ["start", "", url]},
             )
@@ -904,6 +906,7 @@ class Windows(Desktop):
             sys.platform.startswith("cygwin")
             or sys.platform.startswith("msys")
             or os.name == "nt"
+            or "microsoft" in platform.uname().release.lower()
         )
 
 
