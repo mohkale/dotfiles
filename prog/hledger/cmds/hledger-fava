@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# A script to allow using [[https://pythonrepo.com/repo/beancount-fava-python-organization][fava]] as an alternative to [[https://hackage.haskell.org/package/hledger-web][hledger-web]].
+#
+# hledger-web is a decent and usable UI for hledger, but fava is more
+# feature-full and pleasing to the eye. This script converts our journals
+# into beancount compatible formats and then starts fava with them. A
+# watcher will be setup in the background to update the beancount journal
+# when one of the original journal files are modified.
+
+if [ -z "$LEDGER_FILE" ]; then
+  dir=$(dirname "$(dirname "$0")")
+else
+  if ! [ -e "$LEDGER_FILE" ]; then
+    echo "error: hledger-fava: LEDGER_FILE not found '$LEDGER_FILE'."
+    exit 1
+  fi
+  dir=$(dirname "$LEDGER_FILE")
+fi
+
+export_file="$dir/.export.beancount"
+
+# Need to watch all journals just to ensure watcher is executed properly.
+journals=$(find "$dir/" -mindepth 1 -maxdepth 1 \( -iname '*.journal.gpg' -or -iname '*.journal' \) | sed 's/\.gpg//')
+if [ -z "$journals" ]; then
+  echo "error: hledger-fava: failed to find any journal files."
+  exit 1
+fi
+xargs -r -d '\n' touch <<< "$journals"
+
+export_cmd='hledger print'
+if which -v ledger2beancount >/dev/null 2>&1; then
+  export_cmd="$export_cmd | ledger2beancount -"
+fi
+export_cmd="$export_cmd > $(printf %q "$export_file")"
+eval "$export_cmd"
+
+trap 'rm -v '"$export_file" EXIT
+# Will automatically be killed on SIGHUP.
+entr -nrpc sh -c "echo hledger-fava: recompiling beancount journal; $export_cmd" <<< "$journals" &
+
+fava "$export_file"

@@ -1,0 +1,16 @@
+---  # hledger - Financial management layout.
+
+session_name: ledger
+start_directory: ~/docs/ledger
+
+windows:
+  - window_name: journal
+    layout: 67e2,202x53,0,0{158x53,0,0,29,43x53,159,0[43x26,159,0,45,43x26,159,27,46]}
+    panes:
+      - shell_command: $EDITOR main.journal
+        focus: true
+      - clear; ./bin/hledger-gpg
+      - clear; ./bin/hledger-fava
+  - window_name: import
+    panes:
+      - clear; cd rules

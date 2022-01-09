@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# Auto decrypt gpg encrypted hledger journals.
+#
+# All my journal files are GPG encrypted, but hledger only works with
+# plaintext files. This script auto decrypts my journals onto my local
+# machine and then removes them before exiting.
+
+if [ -z "$LEDGER_FILE" ]; then
+  cd "$(dirname "$(dirname "$0")")" || exit 1
+else
+  if ! [ -e "$LEDGER_FILE" ]; then
+    echo "error: hledger-gpg: LEDGER_FILE not found '$LEDGER_FILE'."
+    exit 1
+  fi
+  cd "$(dirname "$LEDGER_FILE")" || exit 1
+fi
+
+journals=$(find . -mindepth 1 -maxdepth 1 -iname '*.journal.gpg')
+if [ -z "$journals" ]; then
+  echo "error: hledger-gpg: failed to find any encrypted journal files." >&2
+  exit 1
+fi
+
+build_cmd="echo $(printf %q "$journals") | parallel [ {.} -nt {} ] '||' gpg --batch --yes --quiet --output {.} --decrypt {}"
+
+cleanup() {
+  # shellcheck disable=SC1083
+  parallel shred {.} '&&' rm -v {.} <<< "$journals"
+}
+trap 'cleanup' EXIT
+
+entr -nr sh -c "echo hledger-gpg: decrypting journal files; $build_cmd" <<< "$journals"
