@@ -13,7 +13,7 @@ set shellopts '-eu'
 set ifs "\n"
 
 set icons
-set hiddenfiles .*:__pycache__:*.pyc:*.o:node_modules:*.elc:*~:folder*.ico:folder*.jpg:folder*.png
+set hiddenfiles .*:__pycache__*:*.pyc:*.o:node_modules:*.elc:*~:folder*.ico:folder*.jpg:folder*.png
 set info size
 #set relativenumber
 set dircounts                                                                   # show number of files in directory, not size of directory inode.

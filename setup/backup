@@ -113,6 +113,7 @@ def move_path(args, it):
         if not path.absolute():
             raise ValueError("Moving paths requires all paths to be absolute", path)
         dest = move_path_dest(args, path)
+        # pylint: disable=no-member
         logging.trace(
             "Moved %s -> %s", repr(str(path)), repr(str(dest))
         )  # pylint: disable=E1101

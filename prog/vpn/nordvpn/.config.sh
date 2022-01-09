@@ -4,4 +4,6 @@ packages yay:wireguard-tools,nordvpn-bin
 run-cmd sudo usermod -aG nordvpn "$USER"
 
 # Prefer wireguard to openvpn.
-run-cmd nordvpn set technology nordlynx
+# This is disabled for now because I was getting weird
+# issues with checksum corruption and transmission.
+# run-cmd nordvpn set technology nordlynx

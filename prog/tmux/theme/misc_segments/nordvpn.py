@@ -37,7 +37,7 @@ class NordVPNSegment(StatusMiscSegment):
         ip_address = ''
         match = re.search(r'Server IP: (.+)', proc.stdout, flags=re.IGNORECASE)
         if not match:
-            if self.nordvpn_hide:
+            if self.hide:
                 return None
         elif match:
             ip_address = ' ' + match[1]

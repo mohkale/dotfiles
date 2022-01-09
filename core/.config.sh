@@ -15,9 +15,9 @@ link ~/.ignore                                    \
 link -f "$XDG_CONFIG_HOME/mimeapps.list"
 
 if is-windows; then
-  link user-dirs.windows:"~/.config/user-dirs.dirs"
+  link -f user-dirs.windows:"~/.config/user-dirs.dirs"
 else
-  link user-dirs:"~/.config/user-dirs.dirs"
+  link -f user-dirs:"~/.config/user-dirs.dirs"
 fi
 
 makedir "$XDG_DATA_HOME/fzf/history"

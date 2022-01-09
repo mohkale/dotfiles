@@ -15,15 +15,18 @@ jctl-errors       journalctl --priority 3 --catalog --boot
 jctl-purge        sudo journalctl --vacuum-time=1w
 fsck              fsck -M -T
 
-hl                hledger
-hlb               hledger balance
-hlp               hledger import --dry
-hli               hledger import
-hlbs              hledger balancesheet --no-elide
-hlbse             hledger balancesheetequity --no-elide
-hlis              hledger incomestatement --no-elide
-hlr               hledger register
-hla               hledger activity
+hl                hledger --color=always
+hlb               hl balance
+hlp               hl import --dry
+hli               hl import
+hlbs              hl balancesheet --no-elide
+hlbse             hl balancesheetequity --no-elide
+hlis              hl incomestatement --no-elide
+hlisy             hlis --period "$(date +%Y)"
+hlbu              hl balance --budget -MB -b "$(date -d "$(date +%Y-%m-1) -2 month" +%Y-%m)"
+hlfc              hl balance --monthly --begin="$(date -d "$(date +%Y-%m-1) -1 month" +%Y-%m)" --end="$(date -d "$(date +%Y-%m-1) +11 month" +%Y-%m)" --forecast --cumulative
+hlr               hl register
+hla               hl activity
 
 mpo               sh -c 'ncmpcpp "$@" || ncmpc "$@" || fmpd "$@"' 'mpd-client'
 mpq               fmpd queue

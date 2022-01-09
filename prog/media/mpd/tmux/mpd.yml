@@ -17,4 +17,4 @@ windows:
     panes:
       - shell_command:
           - pgrep mpd || mpd
-          - journalctl --follow | grep --color=never mpd
+          - journalctl --follow --identifier mpd

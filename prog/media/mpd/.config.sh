@@ -8,7 +8,7 @@ link-to "$XDG_CONFIG_HOME/tmuxp/" ./tmux/*
 
 packages                                        \
   choco:mpd                                     \
-  yay:mpd,mpdris2
+  yay:mpd,mpc,mpdris2
 
 import -b                                       \
   clients/ncmpc                                 \

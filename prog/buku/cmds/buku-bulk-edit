@@ -29,7 +29,7 @@ fi
 [ "$uri"         != "$uri2"         ] && flags+=( --url "$uri2" )
 [ "$description" != "$description2" ] && flags+=( --comment "$description2" )
 if [ "${#flags[@]}" -gt 0 ]; then
-  buku --np --update "$id" "${flags[@]}"
+  buku --nostdin --np --update "$id" "${flags[@]}"
 fi
 EOF
 

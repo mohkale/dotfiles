@@ -96,5 +96,5 @@ print(json.dumps(yaml.safe_load(sys.stdin)))' |
     [ -z "$tags" ] || flags+=(--tag "$tags")
     [ -z "$name" ] || flags+=(--title "$name")
     [ -z "$comments" ] || flags+=(--comment "$comments")
-    buku --np "${flags[@]}" --add "$url" </dev/null
+    buku --nostdin --np "${flags[@]}" --add "$url" </dev/null
   done

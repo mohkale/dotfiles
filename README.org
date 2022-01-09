@@ -54,18 +54,24 @@ My dotfile repository, happily brought to you by [[file:setup/dotty][dotty]] :bo
   - [[https://chocolatey.org/][chocolatey]] fails when stderr is the null device.
 
 ** Linux
-   Has issues with high DPI screens such as on a macbook. To get this fixed you can
-   set ~Xft.dpi~ to a value greater than 100 in [[file:~/.Xresources]]. This will work for
-   most low level window managers or desktop environments but some more advanced ones
-   (such as KDE) will ignore this setting and instead rely on custom configurations.
-   In this case you should use ~xrandr~ to trick X into thinking the screen is larger
-   than it is and then zoom-in in the settings for your desktop environment until you
-   reach a level of resolution that works.
+*** High DPI
+    Has issues with high DPI screens such as on a macbook. To get this fixed you can
+    set ~Xft.dpi~ to a value greater than 100 in [[file:~/.Xresources]]. This will work for
+    most low level window managers or desktop environments but some more advanced ones
+    (such as KDE) will ignore this setting and instead rely on custom configurations.
+    In this case you should use ~xrandr~ to trick X into thinking the screen is larger
+    than it is and then zoom-in in the settings for your desktop environment until you
+    reach a level of resolution that works.
 
-   #+CAPTION: The command to enlargen the effective resolution of your display.
-   #+begin_src shell
-     xrandr --output eDP1 --fb 3200x1800 --panning 3200x1800 --scale 1.25x1.25
-   #+end_src
+    #+CAPTION: The command to enlargen the effective resolution of your display.
+    #+begin_src shell
+      xrandr --output eDP1 --fb 3200x1800 --panning 3200x1800 --scale 1.25x1.25
+    #+end_src
+
+*** Bluetooth Headsets
+    Might have issues with bluetooth headsets cutting in and out during usage. In my
+    case this is often fixed by changing the [[https://askubuntu.com/questions/833322/pair-bose-quietcomfort-35-with-ubuntu-over-bluetooth][controller mode]] for your bluetooth driver.
+    Simply open ~sudoedit /etc/bluetooth/main.conf~ and ~ControllerMode = bredr~.
 
 * Screenshots
   [[file:.github/gotop.png]]
@@ -73,5 +79,7 @@ My dotfile repository, happily brought to you by [[file:setup/dotty][dotty]] :bo
   [[file:.github/lf.png]]
 
   [[file:.github/emacs.png]]
+
+  [[file:.github/mpd+ncmpcpp.png]]
 
 #  LocalWords:  tmux

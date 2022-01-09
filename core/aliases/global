@@ -253,5 +253,4 @@ games@dirx       $XDG_GAMES_DIR
 music@dirx       $XDG_MUSIC_DIR
 vid@dirx         $XDG_VIDEOS_DIR
 desktop@dirx     $XDG_DESKTOP_DIR
-docs@dirx        $XDG_DOCUMENTS_DIR
 ltemp@dirx       $XDG_TEMP_DIR

@@ -14,6 +14,7 @@ text/plain=nvim.desktop;
 video/mp4=vlc.desktop;
 video/x-matroska=vlc.desktop;
 video/x-ms-wmv=vlc.desktop;
+video/x-msvideo=vlc.desktop;
 
 [Default Applications]
 application/pdf=org.pwmt.zathura.desktop
@@ -37,6 +38,7 @@ text/plain=nvim.desktop;
 video/mp4=vlc.desktop
 video/x-matroska=vlc.desktop
 video/x-ms-wmv=vlc.desktop
+video/x-msvideo=vlc.desktop;
 
 [Removed Associations]
 text/plain=libreoffice-writer.desktop
