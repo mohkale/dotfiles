@@ -2,6 +2,7 @@
 
 from .base import StatusMiscSegment
 
+from .mpd          import MPDSegment
 from .github       import GithubNotificationsSegment
 from .nordvpn      import NordVPNSegment
 from .notmuch      import NotMuchSegment

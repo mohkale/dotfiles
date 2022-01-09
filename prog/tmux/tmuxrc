@@ -85,7 +85,7 @@ bind | command-prompt -p "Pipe pane:" "pipe-pane -o '%%'"
 
 bind M-h command-prompt -k -p "Describe key:" "list-keys -1N '%%'"                                 # Inspect the key-symbol bound by tmux
 
-bind b   choose-tree -ZsG
+bind b   choose-tree -Zs
 bind B   choose-tree -Zw
 bind C-b choose-client -Z
 
