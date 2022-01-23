@@ -52,6 +52,10 @@ while read -r path; do
     *.rar|*.cbr)                     unrar x    "$path" ;;
     *.cab)                           cabextract "$path" ;;
     *.cb7|*.7z|*.c7z)                7z x       "$path" ;;
+    *.zst)                           unzstd     "$path" ;;
+    *) echo "error: extract: unknown archive format: $path" >&2
+       exit_code=1
+       ;;
   esac || exit_code=1
 done <<< "$(printf "%s\n" "$@")"
 

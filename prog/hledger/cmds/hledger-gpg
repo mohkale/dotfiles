@@ -27,6 +27,6 @@ cleanup() {
   # shellcheck disable=SC1083
   parallel shred {.} '&&' rm -v {.} <<< "$journals"
 }
-trap 'cleanup' EXIT
+trap 'cleanup' EXIT SIGHUP
 
 entr -nr sh -c "echo hledger-gpg: decrypting journal files; $build_cmd" <<< "$journals"

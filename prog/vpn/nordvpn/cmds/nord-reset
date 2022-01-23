@@ -1,0 +1,9 @@
+#!/bin/sh
+sudo pkill -9 -f nordvpn
+sudo iptables --policy INPUT ACCEPT
+sudo iptables --policy FORWARD ACCEPT
+sudo iptables --policy OUTPUT ACCEPT
+sudo iptables -t nat --flush
+sudo iptables -t mangle --flush
+sudo iptables --flush
+sudo iptables -X

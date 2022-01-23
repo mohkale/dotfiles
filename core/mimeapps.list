@@ -15,6 +15,9 @@ video/mp4=vlc.desktop;
 video/x-matroska=vlc.desktop;
 video/x-ms-wmv=vlc.desktop;
 video/x-msvideo=vlc.desktop;
+x-scheme-handler/http=brave-browser.desktop;
+x-scheme-handler/https=brave-browser.desktop;
+x-scheme-handler/mailto=emacsclient-mail.desktop;
 
 [Default Applications]
 application/pdf=org.pwmt.zathura.desktop
@@ -39,6 +42,9 @@ video/mp4=vlc.desktop
 video/x-matroska=vlc.desktop
 video/x-ms-wmv=vlc.desktop
 video/x-msvideo=vlc.desktop;
+x-scheme-handler/http=brave-browser.desktop;
+x-scheme-handler/https=brave-browser.desktop;
+x-scheme-handler/mailto=emacsclient-mail.desktop;
 
 [Removed Associations]
 text/plain=libreoffice-writer.desktop

@@ -20,12 +20,14 @@ fi
 export_file="$dir/.export.beancount"
 
 # Need to watch all journals just to ensure watcher is executed properly.
-journals=$(find "$dir/" -mindepth 1 -maxdepth 1 \( -iname '*.journal.gpg' -or -iname '*.journal' \) | sed 's/\.gpg//')
+journals=$(find "$dir/" -mindepth 1 -maxdepth 1 \( -iname '*.journal.gpg' -or \( -iname '*.journal' -and -not -exec [ -e {}.gpg ] \; \) \) -print | sed 's/\.gpg$//')
 if [ -z "$journals" ]; then
   echo "error: hledger-fava: failed to find any journal files."
   exit 1
 fi
-xargs -r -d '\n' touch <<< "$journals"
+# Ensure decrypted files exist for beancount, but touch the originals so hledger-gpg
+# decrypts into the original file anyways.
+parallel -r -d '\n' [ -e {} ] '||' touch {} '&&' [ -e {}.gpg ] '&&' touch {}.gpg <<< "$journals"
 
 export_cmd='hledger print'
 if which -v ledger2beancount >/dev/null 2>&1; then
@@ -34,7 +36,7 @@ fi
 export_cmd="$export_cmd > $(printf %q "$export_file")"
 eval "$export_cmd"
 
-trap 'rm -v '"$export_file" EXIT
+trap 'rm -v '"$export_file" EXIT SIGHUP
 # Will automatically be killed on SIGHUP.
 entr -nrpc sh -c "echo hledger-fava: recompiling beancount journal; $export_cmd" <<< "$journals" &
 

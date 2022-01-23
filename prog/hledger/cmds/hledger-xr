@@ -1,0 +1,28 @@
+#!/usr/bin/env python3
+# Generate a [[https://hledger.org/hledger.html#valuation-commodity][commodity conversion rates]] from the excellent [[https://github.com/fawazahmed0/currency-api][currency api]].
+
+import json
+
+import requests
+
+# List of currencies [[https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies.json][here]] and latest gbp rates [[https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/gbp.json][here]].
+MAIN_CURRENCY = "gbp"
+# Relevent rates including default values for them.
+# defaults were calculated at 2022-01-15 13:38.
+CURRENCIES = {
+    "eth": 0.000412,
+    "xrp": 1.762522,
+    "xmr": 0.0062,
+}
+
+resp = requests.get(
+    f"https://raw.githubusercontent.com/fawazahmed0/currency-api/1/latest/currencies/{MAIN_CURRENCY}.min.json"
+)
+resp.raise_for_status()
+data = json.loads(resp.text)
+date = data["date"]
+entries = CURRENCIES.copy()
+entries.update(data[MAIN_CURRENCY])
+
+for dest_currency, xrate in entries.items():
+    print(f"P {date} {MAIN_CURRENCY.upper()} {dest_currency.upper()} {xrate}")

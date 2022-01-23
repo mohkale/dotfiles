@@ -28,7 +28,7 @@ _k_friendly_name=Touchpad
 [kded5]
 Show System Activity=Ctrl+Alt+Esc,Ctrl+Esc,Show System Activity
 _k_friendly_name=KDE Daemon
-display=Display\t,Display\tMeta+P,Switch Display
+display=Display,Display\tMeta+P,Switch Display
 
 [khotkeys]
 _k_friendly_name=Custom Shortcuts Service
