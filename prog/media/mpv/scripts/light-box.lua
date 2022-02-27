@@ -28,7 +28,7 @@ local user_opts = {
                                 -- mouse movement. enforced non-negative for the
                                 -- user, but internally negative is "always-on".
     fadeduration = 200,         -- duration of fade out in ms, 0 = no fade
-    deadzonesize = 0,         -- size of deadzone
+    deadzonesize = 0,           -- size of deadzone
     minmousemove = 0,           -- minimum amount of pixels the mouse has to
                                 -- move between ticks to make the OSC show up
     iamaprogrammer = false,     -- use native mpv values and disable OSC
@@ -42,9 +42,9 @@ local user_opts = {
     seekrangeseparate = true,   -- wether the seekranges overlay on the bar-style seekbar
     seekrangealpha = 160,       -- transparency of seekranges
     seekbarkeyframes = true,    -- use keyframes when dragging the seekbar
-    title = "　${media-title}",   -- string compatible with property-expansion
+    title = "　${media-title}", -- string compatible with property-expansion
                                 -- to be shown as OSC title
-    timetotal = true,          -- display total time instead of remaining time?
+    timetotal = true,           -- display total time instead of remaining time?
     timems = false,             -- display timecodes with milliseconds?
     visibility = "auto",        -- only used at init to set visibility_mode(...)
     boxmaxchars = 44,           -- title crop threshold for box layout
@@ -75,15 +75,15 @@ local osc_styles = {
     sCycIcon = "{\\blur0\\bord0\\1c&H5A5A5A\\3c&HFFFFFF\\fs20\\fnmpv-osd-symbols}",
     sCycDig = "{\\blur0\\bord0\\1c&H5A5A5A\\3c&HFFFFFF\\fs16\\fn" .. user_opts.font .. "}",
     sDiv1 = "{\\blur0\\bord0\\1c&HC0C0C0\\3c&HFFFFFF\\fs16\\fnmpv-osd-symbols}",
-    sBoxBg = "{\\blur2\\bord0.01\\1c&HF2F2F2\\3c&H202020}",	
+    sBoxBg = "{\\blur2\\bord0.01\\1c&HF2F2F2\\3c&H202020}",
     sSeekbarFg = "{\\blur0\\bord0\\1c&HC7A25A\\fs13}",
     sSeekbarBg = "{\\blur0\\bord0\\1c&HC0C0C0\\3c&HFFFFFF\\fs13\\q2}",
     sTooltip = "{\\blur2\\bord1\\1c&HFFFFFF\\3c&H000000\\fs18}",
-    
+
     sWCCtrl = "{\\1c&H202020\\fs24\\fnmpv-osd-symbols}",
     sWCTitle = "{\\1c&H202020\\fs18\\q2}",
     sWCBar = "{\\1c&HHF2F2F2}",
-	
+
     elementDown = "{\\1c&H999999}",
 }
 
@@ -184,7 +184,6 @@ end
 -- returns hitbox spanning coordinates (top left, bottom right corner)
 -- according to alignment
 function get_hitbox_coords(x, y, an, w, h)
-
     local alignments = {
       [1] = function () return x, y-h, x+w, y end,
       [2] = function () return x-(w/2), y-h, x+(w/2), y end,
@@ -232,7 +231,6 @@ end
 
 -- translate value into element coordinates
 function get_slider_ele_pos_for(element, val)
-
     local ele_pos = scale_value(
         element.slider.min.value, element.slider.max.value,
         element.slider.min.ele_pos, element.slider.max.ele_pos,
@@ -245,7 +243,6 @@ end
 
 -- translates global (mouse) coordinates to value
 function get_slider_value_at(element, glob_pos)
-
     local val = scale_value(
         element.slider.min.glob_pos, element.slider.max.glob_pos,
         element.slider.min.value, element.slider.max.value,
@@ -807,7 +804,7 @@ function render_elements(master_ass)
             elseif not (element.content == nil) then
                 buttontext = element.content -- text objects
             end
-			
+
 			buttontext = buttontext:gsub(":%((.?.?.?)%) unknown ", ":%(%1%)")  --gsub("%) unknown %(\"", "")
 
             local maxchars = element.layout.button.maxchars
@@ -1152,7 +1149,6 @@ local layouts = {}
 
 -- Default layout
 layouts["default"] = function ()
-
     local osc_geo = {
         w = 800,    -- width
         h = 65,    -- height
@@ -1223,7 +1219,7 @@ layouts["default"] = function ()
 	local refX = posX - pos_offsetX - osc_p
 	local refY = posY - pos_offsetY - osc_p
 
-	
+
     --
     -- Seekbar
     --
@@ -1254,7 +1250,7 @@ layouts["default"] = function ()
     lo.slider.tooltip_an = 2
     lo.slider.stype = user_opts["seekbarstyle"]
     lo.slider.rtype = user_opts["seekrangestyle"]
-    
+
 	-- buttons
     lo = add_layout("playpause")
     lo.geometry = {x = refX + 24, y = refY + 47 , an = 5, w = 26, h = 30}
@@ -1262,27 +1258,27 @@ layouts["default"] = function ()
 
 	lo = add_layout("skipback")
     lo.geometry = {x = refX + 48, y = refY + 47 , an = 5, w = 26, h = 30}
-    lo.style = osc_styles.sCtrl	
+    lo.style = osc_styles.sCtrl
 
-			
+
     lo = add_layout("skipfrwd")
     lo.geometry = {x = refX + 72, y = refY + 47 , an = 5, w = 26, h = 30}
-    lo.style = osc_styles.sCtrl	
+    lo.style = osc_styles.sCtrl
 
     lo = add_layout("pl_prev")
     lo.geometry = {x = refX + 96, y = refY + 47 , an = 5, w = 26, h = 30}
-    lo.style = osc_styles.sCtrl		
+    lo.style = osc_styles.sCtrl
 
     lo = add_layout("pl_next")
     lo.geometry = {x = refX + 120, y = refY + 47 , an = 5, w = 26, h = 30}
-    lo.style = osc_styles.sCtrl	
+    lo.style = osc_styles.sCtrl
 
 
 	-- Time
     lo = add_layout("tc_left")
     lo.geometry = {x = refX + 214, y = refY + 47, an = 6, w = 64, h = 20}
-    lo.style = osc_styles.sInfo	
-	
+    lo.style = osc_styles.sInfo
+
 	geo ={x = refX + 224 , y = refY + 47, an = 5, w = 1, h = 11}
 	new_element("bgbar3", "box")
     lo = add_layout("bgbar3")
@@ -1290,30 +1286,30 @@ layouts["default"] = function ()
     lo.layer = 13
     lo.style = osc_styles.sDiv1
     lo.alpha[1] = math.min(255, user_opts.boxalpha + (255 - user_opts.boxalpha)*0.05)
-		
+
     lo = add_layout("tc_right")
     lo.geometry = {x = refX + 234 , y = refY + 47, an = 4, w = 64, h = 20}
-    lo.style = osc_styles.sInfo	
+    lo.style = osc_styles.sInfo
 
-	
+
 	-- Media title
 	lo = add_layout("title")
     lo.geometry = {x = refX + 310  , y = refY + 47 , an = 4, w = 370, h = 20}
-    lo.style = osc_styles.sInfo	
+    lo.style = osc_styles.sInfo
     lo.button.maxchars = user_opts.boxmaxchars
-    
+
     lo = add_layout("cy_audio_icon")
 	lo.geometry = {x = refX + osc_geo.w - 125, y = refY + 46, an = 6, w = 24, h = 34}
-    lo.style = osc_styles.sCycIcon	
-	
+    lo.style = osc_styles.sCycIcon
+
 	lo = add_layout("cy_audio")
     lo.geometry = {x = refX + osc_geo.w - 120, y = refY + 47, an = 4, w = 24, h = 24}
-    lo.style = osc_styles.sCycDig	
+    lo.style = osc_styles.sCycDig
 
     lo = add_layout("cy_sub_icon")
     lo.geometry = {x = refX + osc_geo.w - 60, y = refY + 46, an = 6, w = 24, h = 24}
     lo.style = osc_styles.sCycIcon
-    
+
     lo = add_layout("cy_sub")
     lo.geometry = {x = refX + osc_geo.w - 55, y = refY + 47, an = 4, w = 24, h = 24}
     lo.style = osc_styles.sCycDig
@@ -1547,7 +1543,7 @@ function osc_init()
 
     --
     update_tracklist()
-    
+
 	--cy_audio_icon
     ne = new_element("cy_audio_icon", "button")
     ne.enabled = (#tracks_osc.audio > 0)
@@ -1558,7 +1554,7 @@ function osc_init()
         function () set_track("audio", -1) end
     ne.eventresponder["shift+mbtn_left_down"] =
         function () show_message(get_tracklist("audio"), 2) end
-        
+
     --cy_audio
     ne = new_element("cy_audio", "button")
     ne.enabled = (#tracks_osc.audio > 0)

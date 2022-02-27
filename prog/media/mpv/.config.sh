@@ -1,4 +1,4 @@
-packages pacman:mpv-full
+packages yay:mpv-full
 
 link "$XDG_CONFIG_HOME/mpv/mpv.conf"
 link-to "$XDG_CONFIG_HOME/mpv/scripts" scripts/*
