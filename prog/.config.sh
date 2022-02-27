@@ -28,7 +28,6 @@ import -b                                       \
   korganizer                                    \
   lf                                            \
   libinput                                      \
-  lint/*                                        \
   media/*                                       \
   pass                                          \
   polybar                                       \
