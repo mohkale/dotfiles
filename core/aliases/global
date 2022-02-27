@@ -162,10 +162,7 @@ buku-tags buku -t
 jqr jq --raw-output
 
 # Transmission
-trr     echo -e "list:List\nplay:Play\nstart:Start\nstart -n:Start Now\npause:Pause\nverify:Verify\nremove:Remove\nremove -f:Delete\npriority_high:Bandwidth High\npriority_normal:Bandiwdth Normal\npriority_low:Bandwidth Low\nqueue_top:Move Queue Top\nqueue_bottom:Move Queue Bottom" \
-          | _fzf --delimiter : --with-nth 2.. --prompt='Transmission: ' \
-          | cut -d : -f 1 \
-          | xargs -r tctl
+trr     tctl_fzf
 tra     tctl add
 trs     tctl start
 trp     tctl pause

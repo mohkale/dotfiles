@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+tctl_fzf() {
+  echo -e 'list:List
+play:Play
+start:Start
+start -n:Start Now
+pause:Pause
+verify:Verify
+remove:Remove
+remove -f:Delete
+priority_high:Bandwidth High
+priority_normal:Bandiwdth Normal
+priority_low:Bandwidth Low
+queue_top:Move Queue Top
+queue_bottom:Move Queue Bottom' |
+    _fzf --delimiter : --with-nth 2.. --prompt='Transmission: ' |
+    cut -d : -f 1 |
+    xargs -r tctl "$@"
+}
