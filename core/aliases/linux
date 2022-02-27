@@ -40,6 +40,12 @@ nordc             nordvpn connect
 nordd             nordvpn disconnect
 nords             nordvpn status
 
+mvpn              mullvad
+mvpns             mullvad status
+mvpnc             mullvad connect --wait
+mvpnr             mullvad reconnect --wait
+mvpnd             mullvad disconnect --wait
+
 mpo               sh -c 'ncmpcpp "$@" || ncmpc "$@" || fmpd "$@"' 'mpd-client'
 mpq               fmpd queue
 mpf               fmpd files
