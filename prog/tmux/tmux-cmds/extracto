@@ -1,0 +1,130 @@
+#!/usr/bin/env bash
+# The great extracto -- word selector and copier for tmux.
+#
+# extracto is a simplification and reimplementation of the existing [[https://github.com/laktak/extrakto][extrakto]]
+# plugin. It extracts a list of words from a list of tmux panes and lets you
+# select one interactively through fzf to copy and optionally insert.
+
+set -o pipefail
+
+function print_usage {
+  echo "Usage: extracto [-h] [-h] [-w|-s|-a] [-f FIELD_SEPERATORS] [-i]"
+}
+
+function print_help {
+  print_usage
+  cat <<-EOF
+
+  Script to fzf-select words from open tmux panes.
+
+Optional arguments:
+  -h
+    Show this help message and exit
+  -g
+    Select words from the beginning of the scrollback
+    buffer, instead of just visible output.
+  -w
+    Select from all panes in the current window.
+  -s
+    Select from all windows in the current session.
+  -f FIELD_SEPERATORS
+    Set field separators for words.
+  -i
+    Insert copied word into the current pane.
+EOF
+}
+
+capture_args=( )
+insert=0
+capture_target=pane
+seps=$(tmux display-message -p '#{word-separators}')
+while getopts 'hgwsaf:i' OPTION; do
+  case "$OPTION" in
+    h) print_help
+       exit 0 ;;
+    \?) print_usage >&2
+        exit 1 ;;
+    g) capture_args+=( -S - ) ;;
+    w) capture_target=window ;;
+    s) capture_target=session ;;
+    a) capture_target=server ;;
+    f) seps="$OPTARG" ;;
+    i) insert=1 ;;
+  esac
+done
+
+copy_command=
+if set_clipboard=$(tmux display-message -p '#{set-clipboard}') &&
+    [ "$set_clipboard" = on ]; then
+  copy_command=$(tmux display-message -p '#{copy-command}')
+fi
+
+list_words() {
+  tmux capture-pane -p "${capture_args[@]}" "$@" |
+    python3 -c '
+import io
+import sys
+
+word_separator_str = sys.argv[1] or " "
+word_separator = {ch for ch in word_separator_str + " "}
+
+skip_chars = {}
+
+
+def enumerate_words(line):
+    it = iter(line + " ")
+    prev_word = io.StringIO()
+    for ch in it:
+        if ch in word_separator:
+            word_str = prev_word.getvalue()
+            if len(word_str) != 0:
+                yield word_str
+            prev_word.truncate(0)
+            prev_word.seek(0)
+        elif ch not in skip_chars:
+            prev_word.write(ch)
+
+
+for line in sys.stdin:
+    for word in enumerate_words(line):
+        print(word, end="\n")
+
+' "$seps" |
+    awk -e '!mem[$0]++ { print }'
+}
+
+extracto() {
+  if [ "$capture_target" = pane ]; then
+    list_words
+    return "$?"
+  fi
+
+  case "$capture_target" in
+    window)
+      tmux list-panes -F '#{pane_id}'
+      ;;
+    session)
+      tmux list-panes -F '#{pane_id}' -s
+      ;;
+    server)
+      tmux list-panes -F '#{pane_id}' -a
+      ;;
+    *) echo "error: extracto: unknown capture target: $capture_target" >&2
+       return 1
+  esac |
+    while read -r pane; do
+      list_words -t "$pane"
+    done
+}
+
+if ! word=$(extracto | tmux-popup -y 10 -h 8 -w 25% -i -o -- fzf --reverse); then
+  echo 'extracto: error: failed to read word from user' >&2
+fi
+
+tmux set-buffer -- "$word" &&
+  if [ "$insert" -eq 1 ]; then
+    tmux paste-buffer
+  fi
+if [ -n "$copy_command" ]; then
+  echo -n "$word" | "$copy_command"
+fi

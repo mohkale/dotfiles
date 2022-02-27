@@ -320,6 +320,9 @@ bind -Tm-commands m run -b 'bash -c '"'"'\
   fzf_man\
 '"'"
 
+bind -Tm-commands i run -b "$TMUX_HOME/cmds/extracto -wi"                                          # Copy and insert a word displayed in one of the panes in the current window
+bind -Tm-commands y run -b "$TMUX_HOME/cmds/extracto -w"                                           # Copy a word displayed at some point in the current pane
+
 bind C-x run -b 'tmux-popup -w 100% -h 100% launch'
 
 # bind B run -b "$TMUX_HOME/cmds/run-binding -rpv"
