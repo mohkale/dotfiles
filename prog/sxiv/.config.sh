@@ -8,5 +8,7 @@ link                                            \
 
 import cmds
 
+packages pacman:libexif
+
 info 'Installing sxiv'
 run-cmd-at src make install

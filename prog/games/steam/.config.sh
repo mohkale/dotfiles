@@ -1,2 +1,2 @@
 packages choco:steam                            \
-         yay:steam
+         yay:steam,lib32-systemd,ttf-liberation

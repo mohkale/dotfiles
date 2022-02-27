@@ -80,7 +80,7 @@ mv      mv -iv
 cp      cp -iv
 ln      ln -iv
 dd      dd status=progress
-mkdir   mkdir -v
+mkdir   mkdir -v -p
 chmod   chmod -v
 
 par     parallel
@@ -97,6 +97,9 @@ python  python3
 py      python
 ipy     ipython
 pip     py -m pip
+pyp     poetry
+pype    poetry exec
+pypr    poetry run
 
 gD      fzf_cd_all
 gF      fzf_select_all

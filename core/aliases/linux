@@ -17,15 +17,21 @@ fsck              fsck -M -T
 
 hl                hledger --color=always
 hlb               hl balance
+hlbx              hlb -X £
 hlp               hl import --dry
+hlpx              hlp -X £
 hli               hl import
 hlbs              hl balancesheet --no-elide
+hlbsx             hlbs -X £
 hlbse             hl balancesheetequity --no-elide
 hlis              hl incomestatement --no-elide
+hlisx             hlis -X £
 hlisy             hlis --period "$(date +%Y)"
 hlbu              hl balance --budget -MB -b "$(date -d "$(date +%Y-%m-1) -2 month" +%Y-%m)"
+hlbux             hlbu -X £
 hlfc              hl balance --monthly --begin="$(date -d "$(date +%Y-%m-1) -1 month" +%Y-%m)" --end="$(date -d "$(date +%Y-%m-1) +11 month" +%Y-%m)" --forecast --cumulative
 hlr               hl register
+hlrx              hlr -X £
 hla               hl activity
 hlxr              $XDG_DOCUMENTS_DIR/ledger/bin/hledger-xr | tee -a $XDG_DOCUMENTS_DIR/ledger/xrates.journal
 

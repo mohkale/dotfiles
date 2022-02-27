@@ -25,4 +25,4 @@ entries = CURRENCIES.copy()
 entries.update(data[MAIN_CURRENCY])
 
 for dest_currency, xrate in entries.items():
-    print(f"P {date} {MAIN_CURRENCY.upper()} {dest_currency.upper()} {xrate}")
+    print(f"P {date} {MAIN_CURRENCY.upper()} {xrate} {dest_currency.upper()}")

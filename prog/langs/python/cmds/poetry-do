@@ -47,10 +47,10 @@ fi
 START_DIR="$(pwd)"
 PROJECT_DIR="$1"; shift
 
-cd "$PROJECT_DIR"
+cd "$PROJECT_DIR" || exit 1
 # shellcheck disable=SC2016
 exec poetry run bash -c '
 start="$1"; shift
-cd "$start"
+cd "$start" || exit 1
 exec "$@"
-' -- "$START_DIR" "$@"
+' poetry-do "$START_DIR" "$@"
