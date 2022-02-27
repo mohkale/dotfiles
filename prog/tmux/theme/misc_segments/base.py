@@ -8,9 +8,9 @@ class StatusMiscSegment(abc.ABC):
     """
 
     def __init__(self, args):
-        self.__dict__.update({key.removeprefix(self.name + '_'): value
+        self.__dict__.update({key.removeprefix(self.name.replace('-', '_') + '_'): value
                               for key, value in vars(args).items()
-                              if key.startswith(self.name)})
+                              if key.startswith(self.name.replace('-', '_'))})
         self.args = args
 
     @property
