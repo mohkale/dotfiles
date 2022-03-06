@@ -5,8 +5,10 @@ start_directory: ~/
 
 windows:
   - window_name: dash
+    layout: even-vertical
     panes:
       - gotop || htop || top || exit
+      - docker stats --no-stream && lazydocker || exit
   - window_name: net
     panes:
       - nethogs || nload || iftop || exit

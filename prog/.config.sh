@@ -27,6 +27,7 @@ import -b                                       \
   ipython                                       \
   konsole                                       \
   korganizer                                    \
+  lazydocker                                    \
   lf                                            \
   libinput                                      \
   media/*                                       \
