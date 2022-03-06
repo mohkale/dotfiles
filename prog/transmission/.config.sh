@@ -4,6 +4,7 @@ link settings.json:"$XDG_CONFIG_HOME/transmission-cli"    \
      "$XDG_CONFIG_HOME/transmission-daemon/watcher.json"  \
      tremcrc:"$XDG_CONFIG_HOME/tremc/settings.cfg"
 link-to "$XDG_CONFIG_HOME/tmuxp/" ./tmux/*
+link-to "$XDG_CONFIG_HOME/autoloads/cmds/" ./auto/*
 
 import cmds
 

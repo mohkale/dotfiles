@@ -11,9 +11,10 @@ elif package choco; then
   # windows not maddening.
   run-cmd c:/tools/ruby27/bin/ridk.ps1 install 2 3
 elif package yay; then
-  package choco rbenv
+  package yay rbenv ruby-build
   # Install my preferred ruby version automatically
   run-cmd rbenv install -s --verbose 2.6.6
+  run-cmd rbenv global 2.6.6
 fi
 
 packages gem:colorize,rake,pry,pry-doc

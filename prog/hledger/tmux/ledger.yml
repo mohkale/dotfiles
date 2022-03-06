@@ -9,7 +9,7 @@ windows:
     panes:
       - shell_command: $EDITOR main.journal
         focus: true
-      - clear; ./bin/hledger-gpg
+      - clear; sleep 1; ./bin/hledger-gpg
       - clear; ./bin/hledger-fava
   - window_name: import
     panes:

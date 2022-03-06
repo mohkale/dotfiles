@@ -21,12 +21,12 @@ if [ -z "$journals" ]; then
   exit 1
 fi
 
-build_cmd="echo $(printf %q "$journals") | parallel [ {.} -nt {} ] '||' gpg --batch --yes --quiet --output {.} --decrypt {}"
+build_cmd="echo $(printf %q "$journals") | parallel --max-procs 1 [ {.} -nt {} ] '||' gpg --batch --yes --quiet --output {.} --decrypt {}"
 
 cleanup() {
   # shellcheck disable=SC1083
   parallel shred {.} '&&' rm -v {.} <<< "$journals"
 }
-trap 'cleanup' EXIT
+trap 'cleanup' EXIT SIGHUP
 
 entr -nr sh -c "echo hledger-gpg: decrypting journal files; $build_cmd" <<< "$journals"

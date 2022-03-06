@@ -14,6 +14,7 @@ import -b                                       \
   cheat                                         \
   desktop/login/sddm                            \
   desktop/plasma                                \
+  docker                                        \
   dolphin                                       \
   dropbox                                       \
   games/*                                       \
@@ -26,9 +27,9 @@ import -b                                       \
   ipython                                       \
   konsole                                       \
   korganizer                                    \
+  lazydocker                                    \
   lf                                            \
   libinput                                      \
-  lint/*                                        \
   media/*                                       \
   pass                                          \
   polybar                                       \

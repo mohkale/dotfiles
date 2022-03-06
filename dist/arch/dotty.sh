@@ -1,6 +1,6 @@
 packages pacman:base-devel
 
-if true || ! hash yay 2>/dev/null; then
+if ! hash yay 2>/dev/null; then
   info 'Installing Yay (Yet Another Yogurt)'
   run-cmds <<-'EOF'
 if pushd "$(mktemp -d)" >/dev/null; then

@@ -36,6 +36,9 @@ run-cmd find "$(pwd)/term" -mindepth 1 -maxdepth 1 -iname '*.terminfo' -exec tic
 clean -r "$XDG_DATA_HOME/fonts"
 link-to "$XDG_DATA_HOME/fonts" ./fonts/*.{ttf,otf}
 
+clean "$XDG_CONFIG_HOME/banners"
+link-to "$XDG_CONFIG_HOME/banners" ./banners/*
+
 link-to "$XDG_PICTURES_DIR/" ./images/*.{jpg,jpeg,png,gif,svg}
 if is-unix; then
   link ./images/profile.svg:~/.face

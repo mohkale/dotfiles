@@ -1,0 +1,6 @@
+#+TITLE: Language Tools
+
+This directory contains configurations for various language tools such as linters or
+formatters. Note many programs offer a combination of features that're subdivided into
+subdirectories here. For example rubocop is a linter, but it can also be used as a
+formatter.

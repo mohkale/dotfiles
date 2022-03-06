@@ -12,7 +12,7 @@ select_path() {
     out=$(cat)
     local newdir=
     local files=
-    files=()
+    files=( )
     while read -r p; do
         if [ -d "$p" ]; then
             newdir="$p"

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # Usage: cut-add {move|copy}
 #
 # shellcheck disable=SC2154,SC3003
