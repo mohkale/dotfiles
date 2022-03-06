@@ -37,6 +37,7 @@ mpp               fmpd playlists
 mpt               fmpd tags
 
 dd                docker
+dd-cpp            docker run --rm -v "$(pwd)":/workarea --interactive --tty artprod.dev.bloomberg.com/training/dpkg-cpp-build-base:rhel7 bash -li
 dc                docker-compose
 dcb               docker-compose build
 dcu               docker-compose up

@@ -1,9 +1,7 @@
 if package apt; then
   package apt \
           software-properties-common \
-          python-software-properties \
           xclip
-  run-cmd sudo add-apt-repository ppa:x4121/ripgrep
   run-cmd sudo apt update
 else
   package yay \
