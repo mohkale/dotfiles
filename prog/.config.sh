@@ -14,6 +14,7 @@ import -b                                       \
   cheat                                         \
   desktop/login/sddm                            \
   desktop/plasma                                \
+  docker                                        \
   dolphin                                       \
   dropbox                                       \
   games/*                                       \

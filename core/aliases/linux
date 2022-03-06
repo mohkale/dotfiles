@@ -55,11 +55,15 @@ mpp               fmpd playlists
 mpt               fmpd tags
 
 dd                docker
+ddx               fzf_docker
+ddc               sh -c 'docker exec -it "$1" bash' --
+ddp               docker ps
 dc                docker-compose
 dcb               docker-compose build
 dcu               docker-compose up
 dcd               docker-compose down
 dce               docker-compose exec
 dcr               docker-compose run
+dcrr              docker-compose run --rm
 
 xgeometry         xdotool selectwindow getwindowgeometry
