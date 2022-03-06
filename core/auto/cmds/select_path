@@ -11,7 +11,7 @@
 select_path() {
     local newdir=
     local files=
-    files=()
+    files=( )
     while read -r p; do
         if [ -d "$p" ]; then
             newdir="$p"

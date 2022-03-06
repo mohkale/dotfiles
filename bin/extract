@@ -42,7 +42,7 @@ while read -r path; do
   fi
 
   case "$path" in
-    # (xkcd link: https://xkcd.com/1168/)
+    # [[https://xkcd.com/1168/][xkcd]]
     *.tar.bz|*.tar.bz2|*.tbz|*.tbz2) tar xjvf   "$path" ;;
     *.tar.gz|*.tgz)                  tar xzvf   "$path" ;;
     *.tar.xz|*.txz)                  tar xJvf   "$path" ;;
@@ -53,6 +53,7 @@ while read -r path; do
     *.cab)                           cabextract "$path" ;;
     *.cb7|*.7z|*.c7z)                7z x       "$path" ;;
     *.zst)                           unzstd     "$path" ;;
+    *.rpm)                           rpm2cpio "$path" | cpio -idmv ;;
     *) echo "error: extract: unknown archive format: $path" >&2
        exit_code=1
        ;;
