@@ -1,9 +1,0 @@
-# -*- mode: conf-space -*- GNU GDB Mammon Config Initialisation File -- vim:syntax=conf:filetype=conf
-
-# Seems really useful... but triggers the PAGER after
-# every action which is really annoying.
-set $SHOW_CONTEXT = 0
-
-# Messes up some bindings such as goto-first-char because
-# the escape sequence is treated as its own line.
-set $COLOREDPROMPT = 1
