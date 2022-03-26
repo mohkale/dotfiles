@@ -58,6 +58,7 @@ LESS_TERMCAP_so=$(printf '\033[36m');    export LESS_TERMCAP_so                 
 if [ -e "$XDG_CONFIG_HOME/diricons" ]; then
   # Load icons from human readable config file.
   LF_ICONS=$(sed "$XDG_CONFIG_HOME"/diricons \
+                 -e 's/[ \t]*#.*$//'       \
                  -e '/^[ \t]*#/d'       \
                  -e '/^[ \t]*$/d'       \
                  -e 's/[ \t]\+/=/g'     \

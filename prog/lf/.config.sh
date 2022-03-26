@@ -1,4 +1,4 @@
-packages yay:lf                                 \
+packages yay:lf-git                             \
          choco:lf                               \
          go:github.com/gokcehan/lf
 

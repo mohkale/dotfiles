@@ -1,15 +1,15 @@
 # -*- mode: conf-space -*- icon config file for [[https://github.com/gokcehan/lf/wiki/Icons][lf]] using mostly [[https://www.nerdfonts.com/cheat-sheet][nerdfonts]].
 
 # Basic File Types
-tw 
-st 
-ow 
+tw        # STICKY_OTHER_WRITABLE
+st        # STICKY
+ow        # OTHER_WRITABLE
 dt 
-di 
-fi 
-ln 
-or 
-ex 
+di        # DIR
+fi        # FILE
+ln        # LINK
+or        # ORPHAN
+ex        # EXEC
 
 # Misc
 .config          
@@ -38,7 +38,7 @@ CMakeLists.txt 
 *.myi     
 *.mkd     
 *.ddf     
-*.sqlite  
+*.sqlite  
 *.bib     
 *.part    
 *.torrent 
@@ -49,6 +49,8 @@ CMakeLists.txt 
 *.nfo     
 *.psb     
 *.psd     
+*.nix     
+
 
 ## Microsoft Suite
 *.ppt     
@@ -78,13 +80,16 @@ CMakeLists.txt 
 
 ## Languages
 *.c      
-*.cpp    
-*.cc     
-*.h      
-*.hh     
-*.hpp    
-*.css    
-*.scss   
+*.cpp    
+*.cc     
+*.h      
+*.hh     
+*.hpp    
+*.cs     
+*.css    
+*.less   
+*.sass   
+*.scss   
 *.el     
 *.clj    
 *.py     
@@ -101,6 +106,7 @@ CMakeLists.txt 
 *.js     
 *.ts     
 *.tsx    
+*.jsx    
 *.kts    
 *.gradle 
 *.rss    參

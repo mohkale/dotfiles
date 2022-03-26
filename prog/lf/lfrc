@@ -25,6 +25,10 @@ set nomouse
 set noanchorfind
 set noglobsearch
 
+# Special Commands
+#cmd on-cd   $printf "\e]2;$PWD\a"
+#cmd on-quit $printf "\e]2;\a"
+
 # Bindings
 map c
 map d
@@ -138,9 +142,7 @@ cmd hexdump ${{
 # text files and a file opener for the rest.
 map <enter> open
 map oo      open
-cmd open ${{
-    $OPENER $f >/dev/null 2>/dev/null &
-}}
+cmd open $$OPENER $f >/dev/null 2>/dev/null &
 
 map oa open-all
 cmd open-all ${{
