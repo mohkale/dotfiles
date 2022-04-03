@@ -1,0 +1,23 @@
+#+TITLE: Jellyfin
+#  LocalWords:  jellyfins jellyfin tmpfs DDOS
+
+Open source and fully free complete media environment.
+
+Jellyfin is a server program that can index, catalogue and tag media files such as TV
+shows, movies, comic books, etc. and present them through a user-friendly web based,
+mobile, TV, or video-player interface. It's makes maintaining a personal media server
+of the same quality as Netflix or Apple TV much simpler. Clients can pair with the
+server host and then be streamed to directly and independently.
+
+My configuration for jellyfin that's included in this repository is relatively
+bare-bones. Firstly jellyfin always runs within Docker. This provides isolation and
+security, since all my media files are mounted into a docker container in a read-only
+file-system. Configurations and caches are mounted in a tmpfs within the container
+that persists across restarts so your customisation's and most importantly library
+index is persistent. fail2ban is installed into the docker image and setup to prevent
+snoopers or DDOS attacks if you choose to expose jellyfin outside of your home
+network.
+
+To run jellyfin, simply run the ~jellyfin~ command which is installed alongside this
+module. It will push up the correct docker image and then open jellyfins browser
+client.
