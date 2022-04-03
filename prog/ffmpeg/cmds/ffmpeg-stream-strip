@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+
+set -o pipefail
+
+SEP=$'\t'
+
+print_usage() {
+  echo "Usage: ffmpeg-stream-strip [-h] [-o OUTPUT] [-i]"
+}
+
+print_help() {
+  print_usage
+}
+
+output=
+include=0
+while getopts 'o:ih' OPTION; do
+  case "$OPTION" in
+    o) output="$OPTARG" ;;
+    i) include=1 ;;
+    h) print_help
+       exit 0 ;;
+    \?) print_usage >&2
+        exit 1 ;;
+  esac
+done
+shift $((OPTIND - 1))
+if [ "$#" -eq 0 ]; then
+  echo "ffmpeg-stream-strip: error: Must supply an input file-path" >&2
+  exit 1
+fi
+file="$1"; shift
+if ! [ -e "$file" ]; then
+  echo "ffmpeg-stream-strip: error: File not found $file" >&2
+  exit 1
+fi
+
+list_streams() {
+  ffprobe -print_format json -show_streams -- "$1" 2>/dev/null |
+    jq --raw-output --arg sep "$SEP" -C '
+  def entry(key):
+    if has(key) then
+      {"key": key, "value": .[key]}
+    else
+      empty
+    end;
+
+  .streams[] |
+    [
+      .index,
+      "\(.codec_type) \(
+        [[[.tags |
+            to_entries |
+            sort_by(.key)[] |
+            select(.key | test("[a-z]"))
+          ],
+          [entry("width"),
+           entry("height")
+          ]
+         ] |
+         add[] |
+         "\(.key)=\(.value)"] |
+      join(" "))"
+    ] | join($sep)' |
+    fzf --multi --delimiter="$SEP" --with-nth='2..' |
+    sort --numeric-sort
+}
+
+if ! streams=$(list_streams "$file"); then
+  echo "ffmpeg-stream-strip: error: Selecting streams exited with non zero code $?" >&2
+  exit 1
+fi
+
+ffmpeg_args=( )
+if command -v ffpb >/dev/null 2>&1; then
+  ffmpeg_args+=(ffpb)
+else
+  ffmpeg_args+=(ffmpeg)
+fi
+ffmpeg_args+=( -i "$file" -c copy )
+
+ffmpeg_args+=(-map)
+default_streams=0 # Add all existing streams, then remove one by one.
+if [ "$include" -eq 1 ]; then
+  default_streams=-0 # Exclude all existing streams, then add one by one.
+fi
+ffmpeg_args+=("$default_streams")
+
+while IFS="$SEP" read -r stream _; do
+  stream=0:"$stream"
+  if ! [ "$include" -eq 1 ]; then
+    stream="-$stream"
+  fi
+  ffmpeg_args+=( -map "$stream" )
+done <<< "$streams"
+
+temp_output=
+if [ -z "$output" ]; then
+  temp_output="$(dirname "$file")/.$(basename "$file")"
+  trap 'rm "$temp_output" >/dev/null 2>&1' EXIT
+  output="$temp_output"
+fi
+
+ffmpeg_args+=( -- "$output" )
+
+if "${ffmpeg_args[@]}" && [ -n "$temp_output" ]; then
+  mv -f "$temp_output" "$file"
+fi
