@@ -44,12 +44,15 @@ EOF
                _fzf "${fzf_args[@]}" |
                cut -d"$sep" -f1)
   if [ -n "$id" ]; then
+    # We mount our local docker socket into the container so we can run
+    # docker builds using our outer daemon from within the image.
     docker \
-      run --rm                                  \
-      -v "$(pwd)":/workarea                     \
-      --workdir /workarea                       \
-      --interactive --tty                       \
-      "$id"                                     \
+      run --rm                                     \
+      -v "$(pwd)":/workarea                        \
+      -v /var/run/docker.sock:/var/run/docker.sock \
+      --workdir /workarea                          \
+      --interactive --tty                          \
+      "$id"                                        \
       bash -c "$cmd"
   fi
 }

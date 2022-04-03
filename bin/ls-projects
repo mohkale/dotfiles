@@ -55,6 +55,7 @@ repo_containers() {
   # This method also avoids duplicate paths in REPO_PATH by keeping
   # track of all the paths encountered so far.
   echo "${REPO_PATH//:/$'\n'}" |
+    awk -e '!mem[$0]++' |
     while read -r it; do
       [ -z "$it" ] && continue
       for it in $it; do

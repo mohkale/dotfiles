@@ -231,3 +231,4 @@ error_log
 
 # ccls
 .ccls-cache/
+/cmake-build/
