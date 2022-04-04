@@ -1,0 +1,24 @@
+---
+version: "1"
+services:
+  jellyfin:
+    image: jellyfin/jellyfin
+    build:
+      dockerfile: jellyfin.docker
+    container_name: jellyfin
+    network_mode: host
+    volumes:
+      - cache:/cache
+      - config:/config
+      # Downloads folders often contain new files
+      - $XDG_DOWNLOAD_DIR:/media/downloads:ro
+      # Media directory volume mounts
+      - $XDG_MUSIC_DIR:/media/music:ro
+      - $XDG_VIDEOS_DIR/movies:/media/movies:ro
+      - $XDG_VIDEOS_DIR/tv:/media/tv:ro
+      - $HOME/media/manga:/media/manga:ro
+    restart: unless-stopped
+
+volumes:
+  config:
+  cache:

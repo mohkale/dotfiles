@@ -2,7 +2,7 @@
 [Desktop Entry]
 Type=Application
 Name=sxcv
-TryExec=sxiv
+TryExec=nsxiv
 Exec=sxcv %F
 GenericName=Comic Viewer
 Comment=View comic book archives with sxiv.

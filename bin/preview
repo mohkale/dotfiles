@@ -355,6 +355,10 @@ do_java_class() {
     highlight_bat --language java -
 }
 
+do_riff() {
+  rifftree -s -- "$1"
+}
+
 # ┌────────────────────────┐
 # │ Extension Associations │
 # └────────────────────────┘
@@ -386,6 +390,7 @@ case "$FILE_EXTENSION" in
   # elc)             do_emacs_bytecode "$FILE_PATH" ;;
   class)           do_java_class "$FILE_PATH" ;;
   mp3)             do_video "$FILE_PATH" ;;
+  idx)             do_riff "$FILE_PATH" ;;
 
   md) highlight_bat -l markdown -- "$FILE_PATH" ;;
   el) highlight_bat -l lisp -- "$FILE_PATH" ;;

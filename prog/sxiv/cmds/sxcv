@@ -29,4 +29,4 @@ while [ "$#" -gt 0 ]; do
   fi #> /dev/null
 done
 
-find "$dir" -type f | sort -V | sxiv "$@" -
+find "$dir" -type f | sort -V | nsxiv "$@" -

@@ -65,6 +65,7 @@ BEGIN {
     if (line ~ /^[[:space:]]*#/ ||
         line ~ /^[[:space:]]*$/)
       continue
+    sub(" *#.+$", "", line) # Remove any comment lines
     if (match(line, /(.+)[[:space:]]+([^[:space:]]+)$/, mtch)) {
       pattern = substr(line, mtch[1, "start"], mtch[1, "length"])
       sub(/[[:space:]]+$/, "", pattern) # Trim because greedy capture

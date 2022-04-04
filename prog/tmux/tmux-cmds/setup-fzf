@@ -5,7 +5,14 @@ _fzf() {
 }
 
 cd() {
+  if [ "$TMUX_CD_NEW_SESSION" -eq 1 ]; then
+    local name
+    name=$(basename "$*")
+    tmux new-session -A -D -d -s "$name" -c "$*"
+    tmux switch-client -t "$name"
+  else
     tmux new-window -c "$*"
+  fi
 }
 
 _edit_files_in_new_tmux_window() {

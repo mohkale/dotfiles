@@ -296,6 +296,7 @@ bind -Tm-commands s run -b "bash -c $TMUX_HOME/cmds/attach-session"
 
 # Opens a new tmux window at a projects directory
 bind -Tm-commands p run -b 'bash -c '"'"'\
+  TMUX_CD_NEW_SESSION=1;\
   . $HOME/.config/tmux/cmds/setup-fzf;\
   . $HOME/.config/autoloads/cmds/cd_project;\
   cd_project\

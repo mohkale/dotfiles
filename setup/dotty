@@ -262,6 +262,10 @@ _warn_ind="$(color yellow WRN)"
 LOG_LEVELS+=(warn)
 warn() { _log 3 "$_warn_ind" "$@"; }
 
+_todo_ind="$(color red TODO)"
+LOG_LEVELS+=(todo)
+todo() { _log 4 "$_todo_ind" "$@"; }
+
 # I'm too lazy to implement proper error handling so lets
 # just treat any error as one justifying a bad exit code.
 _error_ind="$(color red ERR)"
