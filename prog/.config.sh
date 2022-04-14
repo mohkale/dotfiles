@@ -17,6 +17,7 @@ import -b                                       \
   docker                                        \
   dolphin                                       \
   dropbox                                       \
+  ffmpeg                                        \
   games/*                                       \
   gdb                                           \
   gimp                                          \

@@ -1,7 +1,76 @@
-#!/bin/sh
-# -*- +indent: 2 -*- run emacs like vim, using emacsclient
+#!/usr/bin/env bash
+# Run emacs like vim, using emacsclient. -*- +indent: 2 -*-
 #
-# If the emacs daemon is not running then start a new emacs instance instead of
-# connecting to an existing session.
+# This script is a wrapper around emacs and emacsclient that silently
+# decides what to do. If a single daemon is running connect to it. If
+# multiple are running and -x is given then pick one interactively,
+# otherwise pick "server" or the first entry in the machine list. If
+# no daemon is running then start a new emacs instance.
 
-exec emacsclient -nw --alternate-editor='emacs -nw' --create-frame "$@"
+args=("$@")
+multiple=0
+for i in "${!args[@]}"; do
+  if [[ "${args[i]}" = "-x" ]]; then
+    unset 'args[i]'
+    multiple=1
+    break
+  fi
+done
+
+socket_dir=
+if [ -n "$XDG_RUNTIME_DIR" ]; then
+  socket_dir="$XDG_RUNTIME_DIR/emacs"
+else
+  socket_dir="${TMPDIR:-/tmp}/emacs$UID"
+fi
+
+_server_sockets() {
+  local msg
+  cat |
+    while read -r socket; do
+      if msg=$(
+        emacsclient \
+          --quiet \
+          --socket-name "$socket" \
+          --eval '(format "%s [\e[31m%s\e[0m]"
+        server-name
+        (format-time-string
+         "%Y-%m-%d %H:%M"
+         before-init-time))'
+      ); then
+        msg="${msg:1:-1}"
+      else
+        msg="$socket"
+      fi
+      echo "$socket:$msg"
+    done
+}
+
+sockets=$(find "$socket_dir" -type s -exec basename --multiple {} +)
+if [ -n "$sockets" ]; then
+  if [ "$(wc -l <<<"$sockets")" -eq 1 ]; then
+    socket="$sockets"
+  elif [ "$multiple" -eq 0 ]; then
+    # Pick the default if it's already running, otherwise pick any from the
+    # running server list.
+    if grep '^server$' <<<"$sockets"; then
+      socket=server
+    else
+      socket=$(head -n1 <<<"$sockets")
+    fi
+  elif ! socket=$(echo "$sockets" |
+    _server_sockets |
+    fzf --with-nth 2.. \
+      --delimiter : \
+      --ansi \
+      --prompt 'Emacs server: ' |
+    cut -d : -f1) ||
+    [ -z "$socket" ]; then
+    echo "error: $0: failed to select emacs server for emacsclient" >&2
+    exit 1
+  fi
+
+  args+=(--socket-name "$socket")
+fi
+
+exec emacsclient -nw --alternate-editor='emacs -nw' --create-frame "${args[@]}"

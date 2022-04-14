@@ -145,18 +145,20 @@ yj py -c $'import yaml, json, sys\nfor it in sys.argv[1:]: print(json.dumps(yaml
 :wq     exit
 
 # Emacs
+evix    evi -x
 evipe   VISUAL='evi' vipe
 ec      emacsclient
 ee      ec --no-wait --suppress-output
 ex      emacs
 sx      smacs
-et      emacs-tangle --cd "$XDG_CONFIG_HOME/emacs" --interactive --dependency etc/+config.el
+et      org-tangle $EMACS_HOME/init.org
 enw     emacs -nw
 etnw    et && emacs -nw
 etc     et -c
 etd     et -l -
 etcd    etd -c
-we      EMACS_CMD=evi with_emacs 
+we      EMACS_CMD=evi      with_emacs
+wex     EMACS_CMD="evi -x" with_emacs
 
 # Buku
 buku      buku --np
