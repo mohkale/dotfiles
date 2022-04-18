@@ -24,7 +24,7 @@ autoload_path="$XDG_CONFIG_HOME/vim/autoload/plug.vim"
 autoload_url='https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
 if ! [ -f "$autoload_path" ]; then
   curl -fLo "$autoload_path" --create-dirs "$autoload_url"
-fi
-
-"$vim" -n -e +PlugInstall +qall!
+else
+  true
+fi && "$vim" -n -e +PlugInstall +qall!
 EOF

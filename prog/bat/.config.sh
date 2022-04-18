@@ -1,4 +1,5 @@
-packages pacman:bat
+packages pacman:bat \
+         apt:bat
 
 sync-submodule ./an-old-hope
 link batrc:"$XDG_CONFIG_HOME/bat/config"                                                \

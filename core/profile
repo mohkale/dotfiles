@@ -84,11 +84,19 @@ export \
   AUTOMATEDLAB_TELEMETRY_OPTOUT=1       \
   POWERSHELL_TELEMETRY_OPTOUT=1
 
-case "$(ps -p $$ | awk 'END { print($NF) }')" in
-  *bash) shell="bash"   ;;
-  *zsh)  shell="zshell" ;;
-  *)     shell=         ;;
-esac
+shell=
+if [ -n "$BASH_VERSION" ]; then
+  shell=bash
+elif [ -n "$ZSH_VERSION" ]; then
+  shell=zshell
+else
+  # Fall back to basic binary interpretation.
+  case "$(ps -p $$ >/dev/null 2>&1 | awk 'END { print($NF) }')" in
+    *bash) shell=bash   ;;
+    *zsh)  shell=zshell ;;
+    *)     false         ;;
+  esac
+fi
 
 lines_to_path() {
   # A helper to quickly declare a bunch of PATH variables from

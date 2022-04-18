@@ -1,0 +1,25 @@
+FROM mcr.microsoft.com/dotnet/sdk:6.0
+
+INCLUDE dotfiles.skeleton
+
+ENV PATH="${PATH}:/root/.dotnet/tools/"
+
+RUN apt-get update                              \
+    && apt-get install -y                       \
+         mono-runtime                           \
+         binutils                               \
+         mono-devel                             \
+         ca-certificates-mono                   \
+         nuget                                  \
+         inotify-tools                          \
+         curl                                   \
+    && apt-get clean                            \
+    && rm -rf /var/lib/apt/lists/* /tmp/*
+
+# Adapted from [[https://github.com/lspcontainers/dockerfiles/blob/c8136abf8f47037f7974d02077f3b5c668254eb8/servers/omnisharp/Dockerfile#L1][lspcontainers]].
+RUN cd /tmp                                                                                                           \
+    && curl -L -O https://github.com/OmniSharp/omnisharp-roslyn/releases/download/v1.38.2/omnisharp-linux-x64.tar.gz  \
+    && tar -xf omnisharp-linux-x64.tar.gz -C /usr                                                                     \
+    && rm omnisharp-linux-x64.tar.gz                                                                                  \
+    && echo -e '#!/bin/sh\nexec /usr/run "$@"' > /usr/bin/omnisharp                                                   \
+    && chmod +x /usr/bin/omnisharp

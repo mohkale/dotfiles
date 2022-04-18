@@ -1,0 +1,65 @@
+#!/bin/sh
+set -e
+
+sep=$(printf '\t')
+
+bold=$(printf '\e[1m')
+green=$(printf '\e[32m')
+blue=$(printf '\e[34m')
+magenta=$(printf '\e[35m')
+reset=$(printf '\e[0m')
+
+# Docker itself doesn't expose very many available format params for the `docker ps`
+# command. I'd like to be able to reference the source image and include it's name
+# in the output so I've adopted a 2 stage process. First I list all images in a form
+# that lets me later reference that images name or hash. Then I list all containers
+# and zip the image information into it.
+
+# Image ID, Prefix, Image ID (replaced with container format), Suffix.
+image_format="{{.ID}}$sep$magenta#{{.ID}}$reset$sep{{.Image}}$sep"'['"$green{{.Size}}$reset]"
+containers=$(docker ps --format "$image_format")
+
+# In this format string all but the last field are keys that map to the last field.
+format="{{.ID}}$sep{{.Repository}}$sep{{.Repository}}:{{.Tag}}${sep}{{.Repository}}$reset:$bold$magenta{{.Tag}}$reset"
+images=$(docker images --all --format "$format")
+
+if [ -z "$containers" ]; then
+  echo "warning: $0: No docker images currently running" >&2
+  exit 0
+fi
+
+echo "$containers" |
+  awk \
+    -v images="$images" \
+    -F "$sep" \
+    -e 'BEGIN {
+  image_len = split(images, images_arr, "\n")
+  for (i = 1; i <= image_len; i++) {
+    image = images_arr[i]
+    field_count = split(image, image_arr)
+    if (field_count <= 2) {
+      print "error: unexpected field count " field_count ": " image > /dev/stderr
+      continue
+    }
+    for (j=1; j < field_count; j++) {
+      mem[image_arr[j]] = image_arr[field_count]
+    }
+  }
+}' \
+    -e '{
+  if ($3 in mem) {
+    $3 = mem[$3]
+  }
+
+  printf("%s", $1 FS)
+  for (i = 2; i < NF; i++) {
+    if ($i) {
+      printf("%s ", $i)
+    }
+  }
+  print($NF)
+}' |
+  sed \
+    -e 's/:[^:]\+<none>[^ ]\+//' \
+    -e "s/^\([^$sep]\+\)$sep\([^ ]\+\) <none>/\1$sep\2 $blue#\1$reset/" |
+  sort --key 2 -V --field-separator="$sep"

@@ -1,0 +1,9 @@
+.git/
+.github/
+core/walls/
+core/fonts/
+core/images/
+!core/images/profile.svg
+core/banners/*
+dotenv.local
+setup/cache/

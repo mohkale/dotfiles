@@ -55,8 +55,9 @@ mpp               fmpd playlists
 mpt               fmpd tags
 
 dd                docker
-ddx               fzf_docker
-ddc               sh -c 'docker exec -it "$1" bash' --
+ddx               fzf_docker_image
+ddc               fzf_docker_container
+dds               sh -c 'docker exec -it "$1" bash' --
 ddp               docker ps
 dc                docker-compose
 dcb               docker-compose build

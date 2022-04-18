@@ -11,7 +11,7 @@ A       fzf_select_all
 c       cd
 d       fzf_cd
 D       fzf_cd_all
-e       sh --norc -c '$EDITOR "$@"' edit
+e       /bin/bash --norc -c 'exec $EDITOR "$@"' edit
 f       fzf_file
 F       fzf_file_all
 i       sh -c 'if [ $# -gt 0 ]; then preview "$@"; fi' inspect

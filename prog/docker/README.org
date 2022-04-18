@@ -1,0 +1,24 @@
+#+TITLE: Docker
+# LocalWords:  Dockerfiles autoloads fzf Dockerfile
+
+Docker is a container execution framework. It lets you declare development and
+deployment environments in a Dockerfile and then spawn these *images* as lightweight
+virtual machines also known as *containers*. Because containers are designed to be
+lightweight they avoid much of the performance overhead of a real virtual machine.
+They don't need to go through an expensive boot process, or hardware discovery. The
+runtime exposes an interface for the underlying hardware and the host OS kernel is
+reused by the container.
+
+Containers have several benefits over conventional dev environments. Their easily
+reproducible. You can run tests within a container locally and then push your changes
+and let a CI/CD run the same tests within a container built from the same image. Their
+lightweight enough that you can spawn and kill them at your discretion. You can
+also enforce network isolation between a series of containers or mount a local
+file-system with read-only permissions into the container. There's a lot of
+flexibility in container based workflows.
+
+My configuration for docker is relatively lightweight. I have some fzf oriented
+autoloads to spawn a new container from a built image and to spawn a new shell within
+an existing container. Within [[file:images/]] you'll find where I keep my local
+development environments. The files there are Dockerfiles, but may include some
+preprocessing due to limitations of the declaration format.

@@ -1,5 +1,8 @@
+link -f                                         \
+     ~/.profile                                 \
+     "$XDG_CONFIG_HOME/mimeapps.list"
+
 link ~/.ignore                                    \
-     ~/.profile                                   \
      ~/.config/shenv                              \
      "$XDG_CONFIG_HOME/shenv"                     \
      "$XDG_CONFIG_HOME/mojis"                     \
@@ -12,7 +15,6 @@ link ~/.ignore                                    \
      xdgenv:"$XDG_CONFIG_HOME/xdg"                \
      lesskey:"$XDG_CONFIG_HOME/less/lesskey.base" \
      pylog:"$XDG_CONFIG_HOME/pylog/default.yml"
-link -f "$XDG_CONFIG_HOME/mimeapps.list"
 
 if is-windows; then
   link -f user-dirs.windows:"~/.config/user-dirs.dirs"

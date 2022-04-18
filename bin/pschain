@@ -42,6 +42,13 @@ if [ "$#" -eq 0 ]; then
   exit 1
 fi
 
+if ! command -v ps >/dev/null 2>&1; then
+  # Sometimes ps isn't available, such as in docker. In which case we just
+  # fail silently. If this is the case our current environment isn't really
+  # designed for interactive use so pschain failing isn't really a big deal.
+  exit 0
+fi
+
 # shellcheck disable=SC2086
 ps $list_flags ppid,pid,"$format" --no-headers 2>/dev/null  |
   awk -v tail="$tail" \
