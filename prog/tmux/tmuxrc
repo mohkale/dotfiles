@@ -72,7 +72,7 @@ bind -r Tab last-window
 bind -r C-Tab switch-client -l                                                                     # jump between this and the last active session
 bind "'" run -b "$TMUX_HOME/cmds/jump-marked || true"                                              # jump between the current window and the marked window.
 
-bind ! break-pane                                                                                  # move current pane into its own tab
+bind ! break-pane -a                                                                               # move current pane into its own tab
 bind @ join-pane                                                                                   # join marked pane onto current window
 bind £ swap-pane                                                                                   # swap current pane with the marked pane
 bind $ move-window -a -s '{marked}'                                                                # move marked window to current session

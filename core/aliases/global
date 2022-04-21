@@ -157,8 +157,8 @@ etnw    et && emacs -nw
 etc     et -c
 etd     et -l -
 etcd    etd -c
-we      EMACS_CMD=evi      with_emacs
-wex     EMACS_CMD="evi -x" with_emacs
+we      EMACS_CMD=evi      with_emacs 
+wex     EMACS_CMD="evi -x" with_emacs 
 
 # Buku
 buku      buku --np
@@ -176,6 +176,7 @@ trd     tctl remove
 trl     tctl list
 trv     tctl verify
 tremote transmission-remote
+torclip clipsink -l - | grep --line-buffer '^magnet' | tee /dev/tty | tctl add -
 
 ## jupyter
 jupyter-repl jupyter console --existing
