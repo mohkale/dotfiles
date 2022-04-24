@@ -22,7 +22,7 @@ from mohkale.utils import merge_dict
 def _load_yaml(stream):
     if not YAML_AVAILABLE:
         raise ValueError('Yaml configuration files require pyyaml to be installed')
-    return yaml.load(stream, Loader=yaml.CLoader)
+    return yaml.load(stream, Loader=yaml.SafeLoader)
 
 class ConfigExtensions(enum.Enum):
     """The kind of file types we support loading configs from.

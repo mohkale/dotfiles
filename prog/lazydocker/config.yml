@@ -85,4 +85,3 @@ stats:
     statPath: DerivedStats.MemoryPercentage
     color: green
   maxDuration: 3m0s
-
