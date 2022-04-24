@@ -42,7 +42,7 @@ class MPDSegment(StatusMiscSegment):
         try:
             import mpd
         except ImportError:
-            logging.warning("Failed to import github")
+            logging.warning("Failed to import mpd")
             return None
 
         # Reuse existing client from previous connection if possible.

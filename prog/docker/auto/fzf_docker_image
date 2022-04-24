@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+fzf_docker_image() {
+  local USAGE HELP
+  read -r -d '' USAGE <<EOF
+Usage: fzf_docker_image [-h] [-c CMD]
+EOF
+
+  read -r -d '' HELP <<EOF
+$USAGE
+
+  Interactively select and run an interactive command
+  within one of the container images built by docker.
+
+Optional arguments:
+  -h      Show this help message and exit
+  -c CMD  Specify command to run within container
+  -l      Mount container with current host network
+  -p      Start with --privileged
+EOF
+
+  local cmd='bash -li'
+  local args=(
+    run --rm --interactive --tty
+    -v "$(pwd)":/workarea
+    # We mount our local docker socket into the container so we can run
+    # docker builds using our outer daemon from within the container if
+    # needed.
+    -v /var/run/docker.sock:/var/run/docker.sock
+    --workdir /workarea
+  )
+  while getopts 'hc:lp' OPTION; do
+    case "$OPTION" in
+      h) echo "$HELP"
+         return 0 ;;
+      \?) echo "$USAGE"
+          return 1 ;;
+      l) args+=( --network host ) ;;
+      p) args+=( --privileged ) ;;
+      c) cmd="$OPTARG" ;;
+    esac
+  done
+
+  local sep=$'\t'
+  local fzf_args=(
+    -d "$sep" --ansi --with-nth '2..'
+    --history "${XDG_STATE_HOME:-$HOME/.locale/state}"/fzf/history/docker
+  )
+
+  local id
+  if id=$(ls-docker-images |
+            _fzf "${fzf_args[@]}" |
+            cut -d"$sep" -f1) &&
+      [ -n "$id" ]; then
+    docker "${args[@]}" "$id" bash -c "$cmd"
+  fi
+}

@@ -9,6 +9,7 @@ set input-meta  on
 set output-meta on
 set convert-meta on
 set bell-style none
+set page-completions Off
 
 # Color files by types
 set colored-stats On

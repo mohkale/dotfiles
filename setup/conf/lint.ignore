@@ -5,3 +5,4 @@ prog/sxiv/src/CHANGELOG.md
 prog/konsole/themes/an-old-hope/README.md
 prog/terminal/yakuake/themes/an-old-hope/README.md
 prog/editors/emacs/bin/tangle-targets
+prog/gdb/gdbinit

@@ -43,13 +43,20 @@ unset MAILCHECK                                                                 
 
 FZF_SHELL_OPTS="--height 99% --reverse"                                         # FZF options for use in interactive shells and widgets.
 
-# Might be assigned by [[file:~/.profile][profile]].
+# Might be assigned by [[file:~/.profile][profile]], but if not we re-assign it here.
 if [ -z "$shell" ]; then
-  case "$(ps -p $$ | awk 'END { print($NF) }')" in
-    *bash) shell="bash"   ;;
-    *zsh)  shell="zshell" ;;
-    *)     shell=         ;;
-  esac
+  if [ -n "$BASH_VERSION" ]; then
+    shell=bash
+  elif [ -n "$ZSH_VERSION" ]; then
+    shell=zshell
+  else
+    # Fall back to basic binary interpretation.
+    case "$(ps -p $$ >/dev/null 2>&1 | awk 'END { print($NF) }')" in
+      *bash) shell=bash   ;;
+      *zsh)  shell=zshell ;;
+      *)     false         ;;
+    esac
+  fi
 fi
 
 # Source autoloads

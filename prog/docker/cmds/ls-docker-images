@@ -1,0 +1,21 @@
+#!/bin/sh
+set -e
+
+sep=$(printf '\t')
+
+bold=$(printf '\e[1m')
+green=$(printf '\e[32m')
+blue=$(printf '\e[34m')
+magenta=$(printf '\e[35m')
+reset=$(printf '\e[0m')
+
+# See [[https://docs.docker.com/engine/reference/commandline/images/#format-the-output][here]] for a list of available fields for this format string.
+format="{{.ID}}$sep{{.Repository}}:$bold$blue{{.Tag}}$reset [$green{{.Size}}$reset]"
+
+# We list built images, remove :<none> tag references and replace
+# the name with the image id if there is no name.
+docker images --format "$format" |
+  sed \
+    -e 's/:[^:]\+<none>[^ ]\+//' \
+    -e "s/^\([^$sep]\+\)$sep<none>/\1$sep$magenta#\1$reset/" |
+  sort --key 2 -V --field-separator="$sep"
