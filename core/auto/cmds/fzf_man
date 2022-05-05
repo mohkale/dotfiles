@@ -11,7 +11,7 @@ fzf_man() {
     targets=$(apropos -w '*' |
         sed -e 's/\([^ ]\+\) (\([^)]\+\)) *- \?\(.*\)$/\1 (\2)'"$delimiter"'\3/' |
         if hash column 2>/dev/null; then column -s "$delimiter" -t; else tr "$delimiter" ' '; fi |
-        _fzf "${fzf_args[@]}" |
+        _mk_fzf "${fzf_args[@]}" |
         sed 's/^\([^[:space:]]\+\) \?(\([^[:space:]]\+\)).*/\1.\2/')
     [ -z "$targets" ] && return
 

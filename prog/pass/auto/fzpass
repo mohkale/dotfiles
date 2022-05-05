@@ -66,6 +66,6 @@ EOF
     if [ "$list_only" -ne 0 ]; then
       cat
     else
-      _fzf "${fzf_args[@]}"
+      _mk_fzf "${fzf_args[@]}"
     fi
 }

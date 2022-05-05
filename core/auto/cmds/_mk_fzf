@@ -7,6 +7,6 @@
 # line for your shell prompt) and reverses it so it appears as if candidates are
 # flowing out from your shell prompt.
 
-_fzf() {
+_mk_fzf() {
     FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS $FZF_SHELL_OPTS" fzf "$@"
 }

@@ -15,10 +15,10 @@ fzf_select() {
 
     # shellcheck disable=SC2086
     project-files -z ${FZF_SELECT_ARGS:-} -- "$p" |
-        _fzf --read0 \
-             --multi \
-             --preview 'preview {}' \
-             --history "${XDG_STATE_HOME:-$HOME/.locale/state}"/fzf/history/paths \
-             --delimiter / --with-nth "$((skip+1)).." |
+        _mk_fzf --read0 \
+                --multi \
+                --preview 'preview {}' \
+                --history "${XDG_STATE_HOME:-$HOME/.locale/state}"/fzf/history/paths \
+                --delimiter / --with-nth "$((skip+1)).." |
         select_path
 }

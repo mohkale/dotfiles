@@ -14,7 +14,7 @@ esac'
   # blocks the rest until you exit it and control returns to the master shell.
   [ -n "$TMUX" ] && fzf_args+=( --multi )
   local target
-  if target=$(ttls -alpq -s "$SEP" | _fzf "${fzf_args[@]}") && [ -n "$target" ]; then
+  if target=$(ttls -alpq -s "$SEP" | _mk_fzf "${fzf_args[@]}") && [ -n "$target" ]; then
     local cmd conf dir targets
     targets=( )
     # Can't loop over directly because tmuxp complains about tty device.

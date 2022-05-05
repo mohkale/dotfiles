@@ -183,7 +183,7 @@ jupyter-repl jupyter console --existing
 jupyter-note jupyter notebook
 
 # fzf stuff, see [[https://paweldu.dev/posts/fzf-live-repl/][fzf-live-repl]]
-fzawk _fzf --disabled --print-query --preview 'awk -e {q} -- {}'
+fzawk _mk_fzf --disabled --print-query --preview 'awk -e {q} -- {}'
 
 # directory-stack
 qa      pushd

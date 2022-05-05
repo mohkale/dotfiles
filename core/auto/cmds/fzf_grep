@@ -14,7 +14,7 @@ fzf_grep() {
 
   local QUERY="${*:-}"
   FZF_DEFAULT_COMMAND="$grepper $(printf %q "$QUERY")" \
-    _fzf \
+    _mk_fzf \
       --ansi \
       --disabled \
       --multi \

@@ -82,12 +82,15 @@ zle_ge() { zle_eval ge; }
 zle -N zle_ge; bindkey "^x^e" zle_ge
 
 # External scripts
-if [ -e /usr/share/fzf/key-bindings.zsh ]; then
-  source /usr/share/fzf/key-bindings.zsh
-  bindkey "^T" transpose-chars                                                  # Restore default ctrl-t binding.
-  bindkey '\ec' capitalize-word                                                 # Restore default alt-c binding.
-  FZF_CTRL_R_OPTS="$FZF_DEFAULT_OPTS $FZF_SHELL_OPTS --history '""$XDG_DATA_HOME""'/fzf/history/sh-history"
-fi
+for fzf_script in /usr/share/fzf/key-bindings.zsh /etc/profile.d/fzf.zsh; do
+  if [ -e "$fzf_script" ]; then
+    source "$fzf_script"
+    bindkey "^T" transpose-chars                                                  # Restore default ctrl-t binding.
+    bindkey '\ec' capitalize-word                                                 # Restore default alt-c binding.
+    FZF_CTRL_R_OPTS="$FZF_DEFAULT_OPTS $FZF_SHELL_OPTS --history '""$XDG_DATA_HOME""'/fzf/history/sh-history"
+    break
+  fi
+done
 
 # menuselect
 ## offers interactive completion selection

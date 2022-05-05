@@ -6,7 +6,7 @@ cd_project() {
                    --history "${XDG_STATE_HOME:-$HOME/.locale/state}"/fzf/history/paths )
   [ -z "$*" ] || fzf_args+=( -q "$*" )
   local dest
-  if dest=$(ls-projects -r -s "$sep" | _fzf "${fzf_args[@]}" | cut -d "$sep" -f 1) &&
+  if dest=$(ls-projects -r -s "$sep" | _mk_fzf "${fzf_args[@]}" | cut -d "$sep" -f 1) &&
       [ -n "$dest" ]; then
     # shellcheck disable=SC2164
     cd "$dest"

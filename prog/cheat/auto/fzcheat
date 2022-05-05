@@ -39,5 +39,5 @@ function fzcheat() {
     printf("%s:%s%s\n", name, name, name_tags ? (c_tag_l " [" name_tags "] " c_tag_r) : "")
   }
 }' |
-    _fzf "${fzf_args[@]}"
+    _mk_fzf "${fzf_args[@]}"
 }
