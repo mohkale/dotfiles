@@ -75,6 +75,7 @@ rsync   rsync -r --info=progress2 --info=name0
 fd      find
 b64     base64 -w 0
 b64d    b64 -d
+od      xopen .
 
 rm      rm -v
 mv      mv -iv

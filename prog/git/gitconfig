@@ -23,7 +23,6 @@
 	r = rebase
 	p = push
 	f = pull
-    magit = !emacs-magit
 	unstage = reset HEAD --
 	fzlog = !git-fzlog
 	z = !git-fzlog
@@ -31,11 +30,18 @@
 	permission-reset = !git diff -p -R | grep -E \"^(diff|(old|new) mode)\" | git apply
 [init]
 	defaultBranch = master
-[github]
-	user = mohkale
-[gitlab]
-	user = mohkale
 [diff "gpg"]
 	textconv = gpg --no-tty --decrypt
 [push]
 	recurseSubmodules = on-demand
+# Prefer ssh pushing (since github has removed basic HTTP authentication)
+[url "git@github.com:"]
+    pushInsteadOf = https://github.com
+    pushInsteadOf = git://github.com
+[url "git@gitlab.com:"]
+    pushInsteadOf = https://gitlab.com
+    pushInsteadOf = git://gitlab.com
+[github]
+	user = mohkale
+[gitlab]
+	user = mohkale
