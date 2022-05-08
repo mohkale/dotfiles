@@ -75,6 +75,7 @@ rsync   rsync -r --info=progress2 --info=name0
 fd      find
 b64     base64 -w 0
 b64d    b64 -d
+od      xopen .
 
 rm      rm -v
 mv      mv -iv
@@ -183,7 +184,7 @@ jupyter-repl jupyter console --existing
 jupyter-note jupyter notebook
 
 # fzf stuff, see [[https://paweldu.dev/posts/fzf-live-repl/][fzf-live-repl]]
-fzawk _fzf --disabled --print-query --preview 'awk -e {q} -- {}'
+fzawk _mk_fzf --disabled --print-query --preview 'awk -e {q} -- {}'
 
 # directory-stack
 qa      pushd

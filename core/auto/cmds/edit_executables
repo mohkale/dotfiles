@@ -5,6 +5,6 @@ edit_executables() {
                --history "${XDG_STATE_HOME:-$HOME/.locale/state}"/fzf/history/paths )
     [ -z "$*" ] || fzf_args+=( -q "$*" )
     ls-exec |
-        _fzf "${fzf_args[@]}" |
+        _mk_fzf "${fzf_args[@]}" |
         select_path
 }

@@ -14,7 +14,7 @@ priority_normal:Bandiwdth Normal
 priority_low:Bandwidth Low
 queue_top:Move Queue Top
 queue_bottom:Move Queue Bottom' |
-    _fzf --delimiter : --with-nth 2.. --prompt='Transmission: ' |
+    _mk_fzf --delimiter : --with-nth 2.. --prompt='Transmission: ' |
     cut -d : -f 1 |
     xargs -r tctl "$@"
 }

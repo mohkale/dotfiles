@@ -42,6 +42,8 @@ STICKY_OTHER_WRITABLE 41;33
 # Media Files
 *.mp4 36
 *.mkv 36
+*.mov 36
+*.wav 36
 *.png 36
 *.jpg 36
 *.jpeg 36

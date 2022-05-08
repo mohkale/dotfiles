@@ -41,7 +41,7 @@ EOF
   fi
 
   local pkgs
-  if pkgs=$("$bin" "${search_args[1]}" | _fzf "${fzf_args[@]}" --preview "$bin"' '"${search_args[2]}"' {1}'); then
+  if pkgs=$("$bin" "${search_args[1]}" | _mk_fzf "${fzf_args[@]}" --preview "$bin"' '"${search_args[2]}"' {1}'); then
     xargs -r \
           -d '\n' \
           -a <(echo "$pkgs") \

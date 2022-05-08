@@ -52,7 +52,7 @@ function color(path, basename) {
 }
 
 ' |
-    _fzf "${fzf_args[@]}" |
+    _mk_fzf "${fzf_args[@]}" |
     cut -d: -f1)
   [ -z "$confs" ] ||
     xargs -r -d '\n' -a <(echo "$confs") "$root/manage" install

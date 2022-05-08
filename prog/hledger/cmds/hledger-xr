@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# pylint: disable=line-too-long,missing-module-docstring
 # Generate a [[https://hledger.org/hledger.html#valuation-commodity][commodity conversion rates]] from the excellent [[https://github.com/fawazahmed0/currency-api][currency api]].
 
 import json
@@ -16,7 +17,8 @@ CURRENCIES = {
 }
 
 resp = requests.get(
-    f"https://raw.githubusercontent.com/fawazahmed0/currency-api/1/latest/currencies/{MAIN_CURRENCY}.min.json"
+    "https://raw.githubusercontent.com/fawazahmed0/currency-api/1"
+    f"/latest/currencies/{MAIN_CURRENCY}.min.json"
 )
 resp.raise_for_status()
 data = json.loads(resp.text)

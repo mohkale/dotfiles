@@ -14,17 +14,16 @@ fzf_select() {
     local skip="${#temp}"
 
     # shellcheck disable=SC2086
-
-    project-files ${FZF_SELECT_ARGS:-} -- "$p" |
+    project-files -z ${FZF_SELECT_ARGS:-} -- "$p" |
       if [ "$p" = "./" ]; then
         awk -e '! ($0 ~ /\.\//) { printf("%s", "./") }' -e '{ print }'
       else
         cat
       fi |
-        _fzf \
-             --multi \
-             --preview 'preview {}' \
-             --history "${XDG_STATE_HOME:-$HOME/.locale/state}"/fzf/history/paths \
-             --delimiter / --with-nth "$((skip+1)).." |
+        _mk_fzf --read0 \
+                --multi \
+                --preview 'preview {}' \
+                --history "${XDG_STATE_HOME:-$HOME/.locale/state}"/fzf/history/paths \
+                --delimiter / --with-nth "$((skip+1)).." |
         select_path
 }

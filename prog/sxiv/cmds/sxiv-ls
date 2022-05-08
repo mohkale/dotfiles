@@ -30,7 +30,8 @@ Optional arguments
 EOF
 }
 
-search_flags=( -iregex '.*\.\(jpe?g\|png\|gif\|webp\|tiff\|bmp\)$' )                       # Used to select images in a directory
+# Used to select images in a directory
+search_flags=( -iregex '.*\.\(jpe?g\|png\|gif\|webp\|tiff\|bmp\|avif\)$' )
 while getopts 'ha' OPTION; do
   case "$OPTION" in
     a) search_flags=( ) ;;

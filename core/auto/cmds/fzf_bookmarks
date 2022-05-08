@@ -10,7 +10,7 @@ fzf_bookmarks() {
   # shellcheck disable=SC2086
   ls-bookmarks ${FZF_BOOKMARK_FLAGS:-} -p '' |
     sed '/^javascript:/d' |
-    _fzf "${fzf_args[@]}" |
+    _mk_fzf "${fzf_args[@]}" |
     cut -d $'\t' -f 1 |
     xargs -d '\n' -r xopen
 }

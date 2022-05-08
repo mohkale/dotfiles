@@ -39,7 +39,7 @@ EOF
   if containers=$(ls-docker-containers) &&
       [ -n "$containers" ] &&
       id=$(ls-docker-containers |
-            _fzf "${fzf_args[@]}" |
+            _mk_fzf "${fzf_args[@]}" |
             cut -d"$sep" -f1) &&
       [ -n "$id" ]; then
     docker "${args[@]}" "$id" bash -c "$cmd"
