@@ -13,7 +13,7 @@ $(V).SILENT:
 .PHONY: all
 
 CWF := $(abspath $(lastword $(MAKEFILE_LIST)))
-CWD := $(dir $(patsubst %/,%,$(dir $(cwf))))
+CWD := $(dir $(patsubst %/,%,$(dir $(CWF))))
 
 SRC := $(shell find $(CWD) -type f -iname '*.docker')
 SRC := $(patsubst ./%,%,$(SRC))
