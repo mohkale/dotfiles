@@ -7,7 +7,7 @@
 # script because I don't always have the freedom to download an external
 # program but any unix environment should have a bash like shell available.
 #
-# Dependencies: bash, readlink
+# Dependencies: bash>=4, readlink
 # Environment variables:
 #  + root: Path to the root of your dotfiles repository.
 # Notes:
@@ -447,7 +447,7 @@ makedir() {
   local it
   while [ "$#" -gt 0 ]; do
     it="$1"; shift
-    if [ -d "$it" ]; then
+    if [ -L "$it" ] || [ -d "$it" ]; then
       trace 'Skipping creating directory because it already exists: %s' "$it"
     elif [ -e "$it" ]; then
       warn 'Cannot create directory because %s already exists' "$it"
@@ -814,21 +814,52 @@ packages() {
 
 BOTS=()
 bots_all=0
+
+_bots_usage="Usage: bots [-h] [-a] BOT [BOTS...]"
+read -d '' -r _bots_help <<EOF
+$_bots_usage
+
+  Assert whether installing any of the bots in BOTS.
+
+Positional arguments:
+  BOT
+    Name of bot that can be installed.
+
+Optional arguments:
+  -a
+    Assert whether all of the bots in BOTS is being installed, not
+    any.
+EOF
 bots() {
+  local OPTIND all=0
+  while getopts 'ha' OPTION; do
+    case "$OPTION" in
+      h) echo "$_bots_help"
+         return 0 ;;
+      a) all=1 ;;
+      \?) echo "$_bots_usage" >&2
+          return 1 ;;
+    esac
+  done
+  shift "$((OPTIND-1))"
+
   printf '%s\n' "$@" >&3
 
   if [ "$bots_all" -eq 1 ]; then
     return 0
   fi
 
-  local it
+  local it res=1
   for it in "$@"; do
     trace 'Checking whether installing bot %s' "$it"
     if _contains "$it" "${BOTS[@]}"; then
-      return 0
+      res=0
+      [ "$all" -eq 0 ] && return "$res"
+    elif [ "$all" -eq 1 ]; then
+      return 1
     fi
   done
-  return 1
+  return "$res"
 }
 
 _import_usage="Usage: import [-h] PATH [PATH...]"
@@ -839,24 +870,72 @@ $_import_usage
 
 Positional arguments:
   PATH
-    The PATH to a file or module to be imported. The lookup
-    order for this goes in order of ./PATH.dotty.sh, ./PATH.sh,
-    ./PATH/dotty.sh, ./PATH/PATH.sh, ./PATH/config.sh,
-    ./PATH/.config.sh, ./PATH/.config.
+    The PATH to a file or module to be imported. See _import_find
+    for the path lookup for this argument.
+    A path of the module form will result in a bots entry automatically
+    being populated for it.
 
 Optional arguments:
   -b
     Automatically check whether a bot matching the basename of
-    a path exists.
+    a path exists. If it doesn't then skip the import.
+  -f
+    Automatically determine the path to import based on .module.sh
+    lookups.
 EOF
 IMPORTED=()
+
+_import_find() { # (path basename)
+  local it="$1" it_base="$2"
+
+  for file in "$it" \
+              "$it.dotty.sh" "$it.sh" "$it/dotty.sh" "$it/$it_base.sh" \
+              "$it/config.sh" "$it/.config.sh" "$it/.config" \
+              "$it/module.sh" "$it/.module.sh" "$it/.module" "$it.module.sh"; do
+    trace 'Checking import path %s' "$file"
+    if [ -f "$file" ] && [ -r "$file" ]; then
+      echo "$file"
+      break
+    fi
+  done
+}
+
+typeset -Ag _DOTTY_MODULES
+# NOTE: For some reason I can't populate this lazily in _import_find_module.
+while read -r it; do
+  bot="$(basename "$it")"
+  case "$bot" in
+    .module.sh)
+      bot="$(basename "$(dirname "$it")")"
+      ;;
+    *?.module.sh)
+      bot="${bot%.module.sh}"
+      ;;
+    *)
+      warn "Failed to determine bot name for module $it"
+      continue
+      ;;
+  esac
+  _DOTTY_MODULES["$bot"]="$root/$it"
+  trace "Discovered dotty module $bot at $root/$it"
+done < <(git --work-tree="$root" --git-dir="$root/.git" ls-files --others --modified --cached --full-name --exclude-standard -- "$root"'/*module.sh')
+_import_find_module() { # (basename)
+  local res=${_DOTTY_MODULES["$1"]}
+  if [ -n "$res" ]; then
+    echo "$1" >&3
+    BOTS+=( "$1" )
+    echo "${_DOTTY_MODULES["$1"]}"
+  fi
+}
+
 import() {
-  local OPTIND check_bots=0
-  while getopts 'hb' OPTION; do
+  local OPTIND check_bots=0 find_module=0
+  while getopts 'hbf' OPTION; do
     case "$OPTION" in
       h) echo "$_import_help"
          return 0 ;;
       b) check_bots=1 ;;
+      f) find_module=1 ;;
       \?) echo "$_import_usage" >&2
           return 1 ;;
     esac
@@ -866,7 +945,7 @@ import() {
   local it it_base it_dir
   while [ "$#" -gt 0 ]; do
     it="$1"; shift
-    it=$(_abspath "$it")
+    it_abs=$(_abspath "$it")
     it_base="$(basename "$it")"
 
     if [ "$check_bots" -eq 1 ] && ! bots "$it_base"; then
@@ -874,36 +953,34 @@ import() {
       continue
     fi
 
-    local found=0
     trace 'Trying to import %s' "$it"
-    for file in "$it" "$it.dotty.sh" "$it.sh" "$it/dotty.sh" \
-                "$it/$it_base.sh" "$it/config.sh" "$it/.config.sh" \
-                "$it/.config"; do
-      trace 'Checking import path %s' "$file"
-      if [ -f "$file" ] && [ -r "$file" ]; then
-        found=1
-        info 'Importing %s' "$file"
-        if _contains "$file" "${IMPORTED[@]}"; then
-          debug 'Skipping importing %s because its already been imported' "$file"
-          break
-        fi
-        IMPORTED+=( "$file" )
-        echo "$file" >&4
+    local file=
+    if [ "$find_module" -eq 1 ]; then
+      file=$(_import_find_module "$it_base")
+    fi
+    [ -z "$file" ] && file=$(_import_find "$it_abs" "$it_base")
 
-        it_dir="$(dirname "$file")"
-        if ! pushd "$it_dir" >/dev/null 2>&1; then
-          error 'Failed to cd to %s, cannot import %s' "$it_dir" "$file"
-          break
-        fi
-        # shellcheck disable=SC1090
-        . "$file"
-        if ! popd >/dev/null 2>&1; then
-          warn 'Tried to popd out of importing %s but failed' "$file"
-        fi
-        break
+    if [ -n "$file" ]; then
+      info 'Importing %s' "$file"
+      if _contains "$file" "${IMPORTED[@]}"; then
+        debug 'Skipping importing %s because its already been imported' "$file"
+        continue
       fi
-    done
-    if [ "$found" -eq 0 ]; then
+      IMPORTED+=( "$file" )
+      echo "$file" >&4
+
+      it_dir="$(dirname "$file")"
+      if ! pushd "$it_dir" >/dev/null 2>&1; then
+        error 'Failed to cd to %s, cannot import %s' "$it_dir" "$file"
+        continue
+      fi
+      # shellcheck disable=SC1090
+      . "$file"
+      if ! popd >/dev/null 2>&1; then
+        warn 'Tried to popd out of importing %s but failed' "$file"
+        # exit 1
+      fi
+    else
       error 'Could not find file to import for %s' "$it"
     fi
   done
@@ -996,7 +1073,7 @@ Optional arguments:
     Enable all optional bots calls
 EOF
 
-_dotty_install_usage="Usage: dotty install [-h] [-b BOTS[,BOTS...]] [-a] [-d] [-e CMD] [-o CMD] [FILE [FILE...]]"
+_dotty_install_usage="Usage: dotty install [-h] [-b BOTS[,BOTS...]] [-a] [-L] [-d] [-e CMD] [-o CMD] [FILE [FILE...]]"
 read -d '' -r _dotty_install_help <<EOF
 
   Install dotfiles beginning from the root or a specific
@@ -1015,6 +1092,8 @@ Optional arguments:
   -d|--dry-run
     Don't actually run any commands, just output them
     as a script.
+  -L|--no-load-bots
+    Don't load bots from the dotty bots cache file.
   -b|--bots BOTS[,BOTS...]
     Specify sub-bots that can be optionally invoked by
     dotty installation scripts.
@@ -1031,6 +1110,8 @@ exec 3>/dev/null 4>/dev/null
 
 # shellcheck disable=SC2120
 op=''
+argv_bots=()
+load_bots_file=1
 import_files=()
 only_directives=()
 except_directives=()
@@ -1046,6 +1127,8 @@ while [ "$#" -gt 0 ]; do
         -a|--all) bots_all=1 ;;
         -d|--dry-run)
           dry_run=1 ;;
+        -L|--no-load-bots)
+          load_bots_file=0 ;;
         -o|--only)
           if [ "$#" -eq 0 ]; then
             echo "error: dotty: $arg expected an argument" >&2
@@ -1065,8 +1148,8 @@ while [ "$#" -gt 0 ]; do
             echo "error: dotty: $arg expected an argument" >&2
             exit 1
           fi
-          IFS=, read -r -a new_bots <<< "$1"
-          BOTS+=( "${new_bots[@]}" ); shift
+          IFS=, read -r -a argv_bots <<< "$1"
+          shift
           ;;
         -*) echo "error: dotty: unexpected argument: $arg" >&2
             echo "$_dotty_install_usage" >&2
@@ -1151,10 +1234,16 @@ if [ -z "$op" ]; then
   exit 0
 fi
 
+if [ "$load_bots_file" -eq 1 ] && [ -e "$BOTS_FILE" ]; then
+  info 'Loading bots file at %s' "$BOTS_FILE"
+  readarray -t BOTS < "$BOTS_FILE"
+fi
+BOTS+=( "${argv_bots[@]}" )
+debug 'Loaded BOTS: %s' "$(printf '%s,' "${BOTS[@]}")"
+
 if [ "${#import_files[@]}" -eq 0 ]; then
   import_files+=( . )
 fi
-
 for it in "${import_files[@]}"; do
   import "$it"
 done
@@ -1164,8 +1253,8 @@ if [ "$dry_run" -ne 1 ] &&
   info 'Updating bots file at %s' "$BOTS_FILE"
   if {
     printf '%s\n' "${BOTS[@]}"
-    tr ',' '\n' < "$BOTS_FILE" 2>/dev/null
-  } | sort | uniq | tr '\n' ',' > "$BOTS_FILE.new"; then
+    cat "$BOTS_FILE" 2>/dev/null
+  } | sort | uniq > "$BOTS_FILE.new"; then
     mv -f "$BOTS_FILE.new" "$BOTS_FILE"
   fi
 fi

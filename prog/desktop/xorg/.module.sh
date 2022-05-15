@@ -3,7 +3,6 @@ link ~/.Xresources                                    \
      ~/.xprofile                                      \
      xbindkeysrc:"$XDG_CONFIG_HOME/xbindkeys/config"
 link-to "$XDG_CONFIG_HOME/Xresources/" ./Xresources.d/*
-link-to "$XDG_BIN_DIR/" ./cmds/*
 run-cmd touch "$XDG_CONFIG_HOME/Xresources/local"
 
 packages                                                            \

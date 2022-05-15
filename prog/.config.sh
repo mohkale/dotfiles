@@ -1,5 +1,6 @@
 import                                          \
   git                                           \
+  shells/bash                                   \
   info                                          \
   editors
 
@@ -23,7 +24,6 @@ import -b                                       \
   gimp                                          \
   gotop                                         \
   hledger                                       \
-  hyper                                         \
   imv                                           \
   ipython                                       \
   konsole                                       \
@@ -36,6 +36,7 @@ import -b                                       \
   polybar                                       \
   ranger                                        \
   ripgrep                                       \
+  shells/*                                      \
   spectacle                                     \
   sxiv                                          \
   terminal/*                                    \

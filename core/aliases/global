@@ -123,6 +123,7 @@ lc      lfcd
 og      open_game
 pn      skeletor create
 
+dotsync "$DOTFILES/manage" install --except shell --except package --except sync-submodule
 dota    a $DOTFILES
 dotA    A $DOTFILES
 dotf    f $DOTFILES

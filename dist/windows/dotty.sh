@@ -1,5 +1,6 @@
-import "$DOTFILES/prog/chocolatey" \
-       "$DOTFILES/prog/desktop/windows"
+import -f                                       \
+  chocolatey                                    \
+  windows
 
 # Setup msys, the unix like environment for windows
 packages choco:msys2,cyg-get
@@ -34,7 +35,7 @@ packages msys:base-devel,make,gcc,mingw-w64-x86_64-gcc
 packages choco:fzf
 packages cygwin:envsubst
 
-import "$DOTFILES/prog/git"
+import -f git
 
 # A terminal wrapper to support some modern escape codes on the archaic
 # windows platform.
@@ -54,5 +55,6 @@ EOF
 fi
 
 # Some extra cool windows additions
-import "$DOTFILES/prog/wsl" \
-       "$DOTFILES/prog/cmder"
+import -f                                       \
+  wsl                                           \
+  cmder

@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+ROOT="${DOTFILES:-${XDG_CONFIG_HOME:-$HOME}/dotfiles}"
+"$ROOT/bin/project-files" -f "$ROOT" |
+  awk                                           \
+    -e '$0 !~ /.module.sh/ { next }'            \
+    -e 'match($0, /([^/]+).module.sh/, arr) {
+  printf("%s:%s\n", $0, arr[1])
+}'                                              \
+    -e 'match($0, /\/([^/]+)\/.module.sh/, arr) {
+  printf("%s:%s\n", $0, arr[1])
+}'
