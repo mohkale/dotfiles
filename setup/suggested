@@ -19,8 +19,9 @@ presets=(
   [default.macos]=""
 
   # Used for development machines where I intend to write code
-  [develop]="emacs ruby node go gdb markdownlint pylint pycodestyle rubocop shellcheck yamllint"
+  [develop]="emacs ruby node go gdb markdownlint pylint pycodestyle rubocop shellcheck yamllint git info nvim"
   [develop.doc]="Development and code writing tools"
+  [develop.windows]="wsl cmder"
 
   ## Used for torrent boxes which I use to download torrents
   [torrent]="transmission tor"
@@ -36,7 +37,7 @@ presets=(
   [user]="brave firefox gimp mail.client"
   [user.doc]="General purpose programs for regular interactive use"
   [user.windows]="itunes"
-  [user.linux]="mpd cava pass"
+  [user.linux]="mpd cava pass dolphin spectacle"
 )
 
 preset_keys=$(printf '%s\n' "${!presets[@]}" | grep -v '\.\|^default$')

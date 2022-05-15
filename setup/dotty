@@ -14,6 +14,17 @@
 #  + Installation scripts should avoid prompting the user or writing to
 #    stdout unless explicitly required. Some executions of this script
 #    may not have an interactive stdin or terminal stdout.
+#
+# dotty is composed of a series of bash scripts scattered across my dotfile
+# directory. Each script can be named something of the form documented in
+# the import statement. Scripts following the config.sh declaration are
+# standalone declarations for installation and removal. Scripts following
+# the module.sh naming scheme are the same as config.sh scripts except that
+# they can be auto-imported through the DEPS array variable. This
+# means you can't have multiple module.sh records entries in the entire
+# dotfiles repository with the same name. The actual body of the script
+# should define a series of functions install, remove, before and after.
+# before is run before the install or remove functions. after is run after.
 
 set -a          # Export everything
 set -o pipefail # Fail a command when anything in its pipeline fails

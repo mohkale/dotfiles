@@ -1,1 +1,7 @@
-packages pacman:sddm
+install() {
+  packages pacman:sddm
+}
+
+remove() {
+  packages-remove pacman:sddm
+}

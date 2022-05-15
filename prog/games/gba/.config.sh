@@ -1,1 +1,7 @@
-packages yay:vbam-wx
+install() {
+  packages yay:vbam-wx
+}
+
+remove() {
+  packages-remove yay:vbam-wx
+}

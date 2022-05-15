@@ -1,1 +1,1 @@
-link python:"$XDG_DEV_HOME/.modules/python/mohkale"
+LINK=( python:"$XDG_DEV_HOME/.modules/python/mohkale" )

@@ -1,22 +1,23 @@
-packages apt:vim                                \
-         msys:vim                               \
-         choco:vim                              \
-         pacman:vim
+PROG_EDITORS_VIM_PACKAGES=(
+  apt:vim
+  msys:vim
+  choco:vim
+  pacman:vim
+)
 
-link "$XDG_CONFIG_HOME/vim/init.vim"            \
-     "$XDG_CONFIG_HOME/vim/plugins.vim"         \
-     "$XDG_CONFIG_HOME/vim/statusline.vim"
-link-to "$XDG_CONFIG_HOME/vim/colors" ./colors/*
-link-to "$XDG_CONFIG_HOME/vim/bindings" ./bindings/*
+install() {
+  packages "${PROG_EDITORS_VIM_PACKAGES[@]}"
 
-if bots nvim; then
-  link "$XDG_CONFIG_HOME/vim:$XDG_CONFIG_HOME/nvim"
+  link                                          \
+    "$XDG_CONFIG_HOME/vim/init.vim"             \
+    "$XDG_CONFIG_HOME/vim/plugins.vim"          \
+    "$XDG_CONFIG_HOME/vim/statusline.vim"
+  link-to "$XDG_CONFIG_HOME/vim/colors" ./colors/*
+  link-to "$XDG_CONFIG_HOME/vim/bindings" ./bindings/*
 
-  packages apt:neovim                           \
-           pacman:neovim
-fi
-
-run-cmds <<-"EOF"
+  if ! [ -f "$XDG_CONFIG_HOME/vim/autoload/plug.vim" ]; then
+    info 'Installing vim Plugged'
+    run-cmds <<-"EOF"
 if hash nvim 2>/dev/null; then vim=nvim; else vim=vim; fi
 
 # For some dumb reason, you can't change where the autoload directory is.
@@ -28,3 +29,16 @@ else
   true
 fi && "$vim" -n -e +PlugInstall +qall!
 EOF
+  fi
+}
+
+remove() {
+  packages-remove "${PROG_EDITORS_VIM_PACKAGES[@]}"
+
+  unlink                                        \
+    "$XDG_CONFIG_HOME/vim/init.vim"             \
+    "$XDG_CONFIG_HOME/vim/plugins.vim"          \
+    "$XDG_CONFIG_HOME/vim/statusline.vim"
+  unlink-from "$XDG_CONFIG_HOME/vim/colors" ./colors/*
+  unlink-from "$XDG_CONFIG_HOME/vim/bindings" ./bindings/*
+}
