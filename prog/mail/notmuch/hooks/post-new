@@ -18,12 +18,43 @@ sed -e '/^#.*/d' -e '/^[[:space:]]*$/d' <<EOF | notmuch tag --batch
 -new +inbox +dev -- tag:new and from:help-debbugs@gnu.org
 -new +inbox +dev -- tag:new and from:@github.com
 
+# Alerts
+-new +inbox +alert +price -- tag:new and from:@steampowered.com and subject:'from your Steam wishlist is now on sale'
+-new +inbox +alert +price -- tag:new and from:noreply@camelcamelcamel.com and subject:'Price drop alert'
+-new +inbox +alert        -- tag:new and from:noreply@camelcamelcamel.com and subject:'/^Your price watch for/'
+
+# Home Related
+-new +home          -- tag:new and from:@scraye.com
+-new +home +finance -- tag:new and from:counciltax@southwark.gov.uk or ( from:@southwark.gov.uk and subject:'Council Tax notification' )
+-new +home          -- tag:new and from:@southwark.gov.uk
+-new +home          -- tag:new and from:@britishgas.co.uk
+-new +home          -- tag:new and from:@nowtv.com
+-new +home          -- tag:new and from:@eonnext.com
+
+# Financial transactions
+-new +inbox +finance -- tag:new and from:@just-eat.co.uk and subject:'order confirmed'
+-new +inbox +finance -- tag:new and from:orders@care.boots.com and subject:'Order confirmation'
+-new +inbox +finance -- tag:new and from:automailer@e-paycapita.com and subject:'Payment Authentication Receipt'
+-new +inbox +finance -- tag:new and from:service@paypal.co.uk and subject:"You've authorised a payment"
+-new +inbox +finance -- tag:new and from:customersupport@ovh.co.uk and ( subject:'Invoice available' or subject:'notice of charge' )
+-new +inbox +finance -- tag:new and from:@notifications.kfc.co.uk and subject:'KFC Orders'
+
 # Tag any mail in the bin as deleted.
 -new +deleted -inbox -unread -- folder:/\[Gmail\]/ and folder:/Bin$/
 -new +spam    -inbox -unread -- folder:/\[Gmail\]/ and folder:/Spam$/
 -new +deleted -inbox -unread -- folder:/^kisara/Trash/
 
 -new +spam -inbox -unread -- tag:new and from:@findeveryjob.co.uk
+-new +spam -inbox -unread -- tag:new and from:@jamrecruitment.co.uk
+# Uber has a spam problem, and there's no setting which makes it stop.
+-new +spam -inbox -unread -- tag:new and from:@uber.com and ( subject:'running low' or subject:'free delivery' or subject:'enjoy off' or subject:'off groceries' or subject:'get groceries' or subject: or subject:'win' or subject:'discount available' or subject:'new dishes' or subject:'chance' or subject:'get out off' or subject:'off next order' or subject:'grab essentials' )
+-new +spam -inbox -unread -- tag:new and from:@deliveroo.co.uk and ( from:@feedback.deliveroo.com or from:@announcement.deliveroo.co.uk )
+-new +spam -inbox -unread -- tag:new and from:@just-eat.co.uk and ( from:@update.just-eat.co.uk or ( from:@orders.just-eat.co.uk and subject:"👍 OR 👎" ) )
+-new +spam -inbox -unread -- tag:new and from:support@grasscity.com and subject:'what do you think about us'
+-new +spam -inbox -unread -- tag:new and from:offers@marketing.ebuyer.com
+-new +spam -inbox -unread -- tag:new and from:@dropbox.com and subject:'no need to delete anything yet'
+-new +spam -inbox -unread -- tag:new and from:news@email.railcard.co.uk and subject:'save %'
+-new +spam -inbox -unread -- tag:new and from:@onskil.com and subject:'Next Opportunity'
 
 # Remove new tag and attach defaults for rest of new mail
 -new +inbox +unread -- tag:new
