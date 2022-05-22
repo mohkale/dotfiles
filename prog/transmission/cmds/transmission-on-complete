@@ -167,9 +167,9 @@ if __name__ == "__main__":
     try:
         from mohkale.pylog.config import use_config as use_logging_config
     except ImportError:
-        use_logging_config("on-complete", level=vargs.pop("log_level"))
-    else:
         logging.basicConfig(level=vargs.pop("log_level"))
+    else:
+        use_logging_config("on-complete", level=vargs.pop("log_level"))
 
     if not args.config.exists():
         parser.error("Config file doesn't exist: " + str(args.config))

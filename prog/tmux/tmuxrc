@@ -27,6 +27,7 @@ set -g word-separators " =+!@#$%^&*,.<>/?;:\\|~`(){}[]\"'"           # Specify b
 set -g repeat-time 300                                               # Interval over which you can repeat a repeatable keypress
 set -g wrap-search off                                               # Don't jump back to the first search after going forward from the last search
 set -g pane-border-status off # top                                  # Don't show pane-status-format at the edge of each pane
+set -g scroll-on-clear on                                            # Scroll window to top before clearing so later history scrolling isn't truncated
 
 # Assign the TERM environment variable depending on the current
 # terminal. I'll add support for other true-color terms as I use

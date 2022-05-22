@@ -43,13 +43,33 @@ all: $(IMAGES)
 define docker_preprocess #(dockerfile)
 	gawk                                                                                        \
 	    -v INCLUDE_MATCH='^INCLUDE (.+)$$'                                                      \
+	    -v HEADER_WIDTH=100                                                                     \
+        -e '                                                                                    \
+	    function print_header(msg, width, _, msg_length, i) {                                   \
+	        msg_length = length(msg);                                                           \
+			if (msg_length + 4 >= width) {                                                      \
+                printf("# %s #\n", msg);                                                        \
+				return;                                                                         \
+			};                                                                                  \
+			padding = (width - msg_length - 2) / 2;                                             \
+			for (i = 0; i < padding; i++) {                                                     \
+				printf("#");                                                                    \
+            };                                                                                  \
+			printf(" %s ", msg);                                                                \
+			i += msg_length + 2;                                                                \
+			for (; i < width; i++) {                                                            \
+				printf("#");                                                                    \
+            };                                                                                  \
+			printf("\n");                                                                       \
+	    }'                                                                                      \
 	    -e '                                                                                    \
 	    function include(current_file, target, _, filename, dir, rc, a) {                       \
 	        if ((("dirname " current_file) | getline dir) == -1) {                              \
 	            print "error: failed to determine cwd for " current_file > /dev/stderr;         \
 	            exit 1;                                                                         \
 	        };                                                                                  \
-	        filename = dir "/" target;                                              \
+	        filename = dir "/" target;                                                          \
+	        print_header("Import " filename, HEADER_WIDTH);                                     \
 	        while (1) {                                                                         \
 	            rc = (getline line < filename);                                                 \
 	            if (rc == -1) {                                                                 \
@@ -67,7 +87,7 @@ define docker_preprocess #(dockerfile)
 	                print(line);                                                                \
 	            }                                                                               \
 	        }                                                                                   \
-	        next;                                                                               \
+	        print_header("Imported " filename, HEADER_WIDTH);                                   \
 	    }'                                                                                      \
 	    -e '                                                                                    \
 	    match($$0, INCLUDE_MATCH, a) {                                                          \
@@ -80,7 +100,8 @@ endef
 
 preview/%: %.docker
 	@echo "PCC $<"
-	$(call docker_preprocess,"$<")
+	$(call docker_preprocess,"$<") |            \
+	  preview -l dockerfile -
 
 %: %.docker
 	@echo "CC $<"
@@ -89,10 +110,10 @@ preview/%: %.docker
 	    if command -v sponge >/dev/null 2>&1; then          \
 	        sponge;                                         \
 	    else                                                \
-	        tmp=$(mktemp) || exit 1;                        \
+	        tmp=$$(mktemp) || exit 1;                       \
 	        trap 'rm '"$$tmp" EXIT;                         \
-	        cat > "$tmp";                                   \
-	        cat "$tmp";                                     \
+	        cat > "$$tmp";                                  \
+	        cat "$$tmp";                                    \
 	    fi |                                                \
 	(                                                       \
 	    cd ../../../;                                       \

@@ -611,7 +611,13 @@ EOF
     debug 'Installing packages with %s: %s' "$name" "$(_csv "$@")"
     local prog_args_arr pre_args_arr
     IFS=, read -r -a prog_args_arr <<< "$prog_args"
-    IFS=, read -r -a pre_args_arr <<< "$pre_args"
+    IFS=, read -r -a pre_args_arr  <<< "$pre_args"
+
+    if [ "${#pre_args_arr[@]}" -gt 0 ] \
+        && [ "${pre_args_arr[0]}" = sudo ] \
+        && [ "$EUID" -eq 0 ]; then
+        pre_args_arr=( "${pre_args_arr[@]:1}" )
+    fi
 
     local update_var="_pacman_${name}_update"
     if [ -n "$update_args" ] &&
