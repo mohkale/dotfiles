@@ -13,9 +13,20 @@ link -f                                                                 \
    win-ctrl/win-ctrl.plasma:"$XDG_CONFIG_HOME/win-ctrl/win-ctrl.plasma" \
    kwinrulesrc:"$XDG_CONFIG_HOME/kwinrulesrc"
 
-import -f xorg
+# Default to xorg if neither wayland nor xorg is supported.
+if ! bots wayland xorg; then
+  import -f xorg
+fi
 
 packages pacman:plasma-meta
+
+if bots wayland; then
+  packages pacman:plasma-wayland-session
+  case "$("$DOTFILES/bin/ls-graphics-card")" in
+    *nvidia*)
+      packages pacman:egl-wayland ;;
+  esac
+fi
 
 import -f                                       \
   dolphin                                       \

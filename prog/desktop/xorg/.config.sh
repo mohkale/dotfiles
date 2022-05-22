@@ -14,10 +14,7 @@ packages pip:notify-send
 if [ -e "$DOTFILES/setup/cache/arch" ]; then
   info 'Installing Graphics Drivers for Xorg'
 
-  graphics_card=$(lspci | grep -e VGA -e 3D |
-                    rev | cut -d: -f1 | rev |
-                    sed -e 's/^ *//' -e 's/ *$//' |
-                    tr '[:upper:]' '[:lower:]')
+  graphics_card=$("$DOTFILES/bin/ls-graphics-card")
 
   case "$graphics_card" in
     *intel*)

@@ -84,6 +84,8 @@ export \
   AUTOMATEDLAB_TELEMETRY_OPTOUT=1       \
   POWERSHELL_TELEMETRY_OPTOUT=1
 
+export XKB_DEFAULT_OPTIONS=caps:ctrl_modifier
+
 shell=
 if [ -n "$BASH_VERSION" ]; then
   shell=bash

@@ -7,14 +7,15 @@ import                                          \
 # Also installs some package managers such as pip or gem.
 import -b langs/*
 
+import                                          \
+  desktop
+
 import -b                                       \
   bat                                           \
   browsers/*                                    \
   buku                                          \
   cava                                          \
   cheat                                         \
-  desktop/login/sddm                            \
-  desktop/plasma                                \
   docker                                        \
   dolphin                                       \
   dropbox                                       \

@@ -36,6 +36,7 @@ link                                            \
   "$XDG_BIN_DIR/ls-exec"                        \
   "$XDG_BIN_DIR/ls-fsmaps"                      \
   "$XDG_BIN_DIR/ls-games"                       \
+  "$XDG_BIN_DIR/ls-graphics-card"               \
   "$XDG_BIN_DIR/ls-mount"                       \
   "$XDG_BIN_DIR/ls-platform"                    \
   "$XDG_BIN_DIR/ls-projects"                    \

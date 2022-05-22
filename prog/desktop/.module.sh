@@ -1,1 +1,6 @@
-import -b login/sddm plasma
+import -b                                       \
+  wayland                                       \
+  xorg                                          \
+  login/*                                       \
+  plasma                                        \
+  windows
