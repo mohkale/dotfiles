@@ -13,12 +13,14 @@ RUN apt-get update                              \
          gawk                                   \
          git                                    \
     && cd /root/.config/dotfiles                \
-    && ./manage install -b nvim                 \
+    && ./manage -l DEBUG install -b nvim        \
          ./core                                 \
          ./bin                                  \
+         ./prog/shells/bash                     \
          ./prog/bat                             \
          ./prog/editors/vim                     \
          ./prog/editors/nvim                    \
          ./prog/gdb                             \
+    || true                                     \
     && apt-get clean                            \
     && rm -rf /var/lib/apt/lists/* /tmp/*

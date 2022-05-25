@@ -1,0 +1,12 @@
+---
+session_name: jellyfin
+start_directory: ~/
+
+windows:
+  - window_name: daemon
+    panes:
+      - shell_command:
+          - jellydot="$DOTFILES/prog/media/jellyfin"
+          - cd "$jellydot" || exit 1
+          - trap 'cd "$jellydot"; docker-compose --file jellyfin.yml down' EXIT
+          - clear && docker-compose --file jellyfin.yml up

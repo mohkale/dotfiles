@@ -44,7 +44,9 @@ def torrent_path(root: pathlib.Path, hash_str: str) -> Optional[pathlib.Path]:
 
 
 @transmission.retry(5)
-def move_torrent(connection: transmission.Transmission, torrent_id: int, dest_dir: str):
+def move_torrent(
+    connection: transmission.Transmission, torrent_id: int, dest_dir: str
+):
     """Move a completed torrent to a new location."""
     resp = connection.command(
         "torrent-set-location", ids=torrent_id, move=True, location=dest_dir
@@ -66,7 +68,8 @@ def main(args):
 
     if not args.location.exists():
         logging.error(
-            "Unable to move completed torrent, source doesn't exist: %s", args.location
+            "Unable to move completed torrent, source doesn't exist: %s",
+            args.location,
         )
         return False
 
@@ -79,7 +82,9 @@ default incomplete directory: %s",
         return True
 
     logging.info("Determining path file for torrent with id: %s", str(args.id))
-    dest_path = args.default_dest  # the default path where completed torrents go.
+    dest_path = (
+        args.default_dest
+    )  # the default path where completed torrents go.
     new_path = torrent_path(args.watch_config.added, args.hash)
     if new_path is not None and new_path != pathlib.Path("."):
         dest_path = args.download_root / new_path
@@ -167,9 +172,9 @@ if __name__ == "__main__":
     try:
         from mohkale.pylog.config import use_config as use_logging_config
     except ImportError:
-        use_logging_config("on-complete", level=vargs.pop("log_level"))
-    else:
         logging.basicConfig(level=vargs.pop("log_level"))
+    else:
+        use_logging_config("on-complete", level=vargs.pop("log_level"))
 
     if not args.config.exists():
         parser.error("Config file doesn't exist: " + str(args.config))
@@ -185,7 +190,8 @@ if __name__ == "__main__":
     args.connection = transmission.Transmission.from_conf(args.config)
     if not args.connection.check():
         parser.error(
-            "Unable to connect to transmission daemon at: " + args.connection.url
+            "Unable to connect to transmission daemon at: "
+            + args.connection.url
         )
 
     args.incomplete_dir = pathlib.Path(args.config["download-dir"]).resolve()

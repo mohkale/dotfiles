@@ -6,54 +6,40 @@ fzf_dotty() {
                    --preview 'preview -l bash {1}'
                    --no-hscroll
                    --history "${XDG_STATE_HOME:-$HOME/.locale/state}"/fzf/history/dotty )
-  [ -z "$*" ] || fzf_args+=( -q "$*" )
+
+  read -r -d '' USAGE <<-EOF
+Usage: fzf_dotty [-h] [-a] QUERY
+EOF
+  read -r -d '' HELP <<-EOF
+$USAGE
+
+Optional arguments:
+  -h  Show this help message and exit
+  -a  Select from all dotty configs, not just modules
+EOF
+
+  local all=0
+  while getopts 'ha' OPTION; do
+    case "$OPTION" in
+      h) echo "$HELP"
+         return 0 ;;
+      a) all=1 ;;
+      \?) echo "$USAGE"
+          return 1 ;;
+    esac
+  done
+  shift $((OPTIND - 1))
+  [ -z "$*" ] || fzf_args+=( --query "$*" )
 
   local root="${DOTFILES:-${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles}"
-  local confs; confs=$("$root/manage" list-conf -a 2>/dev/null |
-    gawk -F / \
-         -v DOTFILES="$root" \
-         -e '
-# -*- mode: awk -*- Pretty print import paths excluding configuration script
-
-function sub_path(upto, suffix, res) {
-    if (upto <= 0) {
-        return ""
-    }
-
-    res = $1
-    for (i = 2; i <= upto; i++) {
-        res = res FS $i
-    }
-    if (res && suffix) res = res FS
-    return res
-}
-
-function color(path, basename) {
-    if (path) {
-        path = path FS
-    }
-    return path basename
-}
-
-{
-    abspath = $0
-    sub(DOTFILES "/", "", $0)
-
-    name = $0
-    if (match($NF, /.config.sh|dotty.sh/)) {
-        name = color(sub_path(NF-2), $(NF-1))
-    } else if (match($NF, /(.+).sh$/, mem)) {
-        basename = substr($NF, mem[1, "start"], mem[1, "length"])
-        name = color(sub_path(NF-1, 1), basename)
-    }
-
-    printf("%s:%s\n", abspath, name)
-    fflush(stdout)
-}
-
-' |
-    _mk_fzf "${fzf_args[@]}" |
-    cut -d: -f1)
+  local confs; confs=$(
+    if [ "$all" -eq 0 ]; then
+      "$root/setup/dotty-ls-modules"
+    else
+      "$root/setup/dotty-ls-imports"
+    fi |
+      _mk_fzf "${fzf_args[@]}" |
+      cut -d: -f1)
   [ -z "$confs" ] ||
     xargs -r -d '\n' -a <(echo "$confs") "$root/manage" install
 }

@@ -1,10 +1,14 @@
 import                                          \
   git                                           \
+  shells/bash                                   \
   info                                          \
   editors
 
 # Also installs some package managers such as pip or gem.
 import -b langs/*
+
+import                                          \
+  desktop
 
 import -b                                       \
   bat                                           \
@@ -12,8 +16,6 @@ import -b                                       \
   buku                                          \
   cava                                          \
   cheat                                         \
-  desktop/login/sddm                            \
-  desktop/plasma                                \
   docker                                        \
   dolphin                                       \
   dropbox                                       \
@@ -23,7 +25,6 @@ import -b                                       \
   gimp                                          \
   gotop                                         \
   hledger                                       \
-  hyper                                         \
   imv                                           \
   ipython                                       \
   konsole                                       \
@@ -36,6 +37,7 @@ import -b                                       \
   polybar                                       \
   ranger                                        \
   ripgrep                                       \
+  shells/*                                      \
   spectacle                                     \
   sxiv                                          \
   terminal/*                                    \

@@ -103,7 +103,12 @@ def which(program: str):
 
 # pylint: disable=too-many-arguments
 def nrwalk(
-    top, mindepth=0, maxdepth=sys.maxsize, dirfilter=None, filefilter=None, onerror=None
+    top,
+    mindepth=0,
+    maxdepth=sys.maxsize,
+    dirfilter=None,
+    filefilter=None,
+    onerror=None,
 ):
     """Non-recursive directory tree generator.
 
@@ -176,7 +181,9 @@ def nrwalk(
                 traversal_stack[len(traversal_stack) - 1].root,
                 traversal_stack[len(traversal_stack) - 1].dirs.pop(),
             )
-            traversal_stack.append(Dir_node(_new_root, *process_dir(_new_root)))
+            traversal_stack.append(
+                Dir_node(_new_root, *process_dir(_new_root))
+            )
             if len(traversal_stack) - 1 >= mindepth:
                 yield traversal_stack[len(traversal_stack) - 1]
         else:
@@ -276,7 +283,9 @@ class URL(object):
             self.target = os.path.realpath(os.path.abspath(self.url))
 
         if not self.mimetype:
-            self.mimetype = self._find_mimetype(self.url, self.protocol, self.target)
+            self.mimetype = self._find_mimetype(
+                self.url, self.protocol, self.target
+            )
 
     @staticmethod
     def _parse_protocol(url):
@@ -292,7 +301,10 @@ class URL(object):
         return "file", url
 
     # concreate mimetypes for application/octet-stream
-    app_mimetypes = {".chm": "application/x-chm", ".sdf": "application/x-spring-demo"}
+    app_mimetypes = {
+        ".chm": "application/x-chm",
+        ".sdf": "application/x-spring-demo",
+    }
 
     # mimetypes for specific URL protocols
     protocol_mimetypes = {
@@ -312,7 +324,8 @@ class URL(object):
                 mtype = mime.types_map.get(ext, None)
                 if not mtype:
                     logging.warning(
-                        "mimetypes could not determine mimetype" "from extension: %s",
+                        "mimetypes could not determine mimetype"
+                        "from extension: %s",
                         ext,
                     )
                 return mtype
@@ -322,12 +335,17 @@ class URL(object):
             if HAS_MAGIC:
                 magic_mtype = magic.from_file(target, mime=True)
                 if mtype != magic_mtype:
-                    logging.warning("-------- mimetypes differed from magic --------")
+                    logging.warning(
+                        "-------- mimetypes differed from magic --------"
+                    )
                     logging.warning("%s != %s", repr(mtype), repr(magic_mtype))
-                    logging.warning("-----------------------------------------------")
+                    logging.warning(
+                        "-----------------------------------------------"
+                    )
                 if not mtype and magic_mtype:
                     logging.debug(
-                        "Preffering magic type over missing mimetype: %s", mtype
+                        "Preffering magic type over missing mimetype: %s",
+                        mtype,
                     )
                     mtype = magic_mtype
 
@@ -347,7 +365,9 @@ class URL(object):
         mtype = mime.guess_type(url)
         if not mtype:
             mtype = "x-scheme-handler/" + protocol
-            logging.info("Defaulted protocol '%s' to mime type: '%s'", protocol, mtype)
+            logging.info(
+                "Defaulted protocol '%s' to mime type: '%s'", protocol, mtype
+            )
         return mtype
 
 
@@ -373,6 +393,7 @@ class DesktopFind(object):
         # quick and simple instance based hash.
         return hash(repr(self))
 
+    # pylint: disable=W1517
     @functools.lru_cache(maxsize=None)  # cache all mime lookups
     def get_file(self, *args, **kwargs):
         """Alias for `get_files' which returns the first desktop file found.
@@ -431,9 +452,7 @@ class DesktopFind(object):
         # Next try to find correct desktop file by parsing invidual desktop files
         logging.debug(
             "Find desktop file by search with key/value: %s",
-            repr(
-                (key, value),
-            ),
+            repr((key, value),),
         )
         for path in self.paths:
             for root, _, files in nrwalk(
@@ -522,19 +541,27 @@ class GenericOpener(object):
     def from_kwargs(cls, **kwargs):
         """Construct from a keyword argument dict using only the needed fields."""
         names = {f.name for f in dataclasses.fields(cls)}
-        return cls(**{key: value for key, value in kwargs.items() if key in names})
+        return cls(
+            **{key: value for key, value in kwargs.items() if key in names}
+        )
 
     def __post_init__(self):
         # enforce a default for the terminal options, uses the [[https://wiki.archlinux.org/index.php/I3#Terminal_emulator][i3]] config variable.
-        self.finder = DesktopFind(self.paths, self.list_files, self.search_order)
+        self.finder = DesktopFind(
+            self.paths, self.list_files, self.search_order
+        )
         self.terminal = self.terminal or os.environ.get("TERMINAL")
         if not self.terminal:
             logging.info("Trying to find terminal emulator from desktop files")
-            _, terminal_df = self.finder.get_file("Categories", "TerminalEmulator")
+            _, terminal_df = self.finder.get_file(
+                "Categories", "TerminalEmulator"
+            )
             self.terminal = terminal_df.get("Desktop Entry", {}).get(
                 "Exec", DEFAULT_TERM
             )
-        self._success = True  # whether we've sucesfully managed to open all URLs
+        self._success = (
+            True  # whether we've sucesfully managed to open all URLs
+        )
         self._desktop_map = {}  # maps found desktop files to the file contents
 
     def _process_urls(self, urls, on_fail):
@@ -546,14 +573,17 @@ class GenericOpener(object):
 
             if not url.mimetype:
                 logging.error(
-                    "Skipping url because no mimetype was found: %s", url.mimetype
+                    "Skipping url because no mimetype was found: %s",
+                    url.mimetype,
                 )
                 on_fail(url)
                 continue
 
             df_path, dfile = self.finder.get_file("MimeType", url.mimetype)
             if not dfile:
-                logging.error("Could not find desktop file for url: %s", url.url)
+                logging.error(
+                    "Could not find desktop file for url: %s", url.url
+                )
                 on_fail(url)
                 continue
 
@@ -597,7 +627,10 @@ class GenericOpener(object):
         URLs substituted with the empty string ''.
         """
         cmd = self.format_cmd(cmd, entry, entry_path)
-        if entry.get("Desktop Entry", {}).get("terminal", "").lower() == "true":
+        if (
+            entry.get("Desktop Entry", {}).get("terminal", "").lower()
+            == "true"
+        ):
 
             def transform(cmd):
                 return self.terminal + " -e " + cmd
@@ -612,7 +645,9 @@ class GenericOpener(object):
             # The spec states that if you want to run a command without any URLs
             # replace these flags with the empty string.
             yield transform(
-                functools.reduce(lambda ex, flag: ex.replace(flag, ""), url_flags, cmd)
+                functools.reduce(
+                    lambda ex, flag: ex.replace(flag, ""), url_flags, cmd
+                )
             )
             return []
 
@@ -629,11 +664,15 @@ class GenericOpener(object):
             # Each exec line can only take upto one URL, so substitute that URL
             # into cmd once for each URL.
             for url in urls:
-                yield transform(cmd.replace(specifier, shlex.quote(target(url))))
+                yield transform(
+                    cmd.replace(specifier, shlex.quote(target(url)))
+                )
         elif specifier in ("%F", "%U"):
             # WARN this might end up exceeding the command line limit, TODO test.
             yield transform(
-                cmd.replace(specifier, " ".join(shlex.quote(target(x)) for x in urls))
+                cmd.replace(
+                    specifier, " ".join(shlex.quote(target(x)) for x in urls)
+                )
             )
         else:
             # this exec string doesn't depend on any urls.
@@ -663,7 +702,9 @@ class GenericOpener(object):
         # Replace locale dependent name
         if cmd.find("%c") != -1:
             loc = locale.getlocale()[0]
-            name = de.get(f"Name[{loc}]", de.get(f"Name[{loc.partition('_')[0]}]", ""))
+            name = de.get(
+                f"Name[{loc}]", de.get(f"Name[{loc.partition('_')[0]}]", "")
+            )
             cmd = cmd.replace("%c", shlex.quote(name))
 
         # TODO: file name in URI form if not local (vholder?)
@@ -736,7 +777,9 @@ class Desktop(abc.ABC):
             logging.debug("Running command: %s", json.dumps(args))
             return subprocess.run(args).returncode == 0
 
-        logging.info("Failed to find url opener for desktop: %s", type(self).__name__)
+        logging.info(
+            "Failed to find url opener for desktop: %s", type(self).__name__
+        )
         if run_generic:
             logging.info("Running generic open command")
             return GenericOpener.from_kwargs(*self.args, **self.kwargs).open(
@@ -799,7 +842,10 @@ class KDE(Desktop):
 class Enlightenment(Desktop):
     def open(self, urls):
         return self.run_opener(
-            {"cmd": "enlightenment_open", "exec": ["enlightenment_open", *urls]}
+            {
+                "cmd": "enlightenment_open",
+                "exec": ["enlightenment_open", *urls],
+            }
         )
 
     @classmethod
@@ -811,7 +857,9 @@ class Enlightenment(Desktop):
 
 class Deepin(Desktop):
     def open(self, urls):
-        return self.run_opener({"cmd": "dde-open", "exec": ["dde-open", *urls]})
+        return self.run_opener(
+            {"cmd": "dde-open", "exec": ["dde-open", *urls]}
+        )
 
     @classmethod
     def is_current(cls) -> bool:
@@ -880,9 +928,7 @@ class XFCE(Desktop):
 
 class Darwin(Desktop):
     def open(self, urls):
-        return self.run_opener(
-            {"cmd": "open", "exec": ["open", *urls]},
-        )
+        return self.run_opener({"cmd": "open", "exec": ["open", *urls]},)
 
     @classmethod
     def is_current(cls) -> bool:
