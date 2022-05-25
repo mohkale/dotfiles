@@ -67,6 +67,7 @@ dce               docker-compose exec
 dcr               docker-compose run
 dcrr              docker-compose run --rm
 
-pj@dirx           /c/Projects
+pj@dirx           /mnt/c/Projects
+fai@dirx          ~/prog/repos/fai
 
 xgeometry         xdotool selectwindow getwindowgeometry
