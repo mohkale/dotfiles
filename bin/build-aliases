@@ -6,17 +6,21 @@ set -e
 
 print_usage() {
   # shellcheck disable=SC2016
-  echo 'Usage: eval "$(build-aliases [-1] [-c] [-e EDITOR] FILE [FILE...])"'
+  echo 'Usage: eval "$(build-aliases [-1] [-c] [-e EDITOR] FILE [FILES...])"'
 }
 
 print_help() {
   print_usage
   cat <<-EOF
 
+  Build alias declarations from plain-text alias files.
+
 Required Arguments:
   FILE       File from which to read alias declarations from
              each line should be an alias with the first word
              being the alias name and the rest the alias cmd.
+             Supply - to read file paths from stdin. Omit any
+             files to read alias declarations from stdin.
 
 Optional arguments:
   -1
@@ -26,6 +30,10 @@ Optional arguments:
   -c
     Save or print aliases from alias cache. Cache are generated
     based on the contents and order of the FILE argument/s.
+  -p
+    Output key-value pairs built from FILES instead of alias
+    declarations. The first column is the alias declaration and
+    the remaining entries are the alias value.
 EOF
 }
 
@@ -34,8 +42,9 @@ editor=${EDITOR:-vi}
 # generated aliases will be cached here.
 cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/aliases"
 cache=0
+print_plain=0
 
-while getopts 'h1e:c' option; do
+while getopts 'h1e:cp' option; do
   case "$option" in
     h) print_help
        exit 0 ;;
@@ -44,16 +53,28 @@ while getopts 'h1e:c' option; do
     1) inline=1 ;;
     e) editor=$OPTARG ;;
     c) cache=1 ;;
+    p) print_plain=1 ;;
   esac
 done
 shift $((OPTIND - 1))
 
+FILES=( )
+while [ "$#" -gt 0 ]; do
+  if [ "$1" = - ]; then
+    readarray -t -O "${#FILES[@]}" FILES
+  else
+    FILES+=( "$1" )
+  fi
+  shift
+done
+
 read_script() { #(*files)
-  sed -r \
-      -e ':x /\\$/ { N; s/\\\n//g ; bx }' \
-      -e 's/^\s*#.*$//'                   \
-      -e 's/^\s+//'                       \
-      -e '/^$/d'                          \
+  sed -r                                        \
+      -e ':x /\\$/ { N; s/\\\n//g ; bx }'       \
+      -e 's/^\s*#.*$//'                         \
+      -e 's/^\s+//'                             \
+      -e '/^$/d'                                \
+      -e 's/ +/ /'                              \
       -- "$@"
 
   # Join lines ending with a backslash together, then strip comments, entry
@@ -63,28 +84,45 @@ read_script() { #(*files)
   # The line joining program was a godsend from the [[https://www.gnu.org/software/sed/manual/html_node/Joining-lines.html][gnu sed]] manual.
 }
 
+if [ "$print_plain" -ne 0 ]; then
+  read_script "${FILES[@]}"
+  exit "$?"
+fi
+
+__build_aliases_plain() { echo "alias $1=$2"; }
+__build_aliases_@file() { echo "alias $1=$ed' '$2"; }
+# dir generates only a cd alias, dirx generates pushd as well.
+__build_aliases_@dir()  { echo "alias $1=cd' '$2"; }
+__build_aliases_@dirx() {
+  echo "alias $1=cd' '$2"
+  echo "alias q$1=pushd' '$2"
+}
+# ssh auto-prefixes the ssh command to the right hand side that
+# should be a host. sshx is a complete ssh command used as is.
+__build_aliases_@ssh()  { echo "alias $1=ssh' '$2"; }
+__build_aliases_@sshx() { __build_aliases_plain "$@"; }
+
 parse_aliases() {
   local ed; ed="$(printf %q "$editor")"
   # We replace separator with a null(like) byte so we can keep trailing
   # spaces in the alias (that's how bash/zsh decide to expand the alias
   # arguments).
-  local key dest
+  local key value
   sed 's/^\([^ ]\+\) *\(.\+\)$/\1\x01\2/' |
-    while IFS=$'\x01' read -r key dest; do
-      local cut=${key%@*}
-      local tag=${key:${#cut}}
-      cut=$(printf %q "$cut")
-      dest=$(printf %q "$dest")
-      # shellcheck disable=SC2086
-      case "$tag" in
-        @file) echo alias  ${cut}=${ed}"' '""${dest}" ;;
-        @dir)  echo alias  ${cut}="'cd '""${dest}" ;;
-        @dirx) echo alias  ${cut}="'cd '""${dest}"
-               echo alias q${cut}="'pushd '""${dest}" ;;
-        *) [ -n "$tag" ] && echo "warn: build-aliases: unknown alias tag: $tag"
-           echo alias ${cut}="${dest}"
-           ;;
-      esac
+    while IFS=$'\x01' read -r key value; do
+      local cut=${key%@*};      cut=$(printf %q "$cut")
+      local tag=${key:${#cut}}; value=$(printf %q "$value")
+
+      local tag_function=__build_aliases_plain
+      if [ -n "$tag" ]; then
+        local custom_tag_function=__build_aliases_"$tag"
+        if [ "$(type -t "$custom_tag_function")" = function ]; then
+          tag_function="$custom_tag_function"
+        else
+          echo "warn: build-aliases: unknown alias tag: $tag" >&2
+        fi
+      fi
+      "$tag_function" "$cut" "$value"
     done
 }
 
@@ -98,10 +136,12 @@ _inline_alias_calls() {
           -e 'END { printf "\n" }'
 }
 
-main() {
+print_aliases() {
   hash=$(md5sum <<< "$@")
-  cache_file=$cache_dir/"${hash/ -/}"
-  [ -d "$cache_dir" ] || \mkdir -p "$cache_dir"
+  cache_file=$cache_dir/"${hash/ *-/}"
+  # shellcheck disable=SC2174
+  [ -d "$cache_dir" ] ||
+    \mkdir --mode=700 -p "$cache_dir"
 
   {
     # When allowed to output from the cache file we first check it exists
@@ -112,7 +152,7 @@ main() {
       if [ -e "$cache_file" ]; then
         for file in "$@"; do
           if ! [ "$cache_file" -nt "$file" -a \
-                 "$cache_file" -nt "${XDG_BIN_DIR:-$HOME/.local/bin}/build-aliases" ]; then
+                               "$cache_file" -nt "${XDG_BIN_DIR:-$HOME/.local/bin}/build-aliases" ]; then
             read_cache=0
             break
           fi
@@ -121,26 +161,18 @@ main() {
         read_cache=0
       fi
     fi
+
     # Output cached aliases or create and then cache aliases.
     if [ "$read_cache" -eq 1 ]; then
       cat "$cache_file"
     else
-      read_script "$@" | parse_aliases |
+      read_script "$@" |
+        parse_aliases |
         if [ "$cache" -eq 1 ]; then tee "$cache_file"; else cat; fi
     fi
   } |
     if [ "$inline" -eq 1 ]; then _inline_alias_calls; else cat; fi
 }
 
-# Source [[https://stackoverflow.com/questions/2683279/how-to-detect-if-a-script-is-being-sourced][here]].
-if [ -n "$ZSH_EVAL_CONTEXT" ]; then
-  case $ZSH_EVAL_CONTEXT in *:file) sourced=1;; esac
-elif [ -n "$BASH_VERSION" ]; then
-  (return 0 2>/dev/null) && sourced=1
-else # All other shells: examine $0 for known shell binary filenames
-  # Detects `sh` and `dash`; add additional shell filenames as needed.
-  case ${0##*/} in sh|dash) sourced=1;; esac
-fi
 
-# Run main only when the current script isn't being sourced
-if [ "${sourced:-0}" -eq 0 ]; then main "$@"; fi
+print_aliases "${FILES[@]}"

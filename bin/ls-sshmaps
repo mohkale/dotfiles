@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Echo out aliases that're tagged as ssh aliases alongside the commands
+# they would run.
+
+ls-aliases |
+  build-aliases -p - |
+  awk \
+    -v sep=":" \
+    -e 'function rest(result) {
+  for (i=2; i <= NF; i++) {
+    if (i != 2) { result = result FS }
+    result = result $i
+  }
+  return result
+}' \
+    -e 'match($1, /(.+)@ssh$/, arr) {
+  printf("%s" sep "%s\n", arr[1], "ssh " rest())
+}' \
+    -e 'match($1, /(.+)@sshx$/, arr) {
+  printf("%s" sep "%s\n", arr[1], rest())
+}'

@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Interactively select an ssh alias and run it.
+
+fzf_ssh() {
+  local fzf_args=( -d ' ' --with-nth 1
+                   --history "${XDG_STATE_HOME:-$HOME/.locale/state}"/fzf/history/ssh
+                   --preview 'echo {2..} | preview -l bash -'
+                   --preview-window=down:1 )
+  [ -z "$*" ] || fzf_args+=( -q "$*" )
+
+  local cmd
+  cmd=$(ls-sshmaps |
+          sed 's/:/ /' |
+          _mk_fzf "${fzf_args[@]}" |
+          cut -d ' ' -f 2-)
+  if [ -n "$cmd" ]; then
+    $cmd
+  fi
+}
