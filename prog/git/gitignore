@@ -148,6 +148,10 @@ netrwhist
 *.la
 *.a
 
+# Emacs Lisp
+*.elc
+.cask/
+
 # Latex
 *.acn
 *.acr

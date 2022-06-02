@@ -61,7 +61,13 @@ with tempfile.NamedTemporaryFile(suffix=".yml") as file_fd:  # Will be deleted o
         print("error: torvipe: Failed to run editor on torvipe index", file=sys.stderr)
         sys.exit(1)
 
-    data = yaml.load(file_fd, Loader=yaml.SafeLoader)
+    contents = file_fd.read()
+    try:
+        data = yaml.load(contents, Loader=yaml.SafeLoader)
+    except yaml.YAMLError:
+        print('error: torvipe: Failed to load torvipe index:', file=sys.stderr)
+        print(contents.decode('utf-8'), file=sys.stderr)
+        sys.exit(1)
     for item in recurse_data(data):
         magnet_link = item[-1]
         magnet_path = pathlib.Path(*item[:-1])

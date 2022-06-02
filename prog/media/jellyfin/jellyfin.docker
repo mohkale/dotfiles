@@ -4,9 +4,9 @@ FROM jellyfin/jellyfin
 COPY fail2ban-jail.conf /etc/fail2ban/jail.d/jellyfin.local
 COPY fail2ban-filter.conf /etc/fail2ban/filter.d/jellyfin.conf
 
-RUN apt-get update && \
-    apt-get install -y fail2ban && \
-    touch /var/log/auth.log \
-    service fail2ban start \
-    apt-get clean && \
+RUN apt-get update &&                           \
+    apt-get install -y fail2ban &&              \
+    touch /var/log/auth.log                     \
+    service fail2ban start                      \
+    apt-get clean &&                            \
     rm -rf /var/lib/apt/lists/*

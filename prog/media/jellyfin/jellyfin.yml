@@ -8,17 +8,28 @@ services:
     container_name: jellyfin
     network_mode: host
     volumes:
-      - cache:/cache
-      - config:/config
-      # Downloads folders often contain new files
-      - $XDG_DOWNLOAD_DIR:/media/downloads:ro
-      # Media directory volume mounts
-      - $XDG_MUSIC_DIR:/media/music:ro
-      - $XDG_VIDEOS_DIR/movies:/media/movies:ro
-      - $XDG_VIDEOS_DIR/tv:/media/tv:ro
-      - $HOME/media/manga:/media/manga:ro
+      - $XDG_CACHE_HOME/jellyfin:/cache
+      - $XDG_CONFIG_HOME/jellyfin:/config
+      # Downloads folders often contain new media before I back them up.
+      - ${JELLYFIN_SKIP_DOWNLOAD:-$XDG_DOWNLOAD_DIR}:/media/downloads:ro
+      # Dedicated home level directories for media files. I often symlink
+      # these into a larger main drive, but docker-compose will fail to
+      # startup if that drive isn't mounted so here we silently ignore
+      # them.
+      - ${JELLYFIN_SKIP_MUSIC:-$XDG_MUSIC_DIR}:/media/music:ro
+      - ${JELLYFIN_SKIP_MOVIES:-$XDG_VIDEOS_DIR/movies}:/media/movies:ro
+      - ${JELLYFIN_SKIP_TV:-$XDG_VIDEOS_DIR/tv}:/media/tv:ro
+      - ${JELLYFIN_SKIP_MANGA:-$HOME/media/manga}:/media/manga:ro
+      # This directory is the dedicated mount root for media related drives.
+      - /mnt/media:/media/mount:ro
     restart: unless-stopped
-
-volumes:
-  config:
-  cache:
+    # Enable access to relevent hardware devices to speed-up transcoding and
+    # playback.
+    devices:
+      - /dev/dri:/dev/dri
+    # Provide direct GPU access... only supported on [[https://github.com/docker/cli/issues/2063][nvidia]] hardware atm.
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - capabilities: [gpu]

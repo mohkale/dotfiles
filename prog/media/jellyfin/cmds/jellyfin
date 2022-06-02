@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-
-set -e
-cd "$(dirname "$(readlink "$0")")/../" || exit 1
-docker-compose --file jellyfin.yml up --detach
-xopen "http://127.0.0.10:8096"
