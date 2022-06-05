@@ -1,6 +1,7 @@
 .github/
 core/walls/
 core/fonts/
+core/walls/
 core/images/
 !core/images/profile.svg
 core/banners/*

@@ -68,3 +68,9 @@ dcr               docker-compose run
 dcrr              docker-compose run --rm
 
 xgeometry         xdotool selectwindow getwindowgeometry
+
+ag                apt-get
+agu               apt-get update
+ags               apt-cache search
+agq               apt-cache show
+agd               apt-get build-dep

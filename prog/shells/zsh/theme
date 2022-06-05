@@ -163,7 +163,7 @@ prompt_git() {
 
 prompt_root() {
   if [ "$EUID" -eq 0 ]; then
-    print -n '%F{yellow}%B'""'%b'
+    print -n '%F{yellow}%B%b'
   fi
 }
 
@@ -374,3 +374,4 @@ add-zsh-hook precmd prompt_precmd
 
 PS1=$DEFAULT_PROMPT
 RPS1=$DEFAULT_PROMPT_RHS
+ZLE_RPROMPT_INDENT=0                                                            # Remove trailing indent on prompt (exists for legacy [[https://superuser.com/questions/655607/removing-the-useless-space-at-the-end-of-the-right-prompt-of-zsh-rprompt][terminals]]).

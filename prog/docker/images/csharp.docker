@@ -1,7 +1,5 @@
 FROM mcr.microsoft.com/dotnet/sdk:6.0
 
-INCLUDE dotfiles.skeleton
-
 ENV PATH="${PATH}:/root/.dotnet/tools/"
 
 RUN apt-get update                              \
@@ -24,3 +22,5 @@ RUN cd /tmp                                                                     
     && rm omnisharp-linux-x64.tar.gz                                                                                  \
     && echo -e '#!/bin/sh\nexec /usr/run "$@"' > /usr/bin/omnisharp                                                   \
     && chmod +x /usr/bin/omnisharp
+
+INCLUDE dotfiles.skeleton
