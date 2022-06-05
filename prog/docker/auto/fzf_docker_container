@@ -18,7 +18,12 @@ Optional arguments:
 EOF
 
   local cmd='bash -li'
-  local args=( exec --interactive --tty )
+  local args=(
+    exec --interactive --tty
+    --env COLUMNS="$(tput cols)"
+    --env LINES="$(tput lines)"
+    --env TERM=xterm-256color
+  )
   while getopts 'hc:' OPTION; do
     case "$OPTION" in
       h) echo "$HELP"

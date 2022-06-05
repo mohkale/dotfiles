@@ -71,3 +71,9 @@ pj@dirx           /mnt/c/Projects
 fai@dirx          ~/prog/repos/fai
 
 xgeometry         xdotool selectwindow getwindowgeometry
+
+ag                apt-get
+agu               apt-get update
+ags               apt-cache search
+agq               apt-cache show
+agd               apt-get build-dep

@@ -23,7 +23,10 @@ import transmission_watcher
 try:
     import yaml
 except ImportError:
-    print("error: torvipe: Script requires pyyaml to be installed", file=sys.stderr)
+    print(
+        "error: torvipe: Script requires pyyaml to be installed",
+        file=sys.stderr,
+    )
     sys.exit(1)
 
 
@@ -54,19 +57,37 @@ if not connection.check():
 with open(transmission_watcher.WATCHER_FILE, "r") as watcher_config:
     watcher = transmission_watcher.WatcherConfig(json.load(watcher_config))
 
-with tempfile.NamedTemporaryFile(suffix=".yml") as file_fd:  # Will be deleted on close.
+with tempfile.NamedTemporaryFile(
+    suffix=".yml"
+) as file_fd:  # Will be deleted on close.
     file = file_fd.name
 
-    if subprocess.call([os.getenv("VISUAL", os.getenv("EDITOR", "vim")), file]) != 0:
-        print("error: torvipe: Failed to run editor on torvipe index", file=sys.stderr)
+    if (
+        subprocess.call(
+            [os.getenv("VISUAL", os.getenv("EDITOR", "vim")), file]
+        )
+        != 0
+    ):
+        print(
+            "error: torvipe: Failed to run editor on torvipe index",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
-    data = yaml.load(file_fd, Loader=yaml.SafeLoader)
+    contents = file_fd.read()
+    try:
+        data = yaml.load(contents, Loader=yaml.SafeLoader)
+    except yaml.YAMLError:
+        print("error: torvipe: Failed to load torvipe index:", file=sys.stderr)
+        print(contents.decode("utf-8"), file=sys.stderr)
+        sys.exit(1)
     for item in recurse_data(data):
         magnet_link = item[-1]
         magnet_path = pathlib.Path(*item[:-1])
 
-        literal_path, overrides = watcher.calc_overrides(magnet_path / "torvipe.magnet")
+        literal_path, overrides = watcher.calc_overrides(
+            magnet_path / "torvipe.magnet"
+        )
         try:
             hash_str = transmission_watcher.add_torrent(
                 connection, magnet_link, overrides
@@ -77,7 +98,9 @@ with tempfile.NamedTemporaryFile(suffix=".yml") as file_fd:  # Will be deleted o
                 file=sys.stderr,
             )
             continue
-        magnet_added_path = watcher.added / literal_path.parent / (hash_str + ".magnet")
+        magnet_added_path = (
+            watcher.added / literal_path.parent / (hash_str + ".magnet")
+        )
         magnet_added_path.parent.mkdir(parents=True, exist_ok=True)
         with magnet_added_path.open("w") as magnet_file:
             magnet_file.write(magnet_link)

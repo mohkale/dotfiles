@@ -12,9 +12,8 @@ import shutil
 import time
 from pathlib import Path
 
+from lib.shared import print_loop, render_loop
 from mohkale import hurry
-
-from shared import print_loop, render_loop
 
 DEFAULT_CONFIG = ["/:/"]
 DEFAULT_CONFIG_PATH = Path(os.path.expandvars("$TMUX_HOME/disk-free.conf"))
@@ -150,7 +149,10 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "-m", "--mount-style", default="", help="Specify style for mount points"
+        "-m",
+        "--mount-style",
+        default="",
+        help="Specify style for mount points",
     )
     parser.add_argument(
         "-r",
@@ -159,7 +161,10 @@ if __name__ == "__main__":
         help="Specify style for resetting styles",
     )
     parser.add_argument(
-        "-v", "--value-style", default="", help="Specify style for value points"
+        "-v",
+        "--value-style",
+        default="",
+        help="Specify style for value points",
     )
     parser.add_argument(
         "-t",

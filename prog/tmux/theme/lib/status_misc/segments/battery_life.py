@@ -1,8 +1,10 @@
 """Status misc segment for showing battery level information."""
+# pylint: disable=no-member
+
 import logging
 import math
 
-from .base import StatusMiscSegment
+from ..segment import StatusMiscSegment
 
 
 class BatteryLifeSegment(StatusMiscSegment):
@@ -18,11 +20,11 @@ class BatteryLifeSegment(StatusMiscSegment):
             reverse=True,
         )
 
-    # pylint: disable=no-member
-
     @classmethod
     def parser_args(cls, parser):
         battery_group = parser.add_argument_group("Battery Life")
+        super().parser_args(battery_group)
+
         battery_group.add_argument(
             f"--{cls.name}-level",
             default=("E", "H", "F"),
@@ -90,13 +92,15 @@ class BatteryLifeSegment(StatusMiscSegment):
     @staticmethod
     def _battery_sensors():
         try:
+            logging.debug("Trying to import psutil")
             import psutil
         except ImportError:
-            logging.warning("Failed to import psutil")
+            logging.exception("Failed to import psutil")
             return None
         try:
             return psutil.sensors_battery()
         except NameError:
+            logging.error("Could not access battery sensors")
             return None
 
     def _format_hearts(self, batt):
@@ -142,7 +146,7 @@ class BatteryLifeSegment(StatusMiscSegment):
             duration = f"{minutes:02d}:{seconds:02d} M"
         else:
             duration = f"{seconds:02d} S"
-        return self._style(duration, duration_style)
+        return self._style(duration, self.duration_style)
 
     def _format_alert(self, batt):
         return self._style(self.alert, self.alert_style)

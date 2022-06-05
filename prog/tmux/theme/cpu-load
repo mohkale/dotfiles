@@ -7,7 +7,7 @@ status-line.
 
 import sys
 
-from shared import print_loop, render_loop
+from lib.shared import print_loop, render_loop
 
 try:
     import psutil
@@ -55,7 +55,10 @@ if __name__ == "__main__":
         help="Specify style thresholds",
     )
     parser.add_argument(
-        "-j", "--join", default=" ", help="Specify character to join CPU indicators"
+        "-j",
+        "--join",
+        default=" ",
+        help="Specify character to join CPU indicators",
     )
 
     parser.add_argument(
