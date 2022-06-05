@@ -9,3 +9,4 @@ from .mullvad_vpn  import MullvadVPNSegment
 from .notmuch      import NotMuchSegment
 from .transmission import TransmissionNotificationSegment
 from .battery_life import BatteryLifeSegment
+from .docker       import DockerSegment
