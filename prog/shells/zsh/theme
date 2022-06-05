@@ -1,28 +1,46 @@
-# -*- mode: sh -*- my zshell theme.
+# My Z-Shell Theme -*- mode: sh -*-
+#
+# This source file defines the look and feel of my custom Z-Shell environment
+# including the colors of any syntax highlighting plugin and my custom Z-Shell
+# prompt.
+#
+# I try to keep my prompt divided into left and right sections. The left section
+# dynamically updates throughout the lifetime of the shell using asynchronous
+# background jobs. The right hand is where easy to calculate or relatively static
+# indicators (such as a docker icon) will be placed.
 
 # Syntax highlighting.
-typeset -A ZSH_HIGHLIGHT_STYLES
+typeset -A                                      \
+  ZSH_HIGHLIGHT_STYLES                          \
+  FAST_HIGHLIGHT_STYLES
 ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets cursor)
-ZSH_HIGHLIGHT_STYLES[unknown-token]='fg=red'                                    # errors and warnings
-ZSH_HIGHLIGHT_STYLES[reserved-word]='fg=blue'                                   # builtins and syntax specific stuff
-ZSH_HIGHLIGHT_STYLES[builtin]='fg=blue'
-ZSH_HIGHLIGHT_STYLES[named-fd]='fg=blue'
-ZSH_HIGHLIGHT_STYLES[numeric-fd]='fg=yellow'
-ZSH_HIGHLIGHT_STYLES[named-fd]='fg=yellow'
-ZSH_HIGHLIGHT_STYLES[precommand]="fg=blue"
-ZSH_HIGHLIGHT_STYLES[assign]="fg=yellow"
-ZSH_HIGHLIGHT_STYLES[path]="none"
-ZSH_HIGHLIGHT_STYLES[suffix-alias]="fg=green"
-ZSH_HIGHLIGHT_STYLES[global-alias]="fg=green"                                   # Misc
-ZSH_HIGHLIGHT_STYLES[autodirectory]="fg=green"
-ZSH_HIGHLIGHT_STYLES[single-quoted-argument]="fg=blue"                          # color for quoted arguments/bodies
-ZSH_HIGHLIGHT_STYLES[dollar-quoted-argument]="fg=blue"
-ZSH_HIGHLIGHT_STYLES[double-quoted-argument]="fg=blue"
-ZSH_HIGHLIGHT_STYLES[single-quoted-argument-unclosed]="fg=black,bold"
-ZSH_HIGHLIGHT_STYLES[double-quoted-argument-unclosed]="fg=black,bold"
-ZSH_HIGHLIGHT_STYLES[dollar-quoted-argument-unclosed]="fg=black,bold"
-ZSH_HIGHLIGHT_STYLES[back-double-quoted-argument]="fg=cyan"
-ZSH_HIGHLIGHT_STYLES[back-dollar-quoted-argument]="fg=cyan"
+FAST_HIGHLIGHT_HIGHLIGHTERS=( "${ZSH_HIGHLIGHT_HIGHLIGHTERS[@]}" )
+for it in ZSH_HIGHLIGHT FAST_HIGHLIGHT; do
+  declare "${it}_STYLES[unknown-token]=fg=red"                                    # errors and warnings
+  declare "${it}_STYLES[reserved-word]=fg=blue"                                   # builtins and syntax specific stuff
+  declare "${it}_STYLES[builtin]=fg=blue"
+  declare "${it}_STYLES[named-fd]=fg=blue"
+  declare "${it}_STYLES[numeric-fd]=fg=yellow"
+  declare "${it}_STYLES[named-fd]=fg=yellow"
+  declare "${it}_STYLES[precommand]=fg=blue"
+  declare "${it}_STYLES[assign]=fg=yellow"
+  declare "${it}_STYLES[path]=none"
+  declare "${it}_STYLES[path-to-dir]=fg=yellow"
+  declare "${it}_STYLES[suffix-alias]=fg=green"
+  declare "${it}_STYLES[global-alias]=fg=green"                                   # Misc
+  declare "${it}_STYLES[autodirectory]=fg=green"
+  declare "${it}_STYLES[single-quoted-argument]=fg=blue"                          # color for quoted arguments/bodies
+  declare "${it}_STYLES[dollar-quoted-argument]=fg=blue"
+  declare "${it}_STYLES[double-quoted-argument]=fg=blue"
+  declare "${it}_STYLES[single-quoted-argument-unclosed]=fg=black,bold"
+  declare "${it}_STYLES[double-quoted-argument-unclosed]=fg=black,bold"
+  declare "${it}_STYLES[dollar-quoted-argument-unclosed]=fg=black,bold"
+  declare "${it}_STYLES[back-double-quoted-argument]=fg=cyan"
+  declare "${it}_STYLES[back-dollar-quoted-argument]=fg=cyan"
+  declare "${it}_STYLES[globbing]=bold"
+  declare "${it}_STYLES[single-hyphen-option]=none"
+  declare "${it}_STYLES[double-hyphen-option]=none"
+done
 
 ## Z-line-editor highlights
 zle_highlight=(  )
@@ -58,7 +76,9 @@ function prompt::exists() {
 }
 
 function prompt::project_root() {
-  "$1" && cd -q "$1"
+  if [ -n "$1" ]; then
+     cd -q "$1" || return 1
+  fi
   git rev-parse --show-toplevel 2>/dev/null
 }
 
@@ -134,7 +154,7 @@ prompt_git_status() {
 
 # see [[https://github.com/denysdovhan/spaceship-prompt/blob/master/sections/git_status.zsh][spaceship-prompt/git-status]].
 prompt_git() {
-  cd -q "$1"
+  cd -q "$1" || return
   git rev-parse --is-inside-work-tree >/dev/null 2>&1 || return
 
   prompt_git_branch
@@ -147,9 +167,16 @@ prompt_root() {
   fi
 }
 
+prompt_docker() {
+  if [ -e /.dockerenv ]; then
+    print -n '%F{blue} %b'
+  fi
+}
+
+
 # see [[https://github.com/denysdovhan/spaceship-prompt/blob/master/sections/node.zsh][spaceship-prompt/node]].
 prompt_node() {
-  cd -q "$1"
+  cd -q "$1" || return
   # only show the prompt section in node projects
   [ -f "package.json" -o -d node_modules ] || return
 
@@ -171,7 +198,7 @@ prompt_node() {
 
 # see [[https://github.com/denysdovhan/spaceship-prompt/blob/master/sections/golang.zsh#L34][spaceship-prompt/golang]].
 prompt_golang() {
-  cd -q "$1"
+  cd -q "$1" || return
   [[ -f go.mod || -d Godeps || -f glide.yaml || -f Gopkg.toml || -f Gopkg.lock \
        || ( $GOPATH && "$PWD/" =~ "$GOPATH/" ) ]] || return
 
@@ -190,7 +217,7 @@ prompt_golang() {
 
 # see [[https://github.com/denysdovhan/spaceship-prompt/blob/master/sections/pyenv.zsh][spaceship-prompt/pyenv]].
 prompt_python() {
-  cd -q "$1"
+  cd -q "$1" || return
 
   local py_exec='python'
   if [ -n "$PIPENV_ACTIVE" -o -f "Pipfile" -o -f "Pipfile.lock" ] && prompt::exists pipenv; then
@@ -209,7 +236,7 @@ prompt_python() {
 
 # see [[https://github.com/denysdovhan/spaceship-prompt/blob/master/sections/ruby.zsh][spaceship-prompt/ruby]].
 prompt_ruby() {
-  cd -q "$1"
+  cd -q "$1" || return
   [ -f Gemfile -o -f Rakefile ] || return
 
   local ruby_version
@@ -237,7 +264,7 @@ prompt_ruby() {
 }
 
 prompt_rust() {
-    cd -q "$1"
+    cd -q "$1" || return 1
     [ -f "Cargo.lock" -o -f "Cargo.toml" ] || return
 
     local rust_version=
@@ -281,17 +308,23 @@ prompt_join() {
 }
 
 prompt_refresh() {
-  local data_rendered=$(prompt_join                      \
-                          "$prompt_data[prompt_root]"    \
-                          "$prompt_data[prompt_git]"     \
-                          "$prompt_data[prompt_node]"    \
-                          "$prompt_data[prompt_golang]"  \
-                          "$prompt_data[prompt_ruby]"    \
-                          "$prompt_data[prompt_python]"  \
-                          "$prompt_data[prompt_rust]"    \
-        )
-  PS1="${data_rendered}$DEFAULT_PROMPT"
-  RPS1="${prompt_data[prompt_exit]}$DEFAULT_PROMPT_RHS"
+  local left_rendered right_rendered
+  left_rendered=$(prompt_join                       \
+                    "${prompt_data[prompt_root]}"   \
+                    "${prompt_data[prompt_git]}"    \
+                    "${prompt_data[prompt_node]}"   \
+                    "${prompt_data[prompt_golang]}" \
+                    "${prompt_data[prompt_ruby]}"   \
+                    "${prompt_data[prompt_python]}" \
+                    "${prompt_data[prompt_rust]}"   \
+               )
+
+  right_rendered=$(prompt_join                       \
+                     "${prompt_data[prompt_docker]}"  \
+                )
+
+  PS1="${left_rendered}$DEFAULT_PROMPT"
+  RPS1="${prompt_data[prompt_exit]}$right_rendered$DEFAULT_PROMPT_RHS"
 
   zle && zle .reset-prompt # Trigger prompt redraw after update
 }
@@ -328,6 +361,7 @@ prompt_precmd() {
   local prompt_last_exit=$?
   root=$(prompt::project_root "$PWD")
   async_job 'prompt' prompt_root
+  async_job 'prompt' prompt_docker
   async_job 'prompt' prompt_git "$PWD"
   async_job 'prompt' prompt_node "${root:-$PWD}"
   async_job 'prompt' prompt_golang "${root:-$PWD}"
