@@ -7,7 +7,7 @@ status-line.
 
 import sys
 
-from shared import print_loop, render_loop
+from lib.shared import print_loop, render_loop
 
 try:
     import psutil

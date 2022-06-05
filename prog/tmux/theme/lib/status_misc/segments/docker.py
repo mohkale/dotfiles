@@ -11,13 +11,16 @@ another status outputted of the form XX+YY/ZZ. If you configure docker to show
 containers with all statuses or the sum of all the statuses that were printed,
 then summary count will be ommited.
 """
+# pylint: disable=no-member
+
 import argparse
 import enum
+import logging
 import subprocess
 from collections import Counter
 from distutils.spawn import find_executable as which
 
-from .base import StatusMiscSegment
+from ..segment import StatusMiscSegment
 
 
 class DockerStatus(enum.Enum):
@@ -35,6 +38,7 @@ class DockerSegment(StatusMiscSegment):
     """Status line segment showing number of running docker containers."""
 
     name = "docker"
+    sleep_time = 30
 
     def __init__(self, args) -> None:
         if not args.docker_statuses:
@@ -60,11 +64,13 @@ class DockerSegment(StatusMiscSegment):
     @classmethod
     def parser_args(cls, parser: argparse.ArgumentParser) -> None:
         docker_group = parser.add_argument_group("Docker Containers")
+        super().parser_args(docker_group)
+
         docker_group.add_argument(
             f"--{cls.name}-icon",
             default="D",
             metavar="ICON",
-            help="Icon shown to indicate notmuch status.",
+            help="Icon shown to indicate docker status.",
         )
         docker_group.add_argument(
             f"--{cls.name}-icon-style",
@@ -110,8 +116,10 @@ class DockerSegment(StatusMiscSegment):
         )
 
     def render(self) -> str:
-        # pylint: disable=no-member
         if not which("docker"):
+            logging.debug(
+                "Skipping segment=%s because docker is not installed.", self.name
+            )
             return None
         proc = subprocess.run(
             ["docker", "ps", "--all", "--format", "{{.State}}"],
@@ -120,6 +128,9 @@ class DockerSegment(StatusMiscSegment):
             encoding="ascii",
         )
         if proc.returncode != 0:
+            logging.debug(
+                "Warning failed to run docker process for segment=%s", self.name
+            )
             return None
         counts = Counter(it for it in proc.stdout.split("\n") if it)
         count_total = sum(counts.values())

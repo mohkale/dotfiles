@@ -1,8 +1,9 @@
 """Status misc segment for MPD status."""
+# pylint: disable=no-member
 
 import logging
 
-from .base import StatusMiscSegment
+from ..segment import StatusMiscSegment
 
 
 class MPDSegment(StatusMiscSegment):
@@ -11,6 +12,8 @@ class MPDSegment(StatusMiscSegment):
     @classmethod
     def parser_args(cls, parser):
         mpd_group = parser.add_argument_group("Music Player Daemon")
+        super().parser_args(mpd_group)
+
         mpd_group.add_argument(
             f"--{cls.name}-icon",
             default="M",
@@ -40,6 +43,7 @@ class MPDSegment(StatusMiscSegment):
     def _status(self):
         # We always need to have mpd imported, so we can catch errors.
         try:
+            logging.debug("Loading mpd")
             import mpd
         except ImportError:
             logging.warning("Failed to import mpd")

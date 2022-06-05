@@ -1,98 +1,127 @@
 #!/usr/bin/env python3
 """
-Misc sections for my tmux status-line. Here I throw in any status-line elements
-I haven't created any dedicated scripts for (... yet).
+tmux status line segment for various miscellaneous segments that could be
+incorporated into their own scripts but are kept together for simplicity
+or experimentation.
 """
 
-# TODO: Support custom intervals for each section.
+import argparse
+import asyncio
+import logging
+import sys
+from typing import Optional
 
-from misc_segments import StatusMiscSegment
-from shared import print_loop, render_loop
+from lib.shared import async_print_loop
+from lib.status_misc import StatusMiscSegment
 
 
-def status_misc(args):
-    """Closure around args continually outputting meta-segments."""
-    statuses = [x.render for x in args.enable]
+async def main(args: argparse.Namespace) -> None:
+    """Run status-misc."""
+    status_lock = asyncio.Lock()
+    change_event = asyncio.Event()
+    statuses = [None] * len(args.enabled)
+    value_ptr = [""]
 
-    def wrapped():
-        msgs = []
-        for x in statuses:
-            # pylint: disable=unused-variable
-            try:
-                msgs.append(x())
-            except Exception as e:  # pylint: disable=broad-except
-                # print(e)
-                continue
-        msgs = [x for x in msgs if x]
-        if msgs:
-            return args.sep.join(msgs) + args.suffix
-        return ""
+    tasks = []
+    for i, segment in enumerate(args.enabled):
+        logging.info("Activating segment %s", segment.name)
 
-    return wrapped
+        # This needs to be wrapped because i is a cell-variable.
+        def segment_callback(i: int):
+            async def implementation(result: Optional[str]) -> None:
+                async with status_lock:
+                    if statuses[i] != result:
+                        logging.debug(
+                            "Updating value of segment=%s to value=%s",
+                            args.enabled[i].name,
+                            repr(result),
+                        )
+                        statuses[i] = result
+                        line = args.sep.join(msg for msg in statuses if msg)
+                        if line:
+                            line = line + args.suffix
+                        value_ptr[0] = line
+                        change_event.set()
+
+            return implementation
+
+        asyncio.create_task(segment.run(segment_callback(i)))
+
+    # This is safe because we technically have a lock on statuses until the
+    # `print_loop` blocks and returns control to the async runtime.
+    await asyncio.create_task(async_print_loop(value_ptr, change_event, args.unbuffer))
+
+    for task in tasks:
+        task.cancel()
 
 
 if __name__ == "__main__":
-    import argparse
-
-    parser = argparse.ArgumentParser()
-
     SEGMENTS = {x.name: x for x in StatusMiscSegment.__subclasses__()}
 
-    parser.add_argument(
-        "--suffix", metavar="FORMAT", default="", help="Suffix output with FORMAT."
-    )
+    def parse_args() -> argparse.Namespace:
+        """Parse command line arguments."""
+        parser = argparse.ArgumentParser()
+        parser.add_argument(
+            "--suffix", metavar="FORMAT", default="", help="Suffix output with FORMAT."
+        )
 
-    # NOTE: The orders of these determines order in output.
-    parser.add_argument(
-        "--enable",
-        metavar="SEGMENT",
-        action="append",
-        default=[],
-        help="Enable a segment, one of: " + ", ".join(SEGMENTS.keys()),
-    )
+        # NOTE: The orders of these determines order in output.
+        parser.add_argument(
+            "--enable",
+            metavar="SEGMENT",
+            action="append",
+            default=[],
+            dest="enabled",
+            help="Enable a segment, one of: " + ", ".join(SEGMENTS.keys()),
+        )
 
-    parser.add_argument(
-        "--disable",
-        metavar="SEGMENT",
-        help="Disable a segment, one of those from --enable.",
-    )
+        parser.add_argument(
+            "--log-level",
+            metavar="LEVEL",
+            type=lambda x: getattr(logging, x.upper()),
+            default=logging.FATAL,
+        )
 
-    parser.add_argument(
-        "--sep",
-        metavar="STRING",
-        default=" ",
-        help="Concatenate status indicators with STRING",
-    )
-    parser.add_argument(
-        "-r",
-        "--reset-style",
-        default="#[default]",
-        help="Specify style for resetting styles",
-    )
-    parser.add_argument(
-        "-u",
-        "--unbuffer",
-        action="store_true",
-        help="Immeadiately flush output after writing",
-    )
-    parser.add_argument(
-        "-s",
-        "--sleep",
-        type=int,
-        help="When given, wait this duration between outputting",
-    )
+        parser.add_argument(
+            "--disable",
+            metavar="SEGMENT",
+            help="Disable a segment, one of those from --enable.",
+        )
 
-    for segment in StatusMiscSegment.__subclasses__():
-        segment.parser_args(parser)
+        parser.add_argument(
+            "--sep",
+            metavar="STRING",
+            default=" ",
+            help="Concatenate status indicators with STRING",
+        )
+        parser.add_argument(
+            "-r",
+            "--reset-style",
+            default="#[default]",
+            help="Specify style for resetting styles",
+        )
+        parser.add_argument(
+            "-u",
+            "--unbuffer",
+            action="store_true",
+            help="Immeadiately flush output after writing",
+        )
 
-    args = parser.parse_args()
+        for segment in StatusMiscSegment.__subclasses__():
+            segment.parser_args(parser)
 
-    for i, segment in enumerate(args.enable):
-        if segment not in SEGMENTS:
-            parser.error(f"Unknown segment enabled: {segment}")
-        args.enable[i] = SEGMENTS[segment](args)
+        args = parser.parse_args()
+
+        logging.basicConfig(level=args.log_level, stream=sys.stderr)
+
+        for i, segment in enumerate(args.enabled):
+            if segment not in SEGMENTS:
+                parser.error(f"Unknown status-line segment enabled: {segment}")
+            args.enabled[i] = SEGMENTS[segment](args)
+
+        return args
 
     try:
-        print_loop(render_loop(status_misc(args)), args.unbuffer, args.sleep)
+        asyncio.run(main(parse_args()))
     except KeyboardInterrupt:
-        pass
+        sys.exit(1)
