@@ -75,6 +75,7 @@ set -g @theme-mpd-paused $AOH_MAGENTA                                           
 
 # Obscure status line sections depending on the available width.
 set -g @theme-hide-title-width 130                                                                 # Hide pane title
+set -g @theme-shrink-date-width 90                                                                 # Use a shorter date-time string
 set -g @theme-hide-misc-width 130                                                                  # Hide miscellaneous status section
 set -g @theme-hide-host-width 110                                                                  # Hide hostname and active program name (icon remains)
 
@@ -168,6 +169,6 @@ set -g status-right " \
 #[pop-default]\
 \
 #[default,bg=$TMUX_HL,fg=$TMUX_BG]#[push-default]\
- %d-%b-%Y %H:%M \
+ #{?#{e|>=:#{client_width},#{@theme-shrink-date-width}},%d-%b-%Y %H:%M,%H:%M} \
 #[pop-default]\
 "

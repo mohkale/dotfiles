@@ -19,7 +19,8 @@ webpack.config.* 
 README         
 LICENSE        
 .DS_Store      
-.Dockerfile    
+.docker*       
+Dockerfile     
 *.cmake        
 CMakeLists.txt 
 .gitlab-ci.yml 

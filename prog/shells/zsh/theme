@@ -40,6 +40,12 @@ for it in ZSH_HIGHLIGHT FAST_HIGHLIGHT; do
   declare "${it}_STYLES[globbing]=bold"
   declare "${it}_STYLES[single-hyphen-option]=none"
   declare "${it}_STYLES[double-hyphen-option]=none"
+  declare "${it}_STYLES[case-input]=fg=green"
+  declare "${it}_STYLES[case-condition]=none"
+  declare "${it}_STYLES[case-parentheses]=fg=yellow"
+  # Used for awk expressions for some reason.
+  declare "${it}_STYLES[subtle-bg]=fg=blue"
+  declare "${it}_STYLES[subtle-separator]=fg=blue"
 done
 
 ## Z-line-editor highlights
@@ -319,7 +325,7 @@ prompt_refresh() {
                     "${prompt_data[prompt_rust]}"   \
                )
 
-  right_rendered=$(prompt_join                       \
+  right_rendered=$(prompt_join                        \
                      "${prompt_data[prompt_docker]}"  \
                 )
 

@@ -45,3 +45,5 @@
 	user = mohkale
 [gitlab]
 	user = mohkale
+[pull]
+	ff = only

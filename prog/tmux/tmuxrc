@@ -112,17 +112,67 @@ bind C-m   resize-pane -Z
 bind -r . next-layout
 bind -r , previous-layout
 
-# create a new window/panes
-set -g @new-window-adjacent 1                                                                       # when true, creating a new window is made adjacent to the current window
+# create a new sessions/window/panes
+set -g @new-window-adjacent 1                                                                       # When true, creating a new window is made adjacent to the current window
+set -g @new-window-use-cwd  1                                                                       # When true, new windows are made with the current-working-directory instead of ~/
+set -g @new-session-use-cwd 1                                                                       # Like @new-window-use-cwd but for sessions instead of windows
+set -g @new-session-prefix  tmux-%d                                                                 # Format string used with @new-session-count when constructing a new session name
+%if '#{==:#{@new-session-count},}'
+  set -g @new-session-count 0                                                                       # Count which will be incremented to create new sesions.
+                                                                                                    # Set to -1 to always pick the smallest count which doesn't already exist.
+                                                                                                    # This value is only set by my tmux config once, even when reloaded.
+%endif
 
-bind C-t run-shell "tmux new-window #{?@new-window-adjacent,-a,} -c #{q:pane_current_path}"
-bind C-v split-window -c '#{pane_current_path}' -h
-bind C-s split-window -c '#{pane_current_path}'
+# Create a new session with no consideration to its name, beyond the fact it's unique.
+bind n run-shell '                                                              \
+set -e;                                                                         \
+count=$(tmux show -gv @new-session-count);                                      \
+format=$(tmux show -gv @new-session-prefix);                                    \
+cwd=$HOME;                                                                      \
+if [ "$(tmux show -gv @new-session-use-cwd)" -ne 0 ]; then                      \
+  cwd=$(tmux display-message -p "#{pane_current_path}");                        \
+fi;                                                                             \
+if [ -z "$format" ]; then                                                       \
+  format=tmux-%d;                                                               \
+fi;                                                                             \
+original_count=$count;                                                          \
+if [ -z "$count" ] || [ "$count" -lt 0 ]; then                                  \
+  count=0;                                                                      \
+fi;                                                                             \
+session=;                                                                       \
+while [ -z "$session" ] || tmux has-session -t "$session" >/dev/null 2>&1; do   \
+  session=$(printf "$format" "$count");                                         \
+  count=$((count+1));                                                           \
+done;                                                                           \
+if [ "$original_count" -ge 0 ]; then                                            \
+  tmux set -g @new-session-count "$count";                                      \
+fi;                                                                             \
+tmux new-session -s "$session" -c "$cwd" -d;                                    \
+tmux switch-client -t "$session";                                               \
+'
+
+# Create a new session prompting for its name.
+bind N command-prompt -p "New session:" "run-shell '{"'         \
+  set -e;                                                       \
+  it='"'%%'"';                                                  \
+  [ -z "$it" ] && exit 0;                                       \
+  cwd=$HOME;                                                    \
+  if [ "$(tmux show -gv @new-session-use-cwd)" -ne 0 ]; then    \
+    cwd=$(tmux display-message -p "#{pane_current_path}");      \
+  fi;                                                           \
+  tmux new-session -s "$it" -c "$cwd" -d;                       \
+  tmux switch-client -t "$it";                                  \
+}                                                               \
+'"'"
+
+bind C-t run-shell "tmux new-window #{?@new-window-adjacent,-a,} -c #{?#{==:#{@new-window-use-cwd},1},#{q:pane_current_path},$HOME}"
+bind C-v split-window -c "#{?#{==:#{@new-window-use-cwd},1},#{pane_current_path},$HOME}" -h
+bind C-s split-window -c "#{?#{==:#{@new-window-use-cwd},1},#{pane_current_path},$HOME}"
 
 ## variants, where you can specify the command to run.
-bind M-t command-prompt -I "$SHELL" -p "Command in new window:"         "new-window '%%'"
-bind M-v command-prompt -I "$SHELL" -p "Command in new split:"          "split-window -h '%%'"
-bind M-s command-prompt -I "$SHELL" -p "Command in new vertical split:" "split-window '%%'"
+bind M-t command-prompt -I "$SHELL" -p "Command in new window:"         'new-window   -c "#{?#{==:#{@new-window-use-cwd},1},#{pane_current_path},$HOME}" "%%"'
+bind M-v command-prompt -I "$SHELL" -p "Command in new split:"          'split-window -c "#{?#{==:#{@new-window-use-cwd},1},#{pane_current_path},$HOME}" -h "%%"'
+bind M-s command-prompt -I "$SHELL" -p "Command in new vertical split:" 'split-window -c "#{?#{==:#{@new-window-use-cwd},1},#{pane_current_path},$HOME}" "%%"'
 
 # vim like, pane resize keys
 bind -r < resize-pane -L 5

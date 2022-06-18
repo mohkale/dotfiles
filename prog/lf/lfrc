@@ -203,6 +203,9 @@ cmd goto-downloads $lf -remote "send $id cd \"${XDG_DOWNLOAD_DIR:-~/Downloads}\"
 map gc goto-config
 cmd goto-config $lf -remote "send $id cd \"${XDG_CONFIG_HOME:-~/.config}\""
 
+map gC goto-cache
+cmd goto-cache $lf -remote "send $id cd \"${XDG_CACHE_HOME:-~/.cache}\""
+
 map gb goto-bin
 cmd goto-bin $lf -remote "send $id cd \"$XDG_CONFIG_HOME/.local/bin\""
 

@@ -15,6 +15,10 @@ CURRENCIES = {
     "xrp": 1.762522,
     "xmr": 0.0062,
 }
+# Exclude the following currencies when possible.
+EXCLUDED_CURRENCIES = set()
+# Map invalid currency names into an alternative name.
+CURRENCY_MAP = {"1inch": "inch"}
 
 resp = requests.get(
     "https://raw.githubusercontent.com/fawazahmed0/currency-api/1"
@@ -27,4 +31,8 @@ entries = CURRENCIES.copy()
 entries.update(data[MAIN_CURRENCY])
 
 for dest_currency, xrate in entries.items():
-    print(f"P {date} {MAIN_CURRENCY.upper()} {xrate} {dest_currency.upper()}")
+    if dest_currency in EXCLUDED_CURRENCIES:
+        continue
+
+    dest_currency = CURRENCY_MAP.get(dest_currency, dest_currency)
+    print(f"P {date} {MAIN_CURRENCY.upper()} {xrate:f} {dest_currency.upper()}")
