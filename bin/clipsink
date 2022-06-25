@@ -1,13 +1,164 @@
 #!/usr/bin/env python3
-"""Monitor changes to the system clipboard and print them to stdout."""
+"""
+Monitor changes to the system clipboard and print them to stdout.
+"""
 
+import asyncio
 import codecs
 import json
+import logging
 import sys
-import threading
-import time
+from typing import Callable, Optional
 
 import pyperclip as clip
+
+
+def identity(value: str) -> str:
+    """Return argument as is."""
+    return value
+
+
+async def clip_loop(interval: int, first: bool = False) -> None:
+    """Asynchronously read and yield the clipboard value at periodic intervals.
+
+    This function checks the value of the clipboard at interval increments
+    and yields it if its value has changed from the last time the function
+    was invoked.
+
+    Parameters
+    ----------
+    interval
+        Minimum period in seconds between clipboard value checks.
+    first
+        Whether to yield the first clipboard value. By default this function
+        only yields from the next clipboard value going forward (assuming the
+        current value hasn't been assigned yet).
+    """
+    logging.debug("Started clip loop")
+    last = clip.paste()
+    if first:
+        logging.debug("Yielding initial clipboard value='%s'", last)
+        yield last
+
+    while True:
+        await asyncio.sleep(interval)
+        logging.debug("Awoke clipboard monitor")
+        current = clip.paste()
+        logging.debug("Read value='%s' from clipboard", current)
+        if last != current:
+            yield current
+            last = current
+
+
+# pylint: disable=too-many-arguments
+async def print_loop(
+    interval: int,
+    first: bool,
+    line_buffer: bool,
+    predicate: Optional[Callable[[str], bool]],
+    formatter: Callable[[str], str],
+    delimiter: str,
+) -> None:
+    """Run `clip_loop` and continually print out values.
+
+    Parameters
+    ----------
+    interval
+    first
+        Forwarded to `clip_loop`.
+    line_buffer
+        Flush the stdout stream after each newly printed line.
+    predicate
+        Optional check which each line must pass before it is printed.
+    formatter
+        Processor which each line will be passed to prior to printing.
+    delimiter
+        Suffix used to delimit the end of an entry (example: '\\n').
+    """
+    logging.debug("Started print loop")
+    async for line in clip_loop(interval, first):
+        if predicate and not predicate(line):
+            logging.debug(
+                "Input line='%s' didn't satisfy predicate=%s", line, predicate
+            )
+            continue
+
+        print(formatter(line), end=delimiter)
+
+        if line_buffer:
+            sys.stdout.flush()
+
+
+async def stdin_loop(cancel_event: asyncio.Event) -> None:
+    """Continually read from stdin and set `cancel_event` when stdin finishes.
+
+    Parameters
+    ----------
+    cancel_event
+        Event which will be set when we read EOF.
+    """
+    logging.debug("Started stdin monitor loop")
+
+    # Stdin monitor adapted from [[https://stackoverflow.com/a/64317899][here]].
+    reader = asyncio.StreamReader()
+    protocol = asyncio.StreamReaderProtocol(reader)
+    loop = asyncio.get_event_loop()
+    await loop.connect_read_pipe(lambda: protocol, sys.stdin)
+
+    # StreamReader will automatically exit the for-loop when it reaches
+    # EOF, however if there are any other issues while reading from stdin
+    # we'd like to kill the clip loop as well so we use try finally instead.
+    try:
+        async for line in reader:
+            logging.info("Read line='%s' from stdin", line)
+    finally:
+        cancel_event.set()
+
+
+async def main(
+    interval: int,
+    first: bool = False,
+    line_buffer: bool = False,
+    delimiter: str = "\n",
+    predicate: Optional[Callable[[str], bool]] = None,
+    formatter: Callable[[str], str] = identity,
+    monitor_stdin: bool = False,
+) -> None:
+    """Main clipsink event loop.
+
+    Parameters
+    ----------
+    interval
+    first
+    line_buffer
+    predicate
+    formatter
+    delimiter
+        Forwarded to `print_loop`.
+    monitor_stdin
+        Whether to spawn a `stdin_loop` task which will cancel this event
+        loop. Otherwise the clipboard printing process will run forever.
+    """
+    tasks = []
+
+    logging.info("Starting main print loop")
+    tasks.append(
+        asyncio.create_task(
+            print_loop(interval, first, line_buffer, predicate, formatter, delimiter)
+        )
+    )
+
+    exit_event = asyncio.Event()
+    if monitor_stdin:
+        logging.info("Creating stdin monitor")
+        tasks.append(asyncio.create_task(stdin_loop(exit_event)))
+
+    # Either wait for exit_event or loop forever.
+    await exit_event.wait()
+    # Cancel any pending coroutines before exitting.
+    for task in tasks:
+        task.cancel()
+
 
 if __name__ == "__main__":
     import argparse
@@ -25,50 +176,58 @@ Periodically inspect and output the contents of the system clipboard.
             "-m",
             "--monitor-stdin",
             action="store_true",
-            help="Terminate print loop when stdin recieves EOF",
+            help="Terminate print loop when stdin recieves EOF.",
         )
         parser.add_argument(
             "-i",
             "--interval",
             type=int,
             default=0.5,
-            help="How long to wait between checking for changes",
+            help="How long to wait between checking for changes.",
         )
         parser.add_argument(
             "-1",
             "--first",
             action="store_true",
-            help="Print the current value of the clipboard on startup",
+            help="Print the current value of the clipboard on startup.",
+        )
+
+        logging_group = parser.add_argument_group(
+            "Logging", "Configure debugging output"
+        )
+        logging_group.add_argument(
+            "--log-level",
+            metavar="LEVEL",
+            default=logging.FATAL,
+            type=lambda x: getattr(logging, x.upper()),
+            help="Set verbosity of logging output",
         )
 
         output_group = parser.add_argument_group(
             "Output", "Configure clipboard outputting"
         )
 
-        def default_formatter(x):
-            return x + args.delimiter
-
         output_group.add_argument(
             "-j",
             "--json",
             dest="formatter",
             action="store_const",
-            const=lambda x: json.dumps(x) + "\n",
-            help="Print clipboard contents as JSON lines",
+            const=json.dumps,
+            help="Print clipboard contents as JSON lines.",
         )
         output_group.add_argument(
             "-p",
             "--plain",
             dest="formatter",
             action="store_const",
-            const=default_formatter,
-            help="Print clipboard entries as they are",
+            const=identity,
+            help="Print clipboard entries as they are.",
         )
         output_group.add_argument(
             "-l",
             "--line-buffer",
             action="store_true",
-            help="Automatically flush entries after writing",
+            help="Automatically flush entries after writing.",
         )
 
         delimiter_group = output_group.add_mutually_exclusive_group()
@@ -76,7 +235,7 @@ Periodically inspect and output the contents of the system clipboard.
             "-d",
             "--delimiter",
             default="\\n",
-            help="Delimiter between outputted entries",
+            help="Delimiter between outputted entries.",
         )
         delimiter_group.add_argument(
             "-0",
@@ -84,60 +243,42 @@ Periodically inspect and output the contents of the system clipboard.
             action="store_const",
             const="\\0",
             dest="delimiter",
-            help="Seperate clipboard entries with null",
+            help="Seperate clipboard entries with null.",
         )
 
-        args = parser.parse_args()
-        vargs = vars(args)
+        argsv = parser.parse_args()
 
-        args.delimiter = codecs.decode(args.delimiter, "unicode_escape")
-        args.formatter = args.formatter or default_formatter
+        argsv.delimiter = codecs.decode(argsv.delimiter, "unicode_escape")
+        argsv.formatter = argsv.formatter or identity
 
-        return args, vargs, parser
+        return argsv
 
-    args, vargs, parser = parse_args()
+    args = parse_args()
 
-    class ClipLoop(object):
-        """Class to manage the clipboard print loop."""
+    level = args.log_level
+    try:
+        from mohkale.pylog.config import use_config as use_logging_config
+    except ImportError:
+        logging.basicConfig(level=level)
+    else:
+        use_logging_config("clipsink", level=level)
 
-        def __init__(self, monitor_stdin):
-            self.looping = True
-            if monitor_stdin:
-                threading.Thread(target=self.read_loop, daemon=True).start()
-
-        def loop(self, delay, first=False):
-            """Enumerate changes in the system clipboard.
-            When FIRST is true, the initial value of the clipboard is
-            also yielded.
-            """
-            last = clip.paste()
-            if first:
-                yield last
-
-            while self.looping:
-                time.sleep(delay)
-                current = clip.paste()
-                if last != current:
-                    yield current
-                    last = current
-
-        def read_loop(self):
-            """Continually read from stdin and terminate the loop when stdin finishes."""
-            try:
-                for _ in sys.stdin:
-                    pass
-            finally:
-                self.looping = False
-
-    def pred(x):
+    def pred(line: str) -> bool:
         """Predicate on clipboard entries."""
-        return x.strip() != ""
+        return line.strip() != ""
 
     try:
-        it = ClipLoop(args.monitor_stdin).loop(args.interval, args.first)
-        for entry in filter(pred, it):
-            print(args.formatter(entry), end="")
-            if args.line_buffer:
-                sys.stdout.flush()
+        asyncio.run(
+            main(
+                args.interval,
+                args.first,
+                args.line_buffer,
+                args.delimiter,
+                pred,
+                args.formatter,
+                args.monitor_stdin,
+            )
+        )
     except KeyboardInterrupt:
-        pass
+        logging.error("Encountered keyboard interrupt")
+        sys.exit(1)
