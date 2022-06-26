@@ -3,7 +3,7 @@ import asyncio
 import logging
 import sys
 import time
-from typing import Callable, Generator, List, Optional
+from typing import Callable, Generator, List, Optional, Tuple
 
 # Maximum duration before which a status script MUST output something.
 # This is required to prevent tmux auto-killing the process because it's
@@ -62,6 +62,33 @@ async def async_print_loop(
 
         event.clear()
         logging.debug("Awoke print event loop with future=%s", done)
+
+
+async def run_process(
+    cmd: List[str],
+    input: Optional[str] = None,  # pylint: disable=redefined-builtin
+    encoding: str = "utf-8",
+) -> Tuple[int, str, str]:
+    """Run `cmd` and return the process returncode and stdout+stderr streams.
+
+    Parameters
+    ----------
+    cmd
+        Command line to execute.
+    """
+    logging.debug("Starting cmd=%s", cmd)
+    proc = await asyncio.create_subprocess_exec(
+        cmd[0],
+        *cmd[1:],
+        stdin=asyncio.subprocess.DEVNULL if input is None else asyncio.subprocess.PIPE,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
+    )
+
+    logging.debug("Waiting for cmd to finish cmd=%s", cmd)
+    stdout, stderr = await proc.communicate(None if input is None else input.encode())
+    logging.debug("Command exited with returncode=%s cmd=%s", proc.returncode, cmd)
+    return proc.returncode, stdout.decode(encoding), stderr.decode(encoding)
 
 
 def render_loop(wrap: Callable[[], str]) -> Generator[str, None, None]:

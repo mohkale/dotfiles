@@ -6,6 +6,7 @@ import re
 import subprocess
 from distutils.spawn import find_executable as which
 
+from ...shared import run_process
 from ..segment import StatusMiscSegment
 
 
@@ -43,26 +44,27 @@ class MullvadVPNSegment(StatusMiscSegment):
             help="Styling for an inactive mullvad-vpn connection.",
         )
 
-    def render(self):
+    # pylint: disable=invalid-overridden-method
+    async def render(self):
         """MullvadVPN status-line section."""
         if not which("mullvad"):
             logging.debug(
                 "Skipping segment=%s because mullvad is not installed.", self.name
             )
             return None
-        proc = subprocess.run(
-            ["mullvad", "status", "--location"], capture_output=True, encoding="utf-8"
+        returncode, stdout, stderr = await run_process(
+            ["mullvad", "status", "--location"], encoding="utf-8"
         )
-        if proc.returncode != 0:
+        if returncode != 0:
             logging.warning(
                 "Warning failed to run mullvad process for segment=%s", self.name
             )
             return None
         ip_address = ""
         match = re.search(
-            r'Connected to (?:.*\n)IPv4: (.+)$',
-            proc.stdout,
-            flags=re.IGNORECASE|re.MULTILINE,
+            r"Connected to (?:.*\n)IPv4: (.+)$",
+            stdout,
+            flags=re.IGNORECASE | re.MULTILINE,
         )
         if not match:
             if self.hide:

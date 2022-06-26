@@ -6,6 +6,7 @@ import logging
 import subprocess
 from distutils.spawn import find_executable as which
 
+from ...shared import run_process
 from ..segment import StatusMiscSegment
 
 
@@ -64,7 +65,8 @@ class NotMuchSegment(StatusMiscSegment):
             help="When true don't show empty mail entries.",
         )
 
-    def render(self):
+    # pylint: disable=invalid-overridden-method
+    async def render(self):
         # pylint: disable=no-member
         if not which("notmuch"):
             logging.debug(
@@ -72,14 +74,12 @@ class NotMuchSegment(StatusMiscSegment):
             )
             return None
         # Mapping search queries to the style string to apply for them.
-        proc = subprocess.run(
+        returncode, stdout, stderr = await run_process(
             ["notmuch", "count", "--output=threads", "--batch"],
-            capture_output=True,
-            check=False,
             input="\n".join(self.tag_styles.keys()),
             encoding="ascii",
         )
-        if proc.returncode != 0:
+        if returncode != 0:
             logging.warning(
                 "Warning failed to run notmuch process for segment=%s", self.name
             )
@@ -88,7 +88,7 @@ class NotMuchSegment(StatusMiscSegment):
             (None if x == "0" and self.hide_zero else (self.format.format(int(x))))
             if x.isdigit()
             else "?"
-            for x in proc.stdout.rstrip().split("\n")
+            for x in stdout.rstrip().split("\n")
         ]
         if len(counts) != len(self.tag_styles):
             logging.error(

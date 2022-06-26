@@ -6,6 +6,7 @@ import re
 import subprocess
 from distutils.spawn import find_executable as which
 
+from ...shared import run_process
 from ..segment import StatusMiscSegment
 
 
@@ -43,7 +44,8 @@ class NordVPNSegment(StatusMiscSegment):
             help="Styling for an inactive nordvpn connection.",
         )
 
-    def render(self):
+    # pylint: disable=invalid-overridden-method
+    async def render(self):
         """Nordvpn status-line section."""
         # pylint: disable=no-member
         if not which("nordvpn"):
@@ -51,16 +53,16 @@ class NordVPNSegment(StatusMiscSegment):
                 "Skipping segment=%s because nordvpn is not installed.", self.name
             )
             return None
-        proc = subprocess.run(
-            ["nordvpn", "status"], check=False, capture_output=True, encoding="utf-8"
+        returncode, stdout, stderr = await run_process(
+            ["nordvpn", "status"], encoding="utf-8"
         )
-        if proc.returncode != 0:
+        if returncode != 0:
             logging.warning(
                 "Warning failed to run nordvpn process for segment=%s", self.name
             )
             return None
         ip_address = ""
-        match = re.search(r"Server IP: (.+)", proc.stdout, flags=re.IGNORECASE)
+        match = re.search(r"Server IP: (.+)", stdout, flags=re.IGNORECASE)
         if not match:
             if self.hide:
                 return None

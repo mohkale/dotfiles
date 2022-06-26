@@ -16,10 +16,10 @@ then summary count will be ommited.
 import argparse
 import enum
 import logging
-import subprocess
 from collections import Counter
 from distutils.spawn import find_executable as which
 
+from ...shared import run_process
 from ..segment import StatusMiscSegment
 
 
@@ -115,24 +115,23 @@ class DockerSegment(StatusMiscSegment):
             help="When true don't show anything if no containers are running",
         )
 
-    def render(self) -> str:
+    # pylint: disable=invalid-overridden-method
+    async def render(self) -> str:
         if not which("docker"):
             logging.debug(
                 "Skipping segment=%s because docker is not installed.", self.name
             )
             return None
-        proc = subprocess.run(
+        returncode, stdout, stderr = await run_process(
             ["docker", "ps", "--all", "--format", "{{.State}}"],
-            check=False,
-            capture_output=True,
             encoding="ascii",
         )
-        if proc.returncode != 0:
+        if returncode != 0:
             logging.debug(
                 "Warning failed to run docker process for segment=%s", self.name
             )
             return None
-        counts = Counter(it for it in proc.stdout.split("\n") if it)
+        counts = Counter(it for it in stdout.split("\n") if it)
         count_total = sum(counts.values())
         if count_total == 0 and self.hide_zero:
             return None

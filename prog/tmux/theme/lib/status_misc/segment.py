@@ -62,7 +62,10 @@ class StatusMiscSegment(abc.ABC):
         """
         while True:
             try:
-                result = self.render()
+                if asyncio.iscoroutinefunction(self.render):
+                    result = await self.render()
+                else:
+                    result = self.render()
             except RuntimeError as err:
                 logging.exception(
                     "Error while processing segment %s: %s", self.name, err
