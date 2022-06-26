@@ -51,7 +51,7 @@ class MullvadVPNSegment(StatusMiscSegment):
             )
             return None
         proc = subprocess.run(
-            ["mullvad", "status"], capture_output=True, encoding="utf-8"
+            ["mullvad", "status", "--location"], capture_output=True, encoding="utf-8"
         )
         if proc.returncode != 0:
             logging.warning(
@@ -60,9 +60,9 @@ class MullvadVPNSegment(StatusMiscSegment):
             return None
         ip_address = ""
         match = re.search(
-            r"Connected to (?:OpenVPN|WireGuard) (.+):(\d+) over UDP",
+            r'Connected to (?:.*\n)IPv4: (.+)$',
             proc.stdout,
-            flags=re.IGNORECASE,
+            flags=re.IGNORECASE|re.MULTILINE,
         )
         if not match:
             if self.hide:

@@ -45,7 +45,7 @@ async def main(args: argparse.Namespace) -> None:
 
             return implementation
 
-        asyncio.create_task(segment.run(segment_callback(i)))
+        tasks.append(asyncio.create_task(segment.run(segment_callback(i))))
 
     # This is safe because we technically have a lock on statuses until the
     # `print_loop` blocks and returns control to the async runtime.

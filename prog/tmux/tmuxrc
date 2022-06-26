@@ -157,6 +157,7 @@ bind N command-prompt -p "New session:" "run-shell '{"'         \
   it='"'%%'"';                                                  \
   [ -z "$it" ] && exit 0;                                       \
   cwd=$HOME;                                                    \
+  it=${it//[.:]/-};                                             \
   if [ "$(tmux show -gv @new-session-use-cwd)" -ne 0 ]; then    \
     cwd=$(tmux display-message -p "#{pane_current_path}");      \
   fi;                                                           \

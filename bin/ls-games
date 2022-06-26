@@ -351,7 +351,7 @@ if __name__ == "__main__":
     except ImportError:
         logging.basicConfig(level=level)
     else:
-        use_logging_config("ls-games", vargs.pop("log_level"))
+        use_logging_config("ls-games", level=vargs.pop("log_level"))
 
     if not args.config.exists():
         parser.error(f"Failed to find config file: {args.config}")
