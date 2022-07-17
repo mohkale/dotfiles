@@ -22,10 +22,12 @@ esac
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"                    # Make less more friendly for non-text input files, see lesspipe(1)
 
 # Generate lesskey configuration file when it's out of date.
-[ -n "$LESSKEY" ] &&
+if [ -n "$LESSKEY" ] &&
   command -v lesskey >/dev/null 2>&1 &&
-  [ -e "$LESSKEY.base" -a "$LESSKEY.base" -nt "$LESSKEY" ] &&
+  [ -e "$LESSKEY.base" ] &&
+  ( ! [ -e "$LESSKEY" ] || [ "$LESSKEY.base" -nt "$LESSKEY" ] ); then
   lesskey "$LESSKEY.base"
+fi
 
 # Apply custom color scheme for ls (for some reason this doesn't
 # work in ~/.profile :?).

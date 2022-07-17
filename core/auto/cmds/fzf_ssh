@@ -14,6 +14,6 @@ fzf_ssh() {
           _mk_fzf "${fzf_args[@]}" |
           cut -d ' ' -f 2-)
   if [ -n "$cmd" ]; then
-    $cmd
+    TERM=screen-256color $cmd
   fi
 }
