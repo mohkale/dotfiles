@@ -3,6 +3,7 @@ clean -rf "$XDG_BIN_DIR"
 link                                            \
   "$XDG_BIN_DIR/ansils"                         \
   "$XDG_BIN_DIR/argv"                           \
+  "$XDG_BIN_DIR/bang"                           \
   "$XDG_BIN_DIR/blockify"                       \
   "$XDG_BIN_DIR/broken-links"                   \
   "$XDG_BIN_DIR/build-aliases"                  \

@@ -20,7 +20,7 @@ README         
 LICENSE        
 .DS_Store      
 .docker*       
-Dockerfile     
+Dockerfile*    
 *.cmake        
 CMakeLists.txt 
 .gitlab-ci.yml 
