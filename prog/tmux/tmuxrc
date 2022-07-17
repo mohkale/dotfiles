@@ -59,7 +59,7 @@ bind C-q send-prefix
 
 bind \# set-window-option monitor-activity\; display-message "#{?monitor-activity,Monitoring,Ignoring} activity in current window"
 bind \~ run "tmux command-prompt -I #{?monitor-silence,#{monitor-silence},10} -p 'Set silence interval (seconds):' 'set monitor-silence %%'"
-bind M show-messages
+bind M-m show-messages
 bind M-T set -ug @status-message ""                                                                # An optional message shown when the terminal title isn't set.
 
 bind r command-prompt -I "#W" -p "Rename window:" "if-shell \"[ -n '%1' ]\" { rename-window -- '%1' } { set automatic-rename on }"
@@ -87,8 +87,14 @@ bind | command-prompt -p "Pipe pane:" "pipe-pane -o '%%'"
 bind M-h command-prompt -k -p "Describe key:" "list-keys -1N '%%'"                                 # Inspect the key-symbol bound by tmux
 
 bind b   choose-tree -Zs
-bind B   choose-tree -Zw
-bind C-b choose-client -Z
+bind C-b choose-tree -Zw
+%hidden TMUX_ACTIVITY_WINDOW_FILTER='#{||:#{window_silence_flag},#{||:#{window_activity_flag},#{||:#{window_bell_flag},#{window_marked_flag}}}}'
+bind M-b if -F "#{?#{s/0+//:#{S:#{W:$TMUX_ACTIVITY_WINDOW_FILTER}}},1,0}" {
+  choose-tree -Zw -f "$TMUX_ACTIVITY_WINDOW_FILTER"
+} {
+  display-message 'No windows with activity found in all current sessions'
+}
+bind B   choose-client -Z
 
 bind C-w kill-pane
 bind w   unlink-window -k                                                                          # keeps the window alive in any other sessions if it exists there.
@@ -261,14 +267,15 @@ bind                 v   copy-mode
 bind                 V   copy-mode \; send-keys V
 bind                 /   copy-mode \; send-keys /
 bind                 ?   copy-mode \; send-keys ?
-# bind                 H   copy-mode \; send-keys H
-# bind                 L   copy-mode \; send-keys L
-# bind                 M   copy-mode \; send-keys M
+bind                 H   copy-mode \; send-keys H
+bind                 L   copy-mode \; send-keys L
+bind                 M   copy-mode \; send-keys M
 bind                 C-u copy-mode \; send-keys -X halfpage-up
 bind                 C-d copy-mode \; send-keys -X halfpage-down
 bind -T copy-mode-vi C-g send-keys -X cancel
-bind -T copy-mode-vi v   send-keys -X begin-selection
+bind -T copy-mode-vi v   if -F '#{?selection_present}' {send-keys -X clear-selection} {send-keys -X begin-selection}
 bind -T copy-mode-vi y   send-keys -X copy-pipe-and-cancel clip
+bind -T copy-mode-vi M-y send-keys -X copy-pipe clip
 bind -T copy-mode-vi Y   send-keys v$ \; send-keys -X copy-pipe-and-cancel clip
 bind -T copy-mode-vi C-y send-keys -X append-selection
 

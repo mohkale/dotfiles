@@ -1,13 +1,14 @@
+#!/usr/bin/env python3
 """Status misc segment for showing NordVPN connection status."""
 # pylint: disable=no-member
 
 import logging
 import re
-import subprocess
 from distutils.spawn import find_executable as which
+from typing import Callable
 
-from ...shared import run_process
-from ..segment import StatusMiscSegment
+from lib.shared import run_process
+from lib.status_misc.segment import StatusMiscSegment
 
 
 class NordVPNSegment(StatusMiscSegment):
@@ -16,29 +17,31 @@ class NordVPNSegment(StatusMiscSegment):
     name = "nordvpn"
 
     @classmethod
-    def parser_args(cls, parser):
+    def parser_args(
+        cls, parser: "argparse.ArgumentParser", flag: Callable[[str], str]
+    ) -> None:
         nvpn_group = parser.add_argument_group("Nord VPN")
-        super().parser_args(nvpn_group)
+        super().parser_args(nvpn_group, flag)
 
         nvpn_group.add_argument(
-            f"--{cls.name}-icon",
+            flag("icon"),
             default="N",
             metavar="ICON",
             help="Icon shown to indicate nordvpn status.",
         )
         nvpn_group.add_argument(
-            f"--{cls.name}-hide",
+            flag("hide"),
             action="store_true",
             help="Hide nordvpn status when disconnected",
         )
         nvpn_group.add_argument(
-            f"--{cls.name}-active-style",
+            flag("active-style"),
             default="",
             metavar="STYLE",
             help="Styling for an active nordvpn connection.",
         )
         nvpn_group.add_argument(
-            f"--{cls.name}-inactive-style",
+            flag("inactive-style"),
             default="",
             metavar="STYLE",
             help="Styling for an inactive nordvpn connection.",
@@ -53,7 +56,7 @@ class NordVPNSegment(StatusMiscSegment):
                 "Skipping segment=%s because nordvpn is not installed.", self.name
             )
             return None
-        returncode, stdout, stderr = await run_process(
+        returncode, stdout, _stderr = await run_process(
             ["nordvpn", "status"], encoding="utf-8"
         )
         if returncode != 0:
@@ -74,3 +77,7 @@ class NordVPNSegment(StatusMiscSegment):
             )
             + ip_address
         )
+
+
+if __name__ == "__main__":
+    NordVPNSegment.main()

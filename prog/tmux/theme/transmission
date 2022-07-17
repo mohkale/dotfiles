@@ -1,8 +1,10 @@
+#!/usr/bin/env python3
 """Status misc segment for showing NordVPN connection status."""
 
 import enum
+from typing import Callable
 
-from ..segment import StatusMiscSegment
+from lib.status_misc.segment import StatusMiscSegment
 
 
 class TransmissionNotificationSegment(StatusMiscSegment):
@@ -11,7 +13,7 @@ class TransmissionNotificationSegment(StatusMiscSegment):
     name = "transmission"
     sleep_time = 15
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self._transmission = None
         # pylint: disable=access-member-before-definition
@@ -37,41 +39,43 @@ class TransmissionNotificationSegment(StatusMiscSegment):
         CHECKING = enum.auto()
 
     @classmethod
-    def parser_args(cls, parser):
+    def parser_args(
+        cls, parser: "argparse.ArgumentParser", flag: Callable[[str], str]
+    ) -> None:
         trans_group = parser.add_argument_group("Transmission")
-        super().parser_args(trans_group)
+        super().parser_args(trans_group, flag)
 
         trans_group.add_argument(
-            f"--{cls.name}-icon",
+            flag("icon"),
             default="T",
             metavar="ICON",
             help="Icon to prefix download status numbers",
         )
         trans_group.add_argument(
-            f"--{cls.name}-icon-style",
+            flag("icon-style"),
             default="",
             metavar="STYLE",
             help="Styling for transmission icon",
         )
         trans_group.add_argument(
-            f"--{cls.name}-sections",
+            flag("sections"),
             nargs="+",
             choices=[x.name.lower() for x in cls.TransmissionSectionStatus],
             help="Possible sections and the order in which they appear",
         )
         trans_group.add_argument(
-            f"--{cls.name}-section-styles",
+            flag("section-styles"),
             nargs="+",
             metavar="STYLE",
             help=f"Styles for {cls.name.upper()}_SECTIONS in the same order",
         )
         trans_group.add_argument(
-            f"--{cls.name}-format",
+            flag("format"),
             default="{:02d}",
             help="Format string for transmission torrent counts",
         )
         trans_group.add_argument(
-            f"--{cls.name}-hide-zero",
+            flag("hide-zero"),
             action="store_true",
             help="When true don't show empty torrent sections",
         )
@@ -147,3 +151,7 @@ class TransmissionNotificationSegment(StatusMiscSegment):
         return (
             (self._style(self.icon, self.icon_style) + " ") if self.icon else ""
         ) + " ".join(res)
+
+
+if __name__ == "__main__":
+    TransmissionNotificationSegment.main()

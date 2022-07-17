@@ -1,13 +1,15 @@
+#!/usr/bin/env python3
 """Status misc segment for showing github notifications."""
 # pylint: disable=no-member
 
 import logging
 import os
 import pathlib
+from typing import Callable
 
 import requests.exceptions
 
-from ..segment import StatusMiscSegment
+from lib.status_misc.segment import StatusMiscSegment
 
 
 class GithubNotificationsSegment(StatusMiscSegment):
@@ -16,40 +18,42 @@ class GithubNotificationsSegment(StatusMiscSegment):
     name = "github"
 
     @classmethod
-    def parser_args(cls, parser):
+    def parser_args(
+        cls, parser: "argparse.ArgumentParser", flag: Callable[[str], str]
+    ) -> None:
         github_group = parser.add_argument_group("Github Notifications")
-        super().parser_args(github_group)
+        super().parser_args(github_group, flag)
 
         github_group.add_argument(
-            f"--{cls.name}-format",
+            flag("format"),
             default="{:02d}",
             help="Format string for github notification counts.",
         )
         github_group.add_argument(
-            f"--{cls.name}-icon",
+            flag("icon"),
             default="G",
             metavar="ICON",
             help="Icon shown to indicate github status.",
         )
         github_group.add_argument(
-            f"--{cls.name}-icon-style",
+            flag("icon-style"),
             default="",
             metavar="STYLE",
             help="Styling for github icon",
         )
         github_group.add_argument(
-            f"--{cls.name}-hide-zero",
+            flag("hide-zero"),
             action="store_true",
             help="When true don't show when no icons.",
         )
         github_group.add_argument(
-            f"--{cls.name}-count-style",
+            flag("count-style"),
             default="",
             metavar="STYLE",
             help="Styling for github notification count.",
         )
         github_group.add_argument(
-            f"--{cls.name}-config",
+            flag("config"),
             type=pathlib.Path,
             default=pathlib.Path(os.path.expandvars("$TMUX_HOME/github-api.key")),
             help="Specify mount map configuration file",
@@ -64,7 +68,7 @@ class GithubNotificationsSegment(StatusMiscSegment):
             try:
                 logging.debug("Trying to import github")
                 # pip install pygithub
-                # pylint: disable=import-outside-toplevel
+                # pylint: disable=import-outside-toplevel,import-self
                 import github
                 from github.MainClass import DEFAULT_BASE_URL
             except ImportError:
@@ -122,3 +126,7 @@ class GithubNotificationsSegment(StatusMiscSegment):
             ]
             if x
         )
+
+
+if __name__ == "__main__":
+    GithubNotificationsSegment.main()

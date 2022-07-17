@@ -1,6 +1,7 @@
-from .segment import StatusMiscSegment
-from .segments import *
+"""Helpers for status-misc."""
+from .segment import StatusMiscSegment, shared_arguments
 
 __all__ = [
-    'StatusMiscSegment',
+    "StatusMiscSegment",
+    "shared_arguments",
 ]

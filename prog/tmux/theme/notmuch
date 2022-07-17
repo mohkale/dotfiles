@@ -1,13 +1,13 @@
+#!/usr/bin/env python3
 """Status line segment for showing NordVPN connection status."""
-
 # pylint: disable=no-member
 
 import logging
-import subprocess
 from distutils.spawn import find_executable as which
+from typing import Callable
 
-from ...shared import run_process
-from ..segment import StatusMiscSegment
+from lib.shared import run_process
+from lib.status_misc.segment import StatusMiscSegment
 
 
 class NotMuchSegment(StatusMiscSegment):
@@ -24,43 +24,45 @@ class NotMuchSegment(StatusMiscSegment):
         }
 
     @classmethod
-    def parser_args(cls, parser):
+    def parser_args(
+        cls, parser: "argparse.ArgumentParser", flag: Callable[[str], str]
+    ) -> None:
         notmuch_group = parser.add_argument_group("Notmuch Mail")
-        super().parser_args(notmuch_group)
+        super().parser_args(notmuch_group, flag)
 
         notmuch_group.add_argument(
-            f"--{cls.name}-icon",
+            flag("icon"),
             default="M",
             metavar="ICON",
             help="Icon shown to indicate notmuch status.",
         )
         notmuch_group.add_argument(
-            f"--{cls.name}-icon-style",
+            flag("icon-style"),
             default="",
             metavar="STYLE",
             help="Styling for notmuch mail icon",
         )
         notmuch_group.add_argument(
-            f"--{cls.name}-unread-style",
+            flag("unread-style"),
             default="",
             metavar="STYLE",
             help="Styling for unread emails.",
         )
         notmuch_group.add_argument(
-            f"--{cls.name}-flagged-style",
+            flag("flagged-style"),
             default="",
             metavar="STYLE",
             help="Styling for flagged emails.",
         )
 
         notmuch_group.add_argument(
-            f"--{cls.name}-format",
+            flag("format"),
             metavar="FORMAT",
             default="{:02d}",
             help="Format string for notmuch mail counts.",
         )
         notmuch_group.add_argument(
-            f"--{cls.name}-hide-zero",
+            flag("hide-zero"),
             action="store_true",
             help="When true don't show empty mail entries.",
         )
@@ -74,7 +76,7 @@ class NotMuchSegment(StatusMiscSegment):
             )
             return None
         # Mapping search queries to the style string to apply for them.
-        returncode, stdout, stderr = await run_process(
+        returncode, stdout, _stderr = await run_process(
             ["notmuch", "count", "--output=threads", "--batch"],
             input="\n".join(self.tag_styles.keys()),
             encoding="ascii",
@@ -105,3 +107,7 @@ class NotMuchSegment(StatusMiscSegment):
         if res and self.icon:
             res.insert(0, self._style(self.icon, self.icon_style))
         return " ".join(res)
+
+
+if __name__ == "__main__":
+    NotMuchSegment.main()

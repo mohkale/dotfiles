@@ -47,10 +47,11 @@ set -g status-right-style default
 %hidden TMUX_FG="#909090"
 %hidden TMUX_BG="#18181b"
 
-%hidden TMUX_HL=$AOH_BLUE                                                                          # Used for general purpose syntax highlighting
+%hidden TMUX_HL=$AOH_BLUE                                                                          # Used for general purpose highlighting
+%hidden TMUX_FLAG_HL=$AOH_RED                                                                      # Used for window flag highlighting
 
 # Colors associated with the current tmux state.
-set -g @theme-state-copying $AOH_YELLOW                                                            # Tmux when selecting regions to copy
+set -g @theme-state-copying $AOH_ORANGE                                                            # Tmux when selecting regions to copy
 set -g @theme-state-visual $AOH_YELLOW                                                             # Tmux when paging content
 set -g @theme-state-search $AOH_MAGENTA                                                            # Tmux when searching index
 set -g @theme-state-prefix $AOH_GREEN                                                              # Prefix-key indicator
@@ -82,8 +83,10 @@ set -g @theme-hide-host-width 110                                               
 set -g @theme-hide-last-winflag 1                                                                  # Whether to show the last window flag
 set -g @theme-winum-sep ":"                                                                        # Substring inserted between window number and name
 set -g @theme-winum-current-window 1                                                               # Whether to attach the window number to the current window
-set -g @theme-winflag-sep '[]'                                                                     # Seperators around window flags
+set -g @theme-winflag-sep '[]'                                                                     # Separators around window flags
 set -g @theme-show-session-group-index 1                                                           # Whether to show the current session position in the session group
+set -g @theme-show-link-flag-on-original-window 0                                                  # Whether to show the window linked flag on the original window
+set -g @theme-show-prefix-on-session-name 0                                                        # Whether to indicate prefix is active with a TMUX block before the session name or on the session-name itself
 %hidden TMUX_OPT_CMD_MAX_LEN=30                                                                    # Maximum length of command on status line
 %hidden TMUX_OPT_NAME_MAX_LEN=50                                                                   # Maximum length of pane title on status line
 
@@ -113,42 +116,55 @@ set -g popup-border-style fg=$TMUX_HL
 set -g display-panes-active-colour $AOH_CYAN
 set -g display-panes-colour $AOH_GREY
 
-# Status bar contents - updates depending on tmux state.
-set -g status-left "\
-#[fg=$TMUX_BG,\
-  bg=#{?selection_present,#{@theme-state-copying},#{?search_present,#{@theme-state-search},#{?pane_in_mode,#{@theme-state-visual},}}},\
-  bright]\
-#{?selection_present, COPY ,#{?search_present, FIND ,#{?pane_in_mode, META ,}}}\
-#[default]\
-\
-#[fg=$TMUX_BG,bg=#{@theme-state-prefix},bright]\
-#{?client_prefix, TMUX ,}\
-#[default]\
-\
-#[fg=$TMUX_BG,bg=#{@theme-state-session},bright]\
- #{?#{&&:#{>:#{session_group_size},1},#{session_grouped}},#{session_group}#{?#{@theme-show-session-group-index},[#(echo '?'; $TMUX_HOME/theme/session-index #{q:session_group_list} #{q:session_name})/#{session_group_size}],},#S} \
-#[default] \
-"
-
-# reverse engineer the default window flags so that you can modify indicators and add
+# Reverse engineer the default window flags so that you can modify indicators and add
 # indicators for as of yet unsupported window flag indicators.
 #
 # NOTE: @theme-hide-last-winflag isn't included in this list, it suffixes the program name.
 %hidden TMUX_FMT_WINFLAGS='\
 #{?pane_pipe,|,}\
+#{?window_silence_flag,~,}\
 #{?window_activity_flag,####,}\
 #{?window_bell_flag,!,}\
-#{?window_silence_flag,~,}\
-#{?window_linked,L,}\
+#{?#{&&:#{window_linked},#{||:#{==:#{@theme-show-link-flag-on-original-window},1},#{!=:#{s/^#S,.*/ /:window_linked_sessions_list}, }}},L,}\
 #{?window_marked_flag,M,}\
 #{?window_zoomed_flag,Z,}\
 '
+%hidden TMUX_FMT_WINFLAGS="#{?#{==:$TMUX_FMT_WINFLAGS,},,#{=1:@theme-winflag-sep}#[bright,fg=$TMUX_FLAG_HL]$TMUX_FMT_WINFLAGS#[default]#{=-1:@theme-winflag-sep}}"
 
-# Appends formatting and borders to the flags only when their not empty.
-%hidden TMUX_FMT_WINFLAGS_FORMATTED="#{?#{==:$TMUX_FMT_WINFLAGS,},,#{=1:@theme-winflag-sep}#[bright,fg=$AOH_RED]$TMUX_FMT_WINFLAGS#[default]#{=-1:@theme-winflag-sep}}"
+# Detect monitored flags across all windows in all sessions and then show a single
+# indicator character on the status-line. Useful if you want to know about these flags
+# even when you're in a separate session.
+%hidden TMUX_FMT_GLOBAL_FLAG_STATUS='\
+#{?#{==:#{S:#{W:#{?window_silence_flag,1,}}},},,~}\
+#{?#{==:#{S:#{W:#{?window_activity_flag,1,}}},},,####}\
+#{?#{==:#{S:#{W:#{?window_bell_flag,1,}}},},,!}\
+'
 
-set -g window-status-format         "#I#{@theme-winum-sep}#W#{?#{==:#{@theme-hide-last-winflag},1},,#{?window_last_flag,-,}}$TMUX_FMT_WINFLAGS_FORMATTED"
-set -g window-status-current-format "#{?#{==:#{@theme-winum-current-window},1},#I#{@theme-winum-sep},}#W$TMUX_FMT_WINFLAGS_FORMATTED"
+set -g status-left "\
+#[fg=$TMUX_BG,\
+  bg=#{?selection_present,#{@theme-state-copying},#{?search_present,#{@theme-state-search},#{?pane_in_mode,#{@theme-state-visual},}}},\
+  bright]\
+#[push-default]\
+#{?selection_present, COPY ,#{?search_present, FIND ,#{?pane_in_mode, META ,}}}\
+#[pop-default]#[default]\
+\
+#[fg=$TMUX_BG,\
+  bg=#{@theme-state-prefix},\
+  bright]\
+#[push-default]\
+#{?#{&&:#{client_prefix},#{!=:#{@theme-show-prefix-on-session-name},1}}, TMUX ,}\
+#[pop-default]#[default]\
+\
+#[fg=$TMUX_BG,\
+  bg=#{?#{&&:#{client_prefix},#{@theme-show-prefix-on-session-name}},#{@theme-state-prefix},#{@theme-state-session}},\
+  bright]\
+#[push-default]\
+ #{?#{&&:#{>:#{session_group_size},1},#{session_grouped}},#{session_group}$TMUX_FMT_GLOBAL_FLAG_STATUS#{?#{@theme-show-session-group-index},[#(echo '?'; $TMUX_HOME/theme/session-index #{q:session_group_list} #{q:session_name})/#{session_group_size}],},#S$TMUX_FMT_GLOBAL_FLAG_STATUS} \
+#[pop-default]#[default] \
+"
+
+set -g window-status-format         "#I#{@theme-winum-sep}#W#{?#{==:#{@theme-hide-last-winflag},1},,#{?window_last_flag,-,}}$TMUX_FMT_WINFLAGS"
+set -g window-status-current-format "#{?#{==:#{@theme-winum-current-window},1},#I#{@theme-winum-sep},}#W$TMUX_FMT_WINFLAGS"
 set -g window-status-bell-style     ""
 set -g window-status-activity-style ""
 
@@ -156,9 +172,9 @@ set -g status-right " \
 #[default,bg=$TMUX_BG,fg=$TMUX_FG]#[push-default]\
 #{?#{e|>=:#{client_width},#{@theme-hide-title-width}},#{?#{&&:#{!=:#{host},#{pane_title}},#{!=:#{pane_title},}},#{=/$TMUX_OPT_NAME_MAX_LEN/...:pane_title}#{?#{==:#{@theme-sep},}, ,#{@theme-sep}},#{?#{!=:#{E:@status-message},},#{E:@status-message}#{?#{==:#{@theme-sep},}, ,#{@theme-sep}},}},}
 \
-#{?#{e|>=:#{client_width},#{@theme-hide-misc-width}},#(echo ""; $TMUX_HOME/theme/status-misc -u --suffix '#{?#{==:#{@theme-sep},}, ,#{@theme-sep}}' --enable nordvpn --enable mullvad-vpn --enable docker --enable github --enable mpd --enable transmission --enable notmuch --disable battery --nordvpn-hide --nordvpn-icon ' ' --nordvpn-active-style '#[fg=$AOH_GREEN]' --nordvpn-inactive-style '#[fg=$AOH_RED]' --mullvad-vpn-hide --mullvad-vpn-icon ' ' --mullvad-vpn-active-style '#[fg=$AOH_GREEN]' --mullvad-vpn-inactive-style '#[fg=$AOH_RED]' --notmuch-hide-zero --notmuch-icon ' ' --notmuch-icon-style '#[fg=$AOH_WHITE]' --notmuch-unread-style '#[fg=$AOH_GREEN]' --notmuch-flagged-style '#[fg=$AOH_BRIGHT_MAGENTA]' --github-hide-zero --github-icon ' ' --github-icon-style '#[fg=$AOH_WHITE]' --github-count-style '#[fg=$AOH_BRIGHT_BLUE]' --mpd-icon ' ' --mpd-hide-when-zero --mpd-playing-style '#[fg=#{@theme-mpd-playing}]' --mpd-paused-style '#[fg=#{@theme-mpd-paused}]' --transmission-icon ' ' --transmission-icon-style '#[fg=$AOH_BRIGHT_BLUE]' --transmission-hide-zero --transmission-sections downloading_high_priority downloading checking incomplete --transmission-section-styles '#[fg=$AOH_ORANGE]' '' '#[fg=$AOH_BRIGHT_MAGENTA]' --battery-charging ''  --battery-charging-style '#[fg=#{@theme-battery-charging}]' --battery-level ' ' ' ' ' ' ' ' ' ' --battery-count 1 --battery-threshold 10 '#[fg=#{@theme-battery-1}]' --battery-threshold 20 '#[fg=#{@theme-battery-2}]' --battery-threshold 40 '#[fg=#{@theme-battery-3}]' --battery-threshold 60 '#[fg=#{@theme-battery-4}]' --battery-alert ' ' --battery-alert-style '#[blink fg=#{@theme-battery-1}]' --docker-icon ' ' --docker-icon-style '#[fg=$AOH_BRIGHT_BLUE]' --docker-hide-zero --docker-total-style '#[fg=$AOH_RED]' --docker-status RUNNING CREATED PAUSED RESTARTING --docker-status-style CREATED '#[fg=$AOH_GREEN]' --docker-status-style PAUSED '#[fg=$AOH_YELLOW]' --docker-status-style RESTARTING '#[fg=$AOH_YELLOW]'),}\
+#{?#{e|>=:#{client_width},#{@theme-hide-misc-width}},#(echo; $TMUX_HOME/theme/status-misc --unbuffer --suffix '#{?#{==:#{@theme-sep},}, ,#{@theme-sep}}' --enable nordvpn --enable mullvad-vpn --enable docker --enable github --enable mpd --enable transmission --enable notmuch --disable battery --disable disk-free --nordvpn-hide --nordvpn-icon ' ' --nordvpn-active-style '#[fg=$AOH_GREEN]' --nordvpn-inactive-style '#[fg=$AOH_RED]' --mullvad-vpn-hide --mullvad-vpn-icon ' ' --mullvad-vpn-active-style '#[fg=$AOH_GREEN]' --mullvad-vpn-inactive-style '#[fg=$AOH_RED]' --notmuch-hide-zero --notmuch-icon ' ' --notmuch-icon-style '#[fg=$AOH_WHITE]' --notmuch-unread-style '#[fg=$AOH_GREEN]' --notmuch-flagged-style '#[fg=$AOH_BRIGHT_MAGENTA]' --github-hide-zero --github-icon ' ' --github-icon-style '#[fg=$AOH_WHITE]' --github-count-style '#[fg=$AOH_BRIGHT_BLUE]' --mpd-icon ' ' --mpd-hide-when-zero --mpd-playing-style '#[fg=#{@theme-mpd-playing}]' --mpd-paused-style '#[fg=#{@theme-mpd-paused}]' --transmission-icon ' ' --transmission-icon-style '#[fg=$AOH_BRIGHT_BLUE]' --transmission-hide-zero --transmission-sections downloading_high_priority downloading checking incomplete --transmission-section-styles '#[fg=$AOH_ORANGE]' '' '#[fg=$AOH_BRIGHT_MAGENTA]' --battery-charging ''  --battery-charging-style '#[fg=#{@theme-battery-charging}]' --battery-level ' ' ' ' ' ' ' ' ' ' --battery-count 1 --battery-threshold 10 '#[fg=#{@theme-battery-1}]' --battery-threshold 20 '#[fg=#{@theme-battery-2}]' --battery-threshold 40 '#[fg=#{@theme-battery-3}]' --battery-threshold 60 '#[fg=#{@theme-battery-4}]' --battery-alert ' ' --battery-alert-style '#[blink fg=#{@theme-battery-1}]' --docker-icon ' ' --docker-icon-style '#[fg=$AOH_BRIGHT_BLUE]' --docker-hide-zero --docker-total-style '#[fg=$AOH_RED]' --docker-status RUNNING CREATED PAUSED RESTARTING --docker-status-style CREATED '#[fg=$AOH_GREEN]' --docker-status-style PAUSED '#[fg=$AOH_YELLOW]' --docker-status-style RESTARTING '#[fg=$AOH_YELLOW]' --disk-free-show-bytes --disk-free-thresholds 80 '#[fg=#{@theme-df-medium}]' --disk-free-thresholds 95 '#[fg=#{@theme-df-large}]' --disk-free-thresholds 100 '#[fg=#{@theme-df-full}]' --disk-free-mount-style '#[bold fg=#{@theme-df-mount}]'  ),}\
 \
-#(echo ""; $TMUX_HOME/theme/disk-free -u -s 60 -b -m '#[bold,fg=#{@theme-df-mount}]' -t 80 '#[fg=#{@theme-df-medium}]' -t 95 '#[fg=#{@theme-df-large}]' -t 100 '#[fg=#{@theme-df-full}]')\
+#(echo ""; $TMUX_HOME/theme/disk-free --unbuffer --sleep-time 60 --show-bytes --mount-style '#[bold fg=#{@theme-df-mount}]' --thresholds 80 '#[fg=#{@theme-df-medium}]' --thresholds 95 '#[fg=#{@theme-df-large}]' --thresholds 100 '#[fg=#{@theme-df-full}]')\
 \
 #[default]#{?#{==:#{@theme-sep},}, ,#{@theme-sep}}\
 #(echo ""; $TMUX_HOME/theme/cpu-load -u -s 1 -t 30 '#[fg=#{@theme-cpu-1}]' -t 50 '#[fg=#{@theme-cpu-2}]' -t 70 '#[fg=#{@theme-cpu-3}]' -t 90 '#[fg=#{@theme-cpu-4}]' -d '•' -j '')\

@@ -1,200 +1,197 @@
 #!/usr/bin/env python3
-# Tmux prompt script to peridically output freely available disk-space.
-"""
-A tmux script to periodically inspect the amount of freely available disk-space
-at various mount-points on your file-system and output the results in a form that
-can be substituted a form that can be substituted back into the tmux status-line.
-"""
+"""TODO"""
+# pylint: disable=no-member,invalid-name,access-member-before-definition
 
+import asyncio
 import dataclasses
+import logging
 import os
+import pathlib
 import shutil
 import time
-from pathlib import Path
+from typing import Callable, Iterable, List, Optional
 
 from mohkale import hurry
 
-from lib.shared import print_loop, render_loop
+from lib.status_misc.segment import StatusMiscSegment
 
 DEFAULT_CONFIG = ["/:/"]
-DEFAULT_CONFIG_PATH = Path(os.path.expandvars("$TMUX_HOME/disk-free.conf"))
+DEFAULT_CONFIG_PATH = pathlib.Path(os.path.expandvars("$TMUX_HOME/disk-free.conf"))
 
 
 @dataclasses.dataclass
-class ConfigEntry(object):
+class ConfigEntry:
     """Struct containing fields from a config file."""
 
     name: str
-    mount: str
+    mount: pathlib.Path
 
+    @classmethod
+    def parse_entries(cls, body: Iterable[str]) -> "List[ConfigEntry]":
+        """Parse an iterable over the contents of a configuration file
+        into a collection fo ConfigEntry entries.
 
-def _should_read_config(config):
-    """Closure around config which continually checks
-    whether config is out of date and can be read since
-    a previous reading.
-    """
-    while True:
-        last_read_time = 0
+        If body is a file like object it'll automatically be closed on
+        exit.
+        """
+        res = []
         try:
-            # Config must exist, be a file and be have a modification time
-            # newer than the last time we returned true
-            readp = (
-                config.exists()
-                and config.is_file()
-                and args.config.stat().st_mtime > last_read_time
-            )
-            yield readp
-            if readp:
-                last_read_time = time.time()
-        except GeneratorExit:
-            break
-        except OSError:
-            yield False
+            for line in body:
+                args = line.rstrip().split(":")
+                args[1] = pathlib.Path(args[1])
+                res.append(cls(*args))
+            return res
+        finally:
+            if hasattr(body, "close"):
+                body.close()
 
 
-def parse_config(body):
-    """Parse an iterable over the contents of a configuration file
-    into a collection fo ConfigEntry entries.
-
-    If body is a file like object it'll automatically be closed on
-    exit.
-    """
-    res = []
-    try:
-        for line in body:
-            args = line.rstrip().split(":")
-            args[1] = Path(args[1])
-            res.append(ConfigEntry(*args))
-        return res
-    finally:
-        if hasattr(body, "close"):
-            body.close()
-
-
-def format_percentage(usage, percent):
+def _format_percentage(usage, percent):
     """Format a usage amount as a percentage value."""
     # pylint: disable=unused-argument
     return str(percent) + "%"
 
 
-def format_free_bytes(usage, percent):
+def _format_free_bytes(usage, percent):
     """Format a usage amount as a byte count (eg: 1MB)."""
     # pylint: disable=unused-argument
     size, suffix = hurry.bytes(usage.free, 1000)
     return f"{int(size)}{suffix}"
 
 
-def format_mount(entry, fmt, args):
-    """Format a mount points usage value as a string."""
-    try:
-        if not entry.mount.exists():
-            return None
-        usage = shutil.disk_usage(str(entry.mount))
-    except Exception:  # pylint: disable=broad-except
-        return None
-    percent = round(100 * usage.used / float(usage.total))
-    res = ""
-    res += args.mount_style + entry.name + args.reset_style
-    res += ":" + args.value_style
-    for threshold, style in args.thresholds:
-        if percent >= threshold:
-            res += style
-            break
-    res += fmt(usage, percent)
-    return res
+class DiskFreeSegment(StatusMiscSegment):
+    """Status line segment showing free disk space at various mount points."""
 
+    name = "disk-free"
 
-def disk_free(args):
-    """Generator continually fetching and yielding the string to be output."""
-    fmt = format_percentage
-    if args.show_bytes:
-        fmt = format_free_bytes
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.fmt = _format_percentage
+        if self.show_bytes:
+            self.fmt = _format_free_bytes
 
-    cfg = None
-    reread_p = _should_read_config(args.config)
+        for it in self.thresholds:
+            try:
+                it[0] = float(it[0])
+            except ValueError as err:
+                raise ValueError(
+                    f"Threshold values must be a number, not: {it[0]}"
+                ) from err
+        self.thresholds = sorted(self.thresholds, key=lambda x: x[0], reverse=True)
 
-    def wrapped():
-        # Load configuration if it's changed or we haven't yet.
-        should_read_conf = next(reread_p)  # pylint: disable=R1708
-        nonlocal cfg
-        if cfg is None or should_read_conf:
-            cfg = parse_config(
-                args.config.open("r", encoding="utf-8")
+    @classmethod
+    def parser_args(
+        cls, parser: "argparse.ArgumentParser", flag: Callable[[str], str]
+    ) -> None:
+        df_group = parser.add_argument_group("Disk Free")
+        super().parser_args(df_group, flag)
+
+        df_group.add_argument(
+            flag("config"),
+            metavar="FILE",
+            type=pathlib.Path,
+            default=DEFAULT_CONFIG_PATH,
+            help="Specify mount map configuration file",
+        )
+        df_group.add_argument(
+            flag("show-bytes"),
+            action="store_true",
+            help="Show bytes remaining instead of percentage used",
+        )
+
+        df_group.add_argument(
+            flag("mount-style"), default="", help="Specify style for mount points"
+        )
+        df_group.add_argument(
+            flag("value-style"), default="", help="Specify style for value points"
+        )
+        df_group.add_argument(
+            flag("thresholds"),
+            nargs=2,
+            metavar=("PERCENT", "STYLE"),
+            action="append",
+            default=[],
+            help="Specify style thresholds",
+        )
+
+    # pylint: disable=invalid-overridden-method
+    async def render(self) -> str:
+        config_entries = await self.config_entries()
+        formatted_mounts = await asyncio.gather(
+            *[self._format_mount(it) for it in config_entries], return_exceptions=True
+        )
+        for i, result in enumerate(formatted_mounts):
+            if result and isinstance(result, BaseException):
+                logging.error(
+                    "Failed to generate formatted mount for: %s",
+                    config_entries[i],
+                    exc_info=result,
+                )
+        return " ".join(
+            x for x in formatted_mounts if x and not isinstance(x, BaseException)
+        )
+
+    _config_entries: Optional[List[ConfigEntry]] = None
+
+    async def config_entries(self) -> List[ConfigEntry]:
+        """Read `ConfigEntry` objects from the config file."""
+        should_read_conf = await self._reread_config_p()
+
+        if self._config_entries is None or should_read_conf:
+            logging.info(
+                "Re-reading config file %s",
+                (
+                    str(self.config)
+                    if should_read_conf
+                    else f"from default config {DEFAULT_CONFIG}"
+                )
+            )
+            self._config_entries = ConfigEntry.parse_entries(
+                self.config.open("r", encoding="utf-8")
                 if should_read_conf
                 else DEFAULT_CONFIG
             )
 
-        formatted = (format_mount(it, fmt, args) for it in cfg)
-        return " ".join(x for x in formatted if x)
+        return self._config_entries
 
-    return wrapped
+    _config_last_read_time: int = 0
+
+    async def _reread_config_p(self) -> bool:
+        """Config file exists or has been modified since it was last read."""
+        try:
+            # Config must exist, be a file and be have a modification time
+            # newer than the last time we returned true
+            readp = (
+                self.config.exists()
+                and self.config.is_file()
+                and self.config.stat().st_mtime > self._config_last_read_time
+            )
+            if readp:
+                self._config_last_read_time = time.time()
+            return readp
+        except OSError:
+            return False
+
+    async def _format_mount(self, entry: ConfigEntry) -> Optional[str]:
+        try:
+            if not entry.mount.exists():
+                return None
+            usage = shutil.disk_usage(str(entry.mount))
+        except OSError:
+            return None
+        percent = round(100 * usage.used / float(usage.total))
+        res = ""
+        res += self._style(entry.name, self.mount_style)
+        res += ":"
+        res += self._style(
+            self.fmt(usage, percent),
+            next(
+                (style for threshold, style in self.thresholds if percent >= threshold),
+                None,
+            ),
+        )
+        return res
 
 
 if __name__ == "__main__":
-    import argparse
-
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument(
-        "-c",
-        "--config",
-        type=Path,
-        default=DEFAULT_CONFIG_PATH,
-        help="Specify mount map configuration file",
-    )
-    parser.add_argument(
-        "-b",
-        "--show-bytes",
-        action="store_true",
-        help="Show bytes remaining instead of percentage used",
-    )
-
-    parser.add_argument(
-        "-m", "--mount-style", default="", help="Specify style for mount points"
-    )
-    parser.add_argument(
-        "-r",
-        "--reset-style",
-        default="#[default]",
-        help="Specify style for resetting styles",
-    )
-    parser.add_argument(
-        "-v", "--value-style", default="", help="Specify style for value points"
-    )
-    parser.add_argument(
-        "-t",
-        "--thresholds",
-        nargs=2,
-        metavar=("PERCENT", "STYLE"),
-        action="append",
-        default=[],
-        help="Specify style thresholds",
-    )
-
-    parser.add_argument(
-        "-u",
-        "--unbuffer",
-        action="store_true",
-        help="Immeadiately flush output after writing",
-    )
-    parser.add_argument(
-        "-s",
-        "--sleep",
-        type=int,
-        help="When given, wait this duration between outputting",
-    )
-
-    args = parser.parse_args()
-    vargs = vars(args)
-
-    for it in args.thresholds:
-        try:
-            it[0] = float(it[0])
-        except ValueError:
-            parser.error(f"Threshold values must be a number, not: {it[0]}")
-    args.thresholds = sorted(args.thresholds, key=lambda x: x[0], reverse=True)
-
-    try:
-        print_loop(render_loop(disk_free(args)), args.unbuffer, args.sleep)
-    except KeyboardInterrupt:
-        pass
+    DiskFreeSegment.main()
