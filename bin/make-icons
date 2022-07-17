@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+
+resolutions=( 16 32 48 64 256 512 )
+
+print_usage() {
+  echo "Usage: make-icon [-h] [-] FILE [FILES...]"
+}
+
+print_help() {
+  print_usage
+  cat <<EOF
+
+  Convert a series of image files into windows compatible icon
+  files supporting the resolutions $(printf '%s, ' "${resolutions[@]}" | sed 's/, $//').
+
+  This script maintains the aspect ratio between the input files
+  and the final icon file (preventing them from ending up all
+  blocky) and won't include any resolutions in the final file
+  if its larger than the source file (preventing unwanted upscaling).
+
+Positional arguments:
+  FILE/FILES
+    List of image files to batch convert to icons. Pass - to
+    read file paths from stdin.
+
+Optional arguments
+  -h
+    Show this help message and exit.
+  -o DIR
+    Place icons in DIR instead of the same location as the
+    input file.
+  -d
+    Dry run. Output the commands that would be run instead
+    of running them.
+EOF
+}
+
+out_dir=$(pwd)
+dry_run=
+dest="{.}.ico"
+while getopts ho:d OPTION; do
+  case "$OPTION" in
+    h) print_help
+       exit 0 ;;
+    o) out_dir=$OPTARG
+       dest="$out_dir/{/.}.ico"
+       ;;
+    d) dry_run=--dry-run ;;
+    \?) print_usage >&2
+        exit 1 ;;
+  esac
+done
+shift $((OPTIND-1))
+if [ "$#" -eq 0 ]; then
+  echo "error: make-icon: Must supply at least one file to convert to an icon"
+  print_usage >&2
+  exit 1
+fi
+
+resolution_args=(  )
+for resolution in "${resolutions[@]}"; do
+  resolution_args+=( "'('" -clone 0 -resize "${resolution}x${resolution}'>'" "')'" )
+done
+
+[ -e "$out_dir" ] || mkdir -p "$out_dir"
+
+# shellcheck disable=SC2248
+for file in "$@"; do
+  if [ "$file" = - ]; then
+    cat
+  else
+    echo "$file"
+  fi
+done |
+  parallel $dry_run                             \
+    convert {}                                  \
+      -bordercolor white                        \
+      -border 0                                 \
+      "${resolution_args[@]}"                   \
+      -delete 0                                 \
+      -alpha off                                \
+      -colors 256                               \
+      "$dest"                                   \
+      '>&2'                                     \
+    '&&' echo {}
