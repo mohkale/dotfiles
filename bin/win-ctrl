@@ -10,43 +10,101 @@
 # This is useful for setting up bindings to control the desktop environment
 # such as for libinput-gestures.
 
+#   ____          _                  _          _   _                ___        _   _
+#  / ___|   _ ___| |_ ___  _ __ ___ (_)______ _| |_(_) ___  _ __    / _ \ _ __ | |_(_) ___  _ __  ___
+# | |  | | | / __| __/ _ \| '_ ` _ \| |_  / _` | __| |/ _ \| '_ \  | | | | '_ \| __| |/ _ \| '_ \/ __|
+# | |__| |_| \__ \ || (_) | | | | | | |/ / (_| | |_| | (_) | | | | | |_| | |_) | |_| | (_) | | | \__ \
+#  \____\__,_|___/\__\___/|_| |_| |_|_/___\__,_|\__|_|\___/|_| |_|  \___/| .__/ \__|_|\___/|_| |_|___/
+#                                                                        |_|
+
+export NO_PROMPT=0                      # When true and applicable don't prompt the user for a command
+
+#   ____                      _         ____                                          _
+#  / ___| ___ _ __   ___ _ __(_) ___   / ___|___  _ __ ___  _ __ ___   __ _ _ __   __| |___
+# | |  _ / _ \ '_ \ / _ \ '__| |/ __| | |   / _ \| '_ ` _ \| '_ ` _ \ / _` | '_ \ / _` / __|
+# | |_| |  __/ | | |  __/ |  | | (__  | |__| (_) | | | | | | | | | | | (_| | | | | (_| \__ \
+#  \____|\___|_| |_|\___|_|  |_|\___|  \____\___/|_| |_| |_|_| |_| |_|\__,_|_| |_|\__,_|___/
+
 _no_command() {
   echo "error: win-ctrl: No command known to $*" >&2
   return 1
 }
 
 CMDS=( )
+declare -A DOCS
 
 show-workspaces() {
   _no_command "show workspaces"
 }
 CMDS+=( show-workspaces )
+DOCS[show-workspaces]="Show all virtual desktops and choose one"
 
 show-workspaces-quit() {
   _no_command "quit showing workspaces"
 }
 CMDS+=( show-workspaces-quit )
+DOCS[show-workspaces-quit]="Exit viewing all virtual desktops"
 
 workspace-next() {
   xdotool set_desktop --relative 1
 }
 CMDS+=( workspace-next )
+DOCS[workspace-next]="Move to the next virtual desktop horizontally"
 
 workspace-prev() {
   xdotool set_desktop --relative 1
 }
 CMDS+=( workspace-prev )
+DOCS[workspace-prev]="Move to the previous virtual desktop horizontally"
 
 # For desktop environments with grid based workspace layouts.
 workspace-up() {
   _no_command "move workspace up"
 }
 CMDS+=( workspace-up )
+DOCS[workspace-up]="Move to workspace up from current (for grid based desktops)"
 
 workspace-down() {
   _no_command "move workspace down"
 }
 CMDS+=( workspace-down )
+DOCS[workspace-down]="Move to workspace down from current (for grid based desktops)"
+
+lock-screen() {
+  _no_command "lock-screen"
+}
+CMDS+=( lock-screen )
+DOCS[lock-screen]="Lock the current screen and require the user to re-login"
+
+logout() {
+  _no_command "logout"
+}
+CMDS+=( logout )
+DOCS[logout]="Logout from the current desktop user session"
+
+shutdown() {
+  echo command shutdown -P now +1
+}
+CMDS+=( shutdown )
+DOCS[shutdown]="Shutdown the current machine after a slight delay"
+
+restart() {
+  command shutdown -r now +1
+}
+CMDS+=( restart )
+DOCS[restart]="Shutdown the current machine and then restart"
+
+sleep() {
+  systemctl suspend
+}
+CMDS+=( sleep )
+DOCS[sleep]="Send the computer to sleep (still active in RAM)"
+
+hibernate() {
+  systemctl hibernate
+}
+CMDS+=( hibernate )
+DOCS[hibernate]="Send the computer to sleep (flush RAM to disk)"
 
 #  ____  _       _    __                         ___                      _     _
 # |  _ \| | __ _| |_ / _| ___  _ __ _ __ ___    / _ \__   _____ _ __ _ __(_) __| | ___  ___
@@ -54,20 +112,15 @@ CMDS+=( workspace-down )
 # |  __/| | (_| | |_|  _| (_) | |  | | | | | | | |_| |\ V /  __/ |  | |  | | (_| |  __/\__ \
 # |_|   |_|\__,_|\__|_|  \___/|_|  |_| |_| |_|  \___/  \_/ \___|_|  |_|  |_|\__,_|\___||___/
 
-conf=
-if [ "$XDG_CURRENT_DESKTOP" = KDE ] ||
-     [ -n "$KDE_FULL_SESSION" ]; then
-  conf="$XDG_CONFIG_HOME/win-ctrl/win-ctrl.plasma"
-else
-  echo "warn: win-ctrl: No known ctrl-script for current desktop-environment" >&2
-fi
-
-if [ -n "$conf" ]; then
-  # shellcheck disable=SC1090
-  if ! [ -r "$conf" ] || ! . "$conf"; then
-    echo "warn: win-ctrl: Failed to source desktop-environment config: $conf" >&2
+platform_script() {
+  conf=
+  if [ "$XDG_CURRENT_DESKTOP" = KDE ] ||
+       [ -n "$KDE_FULL_SESSION" ]; then
+    echo "$XDG_CONFIG_HOME/win-ctrl/win-ctrl.plasma"
+  else
+    echo "warn: win-ctrl: No known ctrl-script for current desktop-environment" >&2
   fi
-fi
+}
 
 #  _____       _                 ____       _       _
 # | ____|_ __ | |_ _ __ _   _   |  _ \ ___ (_)_ __ | |_
@@ -79,7 +132,7 @@ fi
 print_usage() {
   local cmds; cmds=$(printf "%s," "${CMDS[@]}")
   cmds="${cmds%,}"
-  echo "Usage: win-ctrl [-h] {$cmds}"
+  echo "Usage: win-ctrl [-h] [-g] [-p] {$cmds}"
 }
 
 print_help() {
@@ -88,20 +141,46 @@ print_help() {
 
   Run commands to control the current desktop environment.
 
-Optional arguments
+Optional arguments:
   -h  Show this help message and exit.
+  -g  Don't perform any platform specific command loading.
+  -p  Don't prompt the user when running a window command.
+
+Available commands:
 EOF
+  local cmd doc
+  for cmd in "${CMDS[@]}"; do
+    echo "  $cmd"
+    doc="${DOCS[$cmd]}"
+    if [ -n "$doc" ]; then
+      echo "    $doc"
+    fi
+  done
 }
 
-while getopts 'h' OPTION; do
+generic=0
+while getopts 'hgp' OPTION; do
   case "$OPTION" in
     h) print_help
        exit 0 ;;
+    g) generic=1 ;;
+    p) NO_PROMPT=1 ;;
     \?) print_usage >&2
         exit 1 ;;
   esac
 done
 shift "$((OPTIND - 1))"
+
+if [ "$generic" -ne 1 ]; then
+  conf=$(platform_script)
+
+  if [ -n "$conf" ]; then
+    # shellcheck disable=SC1090
+    if ! [ -r "$conf" ] || ! . "$conf"; then
+      echo "warn: win-ctrl: Failed to source desktop-environment config: $conf" >&2
+    fi
+  fi
+fi
 
 if [ "$#" -eq 0 ]; then
   print_help

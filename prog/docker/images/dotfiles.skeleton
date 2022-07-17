@@ -7,21 +7,21 @@
 COPY --chown=root:root . /root/.config/dotfiles
 
 RUN apt-get update                              \
-    && apt-get install -y                       \
-         curl                                   \
-         vim                                    \
-         gawk                                   \
-         git                                    \
-    && cd /root/.config/dotfiles                \
-    && ./manage -l DEBUG install -b nvim        \
-         ./core                                 \
-         ./bin                                  \
-         ./prog/shells/bash                     \
-         ./prog/bat                             \
-         ./prog/editors/vim                     \
-         ./prog/editors/nvim                    \
-         ./prog/ripgrep                         \
-         ./prog/gdb                             \
-    || true                                     \
-    && apt-get clean                            \
-    && rm -rf /var/lib/apt/lists/* /tmp/*
+ && apt-get install -y                          \
+      curl                                      \
+      vim                                       \
+      gawk                                      \
+      git                                       \
+ && cd /root/.config/dotfiles                   \
+ && ./manage -l DEBUG install -b nvim           \
+      ./core                                    \
+      ./bin                                     \
+      ./prog/shells/bash                        \
+      ./prog/bat                                \
+      ./prog/editors/vim                        \
+      ./prog/editors/nvim                       \
+      ./prog/ripgrep                            \
+      ./prog/gdb                                \
+ || true                                        \
+ && apt-get clean                               \
+ && rm -rf /var/lib/apt/lists/* /tmp/*

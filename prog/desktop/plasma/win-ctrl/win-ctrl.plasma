@@ -3,6 +3,18 @@ _kwin_shortcut() {
   qdbus org.kde.kglobalaccel /component/kwin org.kde.kglobalaccel.Component.invokeShortcut "$@"
 }
 
+_ksm_shortcut() { #(method, mode)
+  local x y="$1" z="$2"
+  # where
+  #   x=ask (0/1)
+  #   y=method (0=none, 1=reboot, 2=halt, 3=logout)
+  #   z=mode (0=wait, 1=try, 2=force, 3=user popup)
+  if [ "${NO_PROMPT:-0}" -eq 0 ]; then x=1; else x=0; fi
+  qdbus org.kde.ksmserver /KSMServer logout "$x" "$y" "$z"
+}
+
+# Window control command overrides.
+
 show-workspaces() {
   _kwin_shortcut "ShowDesktopGrid"
 }
@@ -26,4 +38,20 @@ workspace-up() {
 
 workspace-down() {
   _kwin_shortcut "Switch One Desktop Down"
+}
+
+lock-screen() {
+  qdbus org.freedesktop.ScreenSaver /ScreenSaver Lock
+}
+
+logout() {
+  _ksm_shortcut 0 0
+}
+
+shutdown() {
+  _ksm_shortcut 2 0
+}
+
+restart() {
+  _ksm_shortcut 1 0
 }

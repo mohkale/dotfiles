@@ -1,12 +1,14 @@
+#!/usr/bin/env python3
 """Status misc segment for showing MullvadVPN connection status."""
 # pylint: disable=no-member
 
 import logging
 import re
-import subprocess
 from distutils.spawn import find_executable as which
+from typing import Callable
 
-from ..segment import StatusMiscSegment
+from lib.shared import run_process
+from lib.status_misc.segment import StatusMiscSegment
 
 
 class MullvadVPNSegment(StatusMiscSegment):
@@ -15,54 +17,57 @@ class MullvadVPNSegment(StatusMiscSegment):
     name = "mullvad-vpn"
 
     @classmethod
-    def parser_args(cls, parser):
+    def parser_args(
+        cls, parser: "argparse.ArgumentParser", flag: Callable[[str], str]
+    ) -> None:
         mvpn_group = parser.add_argument_group("Mullvad VPN")
-        super().parser_args(mvpn_group)
+        super().parser_args(mvpn_group, flag)
 
         mvpn_group.add_argument(
-            f"--{cls.name}-icon",
+            flag("icon"),
             default="N",
             metavar="ICON",
             help="Icon shown to indicate mullvad-vpn status.",
         )
         mvpn_group.add_argument(
-            f"--{cls.name}-hide",
+            flag("hide"),
             action="store_true",
             help="Hide mullvad-vpn status when disconnected",
         )
         mvpn_group.add_argument(
-            f"--{cls.name}-active-style",
+            flag("active-style"),
             default="",
             metavar="STYLE",
             help="Styling for an active mullvad-vpn connection.",
         )
         mvpn_group.add_argument(
-            f"--{cls.name}-inactive-style",
+            flag("inactive-style"),
             default="",
             metavar="STYLE",
             help="Styling for an inactive mullvad-vpn connection.",
         )
 
-    def render(self):
+    # pylint: disable=invalid-overridden-method
+    async def render(self):
         """MullvadVPN status-line section."""
         if not which("mullvad"):
             logging.debug(
                 "Skipping segment=%s because mullvad is not installed.", self.name
             )
             return None
-        proc = subprocess.run(
-            ["mullvad", "status"], capture_output=True, encoding="utf-8"
+        returncode, stdout, _stderr = await run_process(
+            ["mullvad", "status", "--location"], encoding="utf-8"
         )
-        if proc.returncode != 0:
+        if returncode != 0:
             logging.warning(
                 "Warning failed to run mullvad process for segment=%s", self.name
             )
             return None
         ip_address = ""
         match = re.search(
-            r"Connected to (?:OpenVPN|WireGuard) (.+):(\d+) over UDP",
-            proc.stdout,
-            flags=re.IGNORECASE,
+            r"Connected to (?:.*\n)IPv4: (.+)$",
+            stdout,
+            flags=re.IGNORECASE | re.MULTILINE,
         )
         if not match:
             if self.hide:
@@ -75,3 +80,7 @@ class MullvadVPNSegment(StatusMiscSegment):
             )
             + ip_address
         )
+
+
+if __name__ == "__main__":
+    MullvadVPNSegment.main()

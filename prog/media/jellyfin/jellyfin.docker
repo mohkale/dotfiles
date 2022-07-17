@@ -1,12 +1,35 @@
 # -*- dockerfile -*-
 FROM jellyfin/jellyfin
 
+###############################################################################
+#                  Setup fail2ban to Prevent Network Snoopers                 #
+###############################################################################
+
 COPY fail2ban-jail.conf /etc/fail2ban/jail.d/jellyfin.local
 COPY fail2ban-filter.conf /etc/fail2ban/filter.d/jellyfin.conf
+RUN apt-get update                              \
+ && apt-get install -y fail2ban                 \
+ && touch /var/log/auth.log                     \
+ && apt-get clean                               \
+ && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update &&                           \
-    apt-get install -y fail2ban &&              \
-    touch /var/log/auth.log                     \
-    service fail2ban start                      \
-    apt-get clean &&                            \
-    rm -rf /var/lib/apt/lists/*
+###############################################################################
+#                     Install Any Custom Jellyfin Plugins                     #
+###############################################################################
+
+# I'd recommend installing the following plugins through the UI:
+# + [[https://github.com/jellyfin/jellyfin-plugin-opensubtitles][Open Subtitles]]
+# + [[https://github.com/jellyfin/jellyfin-plugin-playbackreporting][Playback Reporting]]
+# + [[https://github.com/jellyfin/jellyfin-plugin-reports][Reports]]
+
+###############################################################################
+#                              Entrypoint Command                             #
+###############################################################################
+
+# Start command taken from parent [[https://github.com/jellyfin/jellyfin/blob/8af9b84745eba04264a027b66acb1c263cc0cf4c/Dockerfile#L86][dockerfile]].
+RUN >/usr/share/entrypoint.sh printf '%s\n'                                                                   \
+      '#!/bin/sh'                                                                                             \
+      'service fail2ban start'                                                                                \
+      'exec ./jellyfin/jellyfin --datadir /config --cachedir /cache --ffmpeg /usr/lib/jellyfin-ffmpeg/ffmpeg' \
+ && chmod +x /usr/share/entrypoint.sh
+ENTRYPOINT /usr/share/entrypoint.sh

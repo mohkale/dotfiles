@@ -1,39 +1,46 @@
+#!/usr/bin/env python3
 """Status misc segment for MPD status."""
 # pylint: disable=no-member
 
 import logging
+from typing import Callable, Optional
 
-from ..segment import StatusMiscSegment
+from lib.status_misc.segment import StatusMiscSegment
 
 
 class MPDSegment(StatusMiscSegment):
+    """Status line segment showing MPD playback and playlist status.
+    """
+
     name = "mpd"
 
     @classmethod
-    def parser_args(cls, parser):
+    def parser_args(
+        cls, parser: "argparse.ArgumentParser", flag: Callable[[str], str]
+    ) -> None:
         mpd_group = parser.add_argument_group("Music Player Daemon")
-        super().parser_args(mpd_group)
+        super().parser_args(mpd_group, flag)
 
         mpd_group.add_argument(
-            f"--{cls.name}-icon",
+            flag("icon"),
             default="M",
             metavar="ICON",
             help="Icon shown to indicate MPD status.",
         )
         mpd_group.add_argument(
-            f"--{cls.name}-playing-style",
+            flag("playing-style"),
             metavar="STYLE",
             default="",
             help="Styling for when MPD is playing something.",
         )
         mpd_group.add_argument(
-            f"--{cls.name}-paused-style",
+            flag("paused-style"),
             metavar="STYLE",
             default="",
             help="Styling for when MPD is paused.",
         )
         mpd_group.add_argument(
-            f"--{cls.name}-hide-when-zero",
+            flag("hide-when-zero"),
             action="store_true",
             help="Don't show any playlist size if the playlist is empty.",
         )
@@ -70,10 +77,10 @@ class MPDSegment(StatusMiscSegment):
             self._client = None
         return None
 
-    def render(self):
+    def render(self) -> Optional[str]:
         status = self._status()
         if not status:
-            return
+            return None
 
         position = int(status["song"])
         size = int(status["playlistlength"])
@@ -87,3 +94,7 @@ class MPDSegment(StatusMiscSegment):
             res += f" {position+1:02d}/{size:02d}"
 
         return res
+
+
+if __name__ == "__main__":
+    MPDSegment.main()

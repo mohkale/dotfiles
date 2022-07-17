@@ -8,6 +8,7 @@ cd() {
   if [ "$TMUX_CD_NEW_SESSION" -eq 1 ]; then
     local name
     name=$(basename "$*")
+    name=${name//[.:]/-}
     tmux new-session -A -D -d -s "$name" -c "$*"
     tmux switch-client -t "$name"
   else

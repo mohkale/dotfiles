@@ -10,7 +10,7 @@ services:
     volumes:
       - $XDG_CACHE_HOME/jellyfin:/cache
       - $XDG_CONFIG_HOME/jellyfin:/config
-      # Downloads folders often contain new media before I back them up.
+      # Download folders often contain new media before I back them up.
       - ${JELLYFIN_SKIP_DOWNLOAD:-$XDG_DOWNLOAD_DIR}:/media/downloads:ro
       # Dedicated home level directories for media files. I often symlink
       # these into a larger main drive, but docker-compose will fail to

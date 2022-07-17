@@ -22,6 +22,7 @@ unset ZSH_AUTOSUGGEST_USE_ASYNC                                                 
 if ! zgen saved; then
   zgen load 'mafredri/zsh-async'                                                 # Asynchronous actions (for prompt)
   zgen load 'zsh-users/zsh-syntax-highlighting'                                  # Highlight keywords/commands as you write
+  # zgen load 'zdharma-continuum/fast-syntax-highlighting'                       # Highlight keywords/commands as you write (alternative)
   zgen load 'zsh-users/zsh-autosuggestions'                                      # Preview completions/suggestions
   zgen save
 fi
