@@ -5,7 +5,6 @@ import argparse
 import asyncio
 import logging
 import sys
-import typing
 from typing import Awaitable, Callable, List, Optional
 
 from ..shared import async_print_loop
@@ -82,9 +81,7 @@ class StatusMiscSegment(abc.ABC):
             help="How long to wait between updating this section.",
         )
 
-    async def run(
-        self, callback: typing.Callable[[typing.Optional[str]], Awaitable[None]]
-    ) -> None:
+    async def run(self, callback: Callable[[Optional[str]], Awaitable[None]]) -> None:
         """Create a coroutine to run this segment and pass the result to callback.
 
         Parameters
@@ -109,10 +106,10 @@ class StatusMiscSegment(abc.ABC):
             logging.debug("Awoke segment=%s", self.name)
 
     @abc.abstractmethod
-    def render(self) -> typing.Optional[str]:
+    def render(self) -> Optional[str]:
         """Render this status line segment."""
 
-    def _style(self, msg: str, style: typing.Optional[str]) -> None:
+    def _style(self, msg: str, style: Optional[str]) -> None:
         if style:
             msg = style + msg + self.args.reset_style
         return msg
@@ -132,26 +129,31 @@ class StatusMiscSegment(abc.ABC):
         # Shared state variables for segment runtime
         last_result = None
         value_ptr = [""]
-        change_event = asyncio.Event()
 
         # segment.run callback function which populates value_ptr.
-        async def implementation(result: Optional[str]) -> None:
-            nonlocal last_result
-            if last_result != result:
-                logging.debug(
-                    "Updating value of segment to value=%s",
-                    repr(result),
-                )
-                last_result = result
-                line = result
-                if line:
-                    line = line + args.suffix
-                value_ptr[0] = line or ""
-                change_event.set()
+        def segment_callback(change_event: asyncio.Event):
+            async def implementation(result: Optional[str]) -> None:
+                nonlocal last_result
+                if last_result != result:
+                    logging.debug(
+                        "Updating value of segment to value=%s",
+                        repr(result),
+                    )
+                    last_result = result
+                    line = result
+                    if line:
+                        line = line + args.suffix
+                    value_ptr[0] = line or ""
+                    change_event.set()
+
+            return implementation
 
         # Async main function which runs segment as is.
         async def amain() -> None:
-            segment_task = asyncio.create_task(cls_instance.run(implementation))
+            change_event = asyncio.Event()
+            segment_task = asyncio.create_task(
+                cls_instance.run(segment_callback(change_event))
+            )
             await asyncio.create_task(
                 async_print_loop(value_ptr, change_event, args.unbuffer)
             )
