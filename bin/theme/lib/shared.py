@@ -1,4 +1,4 @@
-"""Shared utilities for my tmux status line scripts."""
+"""Shared utilities for my theme scripts."""
 import asyncio
 import logging
 import sys

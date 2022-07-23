@@ -16,7 +16,9 @@ from mohkale import hurry
 from lib.status_misc.segment import StatusMiscSegment
 
 DEFAULT_CONFIG = ["/:/"]
-DEFAULT_CONFIG_PATH = pathlib.Path(os.path.expandvars("$TMUX_HOME/disk-free.conf"))
+DEFAULT_CONFIG_PATH = pathlib.Path(
+    os.path.expandvars("$XDG_CONFIG_HOME/theme/disk-free.conf")
+)
 
 
 @dataclasses.dataclass
@@ -144,7 +146,7 @@ class DiskFreeSegment(StatusMiscSegment):
                     str(self.config)
                     if should_read_conf
                     else f"from default config {DEFAULT_CONFIG}"
-                )
+                ),
             )
             self._config_entries = ConfigEntry.parse_entries(
                 self.config.open("r", encoding="utf-8")

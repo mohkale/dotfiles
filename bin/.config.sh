@@ -60,4 +60,4 @@ if is-linux; then
   link "$XDG_BIN_DIR/term-dwim"
 fi
 
-import lib
+import lib theme

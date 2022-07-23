@@ -55,7 +55,9 @@ class GithubNotificationsSegment(StatusMiscSegment):
         github_group.add_argument(
             flag("config"),
             type=pathlib.Path,
-            default=pathlib.Path(os.path.expandvars("$TMUX_HOME/github-api.key")),
+            default=pathlib.Path(
+                os.path.expandvars("$XDG_CONFIG_HOME/theme/github-api.key")
+            ),
             help="Specify mount map configuration file",
         )
 

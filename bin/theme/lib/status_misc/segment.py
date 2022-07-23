@@ -1,4 +1,4 @@
-"""Base class for a [[file:~/.config/dotfiles/prog/tmux/theme/status-misc][status-misc]] segment."""
+"""Base class for a [[file:~/.config/dotfiles/bin/theme/status-misc][status-misc]] segment."""
 
 import abc
 import argparse

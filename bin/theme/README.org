@@ -1,0 +1,7 @@
+#+TITLE: Theme Commands
+
+This directory contains commands specifically designed for use in task bars or status
+line segments such as TMUX. Each command can be run to output some relevant data and
+then wait and update that data after a fixed interval. The [[file:status-misc][status-misc]] script is
+designed as a wrapper around multiple of these standalone scripts that can maintain
+run all of them under a single process.

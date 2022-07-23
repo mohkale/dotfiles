@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
-A tmux script to periodically inspect the CPU load on the current system
-and to print it out in a form that can be substituted back into the tmux
-status-line.
+Theme script to periodically inspect the CPU load on the current system
+and to print it out.
 """
 
 import sys
