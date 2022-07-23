@@ -16,6 +16,7 @@ windows:
                 JELLYFIN_SKIP_MUSIC:"$XDG_MUSIC_DIR"          \
                 JELLYFIN_SKIP_MOVIES:"$XDG_VIDEOS_DIR/movies" \
                 JELLYFIN_SKIP_TV:"$XDG_VIDEOS_DIR/tv"         \
+                JELLYFIN_SKIP_AMV:"$XDG_VIDEOS_DIR/AMV"       \
                 JELLYFIN_SKIP_MANGA:"$HOME/media/manga"; do
               IFS=: read -r var location <<< "$it"
               [ -e "$location" ] ||

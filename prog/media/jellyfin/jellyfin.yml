@@ -5,6 +5,8 @@ services:
     image: jellyfin/jellyfin
     build:
       dockerfile: jellyfin.docker
+      args:
+        DOTNET_VERSION: '6.0'
     container_name: jellyfin
     network_mode: host
     volumes:
@@ -19,6 +21,7 @@ services:
       - ${JELLYFIN_SKIP_MUSIC:-$XDG_MUSIC_DIR}:/media/music:ro
       - ${JELLYFIN_SKIP_MOVIES:-$XDG_VIDEOS_DIR/movies}:/media/movies:ro
       - ${JELLYFIN_SKIP_TV:-$XDG_VIDEOS_DIR/tv}:/media/tv:ro
+      - ${JELLYFIN_SKIP_AMV:-$XDG_VIDEOS_DIR/AMV}:/media/amv:ro
       - ${JELLYFIN_SKIP_MANGA:-$HOME/media/manga}:/media/manga:ro
       # This directory is the dedicated mount root for media related drives.
       - /mnt/media:/media/mount:ro
