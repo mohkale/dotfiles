@@ -3,6 +3,7 @@ link ~/.Xresources                                    \
      ~/.xprofile                                      \
      xbindkeysrc:"$XDG_CONFIG_HOME/xbindkeys/config"
 link-to "$XDG_CONFIG_HOME/Xresources/" ./Xresources.d/*
+link-to "$XDG_BIN_DIR/" ./cmds/*
 run-cmd touch "$XDG_CONFIG_HOME/Xresources/local"
 
 packages                                                            \
@@ -13,12 +14,7 @@ packages pip:notify-send
 if [ -e "$DOTFILES/setup/cache/arch" ]; then
   info 'Installing Graphics Drivers for Xorg'
 
-  graphics_card=$(lspci | grep -e VGA -e 3D |
-                    rev | cut -d: -f1 | rev |
-                    sed -e 's/^ *//' -e 's/ *$//' |
-                    tr '[:upper:]' '[:lower:]')
-
-  case "$graphics_card" in
+  case "$("$DOTFILES/bin/ls-graphics-card")" in
     *intel*)
       package pacman xf86-video-intel
       ;;
