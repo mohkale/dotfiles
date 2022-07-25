@@ -35,22 +35,21 @@
 # Git aliases are shortcuts that can be invoked directly from the base git
 # command. For example `git c` expands to `git commit`.
 [alias]
-	c = commit
-	s = status
-	a = add
-	b = branch
+	# Shortcuts for core commands.
+	c  = commit
+	s  = status
+	a  = add
+	b  = branch
 	cl = clone
-	d = diff
-	l = log
-	v = checkout
-	m = mv
-	x = rm
-	r = rebase
-	p = push
-	f = pull
+	d  = diff
+	l  = log
+	ch = checkout
+	# Mini git scripts as shortcuts.
+	rcls    = config --list
 	unstage = reset HEAD --
-	z = !git-fzlog
-    undo = reset HEAD~
+    undo    = reset HEAD~
+	# Git related shell commands interfaced through git directly.
+	z                = !git-fzlog
 	permission-reset = !git diff -p -R | grep -E \"^(diff|(old|new) mode)\" | git apply
 # Include any sub-configuration files in my config.d directory.
 [include]
