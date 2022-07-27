@@ -288,9 +288,69 @@ prompt_rust() {
 
 prompt_exit() { #(code)
   [ "$1" -eq 0 ] && return 0
-  exit_color $1 ${(l:3::0:)1}
-  print -n ' :: '
+  exit_color "$1" ${(l:3::0:)1}
 }
+
+PROMPT_EXEC_TIME_SHOW=true                                                   # Flag to enable or disable exec time display
+PROMPT_EXEC_TIME_START=                                                      # When the last command was started
+PROMPT_EXEC_TIME_DURATION=                                                   # Formatted exec time string to be placed in prompt
+PROMPT_EXEC_TIME_ELAPSED=5                                                   # Minimum duration command should've run before showing anything
+PROMPT_EXEC_TIME_CLEAR_IMMEDIATELY=true                                      # Clear exec time from prompt after any zle command
+
+prompt_exec_time_preexec_hook() {
+  [ "$PROMPT_EXEC_TIME_SHOW" = false ] &&
+    return
+  PROMPT_EXEC_TIME_START=$(date +%s)
+}
+
+prompt_exec_time_precmd_hook() {
+  [ "$PROMPT_EXEC_TIME_SHOW" = false ] &&
+    return
+  # If you unset the value variable here then it'll be removed from the
+  # prompt whenever you run a zshell command such as the newline command.
+  # It'll reappear once a new shell command is executed.
+  [ -n "$PROMPT_EXEC_TIME_DURATION" ] &&
+    [ "$PROMPT_EXEC_TIME_CLEAR_IMMEDIATELY" != false ] &&
+    unset PROMPT_EXEC_TIME_DURATION
+  [ -z "$PROMPT_EXEC_TIME_START" ] &&
+    return
+  [ -n "$PROMPT_EXEC_TIME_DURATION" ] &&
+    unset PROMPT_EXEC_TIME_DURATION
+
+  local PROMPT_EXEC_TIME_stop
+  PROMPT_EXEC_TIME_stop=$(date +%s)
+  local PROMPT_EXEC_TIME_seconds_elapsed
+  PROMPT_EXEC_TIME_seconds_elapsed=$(( PROMPT_EXEC_TIME_stop - PROMPT_EXEC_TIME_START ))
+  unset PROMPT_EXEC_TIME_START # So we don't bother to recalculate unecessarily
+
+  if [ -n "$PROMPT_EXEC_TIME_ELAPSED" ] &&
+       [ "$PROMPT_EXEC_TIME_seconds_elapsed" -lt "$PROMPT_EXEC_TIME_ELAPSED" ]; then
+    return 0
+  fi
+
+  local res
+  local T=$PROMPT_EXEC_TIME_seconds_elapsed
+  local D=$((T/60/60/24))
+  local H=$((T/60/60%24))
+  local M=$((T/60%60))
+  local S=$((T%60))
+  [ "$D" -gt 0 ] && res=$res$(printf '%dd ' "$D")
+  [ "$H" -gt 0 ] && res=$res$(printf '%dh ' "$H")
+  [ "$M" -gt 0 ] && res=$res$(printf '%dm ' "$M")
+  # Don't show values like 1m 0s, the 0 is implied.
+  if [ -z "$res" ] || [ "$S" -gt 0 ]; then
+    res=$res$(printf '%ds' "$S")
+  elif [ -n "$res" ]; then
+    # Remove trailing space from earlier result which never
+    # ended up joining onto anything.
+    res="${res% }"
+  fi
+
+  PROMPT_EXEC_TIME_DURATION=$(print -n "%F{blue}$res%f")
+}
+
+add-zsh-hook preexec prompt_exec_time_preexec_hook
+add-zsh-hook precmd  prompt_exec_time_precmd_hook
 
 # ┌────────────────────────────────────────────────┐
 # │                   Construct                    │
@@ -314,7 +374,7 @@ prompt_join() {
 }
 
 prompt_refresh() {
-  local left_rendered right_rendered
+  local left_rendered
   left_rendered=$(prompt_join                       \
                     "${prompt_data[prompt_root]}"   \
                     "${prompt_data[prompt_git]}"    \
@@ -325,12 +385,19 @@ prompt_refresh() {
                     "${prompt_data[prompt_rust]}"   \
                )
 
+  local right_rendered
   right_rendered=$(prompt_join                        \
                      "${prompt_data[prompt_docker]}"  \
                 )
+  if [ -n "${prompt_data[exec_time]}" ]; then
+    right_rendered="[${prompt_data[exec_time]}] $right_rendered"
+  fi
+  if [ -n "${prompt_data[prompt_exit]}" ]; then
+    right_rendered="${prompt_data[prompt_exit]} :: $right_rendered"
+  fi
 
-  PS1="${left_rendered}$DEFAULT_PROMPT"
-  RPS1="${prompt_data[prompt_exit]}$right_rendered$DEFAULT_PROMPT_RHS"
+  PS1="$left_rendered$DEFAULT_PROMPT"
+  RPS1="$right_rendered$DEFAULT_PROMPT_RHS"
 
   zle && zle .reset-prompt # Trigger prompt redraw after update
 }
@@ -349,11 +416,18 @@ prompt_callback() {
     prompt_init_worker         # start the workers again
   fi
 
-  # only refresh prompt, when segment has changed
+  # Only refresh prompt, when some segment has changed.
+  local changed=false
+  if [ "${prompt_data[exec_time]}" != "$PROMPT_EXEC_TIME_DURATION" ]; then
+    prompt_data[exec_time]=$PROMPT_EXEC_TIME_DURATION
+    changed=true
+  fi
   if [ "${prompt_data[$job]}" != "$output" ]; then
     prompt_data[$job]=$output
-    prompt_refresh
+    changed=true
   fi
+
+  [ "$changed" = false ] || prompt_refresh
 }
 
 prompt_init_worker() {
