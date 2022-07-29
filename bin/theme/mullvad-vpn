@@ -5,7 +5,7 @@
 import logging
 import re
 from distutils.spawn import find_executable as which
-from typing import Callable
+from typing import Callable, Optional
 
 from lib.shared import run_process
 from lib.status_misc.segment import StatusMiscSegment
@@ -15,6 +15,22 @@ class MullvadVPNSegment(StatusMiscSegment):
     """Status line segment showing MullvadVPN status."""
 
     name = "mullvad-vpn"
+
+    # Number of times checking the mullvad vpn status has to fail before we
+    # clear the status.
+    #
+    # The `mvpn -l` command has a tendency to fail sporadically with no real
+    # explanation. Rather than clearing the status (despite still being
+    # connected), now it is only cleared once the command fails this many
+    # times in succession.
+    FAIL_COUNT = 5
+
+    # Counter variable for FAIL_COUNT.
+    _fail_counter: int = 0
+
+    # Value of the segment from the previous run. Persisted for use by
+    # FAIL_COUNT.
+    _segment_value: Optional[str] = None
 
     @classmethod
     def parser_args(
@@ -62,7 +78,17 @@ class MullvadVPNSegment(StatusMiscSegment):
             logging.warning(
                 "Warning failed to run mullvad process for segment=%s", self.name
             )
-            return None
+            if self._fail_counter >= self.FAIL_COUNT - 1:
+                logging.debug(
+                    "Failure buffer count=%d exceeded continuous attempts=%d",
+                    self.FAIL_COUNT,
+                    self._fail_counter,
+                )
+                return None
+            self._fail_counter = self._fail_counter + 1
+            logging.debug("Mulvad process failed count=%d times", self._fail_counter)
+            return self._segment_value
+        self._fail_counter = 0
         ip_address = ""
         match = re.search(
             r"Connected to (?:.*\n)IPv4: (.+)$",
@@ -74,12 +100,13 @@ class MullvadVPNSegment(StatusMiscSegment):
                 return None
         elif match:
             ip_address = " " + match[1]
-        return (
+        self._segment_value = (
             self._style(
                 self.icon, self.active_style if ip_address else self.inactive_style
             )
             + ip_address
         )
+        return self._segment_value
 
 
 if __name__ == "__main__":

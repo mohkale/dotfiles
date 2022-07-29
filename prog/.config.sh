@@ -33,6 +33,7 @@ import -b                                       \
   lf                                            \
   libinput                                      \
   media/*                                       \
+  network-manager                               \
   pass                                          \
   polybar                                       \
   ranger                                        \
