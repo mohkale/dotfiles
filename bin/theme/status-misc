@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-TMUX status line script combining segments from various smaller scripts into
-a single segment. This is useful for repurposing a single Python runtime for
-multiple status line segments.
+Theme script combining segments from various smaller scripts into a single
+segment. This is useful for repurposing a single Python runtime for multiple
+status line segments.
 """
 
 import argparse
@@ -20,6 +20,7 @@ from lib.status_misc import StatusMiscSegment, shared_arguments
 # Load scripts defining status-misc segments.
 for _module_name, _file_name in (
     ("status_misc.battery_life", "battery-life"),
+    ("status_misc.battery_life", "cpu-load"),
     ("status_misc.disk_free", "disk-free"),
     ("status_misc.docker", "docker"),
     ("status_misc.github_notifications", "github-notifications"),
@@ -31,7 +32,8 @@ for _module_name, _file_name in (
 ):
     # pylint: disable=deprecated-method,no-value-for-parameter
     importlib.machinery.SourceFileLoader(
-        _module_name, os.path.join(os.path.dirname(__file__), _file_name)
+        _module_name,
+        os.path.join(os.path.dirname(os.path.realpath(__file__)), _file_name),
     ).load_module()
     # _spec = importlib.util.spec_from_loader(
     #     _module_name,
@@ -128,11 +130,11 @@ if __name__ == "__main__":
 
         args = parser.parse_args()
 
-        log_kwargs = {'level': args.log_level}
+        log_kwargs = {"level": args.log_level}
         if args.log_file:
-            log_kwargs['filename'] = str(args.log_file)
+            log_kwargs["filename"] = str(args.log_file)
         else:
-            log_kwargs['stream'] = sys.stdout
+            log_kwargs["stream"] = sys.stdout
         logging.basicConfig(**log_kwargs)
 
         for i, segment in enumerate(args.enabled):

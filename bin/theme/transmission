@@ -24,6 +24,8 @@ class TransmissionNotificationSegment(StatusMiscSegment):
             ]
         else:
             self.sections = [
+                # type: ignore
+                # pylint: disable=no-member
                 self.TransmissionSectionStatus[x.upper()] for x in self.sections
             ]
 
