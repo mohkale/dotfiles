@@ -47,6 +47,14 @@ _abspath() {
   fi
 }
 
+_basename() {
+  echo "${1##*/}"
+}
+
+_dirname() {
+  dirname -- "$1"
+}
+
 _contains() {
   # TODO: Flexibly handle hashes.
   local e match="$1"
@@ -293,16 +301,17 @@ read -d '' -r _link_help <<EOF
 $_link_usage
 
 Optional arguments:
-  -h  Show this help message and exit
-  -H  Create a hard link instead of a symlink
-  -r  Relink DEST if its a symlink already
-  -f  Overwrite DEST if it already exists
-  -i  Don't check whether SRC exists, link anyways
+  -h       Show this help message and exit
+  -H       Create a hard link instead of a symlink
+  -r       Relink DEST if its a symlink already
+  -f       Overwrite DEST if it already exists
+  -i       Don't check whether SRC exists, link anyways
+  -p NAME  Prefix the base name of DEST with NAME
 EOF
 link() {
-  local link_args=() symlink=1 relink=0 force=0 ignore_missing=0
+  local link_args=() symlink=1 relink=0 force=0 ignore_missing=0 dest_basename_prefix=
   local OPTIND
-  while getopts 'hHrfi' OPTION; do
+  while getopts hHrfip: OPTION; do
     case "$OPTION" in
       h) echo "$_link_help"
          return 0 ;;
@@ -311,7 +320,8 @@ link() {
       H) symlink=0 ;;
       r) relink=1 ;;
       f) force=1 ;;
-      i) ignore_missing=1
+      i) ignore_missing=1 ;;
+      p) dest_basename_prefix="$OPTARG" ;;
     esac
   done
   shift "$((OPTIND-1))"
@@ -330,11 +340,14 @@ link() {
       # Argument is destination, src is same as argument but without an optional
       # leading ".".
       dest="$src"
-      src="$(basename "$src")"
+      src="$(_basename "$src")"
       src="${src#.}"
     fi
     if [ -z "$src" ]; then
       warn 'No src path for linking to dest %s found' "$dest"
+    fi
+    if [ -n "$dest_basename_prefix" ]; then
+      dest="$(_dirname "$dest")/$dest_basename_prefix$(_basename "$dest")"
     fi
 
     src="$(_abspath "$src")"
@@ -370,8 +383,9 @@ link() {
       elif [ "$force" -eq 1 ]; then
         warn 'Overwriting destination %s with link to %s' "$dest" "$src"
         l_link_args+=( -f )
-      elif [ "$relink" -ne 1 ] && [ -L "$dest" ]; then
+      elif [ "$relink" -eq 1 ] && [ -L "$dest" ]; then
         warn 'Overwriting existing symlink %s with link to %s' "$dest" "$src"
+        l_link_args+=( -f )
       else
         warn 'Skipping symlinking %s into %s because destination already exists' "$dest" "$src"
         continue
@@ -380,7 +394,7 @@ link() {
 
     info 'Linking %s to %s' "$src" "$dest"
     trace 'Checking whether base directory of destination exists'
-    local dir; dir="$(dirname "$dest")"
+    local dir; dir="$(_dirname "$dest")"
     if ! [ -e "$dir" ]; then
       # KLUDGE: In dry run mode this'll be repeated multiple times.
       _run_cmd mkdir -p "$dir"
@@ -402,7 +416,7 @@ link-to() { #(dest, file, ...files)
   local dest="$1"; shift
   local args=( )
   while [ "$#" -ne 0 ]; do
-    args+=( "$1:$dest/$(basename "$1")" )
+    args+=( "$1:$dest/$(_basename "$1")" )
     shift
   done
 
@@ -909,10 +923,10 @@ _import_find() { # (path basename)
 typeset -Ag _DOTTY_MODULES
 # NOTE: For some reason I can't populate this lazily in _import_find_module.
 while read -r it; do
-  bot="$(basename "$it")"
+  bot="$(_basename "$it")"
   case "$bot" in
     .module.sh)
-      bot="$(basename "$(dirname "$it")")"
+      bot="$(_basename "$(_dirname "$it")")"
       ;;
     *?.module.sh)
       bot="${bot%.module.sh}"
@@ -952,7 +966,7 @@ import() {
   while [ "$#" -gt 0 ]; do
     it="$1"; shift
     it_abs=$(_abspath "$it")
-    it_base="$(basename "$it")"
+    it_base="$(_basename "$it")"
 
     if [ "$check_bots" -eq 1 ] && ! bots "$it_base"; then
       debug 'Skipping import %s because bot is missing' "$it"
@@ -975,7 +989,7 @@ import() {
       IMPORTED+=( "$file" )
       echo "$file" >&4
 
-      it_dir="$(dirname "$file")"
+      it_dir="$(_dirname "$file")"
       if ! pushd "$it_dir" >/dev/null 2>&1; then
         error 'Failed to cd to %s, cannot import %s' "$it_dir" "$file"
         continue
