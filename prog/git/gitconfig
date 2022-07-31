@@ -1,54 +1,59 @@
+# Root git configuration file -*- gitconfig -*-
 [user]
 	name  = Mohsin Kaleem
-	email = mkaleem2@bloomberg.net
+	email = mohkale@kisara.moe
+[init]
+	# For consistency I still default to master but I'll switch to main once
+	# git itself does. This is currently being tracked [[https://lore.kernel.org/git/f853fa946f5840518577584a5b8c51660da06928.1605221040.git.gitgitgadget@gmail.com/][here]].
+	defaultBranch = master
+[core]
+	# Convert CRLF to LF when commiting changes back. Useful for when you clone
+	# a repo on windows, make changes and try to commit it back without the CRLF
+	# line endings showing up as changes.
+	autocrlf = input
+# Configure [[man:git-lfs][git-lfs]]. A git plugin that simplifies commiting and storage of large
+# binary files such as images.
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
-[core]
-    filemode = false
-	autocrlf = input
-	excludesfile = ~/.config/git/gitignore
-[alias]
-	c = commit
-	s = status
-	a = add
-	b = branch
-	cl = clone
-	d = diff
-	l = log
-	v = checkout
-	m = mv
-	x = rm
-	r = rebase
-	p = push
-	f = pull
-	unstage = reset HEAD --
-	fzlog = !git-fzlog
-	z = !git-fzlog
-    undo = reset HEAD~
-	permission-reset = !git diff -p -R | grep -E \"^(diff|(old|new) mode)\" | git apply
-[init]
-	defaultBranch = master
 [diff "gpg"]
+	# Auto decrypt gpg encrypted files when inspecting diffs.
 	textconv = gpg --no-tty --decrypt
-[push]
+[fetch]
+	# Automatically fetch checked-out submodules when fetching the parent repo.
 	recurseSubmodules = on-demand
-# Prefer ssh pushing (since github has removed basic HTTP authentication)
-[url "bbgithub:"]
-    insteadOf = https://bbgithub.dev.bloomberg.com/
-[url "git@github.com:"]
-    pushInsteadOf = https://github.com
-    pushInsteadOf = git://github.com
-[url "git@gitlab.com:"]
-    pushInsteadOf = https://gitlab.com
-    pushInsteadOf = git://gitlab.com
-[bbgithub]
-	user = mkaleem2
-[github]
-	user = mohkale
-[gitlab]
-	user = mohkale
+[push]
+	# Automatically push checked-out submodules when pushing the parent repo.
+	recurseSubmodules = on-demand
 [pull]
+	# Prevent merge conflicts when running [[man:git-pull][git pull]], just failing the pull
+	# altogether but keeping the newly fetched changes ready for a following
+	# merge or rebase.
 	ff = only
+# Git aliases are shortcuts that can be invoked directly from the base git
+# command. For example `git c` expands to `git commit`.
+[alias]
+	# Shortcuts for core commands.
+	c  = commit
+	s  = status
+	a  = add
+	b  = branch
+	cl = clone
+	d  = diff
+	l  = log
+	ch = checkout
+	# Mini git scripts as shortcuts.
+	rcls    = config --list
+	unstage = reset HEAD --
+    undo    = reset HEAD~
+	# Git related shell commands interfaced through git directly.
+	z                = !git-fzlog
+	permission-reset = !git diff -p -R | grep -E \"^(diff|(old|new) mode)\" | git apply
+# Include any sub-configuration files in my config.d directory.
+[include]
+	path = config.d/github
+	path = config.d/gitlab
+	path = config.d/bloomberg
+	path = config.d/local

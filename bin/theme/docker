@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Tmux status line segment for Docker containers.
+Theme segment for Docker containers.
 
 This file defines a status line segment for inspecting the number and status
 of running docker containers. It outputs a docker icon and then one or more

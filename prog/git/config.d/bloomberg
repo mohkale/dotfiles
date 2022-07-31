@@ -1,0 +1,18 @@
+# Bloomberg specific git configuration -*- gitconfig -*-
+
+[user]
+	email = mkaleem2@bloomberg.net
+[init]
+	defaultBranch = main
+[core]
+	# Properly handle the executable file permission when on a file-system
+	# interchanging between windows and ext4 file-systems (such as WSL).
+    filemode = false
+	# Smartly handles windows CRLF line endings between windows and linux systems.
+	autocrlf = input
+
+# bb-github overrides just like regular Github.
+[bbgithub]
+	user = mkaleem2
+[url "bbgithub:"]
+    insteadOf = https://bbgithub.dev.bloomberg.com/

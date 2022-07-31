@@ -1,0 +1,92 @@
+#!/usr/bin/env python3
+"""
+Theme script to periodically inspect the CPU load on the current system
+and print it out.
+"""
+# pylint: disable=no-member,invalid-name,access-member-before-definition
+
+import logging
+from types import ModuleType
+from typing import Callable, Optional
+
+from lib.status_misc.segment import StatusMiscSegment
+
+
+class CpuLoadSegment(StatusMiscSegment):
+    """Theme segment showing CPU usage."""
+
+    name = "cpu-load"
+    sleep_time = 1
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+        for it in self.thresholds:
+            try:
+                it[0] = float(it[0])
+            except ValueError as err:
+                raise ValueError(
+                    f"Threshold values must be a number, not: {it[0]}"
+                ) from err
+        self.thresholds = sorted(self.thresholds, key=lambda x: x[0], reverse=True)
+
+    @classmethod
+    def parser_args(
+        cls, parser: "argparse.ArgumentParser", flag: Callable[[str], str]
+    ) -> None:
+        cpu_group = parser.add_argument_group("CPU Load")
+        super().parser_args(cpu_group, flag)
+
+        cpu_group.add_argument(
+            flag("symbol"),
+            help="Show symbol instead of percentage per CPU",
+        )
+        cpu_group.add_argument(
+            flag("thresholds"),
+            nargs=2,
+            metavar=("PERCENT", "STYLE"),
+            action="append",
+            default=[],
+            help="Specify style thresholds",
+        )
+        cpu_group.add_argument(
+            flag("join"),
+            default=" ",
+            help="Specify character to join CPU indicators",
+        )
+
+    def render(self) -> Optional[str]:
+        psutil = self._psutil()
+        if psutil is None:
+            return None
+
+        cpu_usage = psutil.cpu_percent(percpu=True)
+        logging.debug("Determined CPU usage as %s", cpu_usage)
+        return self.join.join(
+            self._format_cpu(round(cpu_percent)) for cpu_percent in cpu_usage
+        )
+
+    def _format_cpu(self, percent: int) -> str:
+        style = None
+        for threshold, st in self.thresholds:
+            if percent >= threshold:
+                style = st
+                break
+
+        return self._style(self.symbol if self.symbol else f"{percent:3d}%", style)
+
+    @staticmethod
+    def _psutil() -> Optional[ModuleType]:
+        try:
+            logging.debug("Trying to import psutil")
+            # pylint: disable=import-outside-toplevel
+            import psutil
+
+            return psutil
+        except ImportError:
+            logging.warning("Failed to import psutil")
+            return None
+
+
+if __name__ == "__main__":
+    CpuLoadSegment.main()

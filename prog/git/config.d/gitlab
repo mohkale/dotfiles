@@ -1,0 +1,7 @@
+# GitLab specific git configuration -*- gitconfig -*-
+
+[gitlab]
+	user = mohkale
+[url "git@gitlab.com:"]
+    pushInsteadOf = https://gitlab.com
+    pushInsteadOf = git://gitlab.com

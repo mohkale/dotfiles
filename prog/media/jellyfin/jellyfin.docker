@@ -1,5 +1,25 @@
 # -*- dockerfile -*-
-FROM jellyfin/jellyfin
+ARG DOTNET_VERSION=6.0
+FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION} as plugin-builder
+
+RUN mkdir /plugins
+
+# [[https://github.com/ankenyr/jellyfin-youtube-metadata-plugin][ankenyr/jellyfin-youtube-metadata-plugin]]
+ARG YT_METADATA_VERSION=1.0.3.8 NYTDLP_VERSION=12dcfe3
+RUN cd $(mktemp -d)                                                                     \
+ && curl                                                                                \
+      -L                                                                                \
+      --output YoutubeMetadata.tar.gz                                                   \
+      https://github.com/ankenyr/jellyfin-youtube-metadata-plugin/archive/refs/tags/$YT_METADATA_VERSION.tar.gz \
+ && tar xvzf YoutubeMetadata.tar.gz                                                     \
+ && cd jellyfin-youtube-metadata-plugin-$YT_METADATA_VERSION                            \
+ && git clone https://github.com/ankenyr/NYoutubeDLP                                    \
+ && git --work-tree NYoutubeDLP --git-dir NYoutubeDLP/.git checkout $NYTDLP_VERSION     \
+ && dotnet add Jellyfin.Plugin.YoutubeMetadata reference NYoutubeDLP/src/NYoutubeDL     \
+ && dotnet publish --configuration Release --output bin Jellyfin.Plugin.YoutubeMetadata \
+ && mv bin /plugins/Jellyfin.Plugin.YoutubeMetadata
+
+FROM jellyfin/jellyfin:latest
 
 ###############################################################################
 #                  Setup fail2ban to Prevent Network Snoopers                 #
@@ -22,6 +42,23 @@ RUN apt-get update                              \
 # + [[https://github.com/jellyfin/jellyfin-plugin-playbackreporting][Playback Reporting]]
 # + [[https://github.com/jellyfin/jellyfin-plugin-reports][Reports]]
 
+# Local directory where I place custom built plugins. This is needed since the
+# actual plugins directory is mounted into here from my local file-system. I'll
+# symlink any plugins here into the actual directory on ENTRYPOINT.
+RUN mkdir -p /usr/share/jellyfin-plugins/
+
+# Copy all the plugins created in the builder stage into here.
+COPY --from=plugin-builder /plugins /usr/share/jellyfin-plugins/
+
+# yt-dlp is needed by [[https://github.com/ankenyr/jellyfin-youtube-metadata-plugin][ankenyr/jellyfin-youtube-metadata-plugin]]
+RUN apt-get update                              \
+ && apt-get install -y                          \
+      python3-pip                               \
+ && touch /var/log/auth.log                     \
+ && apt-get clean                               \
+ && rm -rf /var/lib/apt/lists/*                 \
+ && python3 -m pip install yt-dlp
+
 ###############################################################################
 #                              Entrypoint Command                             #
 ###############################################################################
@@ -30,6 +67,7 @@ RUN apt-get update                              \
 RUN >/usr/share/entrypoint.sh printf '%s\n'                                                                   \
       '#!/bin/sh'                                                                                             \
       'service fail2ban start'                                                                                \
+      'ln -sf /usr/share/jellyfin-plugins/* /config/plugins/'                                                 \
       'exec ./jellyfin/jellyfin --datadir /config --cachedir /cache --ffmpeg /usr/lib/jellyfin-ffmpeg/ffmpeg' \
  && chmod +x /usr/share/entrypoint.sh
 ENTRYPOINT /usr/share/entrypoint.sh
