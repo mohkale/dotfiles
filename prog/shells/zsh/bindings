@@ -10,9 +10,6 @@ if [ -n "$ZSHELL_BINDING_STYLE" ]; then
 fi
 
 autoload -U select-word-style
-# for some reason, calling this now makes repeat C-w invocations, append to the
-# previous kill. Just like bash :-)
-select-word-style default
 
 # like bashes edit-and-execute-command, but doesn't autorun
 autoload -z edit-command-line
@@ -24,6 +21,7 @@ backward-bashword() {
   WORDCHARS=$BASH_WORDCHARS zle backward-word
 }
 zle -N backward-bashword
+word_functions+=(backward-bashword)
 
 forward-bashword() {
   select-word-style bash
@@ -31,6 +29,7 @@ forward-bashword() {
   select-word-style default
 }
 zle -N forward-bashword
+word_functions+=(forward-bashword)
 ZSH_AUTOSUGGEST_PARTIAL_ACCEPT_WIDGETS+=(forward-bashword)
 
 backward-kill-bashword() {
@@ -38,6 +37,7 @@ backward-kill-bashword() {
   WORDCHARS=$BASH_WORDCHARS zle backward-kill-word
 }
 zle -N backward-kill-bashword
+word_functions+=(backward-kill-bashword)
 
 # a command to replicate unix-filename-rubout, see [[https://unix.stackexchange.com/questions/258656/how-can-i-delete-to-a-slash-or-a-word-in-zsh][here]].
 backward-kill-dir () {
