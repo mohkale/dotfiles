@@ -14,5 +14,9 @@
 # bb-github overrides just like regular Github.
 [bbgithub]
 	user = mkaleem2
-[url "bbgithub:"]
+[url "git@bbgithub.dev.bloomberg.com:"]
     insteadOf = https://bbgithub.dev.bloomberg.com/
+[url "git@bbgithub.dev.bloomberg.com:"]
+    insteadOf = bbgithub:
+
+# Note: See [[https://tutti.prod.bloomberg.com/bbgithub/configuration][here]] for how to setup proxy access for github and gitlab repos.
