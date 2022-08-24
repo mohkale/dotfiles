@@ -9,7 +9,6 @@
 # files will be handled first and then the directory.
 
 select_path() {
-    out=$(cat)
     local newdir=
     local files=
     files=( )
@@ -21,7 +20,7 @@ select_path() {
         else
             echo "error: can't handle unknown or non-existant path type: $p" >&2
         fi
-    done < <(if [ "$#" -gt 0 ]; then printf "%s\n" "$@"; else echo "$out"; fi | xargs -r -d '\n' readlink -m)
+    done < <(if [ "$#" -gt 0 ]; then printf "%s\n" "$@"; else cat; fi | xargs -r -d '\n' readlink -m)
 
     # Edit any given files
     if [ "${#files[@]}" -gt 0 ]; then
