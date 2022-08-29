@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# Update these on installation.
+NOTIFY_USER=mohkale
+NOTIFY_USER_ID=1000
+
+# Extract notification message from SMARTD exports.
+title="S.M.A.R.T Error"
+if [ -n "$SMARTD_FAILTYPE" ]; then
+  title="$title ($SMARTD_FAILTYPE)"
+fi
+
+message="$SMARTD_MESSAGE"
+
+# Forward the notifaction to $NOTIFY_USER.
+sudo                                                                  \
+  -u "$NOTIFY_USER"                                                   \
+  DISPLAY=:0                                                          \
+  DBUS_SESSION_BUS_ADDRESS=unix:path="/run/user/$NOTIFY_USER_ID/bus"  \
+  notify-send                                                         \
+  --icon=dialog-warning                                               \
+  "$title"                                                            \
+  "$message"

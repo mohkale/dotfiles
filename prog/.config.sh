@@ -39,6 +39,7 @@ import -b                                       \
   ranger                                        \
   ripgrep                                       \
   shells/*                                      \
+  smart                                         \
   spectacle                                     \
   sxiv                                          \
   terminal/*                                    \
