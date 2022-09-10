@@ -19,7 +19,7 @@ def notify(msg, /, title=None, icon=None):
     """Send a notification through the system notification API."""
     cmd = ["notify-send"]
     if icon:
-        cmd += ["-i", icon]
+        cmd += ["-i", icon, "-a", "Transmission"]
     if title:
         cmd.append(title)
         cmd.append(msg)
@@ -57,9 +57,9 @@ def main(args):
     """Run transmission-on-complete."""
     try:
         notify(
-            f"Completed torrent: {args.basename}",
+            args.basename,
             icon="torrents",
-            title="transmission",
+            title="Completed Torrent",
         )
     except OSError:
         logging.exception("Failed to notify user")
