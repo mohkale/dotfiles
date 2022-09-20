@@ -1,0 +1,9 @@
+*/5 *  * * * . ~/.profile; chronic cron-retry mail-sync mail-sync
+0   12 * * * notmuch dump --output="$HOME/docs/mail-backups/notmuch-dump.$(date +\%Y-\%m-\%d)"
+
+###############################################################################
+#                               Email Reminders                               #
+###############################################################################
+1  20 * *   3 echo -e 'Checkout the latest displate at https://displate.com/limited-edition' | mail -s "Reminder: Checkout the latest displate" $USER
+30 9  1 */6 * echo -e 'Dedust my PC' | mail -s "Reminder: Dedust PC" $USER
+30 18 * *   4 echo -e 'Checkout this weeks EGS free releases https://www.epicgames.com/store/en-US/free-games' | mail -s "Reminder: Epic Game Store Free" $USER

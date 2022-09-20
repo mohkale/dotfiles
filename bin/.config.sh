@@ -15,7 +15,6 @@ link                                            \
   "$XDG_BIN_DIR/clipsink"                       \
   "$XDG_BIN_DIR/condemn"                        \
   "$XDG_BIN_DIR/count-updates"                  \
-  "$XDG_BIN_DIR/cron-retry"                     \
   "$XDG_BIN_DIR/env-paths"                      \
   "$XDG_BIN_DIR/evi"                            \
   "$XDG_BIN_DIR/extract"                        \

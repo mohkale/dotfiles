@@ -15,6 +15,7 @@ import -b                                       \
   browsers/*                                    \
   buku                                          \
   cava                                          \
+  cron                                          \                                          \
   cheat                                         \
   docker                                        \
   dolphin                                       \

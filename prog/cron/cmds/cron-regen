@@ -1,0 +1,94 @@
+#!/bin/sh
+# Regenerate crontab entry from local crontab entries in $XDG_CONFIG_HOME/cron.d/.
+# To actually save the generated config use:
+#   cron-regen | crontab
+
+conf_dir="${XDG_CONFIG_HOME:-$HOME/.config}/cron-user.d"
+if ! [ -r "$conf_dir" ]; then
+  echo "$0: error: Configuration directory not found: $conf_dir"
+  exit 1
+fi
+files=$(find -L "$conf_dir" -type f | sort -V)
+
+checksum=$(printf '%s' "$files" | xargs -r -d '\n' cat | md5sum)
+checksum="${checksum// *}"
+
+echo "# Dynamic crontab created at $(date) from:"
+printf '%s\n' "$files" |
+  while read -r it; do
+    read -r it_checksum _rest <<< "$(md5sum "$it")"
+    echo "# - $it_checksum: $it"
+  done
+echo "#"
+echo "# Overall checksum: ${checksum}"
+echo "#"
+
+# We cat out the contents of each file and then columnate the cron
+# related columns to take up the same width. This makes the crontab
+# look more like a table and clearly displays the cron schedule.
+printf '%s' "$files" |
+  xargs -r -d '\n' cat |
+  awk \
+    -e 'function pad(string, width) {
+  while (length(string) < width) {
+    string = string " "
+  }
+  return string
+}' \
+    -e 'function max(a, b) {
+  if (a > b) { return a } else { return b }
+}' \
+    -e 'function print_with_padding(row, widths, column0, column_sep) {
+  printf("%s", column0)
+  for (record=1; record <= column_count; record++) {
+    if (record > 1 && record <= column_count) {
+      printf(" %s", column_sep)
+    }
+    printf(" %s", pad(row[record], widths[record]))
+  }
+  print("")
+}' \
+    -e 'function print_header(row, widths) {
+  print_with_padding(row, widths, "#", "|")
+}' \
+    -e 'function print_job(row, widths) {
+  print_with_padding(row, widths, " ", " ")
+}' \
+    -e 'BEGIN {
+  row_counter = 1
+  column_count = 6
+  rows[row_counter][1] = "Minute"
+  rows[row_counter][2] = "Hour"
+  rows[row_counter][3] = "Day(month)"
+  rows[row_counter][4] = "Month"
+  rows[row_counter][5] = "Day(week)"
+  rows[row_counter][6] = "Command"
+  for (it=1; it <= column_count; it++) {
+    widths[it] = length(rows[row_counter][it])
+  }
+}' \
+    -e 'NF < 6 || $0 ~ /^[ \t]*#/ {
+  rows[++row_counter][1] = $0
+  next
+}' \
+    -e '{
+  ++row_counter
+  for (i=1; i < column_count; i++) {
+    rows[row_counter][i] = $i
+    widths[i] = max(widths[i], length($i))
+    $i = "" # Reset to blank
+  }
+  sub("^[ \t]+", "", $0)
+  rows[row_counter][column_count] = $0
+}' \
+    -e 'END {
+  for (row=1; row <= row_counter; row++) {
+    if (row == 1) {
+      print_header(rows[row], widths)
+    } else if (rows[row][2] == "") {
+      printf("%s\n", rows[row][1])
+    } else {
+      print_job(rows[row], widths)
+    }
+  }
+}'

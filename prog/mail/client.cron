@@ -1,0 +1,1 @@
+*/5 * * * * . ~/.profile; notmuch new
