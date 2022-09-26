@@ -34,9 +34,22 @@ c_title_r=""
 c_url_l=$'\e[32m'
 c_url_r=$'\e[0m'
 
-exclude='^H$'
+LS_BOOKMARKS_EXCLUDE_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/ls-bookmarks.exclude"
+
+# Exclude is a list of colon-delimited regular expressions each one
+# is checked against the tags of each bookmark and if they match then
+# it is excluded from being output. This can be set in a config file,
+# and also an environment variable. Each concatenating onto the previous.
+exclude=
+if [ -e "$LS_BOOKMARKS_EXCLUDE_FILE" ]; then
+  exclude="$(tr '\n' : < "$LS_BOOKMARKS_EXCLUDE_FILE"):$exclude":
+fi
 if [ -n "$LS_BOOKMARKS_EXCLUDE" ]; then
-  exclude="$LS_BOOKMARKS_EXCLUDE"
+  exclude="$LS_BOOKMARKS_EXCLUDE:$exclude"
+fi
+if [ -z "$exclude" ]; then
+  # Set an apropriate default if none of the other methods are supported.
+  exclude='^H$'
 fi
 
 while getopts 'had:p:C' OPTION; do
@@ -169,7 +182,7 @@ do_buku() {
   # isn't a terminal.
   #
   # Set aside the fact that what STDIN is shouldn't change the behaviour of the program, it
-  # just makes bukus ouptut completely unusable in a JSON pipeline. The suggested workaround
+  # just makes bukus output completely unusable in a JSON pipeline. The suggested workaround
   # is to just [[https://github.com/jarun/buku/issues/447][dump to a file]] and read from there but I'm not about to introduce temporary file management
   # to this script.
   #
@@ -228,7 +241,8 @@ pretty_print() {
   # and other chromium derivatives as I encounter them.
   do_chromium "brave:$XDG_CONFIG_HOME/BraveSoftware/Brave-Browser/Default/Bookmarks"
   do_firefox "firefox:$HOME/.mozilla/firefox/*/places.sqlite" \
-             "tor:$HOME/.tor-browser/app/Browser/TorBrowser/Data/Browser/*/places.sqlite"
+             "tor:$HOME/.tor-browser/app/Browser/TorBrowser/Data/Browser/*/places.sqlite" \
+             "librewolf:$HOME/.librewolf/*/places.sqlite"
   do_buku
 } |
   if [ -z "$exclude" ]; then cat; else
