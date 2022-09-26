@@ -1,0 +1,141 @@
+#!/usr/bin/env python3
+"""
+Script to generate a dice based password inspired by https://www.eff.org/dice .
+
+See obligatory https://xkcd.com/936/
+"""
+
+import argparse
+import logging
+import os
+import pathlib
+import re
+import secrets
+import sys
+from typing import Dict, NamedTuple, Set
+
+logging.basicConfig(level=logging.DEBUG)
+
+import requests
+
+# URL to a word list that will be used if a local word list file doesn't exist.
+# This should be a plain-text file contain newline delimited words. Each line
+# should start with n numbers ranging from 1-6 to index the word, one-or-more
+# spacing characters and then the word.
+WORDLIST_URL = "https://www.eff.org/files/2016/07/18/eff_large_wordlist.txt"
+# Local location for a word list. If no file exists here then the word list
+# at WORDLIST_URL will be downloaded to it.
+WORDLIST_FILE = (
+    pathlib.Path(os.environ.get("XDG_DATA_HOME", "~/.local/share"))
+    / "passgen-wordlist.txt"
+)
+
+
+class Index(NamedTuple):
+    """Store for a diceware index."""
+
+    mapping: Dict[str, str]
+    dice_size: int
+
+
+def get_index(url: str, dest: pathlib.Path) -> str:
+    """Retrieve a word-list index from `url` and save to `dest`."""
+    logging.info("Fetching word list index url='%s' dest='%s'", url, dest)
+    response = requests.get(url)
+    if not response.ok:
+        raise RuntimeError(f"Could not fetch wordlist index: {response.reason}")
+    with dest.open("w", encoding="utf-8") as dest_file:
+        dest_file.write(response.text)
+    return response.text
+
+
+def load_index(url: str, dest: pathlib.Path, force_refetch: bool = False) -> Index:
+    """Load a word-list index at `dest`.
+
+    If `dest` does not exist then fetch it using `get_index`. You can force
+    fetching it by setting `force_refetch` to True.
+    """
+    contents = ""
+    if force_refetch or not dest.exists():
+        contents = get_index(url, dest)
+    else:
+        with dest.open("r", encoding="utf-8") as dest_file:
+            contents = dest_file.read()
+
+    mapping = {}
+    dice_size: Optional[int] = None
+    for group in re.finditer(r"^(\d+)\s+(\w+)$", contents, flags=re.MULTILINE):
+        mapping[group[1]] = group[2]
+        if dice_size is None:
+            dice_size = len(group[1])
+        elif dice_size != len(group[1]):
+            raise RuntimeError(
+                "Two records in word list don't have the same dice size: %d != %d",
+                dice_size,
+                len(group[1]),
+            )
+    if dice_size is None:
+        raise RuntimeError("No records found in word list file")
+    return Index(mapping, dice_size)
+
+
+def get_word(index: Index) -> str:
+    """Get a single word from the diceware index `index`."""
+    digits = "".join(str(1 + secrets.randbelow(6)) for _ in range(index.dice_size))
+    word = index.mapping.get(digits)
+    if word is None:
+        raise RuntimeError(f"Index could not access word at position {digits}")
+    return word
+
+
+def get_password(index: Index, word_count: int) -> str:
+    return " ".join(get_word(index) for _ in range(word_count))
+
+
+def main(args: argparse.Namespace) -> int:
+    """passgen main function."""
+    try:
+        index = load_index(WORDLIST_URL, WORDLIST_FILE)
+        password = get_password(index, args.word_count)
+        print(password)
+    except RuntimeError:
+        logging.exception("Failed to generate password")
+        return 1
+
+    return 0
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="""
+    Generate a diceware password.
+    """
+    )
+    parser.add_argument(
+        "-c",
+        "--word-count",
+        type=int,
+        default=8,
+        help="Minimum number of words to include in password",
+    )
+    parser.add_argument(
+        "-l",
+        "--log-level",
+        metavar="LEVEL",
+        type=lambda x: getattr(logging, x.upper()),
+        help="Set verbosity of logging output",
+    )
+    return parser.parse_args()
+
+
+if __name__ == "__main__":
+    args = parse_args()
+
+    try:
+        from mohkale.pylog.config import use_config as use_logging_config
+    except ImportError:
+        logging.basicConfig(level=args.log_level)
+    else:
+        use_logging_config("passgen", level=args.log_level)
+
+    sys.exit(0 if main(args) else 1)

@@ -43,6 +43,7 @@ link                                            \
   "$XDG_BIN_DIR/ls-sshmaps"                     \
   "$XDG_BIN_DIR/make-icons"                     \
   "$XDG_BIN_DIR/moji"                           \
+  "$XDG_BIN_DIR/passgen"                        \
   "$XDG_BIN_DIR/preview"                        \
   "$XDG_BIN_DIR/prog-icons"                     \
   "$XDG_BIN_DIR/project-files"                  \

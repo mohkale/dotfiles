@@ -134,8 +134,8 @@ dotd    d $DOTFILES
 dotD    D $DOTFILES
 
 # Quick Scripts
-## generate a password hash from /dev/urandom. Optional first arg specifies length of password
-passgen sh -c 'cat /dev/urandom | tr -d -c '"'"'[:alnum:]'"'"' | head -c "${1:-50}"' 'passgen'
+## generate a random hash from /dev/urandom. Optional first arg specifies length of the sequence
+passhash sh -c 'cat /dev/urandom | tr -d -c '"'"'[:alnum:]'"'"' | head -c "${1:-50}"' 'passgen'
 ## Strip all but the file extensions from all the files passed through stdin.
 extensions py -c $'import pathlib;\import sys;\nfor path in map(lambda x: pathlib.Path(x.rstrip()), sys.stdin): print(path.suffix)'
 ## See [[https://github.com/chubin/wttr.in][wttr.in]]
