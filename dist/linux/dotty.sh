@@ -1,5 +1,6 @@
 if package yay; then
   package yay                                   \
+          at                                    \
           lsof                                  \
           adobe-source-code-pro-fonts           \
           ttf-symbola                           \
@@ -10,6 +11,7 @@ if package yay; then
           s-nail                                \
           moreutils                             \
           nmap                                  \
+          parallel                              \
           pv                                    \
           ark                                   \
           trash-cli

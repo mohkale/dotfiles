@@ -16,6 +16,7 @@ jctl-purge        sudo journalctl --vacuum-time=1w
 fsck              fsck -M -T
 
 hl                hledger --color=always
+hlac              hl accounts
 hlb               hl balance
 hlbx              hlb -X £
 hlp               hl import --dry
