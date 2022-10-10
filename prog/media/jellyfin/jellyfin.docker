@@ -21,6 +21,9 @@ RUN cd $(mktemp -d)                                                             
 
 FROM jellyfin/jellyfin:latest
 
+# Add the user group needed to support hardware accelerated transcoding.
+RUN groupadd render
+
 ###############################################################################
 #                  Setup fail2ban to Prevent Network Snoopers                 #
 ###############################################################################

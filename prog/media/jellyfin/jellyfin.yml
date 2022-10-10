@@ -26,13 +26,3 @@ services:
       # This directory is the dedicated mount root for media related drives.
       - /mnt/media:/media/mount:ro
     restart: unless-stopped
-    # Enable access to relevent hardware devices to speed-up transcoding and
-    # playback.
-    devices:
-      - /dev/dri:/dev/dri
-    # Provide direct GPU access... only supported on [[https://github.com/docker/cli/issues/2063][nvidia]] hardware atm.
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - capabilities: [gpu]

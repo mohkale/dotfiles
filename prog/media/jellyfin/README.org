@@ -23,6 +23,23 @@ client (such as the web client at [[http://0.0.0.0:8096]]) to start configuring 
 viewing your media libraries. Once you detach from the tmux session for jellyfin then
 the container image will automatically be killed.
 
+* Customising Environment
+  You can setup host specific overrides for the jellyfin docker-compose configuration
+  by creating a [[file:jellyfin.override.yml]] file. This can be useful for enabling
+  hardware accelerated transcoding such as:
+
+  #+begin_src yaml
+    ---
+    services:
+      jellyfin:
+        privileged: true
+        group_add:
+          - render
+        devices:
+          - /dev/dri/card0
+          - /dev/dri/renderD128
+  #+end_src
+
 * Media Library Format
   This section documents how you should layer out your media library on the
   file-system to ensure jellyfin can parse the metadata from it and find it.
