@@ -23,6 +23,8 @@ fi
 # Source and export XDG files for the current platform.
 if [ "$("$root"/bin/ls-platform)" = windows ]; then
   xdg_file="$root/core/user-dirs.windows"
+elif [ "$("$root"/bin/ls-platform -a)" = linux:SteamOS ]; then
+  xdg_file="$root/core/user-dirs.steamdeck"
 else
   xdg_file="$root/core/user-dirs"
 fi

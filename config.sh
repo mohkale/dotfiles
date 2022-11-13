@@ -34,6 +34,9 @@ mkdir -p "$dist"
 platform=$(./bin/ls-distro)
 if [ -n "$platform" ]; then
   touch "$dist/$platform"
+  if [ "$platform" = "steamos" ]; then
+    touch "$dist/arch"
+  fi
 fi
 
 [ -e "$dist/arch"   ] && import dist/arch

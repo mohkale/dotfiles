@@ -1,0 +1,27 @@
+# -*- mode: conf-unix -*- XDG directory path configuration for steamdeck.
+
+XDG_DOCUMENTS_DIR="$HOME/Documents"
+XDG_DOWNLOAD_DIR="$HOME/Downloads"
+
+# Multimedia directories
+XDG_MUSIC_DIR="$HOME/Music"
+XDG_PICTURES_DIR="$HOME/Pictures"
+XDG_VIDEOS_DIR="$HOME/Videos"
+
+# System directories
+XDG_DESKTOP_DIR="$HOME/Desktop"
+XDG_PUBLICSHARE_DIR="$HOME/Share"
+XDG_TEMPLATES_DIR="$HOME/Templates"
+
+# Configuration directories
+XDG_CONFIG_HOME="$HOME/.config"
+XDG_CACHE_HOME="$HOME/.cache"
+XDG_DATA_HOME="$HOME/.local/share"
+XDG_STATE_HOME="$HOME/.local/state"
+
+# Unofficial extensions to the spec I added myself
+XDG_TEMP_DIR="$HOME/.local/temp"
+XDG_GAMES_DIR="$HOME/Games"
+XDG_DEV_HOME="$HOME/Develop"
+XDG_BIN_DIR="$HOME/.local/bin"
+XDG_LIB_HOME="$HOME/.local/lib"

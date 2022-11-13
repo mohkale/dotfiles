@@ -554,12 +554,13 @@ clean() {
 # |  __/| | (_| | |_|  _| (_) | |  | | | | | |
 # |_|   |_|\__,_|\__|_|  \___/|_|  |_| |_| |_|
 
-_platform="$("$DOTFILES/bin/ls-platform")"
-is-linux()   { [ "$_platform" = "linux" ]; }
-is-freebsd() { [ "$_platform" = "freebsd" ]; }
-is-darwin()  { [ "$_platform" = "darwin" ]; }
-is-windows() { [ "$_platform" = "windows" ]; }
-is-unix()    { ! is-windows; }
+_platform="$("$DOTFILES/bin/ls-platform" -a)"
+is-linux()     { [[ "$_platform" =~ linux* ]]; }
+is-freebsd()   { [ "$_platform" = "freebsd" ]; }
+is-darwin()    { [ "$_platform" = "darwin" ]; }
+is-windows()   { [ "$_platform" = "windows" ]; }
+is-unix()      { ! is-windows; }
+is-steamdeck() { [ "$_platform" = "linux:SteamOS" ]; }
 # Platform }}}
 
 # Packages {{{

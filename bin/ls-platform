@@ -1,15 +1,60 @@
 #!/usr/bin/env bash
-# List the current platform (Unix, MacOS, Windows).
+
+print_usage() {
+  echo "Usage: ls-platform [-h] [-a]"
+}
+
+print_help() {
+  print_usage
+  cat <<EOF
+
+  List the current platform (Linux, MacOS, Windows).
+
+Optional arguments
+  -h  Show this help message and exit.
+  -a  Show distribution as well if known.
+EOF
+}
+
+show_all=0
+while getopts 'ha' OPTION; do
+  case "$OPTION" in
+    h) print_help
+       exit 0 ;;
+    \?) print_usage >&2
+        exit 1 ;;
+    a) show_all=1 ;;
+  esac
+done
+
+linux-distro() {
+  if [ -f /etc/os-release ]; then
+    sed --quiet 's/^NAME="\(.\+\)"$/\1/p' /etc/os-release
+    return 0
+  fi
+
+  return 1
+}
 
 if [ -n "$OSTYPE" ]; then
   case "$OSTYPE" in
-    linux*)   echo "linux";   exit 0 ;;
-    freebsd*) echo "freebsd"; exit 0 ;;
-    darwin*)  echo "macos";   exit 0 ;;
+    linux*)
+      if [ "$show_all" -eq 1 ] && distro=$(linux-distro); then
+        echo "linux:$distro"
+      else
+        echo "linux"
+      fi
+      ;;
+    freebsd*)
+      echo "freebsd" ;;
+    darwin*)
+      echo "macos" ;;
     win32*|msys*|cygwin*)
-      echo "windows"
-      exit 0 ;;
-  esac
+      echo "windows" ;;
+    *)
+      false ;;
+  esac &&
+    exit 0
 fi
 
 # maybe cygwin?

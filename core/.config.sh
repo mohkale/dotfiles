@@ -18,6 +18,8 @@ link ~/.ignore                                    \
 
 if is-windows; then
   link -f user-dirs.windows:"~/.config/user-dirs.dirs"
+elif is-steamdeck; then
+  link -f user-dirs.steamdeck:"~/.config/user-dirs.dirs"
 else
   link -f user-dirs:"~/.config/user-dirs.dirs"
 fi
