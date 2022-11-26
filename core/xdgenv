@@ -35,6 +35,7 @@ export PYTHONSTARTUP="$XDG_CONFIG_HOME"/pythonrc.py                             
 export PYENV_ROOT="$XDG_DATA_HOME"/pyenv
 export PYLINTHOME="$XDG_CACHE_HOME"/pylint
 export PYLINTRC="$XDG_CONFIG_HOME"/pylintrc
+export MYPY_CACHE_DIR="$XDG_CACHE_HOME"/mypy
 export PIPENV_IGNORE_VIRTUALENVS=1
 export POETRY_HOME="$XDG_CONFIG_HOME"/poetry                                    # poetry
 

@@ -32,3 +32,8 @@ I'd recommend the following extensions to be setup after installation:
     [kde-nmh]: https://gitlab.com/librewolf-community/browser/linux/-/issues/242
 
 + [Privacy Badger](https://addons.mozilla.org/en-US/firefox/addon/privacy-badger17/?utm_source=addons.mozilla.org&utm_medium=referral&utm_content=search)
+
+## uBlock Origin Filters
+
++ [uBlock Origin dev filter](https://github.com/quenhus/uBlock-Origin-dev-filter)
++ [LegitimateURLShortener](https://subscribe.adblockplus.org/?location=https://gitlab.com/DandelionSprout/adfilt/-/raw/master/LegitimateURLShortener.txt&title=DandelionSprout-URL-Shortener)

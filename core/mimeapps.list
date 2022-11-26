@@ -1,44 +1,42 @@
 # -*- mode: conf-unix -*- [[https://wiki.archlinux.org/title/XDG_MIME_Applications#mimeapps.list][Mimetype]] application configuration.
 [Added Associations]
+application/vnd.comicbook-rar=sxcv.desktop;
 application/x-cb7=sxcv.desktop;
+inode/directory=org.kde.dolphin.desktop;ranger.desktop;
+
 application/x-cue=nvim.desktop;
-audio/flac=vlc.desktop;
-audio/mp4=vlc.desktop;
-audio/mpeg=vlc.desktop;
-audio/x-vorbis+ogg=vlc.desktop;
-audio/x-wav=vlc.desktop;
-inode/directory=org.kde.dolphin.desktop;easytag.desktop;ranger.desktop;
 text/plain=nvim.desktop;
-video/mp4=vlc.desktop;
-video/x-matroska=vlc.desktop;
-video/x-ms-wmv=vlc.desktop;
-video/x-msvideo=vlc.desktop;
-x-scheme-handler/http=brave-browser.desktop;
-x-scheme-handler/https=brave-browser.desktop;
+application/x-wine-extension-ini=nvim.desktop;
+
+###############################################################################
+#                                Media Players                                #
+###############################################################################
+
+audio/flac=mpv.desktop;vlc.desktop;
+audio/mp4=mpv.desktop;vlc.desktop;
+audio/mpeg=mpv.desktop;vlc.desktop;
+audio/x-vorbis+ogg=mpv.desktop;vlc.desktop;
+audio/x-wav=mpv.desktop;vlc.desktop;
+video/mp4=mpv.desktop;vlc.desktop;
+video/x-matroska=mpv.desktop;vlc.desktop;
+video/x-ms-wmv=mpv.desktop;vlc.desktop;
+video/x-msvideo=mpv.desktop;vlc.desktop;
+
+###############################################################################
+#                              Protocol Handlers                              #
+###############################################################################
+
+x-scheme-handler/http=librewolf.desktop;brave-browser.desktop;
+x-scheme-handler/https=librewolf.desktop;brave-browser.desktop;
 x-scheme-handler/mailto=emacsclient-mail.desktop;
+x-scheme-handler/tel=org.kde.kdeconnect.handler.desktop;
 
 [Default Applications]
-application/pdf=org.pwmt.zathura.desktop
-application/vnd.comicbook+rar=sxcv.desktop
-application/vnd.comicbook+zip=sxcv.desktop
-application/x-cb7=sxcv.desktop;
 application/x-cue=nvim.desktop;
-audio/flac=vlc.desktop
-audio/mp4=vlc.desktop
-audio/mpeg=vlc.desktop
-audio/x-vorbis+ogg=vlc.desktop;
-audio/x-wav=vlc.desktop;
-image/jp2=sxiv-ls.desktop
-image/svg+xml=sxiv-ls.desktop
+application/x-wine-extension-ini=nvim.desktop;
+
+application/pdf=org.pwmt.zathura.desktop
 inode/directory=org.kde.dolphin.desktop;
-text/plain=nvim.desktop;
-video/mp4=vlc.desktop
-video/x-matroska=vlc.desktop
-video/x-ms-wmv=vlc.desktop
-video/x-msvideo=vlc.desktop;
-text/html=brave-browser.desktop
-x-scheme-handler/http=brave-browser.desktop;
-x-scheme-handler/https=brave-browser.desktop;
 x-scheme-handler/mailto=emacsclient-mail.desktop;
 
 [Removed Associations]

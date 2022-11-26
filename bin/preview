@@ -277,6 +277,10 @@ do_exe() {
   xxd -- "$1" && return
 }
 
+do_iso() {
+  isoinfo -l -i -- "$FILE_PATH"
+}
+
 do_fallback() {
   echo '----- File Type Classification -----'
   file --dereference --brief -- "$1"
@@ -391,6 +395,7 @@ case "$FILE_EXTENSION" in
   class)           do_java_class "$FILE_PATH" ;;
   mp3)             do_video "$FILE_PATH" ;;
   idx)             do_riff "$FILE_PATH" ;;
+  iso)             do_iso "$FILE_PATH" ;;
 
   md) highlight_bat -l markdown -- "$FILE_PATH" ;;
   el) highlight_bat -l lisp -- "$FILE_PATH" ;;
