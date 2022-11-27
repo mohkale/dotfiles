@@ -15,7 +15,7 @@ presets=(
   [default]="tmux python wget bat gotop dropbox vlc cheat"
   [default.doc]="Configurations that're always installed"
   [default.windows]="powershell vscode"
-  [default.linux]="zsh wine nvim st lf ripgrep zathura"
+  [default.linux]="zsh nvim st lf ripgrep zathura"
   [default.macos]=""
 
   # Used for development machines where I intend to write code
@@ -23,7 +23,7 @@ presets=(
   [develop.doc]="Development and code writing tools"
   [develop.windows]="wsl cmder"
 
-  ## Used for torrent boxes which I use to download torrents
+  # Used for torrent boxes which I use to download torrents
   [torrent]="transmission tor"
   [torrent.doc]="Torrent downloading and uploading configurations"
 
@@ -31,13 +31,17 @@ presets=(
   [games]="steam"
   [games.doc]="For machines where I like to play games, both modern and retro"
   [games.windows]="gog"
-  [games.linux]="gba"
+  [games.linux]="wine gba"
 
   # Bots to install in a system designed for regular user use.
-  [user]="brave firefox gimp mail.client"
+  [user]="brave librewolf gimp mail.client"
   [user.doc]="General purpose programs for regular interactive use"
   [user.windows]="itunes"
   [user.linux]="mpd cava pass dolphin"
+
+  [steamdeck]=""
+  [steamdeck.doc]="Portable gaming handheld running arch based SteamOS"
+  [steamdeck.linux]="plasma"
 )
 
 preset_keys=$(printf '%s\n' "${!presets[@]}" | grep -v '\.\|^default$')

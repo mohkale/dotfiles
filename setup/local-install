@@ -1,0 +1,21 @@
+#!/bin/sh
+set -e
+#sudo steamos-readonly disable
+#
+#sudo pacman-key --init
+#sudo pacman-key --populate archlinux
+
+#yay -S git-lfs docker fzf linux-neptune-headers
+
+#sudo pacman -Syu \
+#  podman \
+#  fakeroot \
+#  yay-git \
+#  base-devel \
+#  mlocate \
+#  cmake \
+#  gcc \
+#  holo/linux-headers \
+#  linux-neptune-headers \
+#  holo/linux-lts-headers
+sudo pacman -Syu $(pacman -Qk 2>/dev/null | grep -ve ' 0 missing' | grep -ie ^libc -e glibc -e gcc -e clang -e headers -e udev -e systemd -e xorg -e libx11 -e libxft -e freetype2 -e fontconfig -e libxrender | awk -F ':' '{print $1}') --overwrite '*'
