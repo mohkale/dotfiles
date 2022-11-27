@@ -48,7 +48,7 @@ cat_if_log() { #(cmd, args)
 export -f cat_if_log
 
 log() { #(level, message, args)
-    local level_value; level=$(log_name_to_level "$1")
+    local level_value; level_value=$(log_name_to_level "$1")
 
     if [ "$level_value" -ge "$log_level" ]; then
         case "$1" in
