@@ -58,6 +58,7 @@ bindkey -s "^[[109;5u" "^M"
 bindkey -s '^[xh' "| head -n "
 bindkey -s '^[xl' "| less"
 bindkey -s '^[xc' "| clip"
+# shellcheck disable=SC2016
 bindkey -s '^[x`' '\C-e`\C-a`\C-a'
 bindkey -s '^[xe' 'emacsclient -nw'
 

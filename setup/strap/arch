@@ -59,6 +59,7 @@ log() { #(level, message, args)
         esac
 
         if [ -z "$2" ]; then echo; else
+            # shellcheck disable=SC2059
             printf "[$color$1$reset]: $2\n" "${@:3}"
         fi
     fi
@@ -73,7 +74,7 @@ export -f debug info warn error
 
 prompt() { #(prompt)
     local input=
-    printf "$1" >/dev/tty; read -r input </dev/tty
+    printf "%s" "$1" >/dev/tty; read -r input </dev/tty
     sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' <<< "$input"
 }
 export -f prompt
@@ -238,7 +239,8 @@ _choose_device_file() { #(prompt, confirmation_prompt, error_msg, device_choices
     while true; do
         local dest_device; dest_device=$(collection_prompt "$1" <<< "$partitions")
 
-        if [ -n "$dest_device" -a "$?" -eq 0 ]; then
+        # shellcheck disable=SC2059,SC2181
+        if [ -n "$dest_device" ] && [ "$?" -eq 0 ]; then
             if yes_no_prompt "$(printf "$2" "$dest_device")"; then
                 echo "$dest_device"
                 return 0

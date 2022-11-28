@@ -54,7 +54,7 @@ zle -N backward-kill-dir
 function zle_eval {
   # echo -en "\e[2K\r"
   echo
-  eval "$@"
+  eval "$*"
   zle redisplay
   zle reset-prompt
   true

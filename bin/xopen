@@ -373,7 +373,6 @@ class DesktopFind(object):
         # quick and simple instance based hash.
         return hash(repr(self))
 
-    # pylint: disable=W1517
     @functools.lru_cache(maxsize=None)  # cache all mime lookups
     def get_file(self, *args, **kwargs):
         """Alias for `get_files' which returns the first desktop file found.

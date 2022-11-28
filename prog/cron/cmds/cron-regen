@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # Regenerate crontab entry from local crontab entries in $XDG_CONFIG_HOME/cron.d/.
 # To actually save the generated config use:
 #   cron-regen | crontab

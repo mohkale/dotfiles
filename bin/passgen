@@ -12,11 +12,11 @@ import pathlib
 import re
 import secrets
 import sys
-from typing import Dict, NamedTuple, Set
-
-logging.basicConfig(level=logging.DEBUG)
+from typing import Dict, NamedTuple, Optional
 
 import requests
+
+logging.basicConfig(level=logging.DEBUG)
 
 # URL to a word list that will be used if a local word list file doesn't exist.
 # This should be a plain-text file contain newline delimited words. Each line
@@ -70,9 +70,8 @@ def load_index(url: str, dest: pathlib.Path, force_refetch: bool = False) -> Ind
             dice_size = len(group[1])
         elif dice_size != len(group[1]):
             raise RuntimeError(
-                "Two records in word list don't have the same dice size: %d != %d",
-                dice_size,
-                len(group[1]),
+                "Two records in word list don't have the same dice "
+                f"size: {dice_size} != {len(group[1])}",
             )
     if dice_size is None:
         raise RuntimeError("No records found in word list file")
@@ -89,6 +88,7 @@ def get_word(index: Index) -> str:
 
 
 def get_password(index: Index, word_count: int) -> str:
+    """Get a password containing `word_count` words from `index`."""
     return " ".join(get_word(index) for _ in range(word_count))
 
 
@@ -105,7 +105,7 @@ def main(args: argparse.Namespace) -> int:
     return 0
 
 
-def parse_args() -> argparse.Namespace:
+def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="""
     Generate a diceware password.
@@ -129,7 +129,7 @@ def parse_args() -> argparse.Namespace:
 
 
 if __name__ == "__main__":
-    args = parse_args()
+    args = _parse_args()
 
     try:
         from mohkale.pylog.config import use_config as use_logging_config

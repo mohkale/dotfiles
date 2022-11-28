@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # Print out the environment variables that should be set for the current
 # jellyfin-docker environment. This is used mostly for the tmuxp command
 # but can be reused for other purposes.

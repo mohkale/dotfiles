@@ -25,7 +25,7 @@ command_help=$(sed -E -e 's/\(.+\) ?//g' <<< "$command_help" | cut -d' ' -f2-)
 [ -z "$command_help" ] ||
     flags=$($fzf -d1 -- --print-query --info=hidden --prompt="$command $command_help: " < /dev/null)
 # shellcheck disable=SC2181
-if [ $? -eq 0 -o $? -eq 1 ]; then
+if [ $? -eq 0 ] || [ $? -eq 1 ]; then
     # exit code 1 when no choice from stdin given to fzf
     # shellcheck disable=SC2046
     tmux "$command" $(head -n1 <<< "$flags")

@@ -19,17 +19,18 @@ I'd recommend the following extensions to be setup after installation:
 + [Markdown Viewer](https://addons.mozilla.org/en-US/firefox/addon/markdown-viewer-chrome/?utm_source=addons.mozilla.org&utm_medium=referral&utm_content=search)
 + [Plasma Integration](https://addons.mozilla.org/en-US/firefox/addon/plasma-integration/?utm_source=addons.mozilla.org&utm_medium=referral&utm_content=search)
   (if running on KDE Plasma)
-  + Note: plasma integration depends on a [native messaging host][kde-nmh] for the
-    desktop environment. This is setup for firefox on install but not librewolf. For
-    now you can work around this by copying the browser integration config to the
-    right directory.
 
-    ```bash
-    mkdir -p ~/.librewolf/native-messaging-hosts
-    ln -sv /usr/lib/mozilla/native-messaging-hosts/org.kde.plasma.browser_integration.json ~/.librewolf/native-messaging-hosts/
-    ```
+   + Note: plasma integration depends on a [native messaging host][kde-nmh] for the
+     desktop environment. This is setup for firefox on install but not librewolf. For
+     now you can work around this by copying the browser integration config to the
+     right directory.
 
-    [kde-nmh]: https://gitlab.com/librewolf-community/browser/linux/-/issues/242
+     ```bash
+     mkdir -p ~/.librewolf/native-messaging-hosts
+     ln -sv /usr/lib/mozilla/native-messaging-hosts/org.kde.plasma.browser_integration.json ~/.librewolf/native-messaging-hosts/
+     ```
+
+     [kde-nmh]: https://gitlab.com/librewolf-community/browser/linux/-/issues/242
 
 + [Privacy Badger](https://addons.mozilla.org/en-US/firefox/addon/privacy-badger17/?utm_source=addons.mozilla.org&utm_medium=referral&utm_content=search)
 

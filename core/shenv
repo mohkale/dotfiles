@@ -22,18 +22,19 @@ esac
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"                    # Make less more friendly for non-text input files, see lesspipe(1)
 
 # Generate lesskey configuration file when it's out of date.
+# shellcheck disable=SC1083
 if [ -n "$LESSKEY" ] &&
   command -v lesskey >/dev/null 2>&1 &&
   [ -e "$LESSKEY.base" ] &&
-  ( ! [ -e "$LESSKEY" ] || [ "$LESSKEY.base" -nt "$LESSKEY" ] ); then
+  { ! [ -e "$LESSKEY" ] || [ "$LESSKEY.base" -nt "$LESSKEY" ]; }; then
   lesskey "$LESSKEY.base"
 fi
 
 # Apply custom color scheme for ls (for some reason this doesn't
 # work in ~/.profile :?).
-if [ -z "$LS_COLORS" -a \
-     -x /usr/bin/dircolors -a \
-     -r "$XDG_CONFIG_HOME/dircolors" ]; then
+if [ -z "$LS_COLORS" ] &&
+   [ -x /usr/bin/dircolors ] &&
+   [ -r "$XDG_CONFIG_HOME/dircolors" ]; then
   eval "$(/usr/bin/dircolors -b "$XDG_CONFIG_HOME/dircolors")" ||
       eval "$(/usr/bin/dircolors -b)"
   # shellcheck disable=SC2153
@@ -62,9 +63,9 @@ if [ -z "$shell" ]; then
 fi
 
 # Source autoloads
-[                   -f "$XDG_CONFIG_HOME/autoloads/global"       ] && . "$XDG_CONFIG_HOME/autoloads/global"
-[ -n "$shell"    -a -f "$XDG_CONFIG_HOME/autoloads/shell/$shell" ] && . "$XDG_CONFIG_HOME/autoloads/shell/$shell"
-[ -n "$platform" -a -f "$XDG_CONFIG_HOME/autoloads/$platform"    ] && . "$XDG_CONFIG_HOME/autoloads/$platform"
+[                       -f "$XDG_CONFIG_HOME/autoloads/global"       ] && . "$XDG_CONFIG_HOME/autoloads/global"
+[ -n "$shell"    ] && [ -f "$XDG_CONFIG_HOME/autoloads/shell/$shell" ] && . "$XDG_CONFIG_HOME/autoloads/shell/$shell"
+[ -n "$platform" ] && [ -f "$XDG_CONFIG_HOME/autoloads/$platform"    ] && . "$XDG_CONFIG_HOME/autoloads/$platform"
 
 # Reclaim C-s and C-q
 if [ "$smart_term" -eq 1 ]; then
@@ -109,11 +110,11 @@ esac
 
 unset shell
 
-if [ "${interactive:-0}" -ne 0 \
-    -a "${SH_BANNER:-0}" -gt 0 \
-    -a -n "$COLUMNS" \
-    -a -d "$XDG_CONFIG_HOME/banners" \
-    -a -r "$XDG_CONFIG_HOME/banners" ] && \
+if [ "${interactive:-0}" -ne 0 ] &&
+     [ "${SH_BANNER:-0}" -gt 0 ] &&
+     [ -n "$COLUMNS" ] &&
+     [ -d "$XDG_CONFIG_HOME/banners" ] &&
+     [ -r "$XDG_CONFIG_HOME/banners" ] &&
      command -v "show-banners" >/dev/null 2>&1; then
   banner=$(find -L "$XDG_CONFIG_HOME/banners" -type f -or -type l |
              sort -R |
