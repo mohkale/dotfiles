@@ -57,6 +57,26 @@ set -g @theme-state-search $AOH_MAGENTA                                         
 set -g @theme-state-prefix $AOH_GREEN                                                              # Prefix-key indicator
 set -g @theme-state-session $TMUX_HL                                                               # Session name background
 
+set -g @theme-active-window-flash bg=$TMUX_FG,fg=$TMUX_BG                                          # Briefly set window-active-style to this when selecting a new window
+set -g @theme-active-window-flash-duration 0                                                       # Duration for which window-flash should be active, set to 0 to disable
+
+set-hook -gu after-select-pane
+%if '#{>:#{@theme-active-window-flash-duration},0}'
+  set-hook -g after-select-pane {
+    set -w window-active-style "#{@theme-active-window-flash}"
+    run-shell -b '\
+      active_window() { \
+        tmux display-message -p "##{window_id}"; \
+      }; \
+      current_window=$(active_window); \
+      sleep #{@theme-active-window-flash-duration}; \
+      if [ "$(active_window)" = "$current_window" ]; then \
+        tmux set -w window-active-style ""; \
+      fi \
+    '
+  }
+%endif
+
 set -g @theme-sep ' | '                                                                            # Optional seperator between pane/prog-name and meta-info
 set -g @theme-df-mount $AOH_BRIGHT_BLUE                                                            # Color for mount names in status line
 set -g @theme-df-full $AOH_RED                                                                     # Color for mounted drives that're full
