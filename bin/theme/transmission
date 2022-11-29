@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Status misc segment for showing NordVPN connection status."""
 
+import asyncio
 import enum
+import logging
 from typing import Callable
 
 from lib.status_misc.segment import StatusMiscSegment
@@ -26,7 +28,8 @@ class TransmissionNotificationSegment(StatusMiscSegment):
             self.sections = [
                 # type: ignore
                 # pylint: disable=no-member
-                self.TransmissionSectionStatus[x.upper()] for x in self.sections
+                self.TransmissionSectionStatus[x.upper()]
+                for x in self.sections
             ]
 
     class TransmissionSectionStatus(enum.IntEnum):
@@ -82,17 +85,32 @@ class TransmissionNotificationSegment(StatusMiscSegment):
             help="When true don't show empty torrent sections",
         )
 
-    def render(self):
+    async def run(self, *args, **kwargs) -> None:
+        imported = False
+        while not imported:
+            try:
+                # pylint: disable=no-member,import-outside-toplevel
+                from mohkale import transmission as t
+            except ImportError:
+                logging.exception("Failed to import transmission module")
+                await asyncio.sleep(self.sleep_time)
+            else:
+                imported = True
+
+        async with t.AsyncTransmission.from_conf_file() as self._transmission:
+            await super().run(*args, **kwargs)
+
+    # pylint: disable=invalid-overridden-method
+    async def render(self):
         # pylint: disable=no-member,import-outside-toplevel
         from mohkale import transmission as t
 
-        if not self._transmission:
-            self._transmission = t.Transmission.from_conf_file()
-        if not self._transmission.check():
+        if not await self._transmission.acheck():
             return None
+
         try:
             # KLUDGE: Including fields based on sections is hacky :/.
-            resp = self._transmission.command(
+            resp = await self._transmission.acommand(
                 "torrent-get",
                 fields=["status", "percentDone"]
                 + (
@@ -136,9 +154,10 @@ class TransmissionNotificationSegment(StatusMiscSegment):
         }
         counts = {x: 0 for x in COUNT_PREDICATES}
         for torrent in torrents:
-            for key, pred in COUNT_PREDICATES.items():
-                if pred(torrent):
-                    counts[key] += 1
+            for section in self.sections:
+                predicate = COUNT_PREDICATES[section]
+                if predicate(torrent):
+                    counts[section] += 1
 
         res = []
         for i, section in enumerate(self.sections):
