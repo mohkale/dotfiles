@@ -231,7 +231,7 @@ done
 unset success
 
 # sub partitions on the device we're installing to.
-dest_device_partitions=$(find /dev/ -iregex "$dest_device"'[0-9]')
+dest_device_partitions=$(ls "$dest_device"*)
 
 _choose_device_file() { #(prompt, confirmation_prompt, error_msg, device_choices)
     local partitions="$4"
@@ -254,8 +254,13 @@ _choose_device_file() { #(prompt, confirmation_prompt, error_msg, device_choices
 }
 
 if [ -z "$dest_device_partitions" ]; then
-    # device has no subpartitions, user wants to install directly onto it
-    :
+    # device has no subpartitions, user wants to install directly onto it or maybe
+    # horifically we failed to detect the partitions for the device and are attempt
+    # to overwrite the main system device.
+    if ! yes_no_prompt "install arch to $dest_device_partitions"; then
+        warn 'failed to determine device file to install arch to'
+        exit 1
+    fi
 else
     dest_device=$(_choose_device_file 'choose an install device' \
                                       'install arch to %s' \
