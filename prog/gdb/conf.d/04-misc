@@ -1,0 +1,9 @@
+# Misc commands.
+
+define cls
+  shell clear
+end
+document cls
+Syntax: cls
+| Clear screen.
+end

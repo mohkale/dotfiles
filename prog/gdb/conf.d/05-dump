@@ -1,0 +1,36 @@
+# Dump memory.
+
+define ascii_char
+  if $argc != 1
+    help ascii_char
+  else
+    # thanks elaine :)
+    set $_c = *(unsigned char *)($arg0)
+    if ($_c < 0x20 || $_c > 0x7E)
+      printf "."
+    else
+      printf "%c", $_c
+    end
+  end
+end
+document ascii_char
+Syntax: ascii_char ADDR
+| Print ASCII value of byte at address ADDR.
+| Print "." if the value is unprintable.
+end
+
+define hex_quad
+  if $argc != 1
+    help hex_quad
+  else
+    printf "%02X %02X %02X %02X %02X %02X %02X %02X", \
+           *(unsigned char*)($arg0), *(unsigned char*)($arg0 + 1),     \
+           *(unsigned char*)($arg0 + 2), *(unsigned char*)($arg0 + 3), \
+           *(unsigned char*)($arg0 + 4), *(unsigned char*)($arg0 + 5), \
+           *(unsigned char*)($arg0 + 6), *(unsigned char*)($arg0 + 7)
+  end
+end
+document hex_quad
+Syntax: hex_quad ADDR
+| Print eight hexadecimal bytes starting at address ADDR.
+end

@@ -89,7 +89,8 @@ export VSCODE_PORTABLE="$XDG_DATA_HOME"/vscode                                  
 
 alias  info='info --init-file "$XDG_CONFIG_HOME/infokey"'                       # GNU info
 
-alias  gdb='gdb --silent -nh -x "$XDG_CONFIG_HOME"/gdb/init'                    # GDB
+export GDBINIT="$XDG_CONFIG_HOME/gdb/init"                                      # GDB
+alias gdb='GDBINIT=$GDBINIT gdb --silent -nh -x "$GDBINIT"'
 
 alias  mbsync='mbsync -c "$XDG_CONFIG_HOME"/isync/mbsyncrc'                     # isync
 

@@ -1,0 +1,211 @@
+# GDB Breakpoint aliases.
+#
+# This file defines a bunch of helpers or wrappers for interacting with breakpoints
+# in GDB.
+
+define bpl
+  info breakpoints
+end
+document bpl
+Syntax: bpl
+| List all breakpoints.
+end
+
+define bp
+  if $argc != 1
+    help bp
+  else
+    break $arg0
+  end
+end
+document bp
+Syntax: bp LOCATION
+| Set breakpoint.
+| LOCATION may be a line number, function name, or "*" and an address.
+| To break on a symbol you must enclose symbol name inside "".
+| Example:
+| bp "[NSControl stringValue]"
+| Or else you can use directly the break command (break [NSControl stringValue])
+end
+
+define bpc
+  if $argc != 1
+    help bpc
+  else
+    del $arg0
+  end
+end
+document bpc
+Syntax: bpc NUMBER
+| Clear breakpoint at NUMBER.
+end
+
+define bpcl
+  if $argc != 1
+    help bpcl
+  else
+    clear $arg0
+  end
+end
+document bpcl
+Syntax: bpc LOCATION
+| Clear breakpoint.
+| LOCATION may be a line number, function name, or "*" and an address.
+end
+
+define bpe
+  if $argc != 1
+    help bpe
+  else
+    enable $arg0
+  end
+end
+document bpe
+Syntax: bpe NUM
+| Enable breakpoint with number NUM.
+end
+
+define bpd
+  if $argc != 1
+    help bpd
+  else
+    disable $arg0
+  end
+end
+document bpd
+Syntax: bpd NUM
+| Disable breakpoint with number NUM.
+end
+
+define bpt
+  if $argc != 1
+    help bpt
+  else
+    tbreak $arg0
+  end
+end
+document bpt
+Syntax: bpt LOCATION
+| Set a temporary breakpoint.
+| This breakpoint will be automatically deleted when hit!.
+| LOCATION may be a line number, function name, or "*" and an address.
+end
+
+define bpp
+  if $argc == 2
+    dprintf $arg0,$arg1
+  else
+    if $argc == 3
+      dprintf $arg0,$arg1,$arg2
+    else
+      help bpp
+    end
+  end
+end
+document bpp
+Syntax: bpp LOCATION FORMAT_STRING [ARG,[...ARGS]]
+| Set a debug print breakpoint at LOCATION.
+| LOCATION may be a line number, function name, or "*" and an address.
+| When the breakpoint is hit FORMAT_STRING will be printed. If ARGS are
+| supplied FORMAT_STRING will be formatted as a printf style string with
+| ARGS.
+end
+
+define bpm
+  if $argc != 1
+    help bpm
+  else
+    awatch $arg0
+  end
+end
+document bpm
+Syntax: bpm EXPRESSION
+| Set a read/write breakpoint on EXPRESSION, e.g. *address.
+end
+
+define bps
+  if $argc != 1
+    help bps
+  else
+    save breakpoints $arg0
+  end
+end
+document bps
+Syntax: bps FILE
+| Save current breakpoints to FILE.
+end
+
+###############################################################################
+#                             Hardware Breakpoints                            #
+###############################################################################
+
+define bhb
+  if $argc != 1
+    help bhb
+  else
+    hb $arg0
+  end
+end
+document bhb
+Syntax: bhb LOCATION
+| Set hardware assisted breakpoint.
+| LOCATION may be a line number, function name, or "*" and an address.
+end
+
+define bht
+  if $argc != 1
+    help bht
+  else
+    thbreak $arg0
+  end
+end
+document bht
+Usage: bht LOCATION
+| Set a temporary hardware breakpoint.
+| This breakpoint will be automatically deleted when hit!
+| LOCATION may be a line number, function name, or "*" and an address.
+end
+
+###############################################################################
+#                Temporary Breakpoints to Well Defined Symbols                #
+###############################################################################
+
+define main
+  tbreak main
+  run
+end
+document main
+Syntax: main
+| Run program and break on main().
+end
+
+###############################################################################
+#                            Jump and Control Flow                            #
+###############################################################################
+
+define n
+  if $argc == 0
+    nexti
+  end
+  if $argc == 1
+    nexti $arg0
+  end
+  if $argc > 1
+    help n
+  end
+end
+document n
+Syntax: n <NUM>
+| Step one instruction, but proceed through subroutine calls.
+| If NUM is given, then repeat it NUM times or till program stops.
+| This is alias for nexti.
+end
+
+define pret
+  finish
+end
+document pret
+Syntax: pret
+| Execute until selected stack frame returns (step out of current call).
+| Upon return, the value returned is printed and put in the value history.
+end

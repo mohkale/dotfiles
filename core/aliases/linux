@@ -79,3 +79,6 @@ agu               apt-get update
 ags               apt-cache search
 agq               apt-cache show
 agd               apt-get build-dep
+
+# Attach to a running process based on its process id.
+gdbp              gdb --pid
