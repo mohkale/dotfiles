@@ -279,6 +279,10 @@ export FZF_DEFAULT_OPTS='
   --color fg:-1,bg:-1,fg+:-1,bg+:-1,hl+:#e93c58,hl:#df5273
   --color info:#af87ff,prompt:#5fff87,pointer:#ff87d7,marker:#ff87d7,spinner:#ff87d7
 
+  --no-separator
+  --preview-label-pos=3
+  --preview-window=right,50%
+
   --cycle
 '
 
