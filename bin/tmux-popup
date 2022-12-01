@@ -24,7 +24,7 @@
 
 usage() {
   cat <<-EOF
-Usage: tmux-popup [--help] [-p|-s] [-i] [-o]
+Usage: tmux-popup [--help] [-p|-s] [-i] [-o] [-b]
                   [-x COL] [-y ROW]
                   [-h HEIGHT[%]] [-w WIDTH[%]]
                   [-u HEIGHT[%]] [-l WIDTH[%]]
@@ -42,6 +42,7 @@ Optional Arguments:
   -i                 Pass standard input to popups stdin
   -o                 Pass popups standard output/error to current out/err
   -p|-s              Toggle use of popup windows (requires tmux >= 3.2)
+  -b                 Hide tmux border and enable fzf border if using fzf
 
 Popup Options:
   -w   WIDTH[%]      Set the width of the popup window
@@ -70,12 +71,14 @@ swap=""                # Command to swap two tmux panes
 close=""               # Post popup script evaluated after popup has finished
 read_in=0              # Whether to pass current standard input to popup
 write_out=0            # Whether to write popups stdout and stderr to current stdout/err
+tmux_border=1          # Use tmux border instead of the fzf border
 
 [ -n "$LINES"   ] && lines=$LINES     || lines=$(tput lines)  || lines=$(tmux display-message -p "#{pane_height}")
 [ -n "$COLUMNS" ] && columns=$COLUMNS || columns=$(tput cols) || columns=$(tmux display-message -p "#{pane_width}")
 
 # Detect whether popup support is available and enable it by default.
-[ "$(tmux -V | grep -o '[[:digit:]].[[:digit:]]' | tr -d .)" -ge 32 ] && opt="-E"
+tmux_version=$(tmux -V)
+[ "$(echo "$tmux_version" | tr -c -d 0-9)" -ge 32 ] && opt="-E"
 
 while [ "$#" -gt 0 ]; do
   arg="$1"; shift
@@ -88,6 +91,7 @@ while [ "$#" -gt 0 ]; do
     # Configure popup environment and handling
     -i) read_in=1 ;;
     -o) write_out=1 ;;
+    -b) tmux_border=0 ;;
     # Configure popup/split features.
     -w*|-h*|-x*|-y*|-d*|-u*|-r*|-l*)
       if [[ "$arg" =~ ^-[whxy] ]]; then
@@ -219,7 +223,13 @@ trap 'cleanup' EXIT
 
 # Setup environment for the new popup
 envs="export TERM=$TERM "
-[[ "$opt" =~ "-E" ]] && FZF_DEFAULT_OPTS="--margin 0,1 $FZF_DEFAULT_OPTS"
+if [[ "$opt" =~ "-E" ]]; then
+  FZF_DEFAULT_OPTS="--margin 0,1 $FZF_DEFAULT_OPTS"
+  if [ "$tmux_border" -eq 0 ] && [[ ! $tmux_version =~ 3\.2 ]]; then
+    FZF_DEFAULT_OPTS="--border $FZF_DEFAULT_OPTS"
+    opt="-B $opt"
+  fi
+fi
 [[ -n "$FZF_DEFAULT_OPTS"    ]] && envs="$envs FZF_DEFAULT_OPTS=$(printf %q "$FZF_DEFAULT_OPTS")"
 [[ -n "$FZF_DEFAULT_COMMAND" ]] && envs="$envs FZF_DEFAULT_COMMAND=$(printf %q "$FZF_DEFAULT_COMMAND")"
 echo "$envs;" > "$argsf"
