@@ -75,7 +75,7 @@ write_out=0            # Whether to write popups stdout and stderr to current st
 [ -n "$COLUMNS" ] && columns=$COLUMNS || columns=$(tput cols) || columns=$(tmux display-message -p "#{pane_width}")
 
 # Detect whether popup support is available and enable it by default.
-[ "$(tmux -V | grep -o '[[:digit:]].[[:digit:]]' | tr -d .)" -ge 32 ] && opt="-K -E"
+[ "$(tmux -V | grep -o '[[:digit:]].[[:digit:]]' | tr -d .)" -ge 32 ] && opt="-E"
 
 while [ "$#" -gt 0 ]; do
   arg="$1"; shift
@@ -83,15 +83,15 @@ while [ "$#" -gt 0 ]; do
     --help) help
             exit 0 ;;
     # Toggle popup usage
-    -p) [[ "$opt" =~ "-K -E" ]] || opt="-K -E" ;;
-    -s) opt="${opt//-K -E}" ;;
+    -p) [[ "$opt" =~ "-E" ]] || opt="-E" ;;
+    -s) opt="${opt//-E}" ;;
     # Configure popup environment and handling
     -i) read_in=1 ;;
     -o) write_out=1 ;;
     # Configure popup/split features.
     -w*|-h*|-x*|-y*|-d*|-u*|-r*|-l*)
       if [[ "$arg" =~ ^-[whxy] ]]; then
-        [[ "$opt" =~ "-K -E" ]] || opt="-K -E"
+        [[ "$opt" =~ "-E" ]] || opt="-E"
       elif [[ "$arg" =~ ^.[lr] ]]; then
         opt="-h"
         if [[ "$arg" =~ ^.l ]]; then
@@ -166,7 +166,7 @@ if [ -z "$TMUX" ]; then
 fi
 
 # Handle zoomed tmux pane without popup options by moving it to a temp window
-if [[ ! "$opt" =~ "-K -E" ]] && tmux list-panes -F '#F' | grep -q Z; then
+if [[ ! "$opt" =~ "-E" ]] && tmux list-panes -F '#F' | grep -q Z; then
   zoomed_without_popup=1
   original_window=$(tmux display-message -p "#{window_id}")
   tmp_window=$(tmux new-window -d -P -F "#{window_id}" "bash -c '
@@ -219,7 +219,7 @@ trap 'cleanup' EXIT
 
 # Setup environment for the new popup
 envs="export TERM=$TERM "
-[[ "$opt" =~ "-K -E" ]] && FZF_DEFAULT_OPTS="--margin 0,1 $FZF_DEFAULT_OPTS"
+[[ "$opt" =~ "-E" ]] && FZF_DEFAULT_OPTS="--margin 0,1 $FZF_DEFAULT_OPTS"
 [[ -n "$FZF_DEFAULT_OPTS"    ]] && envs="$envs FZF_DEFAULT_OPTS=$(printf %q "$FZF_DEFAULT_OPTS")"
 [[ -n "$FZF_DEFAULT_COMMAND" ]] && envs="$envs FZF_DEFAULT_COMMAND=$(printf %q "$FZF_DEFAULT_COMMAND")"
 echo "$envs;" > "$argsf"
@@ -249,14 +249,6 @@ show_popup() {
   [ "$write_out" -eq 0 ] || echo -n " | tee $fifo2" >> "$argsf"
   cat <<< "; out=\$? $close; exit \$out" >> "$argsf"
 
-  # tmux dropped the support for `-K`, `-R` to popup command
-  #   TODO: We can remove this once tmux 3.2 is released
-  if [[ ! "$(tmux popup --help 2>&1)" =~ '-R shell-command' ]]; then
-    opt="${opt/-K/}"
-  else
-    opt="${opt} -R"
-  fi
-
   # shellcheck disable=SC2086
   tmux popup -d "$PWD" "${tmux_args[@]}" $opt "bash $argsf" > /dev/null 2>&1
   return $?
@@ -285,7 +277,7 @@ show_split() {
   return "$(cat "$fifo3")"
 }
 
-if [[ "$opt" =~ "-K -E" ]]; then
+if [[ "$opt" =~ "-E" ]]; then
   show_popup
 else
   show_split
