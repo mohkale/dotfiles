@@ -7,7 +7,7 @@ packages pip:tmuxp
 # Theme command extensions
 packages pip:pygithub,psutil,python-mpd2
 
-clean -r "$XDG_CONFIG_HOME/tmux"
+clean -r "$XDG_CONFIG_HOME/tmux" "$XDG_CONFIG_HOME/tmuxp"
 
 link                                            \
   tmuxrc:"$XDG_CONFIG_HOME/tmux/tmux.conf"      \

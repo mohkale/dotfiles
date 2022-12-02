@@ -398,6 +398,7 @@ case "$FILE_EXTENSION" in
   iso)             do_iso "$FILE_PATH" ;;
 
   md) highlight_bat -l markdown -- "$FILE_PATH" ;;
+  csv) highlight_bat -l csv -- "$FILE_PATH" ;;
   el) highlight_bat -l lisp -- "$FILE_PATH" ;;
   org) highlight_bat -l orgmode -- "$FILE_PATH" ;;
 
