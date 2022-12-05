@@ -2,7 +2,9 @@
 cd_project() {
   sep=$'\t'
   local fzf_args=( -d "$sep" --with-nth 2..
-                   --preview 'INCLUDE_DIR=1 preview {1}' --preview-window '~2'
+                   --preview 'INCLUDE_DIR=1 preview {1}'
+                   --preview-window '~2'
+                   --preview-label=' Project '
                    --history "${XDG_STATE_HOME:-$HOME/.locale/state}"/fzf/history/paths )
   [ -z "$*" ] || fzf_args+=( -q "$*" )
   local dest

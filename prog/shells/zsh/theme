@@ -98,6 +98,7 @@ prompt_git_branch() {
 
 prompt_git_status() {
   local status_flags='' status_color='magenta'
+  local INDEX
   INDEX=$(command git status --porcelain -b 2>/dev/null)
 
   # Check for untracked files
@@ -148,7 +149,7 @@ prompt_git_status() {
   fi
 
   # Check wheather branch has diverged
-  if [ "$is_ahead" = true -a "$is_behind" = true ]; then
+  if [ "$is_ahead" = true ] && [ "$is_behind" = true ]; then
     status_flags="⇕$status_flags"
   else
     [ "$is_ahead"  = true ] && status_flags="⇡$status_flags"
@@ -209,7 +210,8 @@ prompt_golang() {
        || ( $GOPATH && "$PWD/" =~ "$GOPATH/" ) ]] || return
 
   prompt::exists go || return
-  local go_version=$(go version | awk '{
+  local go_version
+  go_version=$(go version | awk '{
   if ($3 ~ /^devel/) {
     print $3 ":" substr($4, 2)
   } else {
@@ -233,7 +235,8 @@ prompt_python() {
   else
     return
   fi
-  local python_version=$($py_exec --version)
+  local python_version
+  python_version=$($py_exec --version)
   python_version="${python_version#* }"
   [ -z "$python_version" ] && return
 
@@ -261,7 +264,9 @@ prompt_ruby() {
     return
   fi
 
-  [ -z "$ruby_version" -o "${ruby_version}" = "system" ] && return
+  if [ -z "$ruby_version" ] || [ "${ruby_version}" = "system" ]; then
+    return
+  fi
 
   # ensure ruby version begins with a "v".
   [[ "${ruby_version}" =~ ^[0-9].+$ ]] && ruby_version="v${ruby_version}"
@@ -439,6 +444,7 @@ prompt_init_worker
 # start async jobs before cmd
 prompt_precmd() {
   local prompt_last_exit=$?
+  local root
   root=$(prompt::project_root "$PWD")
   async_job 'prompt' prompt_root
   async_job 'prompt' prompt_docker

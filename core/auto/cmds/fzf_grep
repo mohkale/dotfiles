@@ -23,7 +23,7 @@ fzf_grep() {
       --prompt="$prompt" \
       --delimiter : \
       --preview "preview -o bat='--highlight-line {2}' -- {1}" \
-      --preview-window 'down,60%,border-top,+{2}+3/3' |
+      --preview-window 'right,50%,border-left,<50(down,60%,border-top,+{2}+3/3)' |
     cut -d : -f 1 |
     uniq |
     select_path

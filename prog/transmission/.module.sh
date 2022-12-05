@@ -3,7 +3,8 @@ link                                                    \
   "$XDG_CONFIG_HOME/transmission/settings.json"         \
   "$XDG_CONFIG_HOME/transmission-daemon/settings.json"  \
   "$XDG_CONFIG_HOME/transmission-daemon/watcher.json"   \
-  tremcrc:"$XDG_CONFIG_HOME/tremc/settings.cfg"
+  tremcrc:"$XDG_CONFIG_HOME/tremc/settings.cfg"         \
+  cleanup.cron:"$XDG_CONFIG_HOME/cron-user.d/transmission-cleanup.cron"
 link-to "$XDG_CONFIG_HOME/tmuxp/" ./tmux/*
 link-to "$XDG_CONFIG_HOME/autoloads/cmds/" ./auto/*
 

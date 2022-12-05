@@ -11,7 +11,7 @@ function rangercd {
     )
 
     "${ranger_cmd[@]}" "$@"
-    if [ -f "$tempfile" -a "$(cat -- "$tempfile")" != "$(echo -n "$(pwd)")" ]; then
+    if [ -f "$tempfile" ] && [ "$(cat -- "$tempfile")" != "$(echo -n "$(pwd)")" ]; then
         cd -- "$(cat "$tempfile")" || return
     fi
     command rm -f -- "$tempfile" 2>/dev/null

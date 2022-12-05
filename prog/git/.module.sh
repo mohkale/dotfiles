@@ -18,4 +18,4 @@ packages                                        \
   apt:git                                       \
   msys:git                                      \
   choco:git                                     \
-  pacman:git
+  yay:git,perl-authen-sasl,perl-io-socket-ssl

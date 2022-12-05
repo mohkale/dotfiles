@@ -57,6 +57,26 @@ set -g @theme-state-search $AOH_MAGENTA                                         
 set -g @theme-state-prefix $AOH_GREEN                                                              # Prefix-key indicator
 set -g @theme-state-session $TMUX_HL                                                               # Session name background
 
+set -g @theme-active-window-flash bg=$TMUX_FG,fg=$TMUX_BG                                          # Briefly set window-active-style to this when selecting a new window
+set -g @theme-active-window-flash-duration 0                                                       # Duration for which window-flash should be active, set to 0 to disable
+
+set-hook -gu after-select-pane
+%if '#{>:#{@theme-active-window-flash-duration},0}'
+  set-hook -g after-select-pane {
+    set -w window-active-style "#{@theme-active-window-flash}"
+    run-shell -b '\
+      active_window() { \
+        tmux display-message -p "##{window_id}"; \
+      }; \
+      current_window=$(active_window); \
+      sleep #{@theme-active-window-flash-duration}; \
+      if [ "$(active_window)" = "$current_window" ]; then \
+        tmux set -w window-active-style ""; \
+      fi \
+    '
+  }
+%endif
+
 set -g @theme-sep ' | '                                                                            # Optional seperator between pane/prog-name and meta-info
 set -g @theme-df-mount $AOH_BRIGHT_BLUE                                                            # Color for mount names in status line
 set -g @theme-df-full $AOH_RED                                                                     # Color for mounted drives that're full
@@ -195,7 +215,7 @@ set -g status-right " \
 #[default,bg=$TMUX_BG,fg=$TMUX_FG]#[push-default]\
 #{?#{e|>=:#{client_width},#{@theme-hide-title-width}},#{?#{&&:#{!=:#{host},#{pane_title}},#{!=:#{pane_title},}},#{=/$TMUX_OPT_NAME_MAX_LEN/...:pane_title}#{?#{==:#{@theme-sep},}, ,#{@theme-sep}},#{?#{!=:#{E:@status-message},},#{E:@status-message}#{?#{==:#{@theme-sep},}, ,#{@theme-sep}},}},}
 \
-#{?#{e|>=:#{client_width},#{@theme-hide-misc-width}},#(echo; theme-status-misc --unbuffer --reset-style '#[default]' --suffix '#{?#{==:#{@theme-sep},}, ,#{@theme-sep}}' --enable nordvpn --enable mullvad-vpn --enable docker --enable github --enable mpd --enable transmission --enable notmuch --disable battery --enable disk-free --disable cpu-load --nordvpn-hide --nordvpn-icon ' ' --nordvpn-active-style '#[fg=$AOH_GREEN]' --nordvpn-inactive-style '#[fg=$AOH_RED]' --mullvad-vpn-hide --mullvad-vpn-icon ' ' --mullvad-vpn-active-style '#[fg=$AOH_GREEN]' --mullvad-vpn-inactive-style '#[fg=$AOH_RED]' --notmuch-hide-zero --notmuch-icon ' ' --notmuch-icon-style '#[fg=$AOH_WHITE]' --notmuch-unread-style '#[fg=$AOH_GREEN]' --notmuch-flagged-style '#[fg=$AOH_BRIGHT_MAGENTA]' --github-hide-zero --github-icon ' ' --github-icon-style '#[fg=$AOH_WHITE]' --github-count-style '#[fg=$AOH_BRIGHT_BLUE]' --mpd-icon ' ' --mpd-hide-when-zero --mpd-playing-style '#[fg=#{@theme-mpd-playing}]' --mpd-paused-style '#[fg=#{@theme-mpd-paused}]' --transmission-icon ' ' --transmission-icon-style '#[fg=$AOH_BRIGHT_BLUE]' --transmission-hide-zero --transmission-sections downloading_high_priority downloading checking incomplete --transmission-section-styles '#[fg=$AOH_ORANGE]' '' '#[fg=$AOH_BRIGHT_MAGENTA]' --battery-charging ''  --battery-charging-style '#[fg=#{@theme-battery-charging}]' --battery-level ' ' ' ' ' ' ' ' ' ' --battery-count 1 --battery-threshold 10 '#[fg=#{@theme-battery-1}]' --battery-threshold 20 '#[fg=#{@theme-battery-2}]' --battery-threshold 40 '#[fg=#{@theme-battery-3}]' --battery-threshold 60 '#[fg=#{@theme-battery-4}]' --battery-alert ' ' --battery-alert-style '#[blink fg=#{@theme-battery-1}]' --docker-icon ' ' --docker-icon-style '#[fg=$AOH_BRIGHT_BLUE]' --docker-hide-zero --docker-total-style '#[fg=$AOH_RED]' --docker-status RUNNING CREATED PAUSED RESTARTING --docker-status-style CREATED '#[fg=$AOH_GREEN]' --docker-status-style PAUSED '#[fg=$AOH_YELLOW]' --docker-status-style RESTARTING '#[fg=$AOH_YELLOW]' --disk-free-show-bytes --disk-free-thresholds 80 '#[fg=#{@theme-df-medium}]' --disk-free-thresholds 95 '#[fg=#{@theme-df-large}]' --disk-free-thresholds 100 '#[fg=#{@theme-df-full}]' --disk-free-mount-style '#[bold fg=#{@theme-df-mount}]'  ),}\
+#{?#{e|>=:#{client_width},#{@theme-hide-misc-width}},#(echo; theme-status-misc --unbuffer --reset-style '#[default]' --suffix '#{?#{==:#{@theme-sep},}, ,#{@theme-sep}}' --enable nordvpn --enable mullvad-vpn --enable docker --enable github --enable mpd --enable transmission --enable notmuch --disable battery --enable disk-free --disable cpu-load --nordvpn-hide --nordvpn-icon ' ' --nordvpn-active-style '#[fg=$AOH_GREEN]' --nordvpn-inactive-style '#[fg=$AOH_RED]' --mullvad-vpn-hide --mullvad-vpn-icon ' ' --mullvad-vpn-active-style '#[fg=$AOH_GREEN]' --mullvad-vpn-inactive-style '#[fg=$AOH_RED]' --mullvad-vpn-ignore-missing-ip --notmuch-hide-zero --notmuch-icon ' ' --notmuch-icon-style '#[fg=$AOH_WHITE]' --notmuch-unread-style '#[fg=$AOH_GREEN]' --notmuch-flagged-style '#[fg=$AOH_BRIGHT_MAGENTA]' --github-hide-zero --github-icon ' ' --github-icon-style '#[fg=$AOH_WHITE]' --github-count-style '#[fg=$AOH_BRIGHT_BLUE]' --mpd-icon ' ' --mpd-hide-when-zero --mpd-playing-style '#[fg=#{@theme-mpd-playing}]' --mpd-paused-style '#[fg=#{@theme-mpd-paused}]' --transmission-icon ' ' --transmission-icon-style '#[fg=$AOH_BRIGHT_BLUE]' --transmission-hide-zero --transmission-sections downloading_high_priority downloading seeding checking incomplete --transmission-section-styles '#[fg=$AOH_ORANGE]' '' '#[fg=$AOH_GREEN]' '#[fg=$AOH_BRIGHT_MAGENTA]' --battery-charging ''  --battery-charging-style '#[fg=#{@theme-battery-charging}]' --battery-level ' ' ' ' ' ' ' ' ' ' --battery-count 1 --battery-threshold 10 '#[fg=#{@theme-battery-1}]' --battery-threshold 20 '#[fg=#{@theme-battery-2}]' --battery-threshold 40 '#[fg=#{@theme-battery-3}]' --battery-threshold 60 '#[fg=#{@theme-battery-4}]' --battery-alert ' ' --battery-alert-style '#[blink fg=#{@theme-battery-1}]' --docker-icon ' ' --docker-icon-style '#[fg=$AOH_BRIGHT_BLUE]' --docker-hide-zero --docker-total-style '#[fg=$AOH_RED]' --docker-status RUNNING CREATED PAUSED RESTARTING --docker-status-style CREATED '#[fg=$AOH_GREEN]' --docker-status-style PAUSED '#[fg=$AOH_YELLOW]' --docker-status-style RESTARTING '#[fg=$AOH_YELLOW]' --disk-free-show-bytes --disk-free-thresholds 80 '#[fg=#{@theme-df-medium}]' --disk-free-thresholds 95 '#[fg=#{@theme-df-large}]' --disk-free-thresholds 100 '#[fg=#{@theme-df-full}]' --disk-free-mount-style '#[bold fg=#{@theme-df-mount}]'),}\
 \
 #{?#{e|<:#{client_width},#{@theme-hide-misc-width}},#(echo ""; theme-disk-free --unbuffer --reset-style '#[default]' --show-bytes --mount-style '#[bold fg=#{@theme-df-mount}]' --thresholds 80 '#[fg=#{@theme-df-medium}]' --thresholds 95 '#[fg=#{@theme-df-large}]' --thresholds 100 '#[fg=#{@theme-df-full}]')#{?#{==:#{@theme-sep},}, ,#{@theme-sep}},}\
 \

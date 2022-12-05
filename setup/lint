@@ -35,7 +35,7 @@ shift $((OPTIND - 1))
 if [ -z "$root" ]; then
   echo "lint: error: no dotfile repository root directory found" >&2
   exit 1
-elif ! [ -e "$root" -a -r "$root" ]; then
+elif ! [ -r "$root" ]; then
   echo "lint: error: dotfile repository root not found: $root" >&2
   exit 1
 fi

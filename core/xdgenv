@@ -24,6 +24,7 @@ export LESSHISTFILE="$XDG_STATE_HOME"/less/history
 [ -d "$XDG_CACHE_HOME/less" ] ||
   mkdir -p "$XDG_CACHE_HOME"/less
 
+alias yarn='yarn --use-yarnrc "$XDG_CONFIG_HOME/yarn/config"'
 export NODE_REPL_HISTORY="$XDG_STATE_HOME"/node_repl_history                    # node
 export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME"/npm/npmrc                       # npm
 export NVM_DIR="$XDG_DATA_HOME"/nvm                                             # nvm
@@ -34,6 +35,7 @@ export PYTHONSTARTUP="$XDG_CONFIG_HOME"/pythonrc.py                             
 export PYENV_ROOT="$XDG_DATA_HOME"/pyenv
 export PYLINTHOME="$XDG_CACHE_HOME"/pylint
 export PYLINTRC="$XDG_CONFIG_HOME"/pylintrc
+export MYPY_CACHE_DIR="$XDG_CACHE_HOME"/mypy
 export PIPENV_IGNORE_VIRTUALENVS=1
 export POETRY_HOME="$XDG_CONFIG_HOME"/poetry                                    # poetry
 
@@ -87,7 +89,8 @@ export VSCODE_PORTABLE="$XDG_DATA_HOME"/vscode                                  
 
 alias  info='info --init-file "$XDG_CONFIG_HOME/infokey"'                       # GNU info
 
-alias  gdb='gdb --silent -nh -x "$XDG_CONFIG_HOME"/gdb/init'                    # GDB
+export GDBINIT="$XDG_CONFIG_HOME/gdb/init"                                      # GDB
+alias gdb='GDBINIT=$GDBINIT gdb --silent -nh -x "$GDBINIT"'
 
 alias  mbsync='mbsync -c "$XDG_CONFIG_HOME"/isync/mbsyncrc'                     # isync
 
@@ -124,3 +127,7 @@ alias irssi="\
 irssi --config=$XDG_CONFIG_HOME/irssi/config \
 --home=$XDG_DATA_HOME/irssi\
 "
+
+export ICEAUTHORITY="$XDG_CACHE_HOME"/ICEauthority
+
+export DOCKER_CONFIG="$XDG_CONFIG_HOME"/docker

@@ -621,6 +621,8 @@ EOF
     return 1
   fi
 
+  _skip_directive package && return
+
   if [ "$#" -gt 0 ]; then
     debug 'Installing packages with %s: %s' "$name" "$(_csv "$@")"
     local prog_args_arr pre_args_arr
@@ -686,6 +688,8 @@ _package_pip() {
     return 1
   fi
 
+  _skip_directive package && return
+
   if [ "$#" -gt 0 ]; then
     debug 'Installing packages with pip: %s' "$(_csv "$@")"
     printf '%s\n' "$@" |
@@ -744,12 +748,14 @@ _package_gem() {
   [ "$global" -eq 0 ] &&
     flags+=( '--user-install' )
 
-  if ! hash pip 2>/dev/null; then
+  if ! hash gem 2>/dev/null; then
     return 1
   fi
 
+  _skip_directive package && return
+
   if [ "$#" -gt 0 ]; then
-    debug 'Installing packages with pip: %s' "$(_csv "$@")"
+    debug 'Installing packages with gem: %s' "$(_csv "$@")"
     printf '%s\n' "$@" |
       _run_cmd_xargs gem install "${flags[@]}"
   fi
@@ -774,8 +780,6 @@ PACMANS+=(apt)
 _package_apt() { _package_simple apt apt sudo install,--yes update "$@"; }
 
 package() {
-  _skip_directive package && return
-
   local pacman="$1"; shift
   if _contains "$pacman" "${PACMANS[@]}"; then
     _package_"$pacman" "$@"
@@ -796,8 +800,6 @@ Positional arguments:
   PKGS       List of packages to install
 EOF
 packages() {
-  _skip_directive package && return
-
   local OPTIND
   while getopts 'h' OPTION; do
     case "$OPTION" in
@@ -819,6 +821,9 @@ packages() {
     fi
   done <<< "$(printf '%s\n' "$@")"
   error 'No suitable package manager found, tried %s' "$(printf '%s\n' "$@" | cut -d : -f1 | tr '\n' ',')"
+
+  # Disregard error code when we weren't meant to install anything anyways.
+  _skip_directive package && return
   return 1
 }
 
@@ -981,11 +986,11 @@ import() {
     [ -z "$file" ] && file=$(_import_find "$it_abs" "$it_base")
 
     if [ -n "$file" ]; then
-      info 'Importing %s' "$file"
       if _contains "$file" "${IMPORTED[@]}"; then
         debug 'Skipping importing %s because its already been imported' "$file"
         continue
       fi
+      info 'Importing %s' "$file"
       IMPORTED+=( "$file" )
       echo "$file" >&4
 

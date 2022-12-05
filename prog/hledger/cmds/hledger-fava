@@ -29,7 +29,8 @@ fi
 # decrypts into the original file anyways.
 parallel -r -d '\n' [ -e {} ] '||' touch {} '&&' [ -e {}.gpg ] '&&' touch {}.gpg <<< "$journals"
 
-export_cmd='hledger print'
+post_process="sed -e 's/\[\(\[[^]\]\+\)\]\[\([^]\]\+\)\]\]/\2/g' -e 's/ *; *$//'"
+export_cmd="hledger print | $post_process"
 if which -v ledger2beancount >/dev/null 2>&1; then
   export_cmd="$export_cmd | ledger2beancount -"
 fi

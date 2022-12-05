@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 cd_env() {
     local fzf_args
-    fzf_args=( --no-multi -d ' ' --preview 'preview {2..}' --preview-window=25%
+    fzf_args=( --no-multi -d ' ' --preview 'preview {2..}'
+               --preview-label=' Directory '
                --history "${XDG_STATE_HOME:-$HOME/.locale/state}"/fzf/history/paths )
     [ -z "$*" ] || fzf_args+=( -q "$*" )
     local dest

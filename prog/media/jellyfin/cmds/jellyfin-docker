@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Wrapping command for docker-compose which sets jellyfin specific arguments.
+
+jellydot="$DOTFILES/prog/media/jellyfin"
+if ! [ -e "$jellydot" ]; then
+  echo "$0: error: Could not find jellyfin dotfile directory: $jellydot" >&2
+  exit 1
+fi
+
+cmd=( docker-compose --file "$jellydot/jellyfin.yml" )
+
+override_file="$jellydot/jellyfin.override.yml"
+if [ -e "$override_file" ]; then
+  cmd+=( --file "$override_file" )
+fi
+
+exec "${cmd[@]}" "$@"

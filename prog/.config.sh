@@ -15,6 +15,7 @@ import -b                                       \
   browsers/*                                    \
   buku                                          \
   cava                                          \
+  cron                                          \                                          \
   cheat                                         \
   docker                                        \
   dolphin                                       \
@@ -39,6 +40,7 @@ import -b                                       \
   ranger                                        \
   ripgrep                                       \
   shells/*                                      \
+  smart                                         \
   spectacle                                     \
   sxiv                                          \
   terminal/*                                    \

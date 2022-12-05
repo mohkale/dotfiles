@@ -8,156 +8,217 @@ import codecs
 import json
 import logging
 import sys
-from typing import Callable, Optional
+from typing import Callable, Coroutine, List, Optional
 
 import pyperclip as clip
 
+DEFAULT_READ_INTERVAL = 0.5
 
-def identity(value: str) -> str:
+
+def _identity(value: str) -> str:
     """Return argument as is."""
     return value
 
 
-async def clip_loop(interval: int, first: bool = False) -> None:
-    """Asynchronously read and yield the clipboard value at periodic intervals.
-
-    This function checks the value of the clipboard at interval increments
-    and yields it if its value has changed from the last time the function
-    was invoked.
-
-    Parameters
-    ----------
-    interval
-        Minimum period in seconds between clipboard value checks.
-    first
-        Whether to yield the first clipboard value. By default this function
-        only yields from the next clipboard value going forward (assuming the
-        current value hasn't been assigned yet).
+class Clipsink:
     """
-    logging.debug("Started clip loop")
-    last = clip.paste()
-    if first:
-        logging.debug("Yielding initial clipboard value='%s'", last)
-        yield last
+    Asynchronous clipboard monitor.
 
-    while True:
-        await asyncio.sleep(interval)
-        logging.debug("Awoke clipboard monitor")
-        current = clip.paste()
-        logging.debug("Read value='%s' from clipboard", current)
-        if last != current:
-            yield current
-            last = current
+    This class has a main function which when invoked will periodically inspect
+    the value of the clipboard and invoke the `on_new_clip` method for each new
+    clipboard change to it.
+
+    Fields
+    ------
+    read_interval
+        Minimum period in seconds between clipboard value checks.
+    read_initial_clip
+        Whether to invoke the handler on the first clipboard value. By default
+        this class only handles values from the next clipboard change going forward
+        (assuming the current value hasn't been assigned yet).
+    stop_event
+        Stop event which when set will terminate the clipsink loop. This can be
+        supplied to the constructor or a default event will be initialised if not
+        supplied.
+    """
+
+    def __init__(
+        self,
+        read_interval: int = DEFAULT_READ_INTERVAL,
+        read_initial_clip: bool = False,
+        stop_event: Optional[asyncio.Event] = None,
+    ) -> None:
+        self.read_interval = read_interval
+        self.read_initial_clip = read_initial_clip
+
+        if stop_event is not None:
+            self.stop_event = stop_event
+        else:
+            self.stop_event = asyncio.Event()
+
+    async def main(self) -> None:
+        """Main clipsink entrypoint."""
+        tasks = []
+
+        await self.before_start()
+
+        try:
+            tasks.append(asyncio.create_task(self._clip_loop()))
+
+            await self._add_tasks(tasks)
+
+            # Either wait for exit_event or loop forever.
+            await self.stop_event.wait()
+            # Cancel any pending coroutines before exitting.
+            for task in tasks:
+                task.cancel()
+        finally:
+            await self.before_end()
+
+    async def _add_tasks(self, tasks: List[Coroutine]) -> None:
+        """Optional method that can be used to allow subclasses to register tasks."""
+
+    async def _clip_loop(self) -> None:
+        """Asynchronously read the clipboard value at periodic intervals.
+
+        This function checks the value of the clipboard at interval increments
+        and invokes the `on_new_clip` handler it if its value has changed from
+        the last time it was read.
+        """
+        logging.debug("Started clip loop")
+        last = clip.paste()
+        if self.read_initial_clip:
+            logging.debug("Handling initial clipboard value='%s'", last)
+            await self.on_new_clip(last)
+
+        while True:
+            await asyncio.sleep(self.read_interval)
+            logging.debug("Awoke clipboard monitor")
+            current = clip.paste()
+            logging.debug("Read value='%s' from clipboard", current)
+            if last != current:
+                await self.on_new_clip(current)
+                last = current
+
+    async def before_start(self) -> None:
+        """Event handler before clipsink starts."""
+
+    async def before_end(self) -> None:
+        """Event handler before clipsink stops."""
+
+    async def on_new_clip(self, clip: str) -> None:
+        """Event handler for new clipboard entries."""
 
 
-# pylint: disable=too-many-arguments
-async def print_loop(
-    interval: int,
-    first: bool,
-    line_buffer: bool,
-    predicate: Optional[Callable[[str], bool]],
-    formatter: Callable[[str], str],
-    delimiter: str,
-) -> None:
-    """Run `clip_loop` and continually print out values.
+class MonitorStdinClipsink(Clipsink):
+    """Clipsink which also reads lines from stdin and sets the stop event on EOF.
 
-    Parameters
-    ----------
-    interval
-    first
-        Forwarded to `clip_loop`.
+    Fields
+    ------
+    monitor_stdin
+        Flag which when True stdin will be monitored. Set to False to prevent
+        stdin monitoring.
+    """
+
+    def __init__(
+        self,
+        read_interval: int = DEFAULT_READ_INTERVAL,
+        read_initial_clip: bool = False,
+        stop_event: Optional[asyncio.Event] = None,
+        monitor_stdin: bool = False,
+    ) -> None:
+        super().__init__(read_interval, read_initial_clip, stop_event)
+        self.monitor_stdin = monitor_stdin
+
+    async def _add_tasks(self, tasks) -> None:
+        await super()._add_tasks(tasks)
+
+        if self.monitor_stdin:
+            logging.info("Creating stdin monitor")
+            tasks.append(asyncio.create_task(self._stdin_loop()))
+
+    async def _stdin_loop(self):
+        """Continually read from stdin and invoke handlers on events.
+
+        Reads line from stdin asynchronously, invoking `on_stdin_read` for each
+        new line that has been read and `on_stdin_eof` when stdin is exhausted.
+        This coroutine will only run if the `monitor_stdin` parameter has been
+        set on this class.
+        """
+        logging.debug("Started stdin monitor loop")
+
+        # Stdin monitor adapted from [[https://stackoverflow.com/a/64317899][here]].
+        reader = asyncio.StreamReader()
+        protocol = asyncio.StreamReaderProtocol(reader)
+        loop = asyncio.get_event_loop()
+        await loop.connect_read_pipe(lambda: protocol, sys.stdin)
+
+        # StreamReader will automatically exit the for-loop when it reaches
+        # EOF, however if there are any other issues while reading from stdin
+        # we'd like to kill the clip loop as well so we use try finally instead.
+        try:
+            async for line in reader:
+                await self.on_stdin_read(line)
+        finally:
+            await self.on_stdin_eof()
+
+    # pylint: disable=no-self-use
+
+    async def on_stdin_read(self, line: str) -> None:
+        """Event handler for newly read lines from stdin."""
+        logging.debug("Read line='%s' from stdin", line)
+
+    async def on_stdin_eof(self) -> None:
+        """Event handler for stdin EOF."""
+        self.stop_event.set()
+
+
+class PrintClipsink(MonitorStdinClipsink):
+    """Clipsink which prints clipboard entries to stdout.
+
+    Fields
+    ------
     line_buffer
         Flush the stdout stream after each newly printed line.
-    predicate
-        Optional check which each line must pass before it is printed.
-    formatter
-        Processor which each line will be passed to prior to printing.
     delimiter
         Suffix used to delimit the end of an entry (example: '\\n').
-    """
-    logging.debug("Started print loop")
-    async for line in clip_loop(interval, first):
-        if predicate and not predicate(line):
-            logging.debug(
-                "Input line='%s' didn't satisfy predicate=%s", line, predicate
-            )
-            continue
-
-        print(formatter(line), end=delimiter)
-
-        if line_buffer:
-            sys.stdout.flush()
-
-
-async def stdin_loop(cancel_event: asyncio.Event) -> None:
-    """Continually read from stdin and set `cancel_event` when stdin finishes.
-
-    Parameters
-    ----------
-    cancel_event
-        Event which will be set when we read EOF.
-    """
-    logging.debug("Started stdin monitor loop")
-
-    # Stdin monitor adapted from [[https://stackoverflow.com/a/64317899][here]].
-    reader = asyncio.StreamReader()
-    protocol = asyncio.StreamReaderProtocol(reader)
-    loop = asyncio.get_event_loop()
-    await loop.connect_read_pipe(lambda: protocol, sys.stdin)
-
-    # StreamReader will automatically exit the for-loop when it reaches
-    # EOF, however if there are any other issues while reading from stdin
-    # we'd like to kill the clip loop as well so we use try finally instead.
-    try:
-        async for line in reader:
-            logging.info("Read line='%s' from stdin", line)
-    finally:
-        cancel_event.set()
-
-
-async def main(
-    interval: int,
-    first: bool = False,
-    line_buffer: bool = False,
-    delimiter: str = "\n",
-    predicate: Optional[Callable[[str], bool]] = None,
-    formatter: Callable[[str], str] = identity,
-    monitor_stdin: bool = False,
-) -> None:
-    """Main clipsink event loop.
-
-    Parameters
-    ----------
-    interval
-    first
-    line_buffer
     predicate
+        Optional predicate that a clipboard entry must match before it is
+        printed out.
     formatter
-    delimiter
-        Forwarded to `print_loop`.
-    monitor_stdin
-        Whether to spawn a `stdin_loop` task which will cancel this event
-        loop. Otherwise the clipboard printing process will run forever.
+        Pre-format each clipboard entry with this function before printing it.
     """
-    tasks = []
 
-    logging.info("Starting main print loop")
-    tasks.append(
-        asyncio.create_task(
-            print_loop(interval, first, line_buffer, predicate, formatter, delimiter)
-        )
-    )
+    def __init__(
+        # pylint: disable=too-many-arguments
+        self,
+        read_interval: int = DEFAULT_READ_INTERVAL,
+        read_initial_clip: bool = False,
+        stop_event: Optional[asyncio.Event] = None,
+        monitor_stdin: bool = False,
+        line_buffer: bool = False,
+        delimiter: str = "\n",
+        predicate: Optional[Callable[[str], bool]] = None,
+        formatter: Callable[[str], str] = _identity,
+    ) -> None:
+        super().__init__(read_interval, read_initial_clip, stop_event, monitor_stdin)
 
-    exit_event = asyncio.Event()
-    if monitor_stdin:
-        logging.info("Creating stdin monitor")
-        tasks.append(asyncio.create_task(stdin_loop(exit_event)))
+        self.line_buffer = line_buffer
+        self.delimiter = delimiter
+        self.predicate = predicate
+        self.formatter = formatter
 
-    # Either wait for exit_event or loop forever.
-    await exit_event.wait()
-    # Cancel any pending coroutines before exitting.
-    for task in tasks:
-        task.cancel()
+    async def on_new_clip(self, clip: str) -> None:
+        if self.predicate and not self.predicate(clip):
+            logging.debug(
+                "Input line='%s' didn't satisfy predicate=%s", clip, self.predicate
+            )
+            return
+
+        print(self.formatter(clip), end=self.delimiter)
+
+        if self.line_buffer:
+            sys.stdout.flush()
 
 
 if __name__ == "__main__":
@@ -182,7 +243,7 @@ Periodically inspect and output the contents of the system clipboard.
             "-i",
             "--interval",
             type=int,
-            default=0.5,
+            default=DEFAULT_READ_INTERVAL,
             help="How long to wait between checking for changes.",
         )
         parser.add_argument(
@@ -220,7 +281,7 @@ Periodically inspect and output the contents of the system clipboard.
             "--plain",
             dest="formatter",
             action="store_const",
-            const=identity,
+            const=_identity,
             help="Print clipboard entries as they are.",
         )
         output_group.add_argument(
@@ -249,7 +310,7 @@ Periodically inspect and output the contents of the system clipboard.
         argsv = parser.parse_args()
 
         argsv.delimiter = codecs.decode(argsv.delimiter, "unicode_escape")
-        argsv.formatter = argsv.formatter or identity
+        argsv.formatter = argsv.formatter or _identity
 
         return argsv
 
@@ -269,15 +330,15 @@ Periodically inspect and output the contents of the system clipboard.
 
     try:
         asyncio.run(
-            main(
-                args.interval,
-                args.first,
-                args.line_buffer,
-                args.delimiter,
-                pred,
-                args.formatter,
-                args.monitor_stdin,
-            )
+            PrintClipsink(
+                read_interval=args.interval,
+                read_initial_clip=args.first,
+                monitor_stdin=args.monitor_stdin,
+                line_buffer=args.line_buffer,
+                delimiter=args.delimiter,
+                predicate=pred,
+                formatter=args.formatter,
+            ).main()
         )
     except KeyboardInterrupt:
         logging.error("Encountered keyboard interrupt")

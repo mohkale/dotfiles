@@ -5,7 +5,7 @@
 import logging
 import re
 from distutils.spawn import find_executable as which
-from typing import Callable, Optional
+from typing import Callable
 
 from lib.shared import run_process
 from lib.status_misc.segment import StatusMiscSegment
@@ -15,22 +15,6 @@ class MullvadVPNSegment(StatusMiscSegment):
     """Status line segment showing MullvadVPN status."""
 
     name = "mullvad-vpn"
-
-    # Number of times checking the mullvad vpn status has to fail before we
-    # clear the status.
-    #
-    # The `mvpn -l` command has a tendency to fail sporadically with no real
-    # explanation. Rather than clearing the status (despite still being
-    # connected), now it is only cleared once the command fails this many
-    # times in succession.
-    FAIL_COUNT = 5
-
-    # Counter variable for FAIL_COUNT.
-    _fail_counter: int = 0
-
-    # Value of the segment from the previous run. Persisted for use by
-    # FAIL_COUNT.
-    _segment_value: Optional[str] = None
 
     @classmethod
     def parser_args(
@@ -63,6 +47,21 @@ class MullvadVPNSegment(StatusMiscSegment):
             help="Styling for an inactive mullvad-vpn connection.",
         )
 
+        # Determining the IP address can fail without warning, and is noticeably
+        # slower than just checking whether we're connected or not. These flags
+        # give us the option to skip location resolution or ignore its failure.
+        ip_resolve_group = mvpn_group.add_mutually_exclusive_group()
+        ip_resolve_group.add_argument(
+            flag("skip-ip"),
+            action="store_true",
+            help="Do not attempt to determine the IP address for the mullvad session.",
+        )
+        ip_resolve_group.add_argument(
+            flag("ignore-missing-ip"),
+            action="store_true",
+            help="Ignore failures when determining the mullvad session ip address.",
+        )
+
     # pylint: disable=invalid-overridden-method
     async def render(self):
         """MullvadVPN status-line section."""
@@ -71,42 +70,43 @@ class MullvadVPNSegment(StatusMiscSegment):
                 "Skipping segment=%s because mullvad is not installed.", self.name
             )
             return None
-        returncode, stdout, _stderr = await run_process(
-            ["mullvad", "status", "--location"], encoding="utf-8"
-        )
-        if returncode != 0:
+        command = ["mullvad", "status"]
+        if not self.skip_ip:
+            command.append("--location")
+        returncode, stdout, _stderr = await run_process(command, encoding="utf-8")
+        if returncode != 0 and not stdout:
             logging.warning(
                 "Warning failed to run mullvad process for segment=%s", self.name
             )
-            if self._fail_counter >= self.FAIL_COUNT - 1:
-                logging.debug(
-                    "Failure buffer count=%d exceeded continuous attempts=%d",
-                    self.FAIL_COUNT,
-                    self._fail_counter,
-                )
-                return None
-            self._fail_counter = self._fail_counter + 1
-            logging.debug("Mulvad process failed count=%d times", self._fail_counter)
-            return self._segment_value
-        self._fail_counter = 0
+            return None
         ip_address = ""
         match = re.search(
-            r"Connected to (?:.*\n)IPv4: (.+)$",
+            r"Connected to (?:.*)(?:\nIPv4: (.+))?$",
             stdout,
             flags=re.IGNORECASE | re.MULTILINE,
         )
+
+        connected = True
         if not match:
             if self.hide:
                 return None
-        elif match:
+            connected = False
+        elif match[1]:
+            logging.debug("mullvad-vpn ip-address=%s", match[1])
             ip_address = " " + match[1]
-        self._segment_value = (
+        elif self.ignore_missing_ip:
+            logging.debug(
+                "Skipping ip-address in result because ignore-missing-ip=%s",
+                self.ignore_missing_ip,
+            )
+        elif not self.skip_ip:
+            return None
+        return (
             self._style(
-                self.icon, self.active_style if ip_address else self.inactive_style
+                self.icon, self.active_style if connected else self.inactive_style
             )
             + ip_address
         )
-        return self._segment_value
 
 
 if __name__ == "__main__":

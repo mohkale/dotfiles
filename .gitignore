@@ -6,3 +6,4 @@ setup/cache/
 .git/
 __pycache__/
 dotenv.local
+/prog/media/jellyfin/jellyfin.override.yml

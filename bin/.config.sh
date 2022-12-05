@@ -15,7 +15,6 @@ link                                            \
   "$XDG_BIN_DIR/clipsink"                       \
   "$XDG_BIN_DIR/condemn"                        \
   "$XDG_BIN_DIR/count-updates"                  \
-  "$XDG_BIN_DIR/cron-retry"                     \
   "$XDG_BIN_DIR/env-paths"                      \
   "$XDG_BIN_DIR/evi"                            \
   "$XDG_BIN_DIR/extract"                        \
@@ -44,6 +43,7 @@ link                                            \
   "$XDG_BIN_DIR/ls-sshmaps"                     \
   "$XDG_BIN_DIR/make-icons"                     \
   "$XDG_BIN_DIR/moji"                           \
+  "$XDG_BIN_DIR/passgen"                        \
   "$XDG_BIN_DIR/preview"                        \
   "$XDG_BIN_DIR/prog-icons"                     \
   "$XDG_BIN_DIR/project-files"                  \

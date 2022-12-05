@@ -1,0 +1,6 @@
+#+TITLE: CRON
+
+Is a job scheduler for unix like systems. It lets you schedules fixed jobs to run
+periodically at given intervals. Generally these are placed into [[file:/etc/cron.d/]].
+I maintain these locally in my [[file:~/.config/cron-user.d][home directory]] and use it to populate the actual
+crontab files

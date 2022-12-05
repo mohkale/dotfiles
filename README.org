@@ -73,6 +73,11 @@ My dotfile repository, happily brought to you by [[file:setup/dotty][dotty]] :bo
     case this is often fixed by changing the [[https://askubuntu.com/questions/833322/pair-bose-quietcomfort-35-with-ubuntu-over-bluetooth][controller mode]] for your bluetooth driver.
     Simply open ~sudoedit /etc/bluetooth/main.conf~ and ~ControllerMode = bredr~.
 
+*** GTK Sort Directories First
+    #+begin_src shell
+      gsettings set org.gtk.Settings.FileChooser sort-directories-first true
+    #+end_src
+
 * Screenshots
   [[file:.github/gotop.png]]
 

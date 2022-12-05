@@ -1,6 +1,7 @@
 link                                            \
   "$XDG_CONFIG_HOME/npm/npmrc"                  \
-  "$XDG_CONFIG_HOME/yarn/yarnrc"
+  "$XDG_CONFIG_HOME/yarn/yarnrc"                \
+  yarnrc:"$XDG_CONFIG_HOME/yarn/config"
 
 if package apt; then
   if hash node 2>/dev/null; then

@@ -1,0 +1,110 @@
+# Set and modify process state.
+
+define argv
+  if $argc == 0
+    show args
+  else
+    help argv
+  end
+end
+document argv
+Syntax: argv
+| Print program arguments. Set arguments using "set args [ARG [...ARGS]]".
+end
+
+define frame
+  info frame
+  info args
+  info locals
+end
+document frame
+Syntax: frame
+| Print stack frame.
+end
+
+define func
+  if $argc == 0
+    info functions
+  end
+  if $argc == 1
+    info functions $arg0
+  end
+  if $argc > 1
+    help func
+  end
+end
+document func
+Syntax: func <REGEXP>
+| Print all function names in target, or those matching REGEXP.
+end
+
+define var
+  if $argc == 0
+    info variables
+  end
+  if $argc == 1
+    info variables $arg0
+  end
+  if $argc > 1
+    help var
+  end
+end
+document var
+Syntax: var <REGEXP>
+| Print all global and static variable names (symbols), or those matching REGEXP.
+end
+
+define lib
+  info sharedlibrary
+end
+document lib
+Syntax: lib
+| Print shared libraries linked to target.
+end
+
+define sig
+  if $argc == 0
+    info signals
+  end
+  if $argc == 1
+    info signals $arg0
+  end
+  if $argc > 1
+    help sig
+  end
+end
+document sig
+Syntax: sig <SIGNAL>
+| Print what debugger does when program gets various signals.
+| Specify a SIGNAL as argument to print info on that signal only.
+end
+
+define threads
+  info threads
+end
+document threads
+Syntax: threads
+| Print threads in target.
+end
+
+define dis
+  if $argc == 0
+    disassemble
+  end
+  if $argc == 1
+    disassemble $arg0
+  end
+  if $argc == 2
+    disassemble $arg0 $arg1
+  end
+  if $argc > 2
+    help dis
+  end
+end
+document dis
+Syntax: dis <ADDR1> <ADDR2>
+| Disassemble a specified section of memory.
+| Default is to disassemble the function surrounding the PC (program counter) of selected frame.
+| With one argument, ADDR1, the function surrounding this address is dumped.
+| Two arguments are taken as a range of memory to dump.
+end

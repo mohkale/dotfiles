@@ -151,8 +151,10 @@ print_aliases() {
     if [ "$cache" -eq 1 ]; then
       if [ -e "$cache_file" ]; then
         for file in "$@"; do
-          if ! [ "$cache_file" -nt "$file" -a \
-                               "$cache_file" -nt "${XDG_BIN_DIR:-$HOME/.local/bin}/build-aliases" ]; then
+          if ! {
+              [ "$cache_file" -nt "$file" ] &&
+                [ "$cache_file" -nt "${XDG_BIN_DIR:-$HOME/.local/bin}/build-aliases" ]
+            }; then
             read_cache=0
             break
           fi

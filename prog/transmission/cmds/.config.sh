@@ -6,4 +6,4 @@ link                                                                    \
   "$XDG_CONFIG_HOME/transmission-daemon/cmds/transmission-on-complete"  \
   "$XDG_CONFIG_HOME/transmission-daemon/cmds/transmission-watcher"
 
-packages pip:libtorrent,inotify
+packages pip:libtorrent,asyncinotify,aiohttp

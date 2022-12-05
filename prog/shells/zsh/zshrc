@@ -56,6 +56,7 @@ setopt noautoremoveslash                                                        
 setopt completeinword                                                           # Allows completions in the middle of a word/argument.
 setopt listrowsfirst
 
+# shellcheck disable=SC2296
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"                         # Have completion candidates styled like ls.
 zstyle ':completion:*' matcher-list 'r:|[._-]=* r:|=*'                          # Smart matching of dashed values, e.g. f-b matching foo-bar.
 zstyle ':completion:*' completer _expand_alias _complete _ignored               # Expand aliases with tab as well (see also <C-x>+a).
@@ -76,5 +77,6 @@ if [ "${smart_term:-0}" -eq 1 ]; then
 fi
 
 if [ "$INSIDE_EMACS" = vterm ]; then
+  # shellcheck disable=SC2016
   PROMPT="$PROMPT"'%{$(vterm_prompt_end)%}'
 fi

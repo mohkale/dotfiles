@@ -1,0 +1,34 @@
+#+TITLE: S.M.A.R.T
+# LocalWords: ATA smartmontools UAS
+
+Is a [[https://wiki.archlinux.org/title/S.M.A.R.T.][component]] of many modern storage devices that can monitor and analyse the health
+of hard disk operations so that you can get warnings prior to hard disk failure. It's
+supported in Linux through the ~smartd~ and ~smartctl~ programs.
+
+* ATA Pass Through
+  The default Linux USB driver is currently [[https://en.wikipedia.org/wiki/USB_Attached_SCSI#:~:text=Use%20of%20UAS%20generally%20provides,compatible%20hardware%2C%20firmware%20and%20drivers.][UAS]] and this has the ATA pass-through
+  feature completely disabled due to a general lack of consistent support from
+  [[https://github.com/torvalds/linux/blob/b90cb1053190353cc30f0fef0ef1f378ccc063c5/drivers/usb/storage/unusual_uas.h#L66][certain manufacturers]] including Seagate. See this [[https://www.smartmontools.org/ticket/971][issue]] ticket on smartmontools for
+  a description of the issue.
+
+  The long and short of it is the kernel doesn't provide the data that smartmontools
+  needs so it cannot interact with S.M.A.R.T data on these drives. A cursory fix for
+  this is to disable UAS for these drives and fallback to the legacy USB driver
+  *usb-storage*. This causes a general drop in performance when transferring files
+  because the new UAS driver is faster.
+
+  You can disable UAS on a drive by drive basis by:
+  1. updating the [[file:/etc/modprobe.d/ignore_uas.conf]] file,
+  2. Regenerating the initramfs, and then
+  3. rebooting your system.
+
+
+  #+CAPTION: Example ignore_uas configuration generation script. See [[https://askubuntu.com/a/1109065][here]].
+  #+begin_src shell
+    set -e
+    usb_ids=$(lsusb | awk '/Seagate/ {print $6":u"}' | tr '\n' ',' | head -c-1)
+    echo "options usb-storage quirks=$usb_ids" |
+      sudo tee -a /etc/modprobe.d/ignore_uas.conf
+
+    sudo mkinitcpio -P
+  #+end_src
