@@ -15,7 +15,9 @@ set -g renumber-windows on                                           # automatic
 set -g set-titles on                                                 # update the title of my terminal
 set -g base-index 1                                                  # windows start counting from 1
 set -g pane-base-index 1                                             # panes start counting from 1
-set -g history-limit 100000                                          # a lot of history is a good thing
+set -g history-limit 100000                                          # A lot of history is a good thing
+set -g prompt-history-limit 100000
+set -g history-file "$XDG_STATE_HOME/tmux_history"                   # Persist tmux prompt input in a local config file
 set -sg escape-time 10                                               # small enough for nvim and alt-keys :smile:.
 set -ga terminal-overrides ",*256col*:Tc,*24bit*:Tc"                 # enable true-color
 set -s extended-keys on                                              # support [[https://github.com/tmux/tmux/wiki/Modifier-Keys#extended-keys][xterm]] extension keys
@@ -61,6 +63,7 @@ bind C-q send-prefix
 
 bind \# set-window-option monitor-activity\; display-message "#{?monitor-activity,Monitoring,Ignoring} activity in current window"
 bind \~ run "tmux command-prompt -I #{?monitor-silence,#{monitor-silence},10} -p 'Set silence interval (seconds):' 'set monitor-silence %%'"
+bind `  set-window-option synchronize-panes
 bind M-m show-messages
 bind M-T set -ug @status-message ""                                                                # An optional message shown when the terminal title isn't set.
 
@@ -81,6 +84,12 @@ bind £ swap-pane                                                               
 bind $ move-window -a -s '{marked}'                                                                # move marked window to current session
 bind % link-window -a -s '{marked}'                                                                # link marked window to current session
 bind ^ swap-window                                                                                 # swap marked window with current one
+
+# Move panes left, down, up and right within the current window.
+bind -r H if -F '#{pane_at_left}'   "" { run-shell -b "tmux swap-pane -d -s '#{pane_id}' -t '{left-of}'" }
+bind -r J if -F '#{pane_at_bottom}' "" { run-shell -b "tmux swap-pane -d -s '#{pane_id}' -t '{down-of}'" }
+bind -r K if -F '#{pane_at_top}'    "" { run-shell -b "tmux swap-pane -d -s '#{pane_id}' -t '{up-of}'" }
+bind -r L if -F '#{pane_at_right}'  "" { run-shell -b "tmux swap-pane -d -s '#{pane_id}' -t '{right-of}'" }
 
 bind s command-prompt -p "Search windows:" "find-window -Z -CNTi '%%'"                             # Show list of windows matching a GLOB pattern
 
@@ -132,7 +141,7 @@ set -g @new-session-prefix  tmux-%d                                             
 %endif
 
 # Create a new session with no consideration to its name, beyond the fact it's unique.
-bind n run-shell '                                                              \
+bind N run-shell '                                                              \
 set -e;                                                                         \
 count=$(tmux show -gv @new-session-count);                                      \
 format=$(tmux show -gv @new-session-prefix);                                    \
@@ -160,7 +169,7 @@ tmux switch-client -t "$session";                                               
 '
 
 # Create a new session prompting for its name.
-bind N command-prompt -p "New session:" "run-shell '{"'         \
+bind n command-prompt -p "New session:" "run-shell '{"'         \
   set -e;                                                       \
   it='"'%%'"';                                                  \
   [ -z "$it" ] && exit 0;                                       \
@@ -269,9 +278,6 @@ bind                 v   copy-mode
 bind                 V   copy-mode \; send-keys V
 bind                 /   copy-mode \; send-keys /
 bind                 ?   copy-mode \; send-keys ?
-bind                 H   copy-mode \; send-keys H
-bind                 L   copy-mode \; send-keys L
-bind                 M   copy-mode \; send-keys M
 bind                 C-u copy-mode \; send-keys -X halfpage-up
 bind                 C-d copy-mode \; send-keys -X halfpage-down
 bind -T copy-mode-vi C-g send-keys -X cancel

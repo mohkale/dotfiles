@@ -143,6 +143,7 @@ set -g display-panes-colour $AOH_GREY
 %hidden TMUX_FMT_WINFLAGS='\
 #{?pane_pipe,|,}\
 #{?window_silence_flag,~,}\
+#{?synchronize-panes,^,}\
 #{?window_activity_flag,####,}\
 #{?window_bell_flag,!,}\
 #{?#{&&:#{window_linked},#{||:#{==:#{@theme-show-link-flag-on-original-window},1},#{!=:#{s/^#S,.*/ /:window_linked_sessions_list}, }}},L,}\
