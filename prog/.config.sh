@@ -12,6 +12,7 @@ import                                          \
 
 import -b                                       \
   bat                                           \
+  bloomberg                                     \
   browsers/*                                    \
   buku                                          \
   cava                                          \

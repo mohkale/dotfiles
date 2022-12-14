@@ -1,0 +1,26 @@
+bce                    bbcmake-env
+
+ki                     kinit mkaleem2@ADDEV.BLOOMBERG.COM
+ks                     klist
+
+fai-dev-1@ssh          fai-dev-1
+fai-dev-2@ssh          fai-dev-2
+fai-dev-3@ssh          fai-dev-3
+fai-dev-4@ssh          fai-dev-4
+epslnjapmddap01@ssh    EPSLNJAPMDDAP01
+epslnyapmddap01@ssh    EPSLNYAPMDDAP01
+gnrld-pw-569@ssh       gnrld-pw-569
+ony-bam1@sshx          ssh -x -2 -t mkaleem2@10.117.4.16 inline ony-bam1
+getprdwin@sshx         ssh -t epslnjapmddap01 /bb/bin/getprdwin -i
+faisvc@sshx            ssh -t epslnjapmddap01 /bb/bin/getprdwin -i FAISVC
+faisva@sshx            ssh -t epslnjapmddap01 /bb/bin/getprdwin -i FAISVA
+faisva-pw-579@sshx     ssh -t epslnjapmddap01 /bb/bin/getprdwin -i FAISVA-PW-579
+faisva-ob-309@sshx     ssh -t epslnjapmddap01 /bb/bin/getprdwin -i FAISVA-OB-309
+faisvb@sshx            ssh -t epslnjapmddap01 /bb/bin/getprdwin -i FAISVB
+faisvb-pw-443@sshx     ssh -t epslnjapmddap01 /bb/bin/getprdwin -i FAISVB-PW-443
+faisvb-ob-296@sshx     ssh -t epslnjapmddap01 /bb/bin/getprdwin -i FAISVB-OB-296
+faisvp@sshx            ssh -t epslnjapmddap01 /bb/bin/getprdwin -i FAISVP
+faisvp-ob-886@sshx     ssh -t epslnjapmddap01 /bb/bin/getprdwin -i FAISVP-OB-886
+faisvp-ob-218@sshx     ssh -t epslnjapmddap01 /bb/bin/getprdwin -i FAISVP-OB-218
+faisvp-pw-618@sshx     ssh -t epslnjapmddap01 /bb/bin/getprdwin -i FAISVP-PW-618
+faisvp-pw-063@sshx     ssh -t epslnjapmddap01 /bb/bin/getprdwin -i FAISVP-PW-063

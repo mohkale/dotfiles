@@ -1,0 +1,24 @@
+---
+
+session_name: mfa-stress
+start_directory: ~/
+
+windows:
+  - window_name: dash
+    layout: 7950,222x50,0,0{110x50,0,0[110x32,0,0,8,110x17,0,33,13],111x50,111,0[111x32,111,0,15,111x17,111,33,17]}
+    panes:
+      - ony-bam1
+      - ony-bam1
+      - ony-bam1
+      - ony-bam1
+  - window_name: driver
+    layout: 2c92,222x50,0,0[222x24,0,0{110x24,0,0,14,111x24,111,0,18},222x25,0,25{110x25,0,25,12,111x25,111,25,16}]
+    panes:
+      - ony-bam1
+      - ony-bam1
+      - ony-bam1
+      - ony-bam1
+
+#  - window_name: logs
+#    panes:
+#      - vim

@@ -5,7 +5,7 @@
 [init]
 	# For consistency I still default to master but I'll switch to main once
 	# git itself does. This is currently being tracked [[https://lore.kernel.org/git/f853fa946f5840518577584a5b8c51660da06928.1605221040.git.gitgitgadget@gmail.com/][here]].
-	defaultBranch = master
+	defaultBranch = main
 [core]
 	# Convert CRLF to LF when commiting changes back. Useful for when you clone
 	# a repo on windows, make changes and try to commit it back without the CRLF

@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+set -e
+
+ROOT="$(pwd)"
+if [ "$#" -ne 0 ]; then
+    ROOT="$1"
+fi
+LOCAL_ROOT=".lcldev/mk"
+FULL_ROOT="$ROOT/$LOCAL_ROOT"
+
+if [ -z "$DOTFILES" ]; then
+    echo "error: $0: \$DOTFILES is not set" >&2
+    exit 1
+fi
+
+mkdir -p "$LOCAL_ROOT"
+
+mkdir -p "$LOCAL_ROOT/gdb"
+ln -f "$DOTFILES/prog/gdb/gdbinit" "$LOCAL_ROOT/gdb"
+mkdir -p "$LOCAL_ROOT/gdb/conf.d"
+ln -f "$DOTFILES/prog/gdb/conf.d"/* "$LOCAL_ROOT/gdb/conf.d"
+ln -f "$DOTFILES/prog/bloomberg/external/gdb/pretty-printers/gdb_bsl.py" "$LOCAL_ROOT/gdb"
+
+cat >"$LOCAL_ROOT/profile" <<-EOF
+git config --global --add safe.directory "$ROOT"
+
+# NOTE: You may have to reinstall the devtoolset for your gcc version for the
+# standard library pretty printers here to work as expected. Double check
+# /opt/bb/share/gdb/python/. You can install it with:
+#   yum install devtoolset-10
+
+export GDBINIT="$FULL_ROOT/gdb/gdbinit"
+mkdir -p ~/.cache/gdb
+alias gdb='TERMINFO=/usr/share/terminfo LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 gdb --silent -nh -x "\$GDBINIT" --eval-command "source $FULL_ROOT/gdb/gdb_bsl.py"'
+alias bce='bbcmake-env'
+alias bceb='bce --action=build'
+alias bcet='bce --action=ctest'
+EOF

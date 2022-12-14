@@ -40,3 +40,4 @@ print_alias_file() {
 print_alias_file "$root/global"
 [ -n "$platform" ]            && print_alias_file "$root/$platform"
 [ "$INSIDE_EMACS" = 'vterm' ] && print_alias_file "$root/vterm"
+print_alias_file "$root/bloomberg"

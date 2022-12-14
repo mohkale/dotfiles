@@ -74,6 +74,7 @@ dcd               docker-compose down
 dce               docker-compose exec
 dcr               docker-compose run
 dcrr              docker-compose run --rm
+fix-time-skew     sudo ntpdate -dv time.windows.com
 
 pj@dirx           /mnt/c/Projects
 fai@dirx          ~/prog/repos/fai

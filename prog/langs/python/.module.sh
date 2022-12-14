@@ -1,6 +1,6 @@
 link                                            \
   ~/.pdbrc                                      \
-  ~/.pip/pip.conf                               \
+  ~/.config/pip/pip.conf                        \
   ~/.pydistutils.cfg                            \
   "$XDG_CONFIG_HOME/pdbrc.py"                   \
   pythonrc:"$XDG_CONFIG_HOME/pythonrc.py"
