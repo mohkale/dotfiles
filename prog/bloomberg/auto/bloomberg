@@ -1,0 +1,25 @@
+ide-magic-compose() {
+  local compose_files=( )
+
+  local main_compose= it=
+  for it in docker-compose.yaml docker-compose.yml .dev-compose.yml; do
+    if [ -e "$it" ]; then
+      main_compose=$it
+      break
+    fi
+  done
+  if [ -z "$main_compose" ]; then
+    echo "$0: error: No main compose file found, you may have to run ide-magic." >&2
+    return 1
+  fi
+  compose_files+=( -f "$main_compose" )
+
+  if [ -e .devcontainer/docker-compose.yml ]; then
+    compose_files+=( -f .devcontainer/docker-compose.yml )
+  else
+    echo "$0: warning: No .devcontainer compose file found, you may have to run ide-magic." >&2
+  fi
+
+  docker-compose "${compose_files[@]}" "$@"
+}
+alias imc='ide-magic-compose'

@@ -66,6 +66,7 @@ fi
 [                       -f "$XDG_CONFIG_HOME/autoloads/global"       ] && . "$XDG_CONFIG_HOME/autoloads/global"
 [ -n "$shell"    ] && [ -f "$XDG_CONFIG_HOME/autoloads/shell/$shell" ] && . "$XDG_CONFIG_HOME/autoloads/shell/$shell"
 [ -n "$platform" ] && [ -f "$XDG_CONFIG_HOME/autoloads/$platform"    ] && . "$XDG_CONFIG_HOME/autoloads/$platform"
+[                       -f "$XDG_CONFIG_HOME/autoloads/bloomberg"    ] && . "$XDG_CONFIG_HOME/autoloads/bloomberg"
 
 # Reclaim C-s and C-q
 if [ "$smart_term" -eq 1 ]; then

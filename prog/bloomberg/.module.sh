@@ -1,4 +1,6 @@
 link-to "$XDG_BIN_DIR" cmds/*
+link-to "$XDG_CONFIG_HOME/tmuxp" tmux/*
+link-to "$XDG_CONFIG_HOME/autoloads" auto/*
 link "bloomberg.alias:$XDG_CONFIG_HOME/aliases/bloomberg"
 
 makedir external

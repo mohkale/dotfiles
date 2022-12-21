@@ -1,4 +1,8 @@
 bce                    bbcmake-env
+alb@file               $XDG_CONFIG_HOME/aliases/bloomberg
+
+im                     ide-magic
+im-mds                 ide-magic --distribution=mds-unstable
 
 ki                     kinit mkaleem2@ADDEV.BLOOMBERG.COM
 ks                     klist
