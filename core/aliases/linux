@@ -16,6 +16,7 @@ jctl-purge        sudo journalctl --vacuum-time=1w
 fsck              fsck -M -T
 
 hl                hledger --color=always
+hlq               bash -c 'query="$1"; shift; hledger --color=always "@$XDG_CONFIG_HOME/hledger/queries/$query" "$@"' hledger-query
 hlac              hl accounts
 hlacc             hlac
 hlb               hl balance
