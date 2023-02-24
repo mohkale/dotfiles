@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+# Interactively select a [[man:pass(1)]] password and view it.
+#
+# This wrapper script defines a helper function to interactively select a
+# password from pass and view it in the standard PAGER with yaml syntax
+# highlighting applied. This script also neatly interfaces with
+# [[man:pass-tomb(1)]].
+#
+# Environment variables:
+#   VIEW_PASS_TOMB_UNSAFE=[1]
+#     Whether or not to open any password tombs with the -f flag. This is
+#     disabled by default but can be overridden by setting to one for
+#     systems whose hardware requirements don't meet the tomb standards.
+#   VIEW_PASS_TOMB_VERBOSE=[1]
+#     Whether or not to open any password tombs with the -v flag.
+
+set -eu -o pipefail
+
+export ROOT=${PASSWORD_STORE_DIR:-$HOME/.pass}
+if ! [ -e "$ROOT" ]; then
+  echo "ERROR: Password store at $ROOT does not exist" >&2
+  exit 1
+fi
+
+prompt() { #(msg)
+  printf '%s. Press [ENTER] to continue.' "$*"
+  read
+}
+export -f prompt
+
+pass_preview() { #(file preview)
+  if [[ "$1" =~ \.tomb ]]; then
+    echo "Password tomb at $1"
+  else
+    pass "$2" | preview -l yaml -
+  fi
+}
+export -f pass_preview
+
+edit_pass() { #(file preview)
+  if [[ "$1" =~ \.tomb ]]; then
+    prompt "ERROR: Cannot edit tomb file directly"
+    return 0
+  fi
+  pass edit "$2"
+}
+export -f edit_pass
+
+copy_pass() { #(file preview)
+  if [[ "$1" =~ \.tomb ]]; then
+    prompt "ERROR: Cannot copy tomb directly"
+    return 0
+  fi
+  pass show "$2" --clip=1
+}
+export -f copy_pass
+
+view_pass() { #(file preview)
+  if [[ "$1" =~ \.tomb ]]; then
+    export PASSWORD_STORE_TOMB_FILE="$1"
+    export PASSWORD_STORE_TOMB_KEY="$1.key"
+    local open_args=''
+    if [ "${VIEW_PASS_TOMB_UNSAFE:-0}" -eq 1 ]; then
+      open_args+='-f'
+    fi
+    if [ "${VIEW_PASS_TOMB_VERBOSE:-0}" -eq 1 ]; then
+      open_args+='-v'
+    fi
+
+    if pass open $open_args; then
+      trap 'pass close' EXIT
+      main
+    else
+      prompt "ERROR: Failed to open password tomb"
+    fi
+  else
+    local passout
+    passout=$(pass "$2") || return 1
+    copy_pass "$@" >/dev/null &
+    echo "$passout" | preview -l yaml - | ${PAGER:-less}
+  fi
+}
+export -f view_pass
+
+main() {
+  local FZF_ARGS=(
+    --ansi
+    -d : --with-nth 2
+    --bind 'ctrl-m:execute:view_pass {1} {2}'
+    --bind 'alt-e:execute:edit_pass {1} {2}'
+    --bind 'ctrl-y:execute-silent:copy_pass {1} {2}'
+    --preview 'pass_preview {1} {2}'
+    --preview-window :hidden
+  )
+  [ -z "$*" ] || FZF_ARGS+=( -q "$*" )
+
+  ls-pass |
+    SHELL=bash fzf "${FZF_ARGS[@]}"
+}
+export -f main
+
+main
