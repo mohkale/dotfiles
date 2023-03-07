@@ -10,24 +10,27 @@
 # GDB cannot tell me the path to this file, we pass it through as the GDBINIT
 # environment variable.
 python
-import os
-import pathlib
-import re
+def load_configs():
+    import os
+    import pathlib
+    import re
 
+    def _natural_sort_key(key: str):
+        return [
+            int(chunk) if chunk.isdigit() else chunk.lower()
+            for chunk in re.split("([0-9]+)", str(key))
+        ]
 
-def _natural_sort_key(key: str):
-    return [
-        int(chunk) if chunk.isdigit() else chunk.lower()
-        for chunk in re.split("([0-9]+)", str(key))
-    ]
+    ENV_GDBINIT = os.environ.get("GDBINIT")
+    if ENV_GDBINIT is None:
+        print("Warning: GDBINIT environment variable was not set")
+        return
 
-
-ENV_GDBINIT = os.environ.get("GDBINIT")
-if ENV_GDBINIT is not None:
     config_files = pathlib.Path(ENV_GDBINIT).parent.glob("conf.d/*")
     for config_file in sorted(config_files, key=_natural_sort_key):
         gdb.execute(f"source {config_file}")
-else:
-    print("Warning: GDBINIT environment variable was not set")
+
+
+load_configs()
 
 end
