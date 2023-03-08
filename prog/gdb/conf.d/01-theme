@@ -14,21 +14,44 @@ set $COLOR_CPUFLAGS = $RED
 # running.
 
 set prompt >>> 
-if $USECOLOR == 1
-  python
+python
+def setup_prompt(color_map):
+    assert "reset" in color_map
 
-PROMPT = "\[\e[90m\]>>>\[\e[0m\]"
-PROMPT_RUNNING = "\[\e[1;35m\]>>>\[\e[0m\]"
+    # Actual body of the prompt before adding metadata and styling.
+    PROMPT_CONTENT = ">>>"
+    # Unicode suffix for the prompt. Will be replaced with a space on TUI mode.
+    PROMPT_SUFFIX = " "
+
+    def colorise(string, color):
+        if color not in color_map or gdb.convenience_variable("USECOLOR") == 0:
+            return string
+
+        return color_map[color] + string + color_map["reset"]
+
+    def prompt_function(_):
+        use_color = gdb.convenience_variable("USECOLOR") == 1
+        tui_active = gdb.convenience_variable("TUIACTIVE") == 1
+        running_pid = gdb.selected_inferior().pid
+
+        prompt = ""
+        prompt += colorise(PROMPT_CONTENT, "idle" if running_pid == 0 else "active")
+        prompt += " " if tui_active else PROMPT_SUFFIX
+        prompt = gdb.prompt.substitute_prompt(prompt)
+        return prompt
+
+    return prompt_function
 
 
-def custom_prompt(_):
-    prompt = PROMPT if gdb.selected_inferior().pid == 0 else PROMPT_RUNNING
-    prompt = gdb.prompt.substitute_prompt(prompt)
-    prompt = prompt + ' '
-    return prompt
+gdb.prompt_hook = setup_prompt(
+    {
+        # Reset all color codes
+        "reset": "\[\e[0m\]",
+        # Inferior process is not running
+        "idle": "\[\e[90m\]",
+        # Inferior process is running
+        "active": "\[\e[1;35m\]",
+    }
+)
 
-
-gdb.prompt_hook = custom_prompt
-
-  end
 end

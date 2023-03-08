@@ -117,7 +117,7 @@ gs      fzf_grep
 gu      cd_project_root
 gx      edit_executables
 oe      select_path
-fp      fzpass
+fp      view-pass
 fc      fzcheat
 cw      bulkrename
 lc      lfcd

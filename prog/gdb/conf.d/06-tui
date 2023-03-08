@@ -1,0 +1,70 @@
+# TUI configuration.
+
+set tui border-kind acs
+set tui compact-source on
+
+# Track whether the TUI is currently active or not.
+
+set $TUIACTIVE = 0
+define tui hook-enable
+  focus cmd
+  set $TUIACTIVE = 1
+end
+
+define tui hook-disable
+  set $TUIACTIVE = 0
+end
+
+# Enter/exit TUI state.
+
+define ta
+  tui enable
+end
+document ta
+Syntax: ta
+| Start TUI mode.
+end
+
+define td
+  tui disable
+end
+document td
+Syntax: td
+| Exit TUI mode.
+end
+
+define tt
+  if $TUIACTIVE == 1
+    tui disable
+  else
+    tui enable
+  end
+end
+document tt
+Syntax: tt
+| Toggle TUI mode.
+end
+
+# Cycle between TUI layouts.
+
+define tln
+  if $TUIACTIVE == 0
+    tui enable
+  end
+  layout next
+end
+document tln
+Syntax: tln
+| Toggle next layout in tui mode.
+end
+
+define tlp
+  if $TUIACTIVE == 0
+    tui enable
+  end
+  layout prev
+end
+document tlp
+Syntax: tlp
+| Toggle previous layout in tui mode.
+end

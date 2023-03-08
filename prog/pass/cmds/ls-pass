@@ -1,0 +1,72 @@
+#!/bin/sh
+# List [[man:pass(1)]] passwords.
+#
+# This script lists all the files contained in your pass password store as a tree
+# with support for syntax highlighting and other extensions for different file
+# types.
+
+set -eu
+
+print_usage() {
+  echo "Usage: ls-pass [-h] [-C]"
+}
+
+print_help() {
+  print_usage
+  cat <<EOF
+Optional arguments
+  -h  Show this help message and exit.
+  -C  Omit color codes from output.
+EOF
+}
+
+COLOR_PASS_FILE=''
+COLOR_PASS_DIR=$'\e[33m'
+COLOR_TOMB_DIR=$'\e[31m'
+COLOR_TOMB_FILE=''
+COLOR_RESET=$'\e[0m'
+while getopts 'hC' OPTION; do
+  case "$OPTION" in
+    h) print_help
+       exit 0 ;;
+    C)
+      COLOR_PASS_FILE=''
+      COLOR_PASS_DIR=''
+      COLOR_TOMB_DIR=''
+      COLOR_TOMB_FILE=''
+      COLOR_RESET=''
+      ;;
+    \?) print_usage >&2
+        exit 1 ;;
+  esac
+done
+
+root=${PASSWORD_STORE_DIR:-$HOME/.pass}
+find -L "$root" \( -iname '.*' -and -prune \) -or -type f \( -iname '*.gpg' -or -iname '*.tomb' \) -printf '%h:%f\n' |
+  gawk -F : \
+       -v root="$root" \
+       -v color_dir="$COLOR_PASS_DIR" \
+       -v color_file="$COLOR_PASS_FILE" \
+       -v color_tomb_dir="$COLOR_TOMB_DIR" \
+       -v color_tomb_file="$COLOR_TOMB_FILE" \
+       -v color_reset="$COLOR_RESET" \
+       -e '{
+  dir = $1 "/"
+  file = $2
+
+  dir_colored = dir
+  file_colored = file
+  sub("^" root "/?", "", dir_colored)
+
+  if ($2 ~ /\.tomb$/) {
+    sub(/\.tomb$/, "", file_colored)
+    file_colored = color_tomb_file file_colored color_reset
+    dir_colored = color_tomb_dir dir_colored color_reset
+  } else if (dir) {
+    sub(/\.gpg$/, "", file_colored)
+    file_colored = color_file file_colored color_reset
+    dir_colored = color_dir dir_colored color_reset
+  }
+
+  printf("%s%s:%s%s\n", dir, file, dir_colored, file_colored)
+}'

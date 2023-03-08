@@ -1,1 +1,1 @@
-packages pip:python-lsp-server,pyls-black,future,pylsp-mypy,pyls-isort
+packages pip:'python-lsp-server[rope]',python-lsp-black,pyls-isort,pylsp-mypy,python-lsp-ruff
