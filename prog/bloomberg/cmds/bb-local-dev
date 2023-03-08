@@ -2,7 +2,9 @@
 
 set -e
 
-ROOT="$(pwd)"
+EXTERNAL_ROOT="$(pwd)"
+
+ROOT="$EXTERNAL_ROOT"
 if [ "$#" -ne 0 ]; then
     ROOT="$1"
 fi
@@ -23,17 +25,47 @@ ln -f "$DOTFILES/prog/gdb/conf.d"/* "$LOCAL_ROOT/gdb/conf.d"
 ln -f "$DOTFILES/prog/bloomberg/external/gdb/pretty-printers/gdb_bsl.py" "$LOCAL_ROOT/gdb"
 
 cat >"$LOCAL_ROOT/profile" <<-EOF
-git config --global --add safe.directory "$ROOT"
+set -e
+
+###############################################################################
+#                                    Setup                                    #
+###############################################################################
+
+sudo=
+if command -v sudo >/dev/null 2>&1; then
+  sudo=sudo
+fi
+
+###############################################################################
+#                              Local Dev Profile                              #
+###############################################################################
+
+export TERMINFO=/usr/share/terminfo
+export   LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+
+# Git setup
+git config --global --add safe.directory '*'
+
+if ! [ -e "$EXTERNAL_ROOT" ]; then
+  \${sudo:-} mkdir -p "$(dirname "$EXTERNAL_ROOT")"
+  \${sudo:-} ln -s "$ROOT" "$EXTERNAL_ROOT"
+fi
 
 # NOTE: You may have to reinstall the devtoolset for your gcc version for the
 # standard library pretty printers here to work as expected. Double check
 # /opt/bb/share/gdb/python/. You can install it with:
 #   yum install devtoolset-10
 
+# GDB setup
 export GDBINIT="$FULL_ROOT/gdb/gdbinit"
 mkdir -p ~/.cache/gdb
-alias gdb='TERMINFO=/usr/share/terminfo LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 gdb --silent -nh -x "\$GDBINIT" --eval-command "source $FULL_ROOT/gdb/gdb_bsl.py"'
+alias gdb='gdb --silent -nh -x "\$GDBINIT" --eval-command "source $FULL_ROOT/gdb/gdb_bsl.py"'
+
+# bbcmake-env aliases
 alias bce='bbcmake-env'
 alias bceb='bce --action=build'
 alias bcet='bce --action=ctest'
+
+set +e
 EOF

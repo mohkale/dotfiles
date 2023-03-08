@@ -3,6 +3,7 @@ alb@file               $XDG_CONFIG_HOME/aliases/bloomberg
 
 im                     ide-magic
 im-mds                 ide-magic --distribution=mds-unstable
+cm                     container-maintainer
 
 ki                     kinit mkaleem2@ADDEV.BLOOMBERG.COM
 ks                     klist
@@ -28,3 +29,6 @@ faisvp-ob-886@sshx     ssh -t epslnjapmddap01 /bb/bin/getprdwin -i FAISVP-OB-886
 faisvp-ob-218@sshx     ssh -t epslnjapmddap01 /bb/bin/getprdwin -i FAISVP-OB-218
 faisvp-pw-618@sshx     ssh -t epslnjapmddap01 /bb/bin/getprdwin -i FAISVP-PW-618
 faisvp-pw-063@sshx     ssh -t epslnjapmddap01 /bb/bin/getprdwin -i FAISVP-PW-063
+
+ba32350@ssh            ba32350
+ba32351@ssh            ba32350
