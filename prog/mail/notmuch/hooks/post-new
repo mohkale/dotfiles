@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # -*- +indent: 2 -*- notmuch initial tagging script.
 #
 # This script is run by [[man:notmuch-hooks][notmuch]] immediately after any new mail
@@ -7,55 +7,316 @@
 
 set -e
 
-sed -e '/^#.*/d' -e '/^[[:space:]]*$/d' <<EOF | notmuch tag --batch
+prog="$(basename "$0")"
+
+cat >&2 <<-EOF
+
+###############################################################################
+#                       Notmuch New Mail Tagging Script                       #
+###############################################################################
+
+EOF
+
+local_file=$(dirname "$0")/post-new.local
+if [ -x "$local_file" ]; then
+  "$local_file" "$@"
+fi
+
+sed -e '/^#.*/d' -e '/^[[:space:]]*$/d' <<"EOF" | notmuch tag --batch
+# Mark any mail from individual hosts that have synced to my mail-server as local.
++local        -- tag:new and folder:/^local\//
++h/mk-desktop -- tag:new and folder:'/^local\/mk-desktop/'
+
 # Automatically read and flag any emails from myself
--new +inbox -unread +flagged -- tag:new and query:from-me and query:to-me
+-new +inbox +reminder -- tag:new and query:from-me and query:to-me and subject:/^Reminder:/
+-new +inbox +flagged  -- tag:new and query:from-me and query:to-me
 
 # Don't mark any replies I make as new emails, their continuations of earlier ones.
--new +inbox -unread +sent -- tag:new and query:from-me and -query:to-me
+-new +inbox +sent -- tag:new and query:from-me and -query:to-me
 
-# Automatically mark developer related content
--new +inbox +dev -- tag:new and from:help-debbugs@gnu.org
--new +inbox +dev -- tag:new and from:@github.com
+-new +inbox +uni -- tag:new and from:@sheffield.ac.uk
+
+# Mailing Lists
+-new +inbox +unread +l/lwn       -- tag:new and from:lwn@lwn.net and ( subject:"/newly freed content/" or subject:'Weekly Edition available' )
+-new +inbox +unread +l/eff       -- tag:new and from:editor@eff.org
+-new +inbox +unread +l/dont-pay  -- tag:new and from:info@dontpay.uk
+-new +inbox +unread +l/mse       -- tag:new and from:@moneysavingexpert.com
+-new +inbox +unread +l/monevator -- tag:new and from:theinvestor@monevator.com
 
 # Alerts
--new +inbox +alert +price -- tag:new and from:@steampowered.com and subject:'from your Steam wishlist is now on sale'
--new +inbox +alert +price -- tag:new and from:noreply@camelcamelcamel.com and subject:'Price drop alert'
--new +inbox +alert        -- tag:new and from:noreply@camelcamelcamel.com and subject:'/^Your price watch for/'
+-new +inbox +unread +alert +price           -- tag:new and from:@steampowered.com and subject:'Steam wishlist now on sale'
+-new +inbox +unread +alert +price           -- tag:new and from:@email.gog.com and subject:'Items on your wishlist are now discounted'
+-new +inbox +unread +alert        +security -- tag:new and from:@haveibeenpwned.com and subject:"/^Confirm your Have I Been Pwned registration/"
+-new +inbox +unread +alert +price           -- tag:new and from:noreply@camelcamelcamel.com and subject:'Price drop alert'
+-new +inbox +unread +alert                  -- tag:new and from:noreply@camelcamelcamel.com and subject:"/^Your price watch for/"
 
-# Home Related
--new +home          -- tag:new and from:@scraye.com
--new +home +finance -- tag:new and from:counciltax@southwark.gov.uk or ( from:@southwark.gov.uk and subject:'Council Tax notification' )
--new +home          -- tag:new and from:@southwark.gov.uk
--new +home          -- tag:new and from:@britishgas.co.uk
--new +home          -- tag:new and from:@nowtv.com
--new +home          -- tag:new and from:@eonnext.com
+# Sign in notifications (useful but slightly annoying)
+-new +inbox +unread +sign-in                -- tag:new and from:@steampowered.com and subject:"/Access from new /"
+-new +inbox +unread +sign-in                -- tag:new and from:@upwork.com and subject:'device browser has been used to access your account'
+-new +inbox +unread +sign-in                -- tag:new and from:@dropbox.com and subject:"/We noticed a new sign in to your Dropbox/"
+-new +inbox +unread +sign-in                -- tag:new and from:@uber.com and subject:"/^New device sign-in$/"
+-new +inbox +unread +sign-in                -- tag:new and from:@gitlab.com and subject:"/sign-in from new location/"
+-new +inbox +unread          +security +dev -- tag:new and from:@gitlab.com and subject:"SSH added account"
+-new +inbox +unread +sign-in                -- tag:new and from:@samsung-mail.com and subject:"/^New sign in to your Samsung account$/"
+-new +inbox +unread          +security      -- tag:new and from:Google and ( subject:"2-Step Verification" or subject:"security alert" )
+-new +inbox +unread +sign-in +security      -- tag:new and from:Google and ( subject:"Google Verification Code" or 'subject:"/New sign-in using a backup code/"' )
+-new +inbox +unread +sign-in +security      -- tag:new and from:"Samsung account" and subject:"/^Easily verify/"
+-new +inbox -unread +sign-in                -- tag:new and from:OVHcloud and ( subject:"Notification of connection to your account" or subject:"Confirm your login request" )
+-new +inbox -unread +sign-in                -- tag:new and from:"Firefox Accounts" and ( subject:"New sign-in to Firefox" or subject:"Approve sign-in" )
+-new +inbox -unread +sign-in                -- tag:new and from:@gog.com and subject:"Two-step authentication"
+-new +inbox -unread +sign-in                -- tag:new and from:@gog.com and subject:"Two-step authentication"
+-new +inbox -unread +sign-in                -- tag:new and from:Twitch and subject:"/Log-?in/"
+-new +inbox -unread +sign-in                -- tag:new and from:pixiv and subject:"New login"
+-new +inbox -unread +sign-in                -- tag:new and from:Uphold and subject:"/Did you just try to sign in/"
+
+
+# Automatically mark developer related content
+-new +inbox +unread +dev -- tag:new and from:help-debbugs@gnu.org
+-new +inbox +unread +dev -- tag:new and from:@github.com
+-new +inbox +unread +dev -- tag:new and from:@gitlab.com
+-new +inbox +unread +dev -- tag:new and from:@gitlab.freedesktop.org
 
 # Financial transactions
--new +inbox +finance -- tag:new and from:@just-eat.co.uk and subject:'order confirmed'
--new +inbox +finance -- tag:new and from:orders@care.boots.com and subject:'Order confirmation'
--new +inbox +finance -- tag:new and from:automailer@e-paycapita.com and subject:'Payment Authentication Receipt'
--new +inbox +finance -- tag:new and from:service@paypal.co.uk and subject:"You've authorised a payment"
--new +inbox +finance -- tag:new and from:customersupport@ovh.co.uk and ( subject:'Invoice available' or subject:'notice of charge' )
--new +inbox +finance -- tag:new and from:@notifications.kfc.co.uk and subject:'KFC Orders'
+-new +inbox +unread +finance                               -- tag:new and from:@just-eat.co.uk and subject:'order confirmed'
+-new +inbox +unread +finance                               -- tag:new and from:orders@care.boots.com and subject:'Order confirmation'
+-new +inbox +unread +finance                               -- tag:new and from:automailer@e-paycapita.com and subject:'Payment Authentication Receipt'
+-new +inbox +unread +finance                               -- tag:new and from:service@paypal.co.uk and ( subject:"You've authorised a payment" or subject:"Receipt for your payment to" or subject:'You sent an automatic payment' )
+-new +inbox +unread +finance                 +s/ovh        -- tag:new and from:customersupport@ovh.co.uk and subject:"/notice of charge for automatic renewal/"
+-new +inbox +unread +finance                               -- tag:new and from:customersupport@ovh.co.uk and subject:"Invoice available"
+-new +inbox +unread +finance                               -- tag:new and from:@notifications.kfc.co.uk and subject:'KFC Orders'
+-new +inbox +unread +finance                               -- tag:new and from:"Steam Support" and ( subject:"Steam purchase!" or subject:"activating product" )
+-new +inbox +unread +finance                               -- tag:new and from:"East Midlands Railway" and ( subject:'booking confirmation' or subject:'etickets' )
+-new +inbox +unread +finance           +home               -- tag:new and from:@britishgas.co.uk and subject:"/^Thanks for your payment$/"
+-new +inbox +unread +finance                               -- tag:new and from:"Displate" and subject:'new Displate order'
+-new +inbox +unread          +delivery                     -- tag:new and from:"Displate" and subject:"/Your order tracking number is ready/"
+-new +inbox +unread                          +s/displate   -- tag:new and from:"Displate" and subject:"/Yay! One more month of you being amazing/"
+-new +inbox +unread                                        -- tag:new and from:metalposters@displate.com and body:"/^Displate Metal Posters Limited Edition/"
+-new +inbox +unread +finance                               -- tag:new and from:@joybuggy.com and subject:'Order confirmation'
+-new +inbox +unread                          +s/amzn-prime -- tag:new and from:@amazon.co.uk and subject:"/Amazon Prime Cancelled/"
+-new +inbox +unread          +delivery                     -- tag:new and from:@amazon.co.uk and ( ( subject:"/^Your Amazon.co.uk order of /" and subject:"/has been dispatched$/" ) or subject:"/^Arriving [Tt]oday:/" or subject:"/^Delivered:/" or subject:"/Delivery attempted/" or subject:"/Delivery estimate update/" or subject:"/^Dispatched: /" )
+-new +inbox +unread +finance                               -- tag:new and from:@amazon.co.uk and ( subject:"/^Your Amazon.co.uk order of /" or subject:"/Your order has been cancelled/" or subject:"/^Benefit Confirmation for your Order/" or subject:"Benefit Confirmation" )
+-new +inbox +unread +finance                               -- tag:new and from:"Amazon Pay" and subject:"/^Your payment to .* is complete/"
+-new +inbox +unread          +delivery                     -- tag:new and from:@ebay.com and ( subject:"/Order delivered/" or subject:"/Important information regarding delivery/" )
+-new +inbox +unread          +delivery                     -- tag:new and from:@ups.com and subject:"/Package Ready for Pickup|Parcel Delivered|Parcel Ready for Collection|Parcel Has Been Collected|(^UPS Update:)|UPS Exception Notification|UPS Shipping Notification|UPS Schedule Delivery Update/"
+-new +inbox +unread +finance                               -- tag:new and from:@accts.epicgames.com
+-new +inbox +unread +finance                               -- tag:new and from:Cineworld and subject:"/^Cineworld Tickets for /"
+-new +inbox -unread +finance                               -- tag:new and from:@gog.com and subject:"/Your order .* is complete/"
+-new +inbox -unread +finance +delivery                     -- tag:new and from:Currys and ( subject:"preparing your order" or subject:"working your order" )
+-new +inbox -unread +finance                               -- tag:new and from:@scan.co.uk and subject:"Scan invoice"
+-new +inbox -unread +finance                               -- tag:new and from:@uber.com and subject:"/Your .* order with Uber Eats/"
+
+# Home Related
+-new +inbox +unread +home -- tag:new and from:@britishgas.co.uk
+-new +inbox +unread +home -- tag:new and from:@nowtv.com
+-new +inbox +unread +home -- tag:new and from:@eonnext.com
 
 # Tag any mail in the bin as deleted.
--new +deleted -inbox -unread -- folder:/\[Gmail\]/ and folder:/Bin$/
--new +spam    -inbox -unread -- folder:/\[Gmail\]/ and folder:/Spam$/
--new +deleted -inbox -unread -- folder:/^kisara/Trash/
+-new       +deleted -- folder:/\[Gmail\]/ and folder:/Bin$/
+-new +spam          -- folder:/\[Gmail\]/ and folder:/Spam$/
+-new       +deleted -- folder:/^kisara/Trash/
 
--new +spam -inbox -unread -- tag:new and from:@findeveryjob.co.uk
--new +spam -inbox -unread -- tag:new and from:@jamrecruitment.co.uk
+-new +spam -inbox -- tag:new and from:@findeveryjob.co.uk
+-new +spam -inbox -- tag:new and from:@jamrecruitment.co.uk
+-new +spam -inbox -- tag:new and from:@the-career-wallet.com
 # Uber has a spam problem, and there's no setting which makes it stop.
--new +spam -inbox -unread -- tag:new and from:@uber.com and ( subject:'running low' or subject:'free delivery' or subject:'enjoy off' or subject:'off groceries' or subject:'get groceries' or subject: or subject:'win' or subject:'discount available' or subject:'new dishes' or subject:'chance' or subject:'get out off' or subject:'off next order' or subject:'grab essentials' )
--new +spam -inbox -unread -- tag:new and from:@deliveroo.co.uk and ( from:@feedback.deliveroo.com or from:@announcement.deliveroo.co.uk )
--new +spam -inbox -unread -- tag:new and from:@just-eat.co.uk and ( from:@update.just-eat.co.uk or ( from:@orders.just-eat.co.uk and subject:"👍 OR 👎" ) )
--new +spam -inbox -unread -- tag:new and from:support@grasscity.com and subject:'what do you think about us'
--new +spam -inbox -unread -- tag:new and from:offers@marketing.ebuyer.com
--new +spam -inbox -unread -- tag:new and from:@dropbox.com and subject:'no need to delete anything yet'
--new +spam -inbox -unread -- tag:new and from:news@email.railcard.co.uk and subject:'save %'
--new +spam -inbox -unread -- tag:new and from:@onskil.com and subject:'Next Opportunity'
+-new +spam -inbox -- tag:new and from:@uber.com and ( subject:'running low' or subject:'free delivery' or subject:'enjoy off' or subject:'off groceries' or subject:'get groceries' or subject: or subject:'win' or subject:'discount available' or subject:'new dishes' or subject:'chance' or subject:'get out off' or subject:'off next order' or subject:'grab essentials' )
+-new +spam -inbox -- tag:new and from:@deliveroo.co.uk and ( from:@feedback.deliveroo.com or from:@announcement.deliveroo.co.uk )
+-new +spam -inbox -- tag:new and from:@just-eat.co.uk and ( from:@update.just-eat.co.uk or ( from:@orders.just-eat.co.uk and subject:"👍 OR 👎" ) )
+-new +spam -inbox -- tag:new and from:support@grasscity.com and subject:'what do you think about us'
+-new +spam -inbox -- tag:new and from:offers@marketing.ebuyer.com
+-new +spam -inbox -- tag:new and from:@dropbox.com and subject:'no need to delete anything yet'
+-new +spam -inbox -- tag:new and from:news@email.railcard.co.uk and subject:'save %'
+-new +spam -inbox -- tag:new and from:@onskil.com and subject:'Next Opportunity'
+-new +spam -inbox -- tag:new and from:@deliveroo.com and subject:"/We'd love to hear from you/"
+-new +spam -inbox -- tag:new and from:@itiva.ge
+-new +spam -inbox -- tag:new and from:@worthsearch.com
+-new +spam -inbox -- tag:new and from:@bitdegree.org
+-new +spam -inbox -- tag:new and from:@upwork.com and subject:'You have Connects expiring'
+-new +spam -inbox -- tag:new and from:metalposters@displate.com
+# I've never used or subscribed to US Mobile but started getting spam mail with no unsubscribe link
+-new +spam -inbox -- tag:new and from:@usmobile.com
 
 # Remove new tag and attach defaults for rest of new mail
 -new +inbox +unread -- tag:new
 EOF
+
+cat >&2 <<-EOF
+###############################################################################
+#                         Notmuch Expunge Deleted Mail                        #
+###############################################################################
+
+EOF
+
+# Notmuch itself does not support permanently deleting mail. The recommendation
+# is to instead just remove all tags from it or add a hidden tag and keep it
+# accessible as archived mail. This is good in concept but not in practice IMO.
+# I (as I presume most people) get a tonne of spam mail and having to keep it
+# archived when I can confirm 100% that I never want to search it is a waste of
+# both storage and bandwidth. This section of my post-new script processes each
+# msg with a deleted tag, moves it to the deleted sub-directory of whatever
+# account it's from and then later deletes it once it's been left there for
+# enough time. This is the same basic concept as GMails bin, if a little more
+# hacky.
+#
+# This script section makes use of some custom configuration extensions in my
+# notmuchrc, I've opted to recommend reading that instead of duplicating the
+# info here. Just to summarise attach a +deleted tag to any mail, it'll be moved
+# into a pending deletion directory and after a configured interval be deleted.
+# To undo this you can later remove the -deleted tag but that will not move the
+# mail out of the deletion directory (it just won't delete it because notmuch
+# doesn't see it as deleted).
+#
+# Note: gmail isn't a very good IMAP provider. There's no intended way to disable
+# the default spam filter, some of the options just don't seem to work such as
+# the move to bin for deleted mail option and you can't customize the deletion
+# duration for the bin. For the first issue you can create a new filter which
+# matches everything (doesn't contain a random word sequence) and direct it to
+# never put the mail in spam. The second and third issue I just reimplement the
+# "auto deletion after a certain number of days" functionality in this script,
+# set it to less than 30 days and make GMail immediately delete the mail that's
+# deleted in this server as well.
+
+notmuch_delete() {
+  local expunge_age
+  expunge_age=$(notmuch config get mk.trash.expunge_age)
+  if [ -z "$expunge_age" ]; then
+    echo "$prog: warning: Not removing deleted mail because expunge age is unassigned" >&2
+    return 0
+  fi
+
+  local base_dir
+  if ! base_dir=$(notmuch config get database.path); then
+    echo "$prog: warning: Could not determine notmuch mail base directory" >&2
+    return 1
+  fi
+
+  local maildir_map
+  maildir_map=$(notmuch config list |
+                  awk -F =                                                    \
+                      -v rx='^mk\\.trash-maildir\\.'                          \
+                      -e 'sub(rx, "", $0) { sub("=", "/", $0); print($0) }')
+  if [ -z "$maildir_map" ]; then
+    echo "$prog: warning: No maildir mapping for trash" >&2
+    return 1
+  fi
+
+  local index
+  index=$(mktemp)
+  _notmuch_delete_get_index "$base_dir" > "$index"
+  trap 'rm -f '"$index" EXIT
+  if ! [ -s "$index" ]; then
+    echo "$prog: info: No mail with deleted tags found" >&2
+    return 0
+  fi
+
+  local index2="$index.2"
+  _notmuch_delete_find_deleted_locations "$index" "$maildir_map" > "$index2"
+  trap 'rm -f '"$index $index.2" EXIT
+
+  _notmuch_delete_update_deleted_messages "$index" "$base_dir" "$maildir_map" "$expunge_age"
+}
+
+_notmuch_delete_get_index() { #(base_dir)
+  # Generate an index of all the emails with deleted tags and finally output
+  # the path to the index file.
+  local base_dir="$1"
+
+  local delete_tags delete_tags_search
+  delete_tags=$(notmuch config get mk.trash.delete_tags)
+  [ -z "$delete_tags" ] && delete_tags=deleted
+  delete_tags_search=$(echo "$delete_tags" |
+                         tr '\n' '\t' |
+                         sed -e 's/\b[^\t]/tag:\0/g'  \
+                             -e '$s/\t$//'            \
+                             -e 's/\t/ OR /g')
+
+  # Index contains a list of message files with the MAILDIR prefix removed.
+  notmuch search --exclude=false --output=files -- "$delete_tags_search" |
+    awk -v base_dir="$base_dir"                 \
+        -v prog="$prog"                         \
+        -e '{
+  if (index($0, base_dir) == 1) {
+    print(substr($0, length(base_dir)+2))
+  } else {
+    print prog ": warning: message file is not relative to maildir '"'"'" $0 "'"'"'" > "/dev/stderr"
+  }
+}'
+}
+
+_notmuch_delete_find_deleted_locations() { #(index, maildir_map)
+  local index="$1" maildir_map="$2"
+
+  awk -v map="$maildir_map" \
+      -e 'BEGIN {
+    # Populate the patterns alist with tuples of length 2.
+    # The 1st entry being the account directory for this mapping entry.
+    # The 2nd entry being the trash subdirectory for this mapping entry.
+    pattern_count = split(map, map_arr, "\n")
+    for (i=1; i <= pattern_count; i++) {
+      i_count = split(map_arr[i], i_arr, "/")
+
+      patterns[i][1] = i_arr[1]
+      patterns[i][2] = i_arr[1]
+      for (j=2; j <= i_count; j++) {
+        patterns[i][2] = patterns[i][2] "/" i_arr[j]
+      }
+    }
+  }' \
+      -e '{
+    for (i=1; i <= pattern_count; i++) {
+      if (index($0, patterns[i][1]) == 1) {
+        # Only delete if this entry has not already been deleted.
+        if (index($0, patterns[i][2]) != 1) {
+          path_count = split($0, path_arr, "/")
+
+          new_basename = path_arr[path_count]
+          # The U=NUMBER flag on mail file names causes issues with isync when
+          # syncing back to the remote. Simply removing it seems to fix the issue.
+          sub(/,U=[0-9]+/, "", new_basename)
+          # maildir paths are often grouped into cur, new and tmp. Technically
+          # notmuch should only process files in cur since others have not been
+          # processed yet, but for consistency I include it in the trash path.
+          # The basename at path_arr[path_count] should be guaranteed to be
+          # unique across all paths in MAILDIR.
+          $0 = patterns[i][2] "/" path_arr[path_count-1] "/" new_basename
+        }
+        break
+      }
+    }
+
+    print($0)
+  }' \
+      "$index"
+}
+
+_notmuch_delete_update_deleted_messages() { #(index, base_dir, maildir_map, expunge_age)
+  # Move deleted mail into the deletion directory for each account
+  # or delete mail that's already been in that directory for a long
+  # time.
+  local index="$1" base_dir="$2" maildir_map="$3" expunge_age="$4"
+
+  local ref_date
+  ref_date=$(date -d "now - $expunge_age days" +%s)
+
+  # TODO: Efficient way to stat everything in $index.2 (assuming it exists
+  # and matches the same entry in $index).
+  paste "$index" "$index.2" |
+    while IFS=$(printf '\t') read -r src dest; do
+      if [ "$src" = "$dest" ]; then
+        local dest_date
+        dest_date=$(stat --format='%Y' "$base_dir/$dest")
+        if [ "$expunge_age" -eq 0 ] || [ "$ref_date" -ge "$dest_date" ]; then
+          echo "$prog: info: Deleting mail file '$dest'" >&2
+          rm "$base_dir/$dest"
+        else
+          echo "$prog: debug: Skipping deleting mail file because it's too recent '$dest'" >&2
+        fi
+      else
+        echo "$prog: info: Moving message to deletion maildir '$src'" >&2
+        mv "$base_dir/$src" "$base_dir/$dest" &&
+          touch "$base_dir/$dest"
+      fi
+    done
+}
+
+notmuch_delete
