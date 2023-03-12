@@ -1,0 +1,31 @@
+# -*- caddyfile -*-
+#
+# Caddy media server service definitions.
+#
+# This caddy configuration file defines all the services my media-server can
+# access. It's defined here instead of the main Caddyfile because the caddy
+# parser cannot support address definitions within nested snippets. Meaning
+# it would not be possible to define a snippet `service_proxy` which then
+# invokes another snippet `service_proxy_to` with a default initial argument.
+#
+# Arguments
+# ---------
+# 0
+#   The TLD that services should be routed under. For example when set to
+#   localhost the address jellyfin.localhost will point to the jellyfin
+#   service.
+# 1
+#   The snippet that should be imported to setup a service proxy. This should
+#   be a snippet that is compatible with (takes the same arguments as)
+#   service_proxy_to.
+
+import {args.1} heimdall     {args.0} heimdall                          80
+import {args.1} jellyfin     {args.0} {$MEDIA_SERVER_HOST:jellyfin}     8096
+import {args.1} navidrome    {args.0} {$MEDIA_SERVER_HOST:navidrome}    4533
+import {args.1} transmission {args.0} {$MEDIA_SERVER_HOST:transmission} 9091
+import {args.1} lidarr       {args.0} {$MEDIA_SERVER_HOST:lidarr}       8686
+import {args.1} sonarr       {args.0} {$MEDIA_SERVER_HOST:sonarr}       8989
+import {args.1} radarr       {args.0} {$MEDIA_SERVER_HOST:radarr}       7878
+import {args.1} readarr      {args.0} {$MEDIA_SERVER_HOST:readarr}      8787
+import {args.1} shoko        {args.0} {$MEDIA_SERVER_HOST:shoko}        8111
+import {args.1} prowlarr     {args.0} {$MEDIA_SERVER_HOST:prowlarr}     9696

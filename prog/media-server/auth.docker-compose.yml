@@ -1,0 +1,50 @@
+---
+services:
+  authelia:
+    container_name: authelia
+    environment:
+      PUID: $PUID
+      PGID: $PGID
+      TZ: Europe/London
+    image: authelia/authelia:latest
+    restart: unless-stopped
+    volumes:
+      - $XDG_CONFIG_HOME/media-server/authelia:/config
+
+  fail2ban:
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    container_name: fail2ban
+    depends_on:
+      authelia:
+        condition: service_healthy
+    environment:
+      PUID: $PUID
+      PGID: $PGID
+      TZ: Europe/London
+    image: lscr.io/linuxserver/fail2ban:latest
+    restart: unless-stopped
+    volumes:
+      - fail2ban-logs:/config/log
+      - $XDG_CONFIG_HOME/media-server/fail2ban:/config/fail2ban
+      - $XDG_CONFIG_HOME/media-server/authelia:/remotelogs/authelia:ro
+
+  caddy:
+    depends_on:
+      authelia:
+        condition: service_healthy
+
+  navidrome:
+    environment:
+      ND_REVERSEPROXYUSERHEADER: "Remote-User"
+      # If logged in correctly when reverse proxying through Caddy
+      # then bypass the navidrome login wall. We allow passthrough
+      # for all IP subnets. This should be fine because the service
+      # is only exposed through Caddy. Nothing will be proxying to
+      # it with the REVERSEPROXYUSERHEADER on localhost and on remote
+      # connections it should be authorized with authelia.
+      ND_REVERSEPROXYWHITELIST: 0.0.0.0/0
+
+volumes:
+  fail2ban-logs:

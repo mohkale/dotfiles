@@ -1,0 +1,76 @@
+# Jellyfin Media Server Dockerfile -- -*- dockerfile -*-
+
+ARG DOTNET_VERSION=6.0
+FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION} as plugin-builder
+
+RUN mkdir /plugins
+
+# [[https://github.com/ankenyr/jellyfin-youtube-metadata-plugin][ankenyr/jellyfin-youtube-metadata-plugin]]
+ARG YT_METADATA_VERSION=1.0.3.8 NYTDLP_VERSION=12dcfe3
+RUN cd $(mktemp -d)                                                                     \
+ && curl                                                                                \
+      -L                                                                                \
+      --output YoutubeMetadata.tar.gz                                                   \
+      https://github.com/ankenyr/jellyfin-youtube-metadata-plugin/archive/refs/tags/$YT_METADATA_VERSION.tar.gz \
+ && tar xvzf YoutubeMetadata.tar.gz                                                     \
+ && cd jellyfin-youtube-metadata-plugin-$YT_METADATA_VERSION                            \
+ && git clone https://github.com/ankenyr/NYoutubeDLP                                    \
+ && git --work-tree NYoutubeDLP --git-dir NYoutubeDLP/.git checkout $NYTDLP_VERSION     \
+ && dotnet add Jellyfin.Plugin.YoutubeMetadata reference NYoutubeDLP/src/NYoutubeDL     \
+ && dotnet publish --configuration Release --output bin Jellyfin.Plugin.YoutubeMetadata \
+ && mv bin /plugins/Jellyfin.Plugin.YoutubeMetadata
+
+FROM jellyfin/jellyfin:latest
+
+###############################################################################
+#                     Install Any Custom Jellyfin Plugins                     #
+###############################################################################
+
+# I'd recommend installing the following plugins through the UI:
+# + [[https://github.com/jellyfin/jellyfin-plugin-opensubtitles][Open Subtitles]]
+# + [[https://github.com/jellyfin/jellyfin-plugin-playbackreporting][Playback Reporting]]
+# + [[https://github.com/jellyfin/jellyfin-plugin-reports][Reports]]
+# + [[https://github.com/jellyfin/jellyfin-plugin-trakt][Trakt]]
+
+# Local directory where I place custom built plugins. This is needed since the
+# actual plugins directory is mounted into here from my local file-system. I'll
+# symlink any plugins from here into the actual directory on ENTRYPOINT.
+RUN mkdir -p /usr/share/jellyfin-plugins/
+
+# Copy all the plugins created in the builder stage into here.
+COPY --from=plugin-builder /plugins /usr/share/jellyfin-plugins/
+
+# yt-dlp is needed by [[https://github.com/ankenyr/jellyfin-youtube-metadata-plugin][ankenyr/jellyfin-youtube-metadata-plugin]]
+RUN apt-get update                              \
+ && apt-get install -y                          \
+      python3-pip                               \
+      rsync                                     \
+ && touch /var/log/auth.log                     \
+ && apt-get clean                               \
+ && rm -rf /var/lib/apt/lists/*                 \
+ && python3 -m pip install yt-dlp
+
+###############################################################################
+#                              Entrypoint Command                             #
+###############################################################################
+
+# Note: The render group is needed to support hardware accelerated transcoding.
+RUN groupadd -f render                                      \
+ && useradd --no-log-init --create-home --groups render abc
+
+# Start command taken partially adapted from parent [[https://github.com/jellyfin/jellyfin/blob/8af9b84745eba04264a027b66acb1c263cc0cf4c/Dockerfile#L86][dockerfile]] and [[https://github.com/linuxserver/docker-baseimage-ubuntu/blob/bionic/root/etc/cont-init.d/10-adduser][adduser]].
+RUN >/usr/share/entrypoint.sh printf '%s\n'                                                                                     \
+      '#!/bin/sh'                                                                                                               \
+      'set -e -u'                                                                                                               \
+      ''                                                                                                                        \
+      'groupmod -o -g "$PGID" abc'                                                                                              \
+      'usermod -o -u "$PUID" abc >/dev/null'                                                                                    \
+      'chown abc:abc /config'                                                                                                   \
+      'chown abc:abc /cache'                                                                                                    \
+      ''                                                                                                                        \
+      'find /config/plugins/ -xtype l -delete'                                                                                  \
+      'runuser -u abc -- rsync -r --quiet /usr/share/jellyfin-plugins/ /config/plugins/'                                        \
+      ''                                                                                                                        \
+      'exec runuser -u abc -- ./jellyfin/jellyfin --datadir /config --cachedir /cache --ffmpeg /usr/lib/jellyfin-ffmpeg/ffmpeg' \
+ && chmod +x /usr/share/entrypoint.sh
+ENTRYPOINT /usr/share/entrypoint.sh

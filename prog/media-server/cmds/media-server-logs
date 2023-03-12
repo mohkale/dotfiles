@@ -1,0 +1,25 @@
+#!/bin/sh
+# Usage: media-server-logs SERVICE [...SERVICES]
+#
+# Helper script to wait until a media-server service has come up before
+# tailing the logs from it indefinitely. By default the service prefix
+# will be removed unless this script is passed more than one service.
+
+CHECK_INTERVAL=5
+
+if [ "$#" -eq 0 ]; then
+  echo "Usage: media-server-logs SERVICE [...SERVICES]" >&2
+  exit 0
+fi
+
+for service in "$@"; do
+  while ! media-server exec --no-TTY -- "$service" true 2>/dev/null; do
+    sleep "$CHECK_INTERVAL"
+  done
+done
+
+if [ "$#" -eq 1 ]; then
+  prefix_flag="--no-log-prefix"
+fi
+
+exec media-server logs --tail 1 --follow ${prefix_flag:-} -- "$@"

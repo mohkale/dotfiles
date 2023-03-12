@@ -1,0 +1,51 @@
+[Connection]
+password = 
+username = 
+port = 9091
+host = localhost
+path = /transmission/rpc
+ssl = False
+
+[Sorting]
+order = addedDate
+
+[Filtering]
+filter = 
+invert = False
+
+[Misc]
+lines_per_torrent = 2
+torrentname_is_progressbar = True
+file_viewer = xopen %%s
+file_open_in_terminal = True
+compact_list = False
+cancel = ^g,ESC
+
+[Colors]
+header = bg:default,fg:default
+footer = bg:default,fg:default
+title_seed = bg:green,fg:black
+title_download = bg:blue,fg:black
+title_idle = bg:cyan,fg:black
+title_incomplete = bg:default,fg:default
+title_verify = bg:magenta,fg:black
+title_paused = bg:black,fg:default
+title_error = bg:red,fg:default
+download_rate = bg:default,fg:blue
+upload_rate = bg:default,fg:red
+eta+ratio = bg:default,fg:white
+filter_status = bg:red,fg:black
+multi_filter_status = bg:blue,fg:black
+dialog = bg:default,fg:white
+dialog_important = bg:red,fg:black
+file_prio_high = bg:red,fg:black
+file_prio_normal = bg:white,fg:black
+file_prio_low = bg:yellow,fg:black
+file_prio_off = bg:blue,fg:black
+button = bg:white,fg:black
+button_focused = bg:black,fg:white
+
+[CommonKeys]
+^d = page_down
+^u = page_up
+^g = go_back_or_unfocus

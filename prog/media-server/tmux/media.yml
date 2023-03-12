@@ -1,0 +1,24 @@
+---
+session_name: media
+start_directory: ~/
+
+windows:
+  - window_name: main
+    panes:
+      - shell_command:
+        - media-server up --detach --no-recreate
+        - sleep 2
+        - tremc --skip-version-check
+  - window_name: torrent
+    layout: even-vertical
+    panes:
+      - media-server-logs transmission
+      - transmission-watcher
+  - window_name: jellyfin
+    panes:
+      - media-server-logs jellyfin
+  - window_name: indexers
+    layout: tiled
+    panes:
+      - media-server-logs prowlarr
+      - media-server-logs lidarr sonarr radarr readarr

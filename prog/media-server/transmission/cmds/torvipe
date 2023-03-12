@@ -1,0 +1,263 @@
+#!/usr/bin/env python3
+"""
+Bulk add torrents using your editor.
+
+Opens a YAML file where you can place magnet links for downloading in a hirearchal
+and declarative structure.
+
+This file follows a natural format: If the value is a string, then that is the magnet
+link. If it is an array then it's an array of configurations. If a dictionary the key
+is a directory level and it's value can be any of the aforementioned value types.
+Here is an example configuration:
+
+    ---
+    foo:
+      bar: magnetLink # foo/bar/1.magnet
+      baz:
+        - magnetLink # foo/baz/1.magnet
+        - magnetLink # foo/baz/2.magnet
+        - bag:
+            - magnetLink # foo/bag/3.magnet
+
+Note: This script doesn't perform the actual addition of the magnet links to
+Transmission. It just writes them to a watched directory and leaves adding the
+files upto [[file:transmission-watcher][transmission-watcher]].
+
+With the --clipboard option torvipe will start a clipsink monitor that will load
+magnet links you copy to your clipboard. In this view you can input a line to set
+the default directory for subsequent magnet link clips. On termination (with EOF)
+the copied magnet links will be pre-added to the YAML file where you can edit or
+amend them.
+"""
+
+import argparse
+import asyncio
+import hashlib
+import importlib
+import logging
+import os
+import pathlib
+import shutil
+import subprocess
+import sys
+import tempfile
+from typing import Dict
+
+from mohkale.transmission import watcher as transmission_watcher
+
+try:
+    import yaml
+except ImportError:
+    HAS_PYYAML = False
+else:
+    HAS_PYYAML = True
+
+try:
+    CLIPSINK_SCRIPT = shutil.which("clipsink")
+    if CLIPSINK_SCRIPT is None:
+        raise ImportError("No clipsink script found")
+    # pylint: disable=deprecated-method,no-value-for-parameter
+    clipsink = importlib.machinery.SourceFileLoader(
+        "clipsink",
+        CLIPSINK_SCRIPT,
+    ).load_module()
+except ImportError:
+    HAS_CLIPSINK = False
+else:
+    HAS_CLIPSINK = True
+
+
+class TorClipsink(clipsink.MonitorStdinClipsink):
+    """Clipsink that can be used for reading magnet links from stdin.
+
+    You can set the default directory for subsequent magnet link clips by
+    inputting something and entering a newline. The default directory will
+    be updated.
+    """
+
+    def __init__(self):
+        super().__init__(monitor_stdin=True)
+        self.basedir = ""
+        self.entries = {}
+
+    async def on_new_clip(self, clip: str) -> None:
+        """Save magnet links copied to clipboard."""
+        if not clip.startswith("magnet:"):
+            logging.debug('Skipping line="%s" because it isnt a magnet link', clip)
+            return
+
+        logging.info('Read to directory="%s" link="%s"', self.basedir, clip)
+        if self.basedir not in self.entries:
+            self.entries[self.basedir] = clip
+        elif isinstance(self.entries[self.basedir], str):
+            self.entries[self.basedir] = [self.entries[self.basedir], clip]
+        else:
+            self.entries[self.basedir].append(clip)
+
+    async def on_stdin_read(self, line: str) -> None:
+        """Update default directory for magnet link clips."""
+        await super().on_stdin_read(line)
+        line = line.decode("utf-8").rstrip()
+        self.basedir = line
+        logging.info('Updating directory="%s"', self.basedir)
+
+
+def _recurse_data(data):
+    """Recursively collapse data into a series of tuples."""
+    if isinstance(data, dict):
+        for key, value in data.items():
+            yield from ((key, *it) for it in _recurse_data(value))
+    elif isinstance(data, list):
+        for item in data:
+            yield from _recurse_data(item)
+    elif isinstance(data, str):
+        yield (data,)
+    elif isinstance(data, (int, float)):
+        yield (str(data),)
+    else:
+        logging.error(
+            "Warning: unexpected data type in stream type=%s value=%s",
+            type(data),
+            data,
+        )
+
+
+def _md5sum(string: str) -> str:
+    return hashlib.md5(string.encode("utf-8")).hexdigest()
+
+
+def _populate_index(file_path: str, initial_entries: Dict) -> None:
+    if initial_entries != {}:
+        with open(file_path, "w", encoding="utf-8") as file:
+            file.write("---\n")
+            yaml.dump(initial_entries, file, indent=2, default_flow_style=False)
+
+
+def _run_editor(file_path: str) -> bool:
+    if (
+        subprocess.call([os.getenv("VISUAL", os.getenv("EDITOR", "vim")), file_path])
+        == 0
+    ):
+        return True
+
+    logging.error("Failed to run editor on torvipe index=%s", file_path)
+    return False
+
+
+def _create_magnet_files(
+    config: transmission_watcher.WatcherConfig, data: Dict
+) -> bool:
+    root = config.download_dirs[0] / config.watch_subdir
+
+    result = True
+    for item in _recurse_data(data):
+        magnet_link = item[-1]
+        magnet_path = (
+            root
+            / pathlib.Path(*item[:-1])
+            / (_md5sum(magnet_link) + transmission_watcher.WatcherSuffixes.MAGNET.value)
+        )
+
+        try:
+            if magnet_path.exists():
+                logging.warning(
+                    'Skipping file="%s" for magnet-link="%s" because '
+                    "it already exists",
+                    magnet_path.relative_to(root),
+                    magnet_link,
+                )
+                continue
+
+            magnet_path.parent.mkdir(parents=True, exist_ok=True)
+            magnet_path_tmp = magnet_path.parent / (magnet_path.name + ".tmp")
+            with magnet_path_tmp.open("w", encoding="utf-8") as fh:
+                fh.write(magnet_link)
+            magnet_path_tmp.rename(magnet_path)
+        except OSError:
+            logging.exception(
+                'Encountered error while handling file="%s" magnet-link="%s"',
+                magnet_path,
+                magnet_link,
+            )
+            result = False
+    return result
+
+
+def main(clipboard: bool) -> bool:
+    """Torvipe main function."""
+    existing_entries = {}
+    if clipboard:
+        tor_clipsink = TorClipsink()
+        asyncio.run(tor_clipsink.main())
+        existing_entries.update(tor_clipsink.entries)
+
+    config = transmission_watcher.WatcherConfig.from_file(
+        transmission_watcher.WATCHER_FILE
+    )
+
+    with tempfile.NamedTemporaryFile(suffix=".yml") as _index_file:
+        index_file_path = _index_file.name
+
+        _populate_index(index_file_path, existing_entries)
+
+        if not _run_editor(index_file_path):
+            return False
+
+        with open(index_file_path, "r", encoding="utf-8") as index_file:
+            contents = index_file.read()
+        try:
+            data = yaml.load(contents, Loader=yaml.SafeLoader)
+        except yaml.YAMLError:
+            logging.error("Failed to load torvipe index=%s", index_file)
+            logging.info("Torvipe contents=%s", repr(contents))
+            return False
+
+        return _create_magnet_files(config, data)
+
+
+def _parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawTextHelpFormatter
+    )
+    parser.add_argument(
+        "-r",
+        "--clipboard",
+        "--clip",
+        action="store_true",
+        help="Read magnet links through the clipboard initially.",
+    )
+    parser.add_argument(
+        "-l",
+        "--log-level",
+        metavar="LEVEL",
+        type=lambda x: getattr(logging, x.upper()),
+        help="verbosity of logging output",
+    )
+
+    args = parser.parse_args()
+    return args
+
+
+if __name__ == "__main__":
+    args = _parse_args()
+
+    try:
+        # pylint: disable=ungrouped-imports
+        from mohkale.pylog.config import use_config as use_logging_config
+    except ImportError:
+        logging.basicConfig(level=args.log_level)
+    else:
+        use_logging_config("torvipe", level=args.log_level)
+
+    if not HAS_PYYAML:
+        logging.error("torvipe requires the pyyaml module to be installed")
+        sys.exit(1)
+    if not HAS_CLIPSINK:
+        logging.error("torvipe requires the clipsink script to be installed")
+        sys.exit(1)
+
+    try:
+        sys.exit(0 if main(args.clipboard) else 1)
+    except KeyboardInterrupt:
+        logging.error("Encountered keyboard interrupt")
+        sys.exit(1)

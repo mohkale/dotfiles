@@ -1,0 +1,18 @@
+---
+# Non-VPN server configuration. This has to exist because if we want any ports
+# in the VPN network to be exposed it has to be exposed from the VPN container
+# instead of the service container. However docker-compose will not let us unset
+# the ports value for a service in an override file so we instead leave the ports
+# blank in the main [[file:docker-compose.yml]] file and set them here in the correct
+# service for non-container networks.
+
+services:
+  transmission:
+    network: host
+    ports:
+      # This is left public for convenience. TODO Support masked transmission
+      # peer port.
+      - 9091:9091
+      # These still need to be public so that peer port-forwarding works.
+      - $TRANSMISSION_PEER_PORT:$TRANSMISSION_PEER_PORT
+      - $TRANSMISSION_PEER_PORT:$TRANSMISSION_PEER_PORT/udp

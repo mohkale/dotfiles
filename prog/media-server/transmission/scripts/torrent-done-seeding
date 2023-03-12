@@ -1,0 +1,5 @@
+#!/bin/sh
+# Transmission torrent-done-seeding script.
+#
+# This script will be invoked every time a torrent has met the configured
+# Transmission seeding ratio. Currently it does nothing.

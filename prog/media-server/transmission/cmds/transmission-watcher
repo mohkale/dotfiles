@@ -1,0 +1,579 @@
+#!/usr/bin/env python3
+"""
+Watch a torrents root directory for new .torrent or .magnet files, automatically
+adding them into transmission as they're downloaded.
+
+This script depends on JSON configuration file (mine can be found [[file:~/.dotfiles/programs/transmission/watch.json][here]]), specifying
+the general torrent directories and, more importantly, the directory to watch for
+torrents. The location of the files is significant. Once the torrents have been added
+to transmission they'll be added to a similar path under the added directory. Once the
+download completes the torrent will be moved to a similar directory relative to the
+root download directory.
+"""
+
+import argparse
+import asyncio
+import logging
+import os
+import pathlib
+import shutil
+import sys
+from typing import Any, AsyncIterator, Dict, Iterable, List, NamedTuple, Optional, Union
+
+import asyncinotify as ainotify
+from mohkale import transmission as t
+from mohkale.transmission.watcher import WATCHER_FILE, WatcherConfig, WatcherSuffixes
+
+
+class _WatcherRecord(NamedTuple):
+    """Value type for the items aadded to the watcher torrent queue."""
+
+    # Download directory (not including watcher sub-directory).
+    root: pathlib.Path
+    # The newly encountered torrent file.
+    file: pathlib.Path
+    # The watcher suffix associated with `file`.
+    suffix: WatcherSuffixes
+
+
+def _find_suffix(file: Union[pathlib.Path, str]) -> Optional[WatcherSuffixes]:
+    """Find watched suffix for `file` if it has it."""
+    file = str(file)
+    return next(
+        (suffix for suffix in WatcherSuffixes if file.endswith(suffix.value)),
+        None,
+    )
+
+
+###############################################################################
+#                              Directory Watcher                              #
+###############################################################################
+
+# Inotify mask to use when watching for new torrents.
+_FILE_WATCHER_MASK = ainotify.Mask.MOVED_TO | ainotify.Mask.CLOSE_WRITE
+# Inotify mask to use to recursively add new directories to the watch list.
+_DIRECTORY_WATCHER_MASK = ainotify.Mask.CREATE | ainotify.Mask.DELETE
+
+
+async def _watch_for_torrents(
+    initial_directories: List[pathlib.Path],
+) -> AsyncIterator[pathlib.Path]:
+    """Create a recursive inotify watcher starting with `initial_directories`."""
+
+    total_mask = _FILE_WATCHER_MASK | _DIRECTORY_WATCHER_MASK
+
+    def _add_new_watcher(
+        inotify: ainotify.Inotify, directory: pathlib.Path, mask: ainotify.Mask
+    ) -> None:
+        try:
+            inotify.add_watch(directory, mask)
+        except ainotify.InotifyError as ex:
+            # The MASK_CREATE mask should prevent this but doesn't. I guess
+            # the library supresses the overwriting of the watch but the
+            # python wrapper doesn't suppress the exception.
+            if "errno 17:" not in str(ex):
+                logging.exception(
+                    'Encountered libinotify exception when adding watch for directory="%s"',
+                    directory,
+                )
+                # raise ex
+
+    def _on_newdir(
+        inotify: ainotify.Inotify, directory: pathlib.Path
+    ) -> Iterable[pathlib.Path]:
+        """What to do when a new directory is created in a watched directory."""
+        local_total_mask = total_mask | ainotify.Mask.MASK_CREATE
+        logging.info(
+            'Adding watcher for new directory="%s" with mask="%s"',
+            directory,
+            local_total_mask,
+        )
+        # There's potential for a race condition here, new files could have been
+        # added between when this directory was created and we created a new watcher
+        # for it. To work around this we walk this directory immediately after its
+        # creation and handle the files and directories as appropriate. This is done
+        # after we create the watcher in case the file is created after the watcher
+        # but before the walk. Otherwise we just handle it smartly.
+        _add_new_watcher(inotify, directory, local_total_mask)
+        for root_, directories, files in os.walk(directory):
+            root = pathlib.Path(root_)
+            for subdir in directories:
+                logging.info(
+                    'Adding watcher for new directory="%s" with mask="%s"',
+                    root / subdir,
+                    local_total_mask,
+                )
+                _add_new_watcher(inotify, root / subdir, local_total_mask)
+            yield from (root / file for file in files)
+
+    with ainotify.Inotify() as inotify:
+        for directory in initial_directories:
+            logging.info(
+                'Adding watcher for directory="%s" with mask="%s"',
+                directory,
+                total_mask,
+            )
+            inotify.add_watch(directory, total_mask)
+
+        async for event in inotify:
+            if event.path is None:
+                continue
+            if event.mask & ainotify.Mask.IGNORED:
+                continue
+
+            if event.mask & ainotify.Mask.ISDIR:
+                if event.mask & ainotify.Mask.DELETE:
+                    logging.info(
+                        'Encountered rmdir event for directory="%s"', event.path
+                    )
+                    # Note: watch should be removed by an earlier IGNORED event.
+                    # inotify.rm_watch(event.watch)
+                if event.mask & ainotify.Mask.CREATE:
+                    for file_path in _on_newdir(inotify, event.path):
+                        yield file_path
+            elif event.mask & _FILE_WATCHER_MASK:
+                # Some programs seem to call write() even on empty files.
+                if (
+                    event.mask & ainotify.Mask.CLOSE_WRITE
+                    and os.path.getsize(event.path) == 0
+                ):
+                    # Firefox creates both the final file and the partial download
+                    # file at the same time and won't move one to the other until
+                    # later.
+                    logging.debug(
+                        "Skipping event for file=%s because it's empty", event.path
+                    )
+                    continue
+
+                yield event.path
+
+
+async def directory_reader(
+    config: WatcherConfig,
+    queue: "asyncio.Queue[_WatcherRecord]",
+) -> List[pathlib.Path]:
+    """Async task to push existing torrent files to `queue`.
+
+    This function will recursively search the watcher root directory for new
+    torrent files not already in the added directory and then push them into
+    `queue`.
+
+    Parameters
+    ----------
+    config
+        Transmission watcher configuration.
+    queue
+        Async queue.
+
+    Returns
+    -------
+    A list of all the non-watch directories that were found while searching the
+    watch directory. This should be used to setup inotify watchers for these
+    directories.
+    """
+    directories_to_watch = []
+
+    def _search_watch_directory(
+        watch_dir: pathlib.Path,
+    ) -> Iterable[pathlib.Path]:
+        """Helper to recursively search for files in `watch_dir`."""
+        logging.info('Pre-adding existing files in directory="%s"', watch_dir)
+        directories_to_watch.append(watch_dir)
+
+        for root_, directories, files in os.walk(watch_dir):
+            root = pathlib.Path(root_)
+
+            # Prune out the torrent-added directory.
+            if config.added_dir.parent == root:
+                directories2 = [d for d in directories if d != config.added_dir.name]
+                if len(directories) != len(directories2):
+                    logging.debug(
+                        'Skipping watching torrent-added directory="%s"',
+                        config.added_dir,
+                    )
+                    directories[:] = directories2
+
+            # Include remaining directories in the to-watch list.
+            directories_to_watch.extend(root / directory for directory in directories)
+
+            # Pass back each file to the calling function and let it add to the
+            # queue.
+            logging.debug('Checking for torrent files in directory="%s"', root)
+            for file in files:
+                yield root / file
+
+    for config_root in config.download_dirs:
+        for file in _search_watch_directory(config_root / config.watch_subdir):
+            suffix = _find_suffix(file)
+            if suffix is None:
+                logging.warning(
+                    'Skipping file="%s" because of unknown suffix',
+                    file,
+                )
+                continue
+
+            logging.info('Adding file="%s"', file)
+            await queue.put(_WatcherRecord(config_root, file, suffix))
+
+    return directories_to_watch
+
+
+async def directory_watcher(
+    config: WatcherConfig,
+    queue: "asyncio.Queue[_WatcherRecord]",
+) -> None:
+    """Async task to push new torrent files to `queue`.
+
+    This function will first recursively add all existing torrents to the
+    Transmission queue. Then it will start an inotify watcher which monitors
+    for new files in the watcher directory and then adds them to `queue`.
+
+    Parameters
+    ----------
+    config
+        Transmission watcher configuration.
+    queue
+        Async queue.
+    """
+    directories_to_watch = await directory_reader(config, queue)
+
+    async for file in _watch_for_torrents(directories_to_watch):
+        root = next(
+            (
+                root
+                for root in config.download_dirs
+                if file.is_relative_to(root / config.watch_subdir)
+            ),
+            None,
+        )
+        suffix = _find_suffix(file)
+
+        if suffix is None:
+            logging.debug(
+                'Skipping file="%s" because of unknown suffix',
+                file,
+            )
+        elif root is None:
+            logging.warning(
+                'Skipping file="%s" because it is an unknown torrent-directory',
+                file,
+            )
+        else:
+            logging.info('Adding file="%s"', file)
+            await asyncio.sleep(1)  # In case something is writing the file directly.
+            await queue.put(_WatcherRecord(root, file, suffix))
+
+
+###############################################################################
+#                           Daemon Heartbeat Monitor                          #
+###############################################################################
+
+
+async def transmission_heartbeat(
+    transmission: t.AsyncTransmission,
+    alive_event: asyncio.Event,
+    check_interval_alive: int,
+    check_interval_dead: int,
+) -> None:
+    """Periodically check Transmission is up by sending a heartbeat.
+
+    Parameters
+    ----------
+    transmission
+        Transmission client.
+    alive_event
+        Event which is set if the daemon is running.
+    check_interval_alive
+        Interval to wait between heartbeats if Transmissions last known status
+        was alive.
+    check_interval_dead
+        Interval to wait between heartbeats if Transmissions last known status
+        was dead.
+    """
+    logging.info(
+        "Starting transmission heartbeat monitor for host=%s "
+        "port=%d with alive-interval=%d dead-interval=%d",
+        transmission.host,
+        transmission.port,
+        check_interval_alive,
+        check_interval_dead,
+    )
+    first_check = True
+    while True:
+        alive = await transmission.acheck()
+
+        if first_check or alive != alive_event.is_set():
+            logging.info(
+                (
+                    "Transmission daemon is available at host=%s port=%d"
+                    if first_check
+                    else "Transmission daemon has come up at host=%s port=%d"
+                )
+                if alive
+                else (
+                    "Transmission daemon is not available at host=%s port=%d"
+                    if first_check
+                    else "Transmission daemon has gone down from host=%s port=%d"
+                ),
+                transmission.host,
+                transmission.port,
+            )
+            first_check = False
+
+        if alive:
+            alive_event.set()
+        else:
+            alive_event.clear()
+        await asyncio.sleep(check_interval_alive if alive else check_interval_dead)
+
+
+###############################################################################
+#                          Transmission Torrent Adder                         #
+###############################################################################
+
+
+@t.retry(5)
+async def _add_torrent_get_hash(
+    client: t.AsyncTransmission,
+    url_or_magnetlink: str,
+    overrides: Dict[str, Any],
+):
+    """Add a torrent to Transmission asynchronously."""
+    resp = await client.acommand(
+        "torrent-add",
+        filename=url_or_magnetlink,
+        **overrides,
+    )
+    if resp["result"] != "success":
+        raise t.StatusException("Encountered non-sucess status")
+    resp_args = resp["arguments"]
+    key = "torrent-duplicate" if "torrent-duplicate" in resp_args else "torrent-added"
+    return resp_args[key]["hashString"]
+
+
+async def _add_torrent(
+    config: WatcherConfig,
+    client: t.AsyncTransmission,
+    file: pathlib.Path,
+    suffix: WatcherSuffixes,
+    overrides: Dict[str, Any],
+) -> Optional[str]:
+    """Add the torrent at `file` with `suffix` to Transmission through `client`."""
+    try:
+        if suffix == WatcherSuffixes.TORRENT:
+            # The container can't see the file from outside the container.
+            # We can either send the base64 encoded torrent-file or simply
+            # map it to the path it should be in the container as below.
+            file2 = config.remap_for_container(file)
+            if file != file2:
+                logging.debug(
+                    "Remapped file=%s to container-file=%s",
+                    file,
+                    file2,
+                )
+            return await _add_torrent_get_hash(client, str(file2), overrides)
+
+        if suffix == WatcherSuffixes.MAGNET:
+            with file.open("r", encoding="utf-8") as fh:
+                magnet_link = fh.read().rstrip()
+            return await _add_torrent_get_hash(client, magnet_link, overrides)
+
+        logging.error('Failed to add file="%s" with unknown suffix="%s"', file, suffix)
+    except t.StatusException:
+        logging.exception('Failed to add file="%s"', file)
+
+    return None
+
+
+async def transmission_uploader(
+    config: WatcherConfig,
+    transmission: t.AsyncTransmission,
+    transmission_alive_event: asyncio.Event,
+    queue: "asyncio.Queue[_WatcherRecord]",
+) -> None:
+    """Async task which will continually add files to Transmission.
+
+    This function will repeatedly read files from `queue` and add them to the
+    Transmission daemon. This function will also block if the transmission
+    daemon is not currently running (based on `transmission_alive_event`).
+
+    Parameters
+    ----------
+    config
+        Transmission watcher configuration.
+    transmission
+        Transmission client.
+    transmission_alive_event
+        Event which is `set` if the transmission daemon is running.
+    queue
+        Async queue.
+    """
+    while True:
+        root, file, suffix = await queue.get()
+        await transmission_alive_event.wait()
+
+        literal_path, overrides = config.calc_overrides(
+            file.relative_to(root / config.watch_subdir)
+        )
+        overrides["download-dir"] = str(
+            config.remap_for_container(root / config.incomplete_subdir)
+        )
+
+        if not file.exists():
+            logging.debug('Skipping adding file="%s" because it no longer exists', file)
+            continue
+
+        hash_str = await _add_torrent(config, transmission, file, suffix, overrides)
+        if hash_str is None:
+            continue
+
+        # Move file after succesfully adding to Transmission.
+        dest = config.added_dir / literal_path.parent / (hash_str + suffix.value)
+        logging.info('Moving torrent file="%s" to dest="%s"', file, dest)
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        if dest.exists():
+            logging.warning(
+                'New torrent dest="%s" already exists, deleting original file="%s"',
+                dest,
+                file,
+            )
+            file.unlink()
+        else:
+            shutil.move(str(file), dest)
+
+
+###############################################################################
+#                                Main Function                                #
+###############################################################################
+
+
+def _make_watcher_directories(config: WatcherConfig) -> bool:
+    """Ensure all the directories this script depends on exist."""
+    for directory in config.download_dirs:
+        directory = directory / config.watch_subdir
+        if directory.exists():
+            continue
+
+        logging.info('Creating non-existent watcher directory="%s"', directory)
+        try:
+            directory.mkdir(parents=True, exist_ok=True)
+        except OSError:
+            logging.exception('Error while creating directory="%s"', directory)
+            return False
+    return True
+
+
+async def main(
+    config: WatcherConfig,
+    transmission: t.AsyncTransmission,
+    alive_heartbeat_interval: int,
+    dead_heartbeat_interval: int,
+) -> bool:
+    """Main function."""
+    # Pre-requisites for watching torrents.def __str__(self):
+    if not _make_watcher_directories(config):
+        return False
+
+    torrent_queue: "asyncio.Queue[_WatcherRecord]" = asyncio.Queue()
+    transmission_alive_event = asyncio.Event()
+
+    tasks = []
+    tasks.append(asyncio.create_task(directory_watcher(config, torrent_queue)))
+
+    # KLUDGE: Need to enter in async context to get async session.
+    async with transmission as transmission:
+        tasks.append(
+            asyncio.create_task(
+                transmission_heartbeat(
+                    transmission,
+                    transmission_alive_event,
+                    alive_heartbeat_interval,
+                    dead_heartbeat_interval,
+                )
+            )
+        )
+        await transmission_uploader(
+            config,
+            transmission,
+            transmission_alive_event,
+            torrent_queue,
+        )
+
+    for task in tasks:
+        task.cancel()
+    await asyncio.gather(*tasks, return_exceptions=True)
+    return True  # Should never be reached because this is a daemon
+
+
+def _parse_arguments() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "-c",
+        "--config",
+        default=WATCHER_FILE,
+        help="Config file for the watcher daemon",
+    )
+    parser.add_argument(
+        "-t",
+        "--transmission-config",
+        metavar="FILE",
+        default=t.CONFIG_FILE,
+        type=pathlib.Path,
+        help="transmission configuration file",
+    )
+    parser.add_argument(
+        "-l",
+        "--log-level",
+        metavar="LEVEL",
+        default=logging.INFO,
+        type=lambda x: getattr(logging, x.upper()),
+        help="verbosity of logging output",
+    )
+    parser.add_argument(
+        "-i",
+        "--transmission-alive-heartbeat",
+        default=5 * 60,
+        metavar="DURATION",
+        help="How long to wait between transmission daemon "
+        "checks when its known to be alive",
+    )
+    parser.add_argument(
+        "-I",
+        "--transmission-dead-heartbeat",
+        default=5,
+        metavar="DURATION",
+        help="How long to wait between transmission daemon "
+        "checks when its known to be down",
+    )
+
+    args = parser.parse_args()
+
+    args.config = WatcherConfig.from_file(args.config)
+    args.connection = t.AsyncTransmission.from_conf_file(args.transmission_config)
+
+    return args
+
+
+if __name__ == "__main__":
+    args = _parse_arguments()
+
+    try:
+        from mohkale.pylog.config import use_config as use_logging_config
+    except ImportError:
+        logging.basicConfig(level=args.log_level)
+    else:
+        use_logging_config("transmission-watcher", level=args.log_level)
+
+    try:
+        asyncio.run(
+            main(
+                args.config,
+                args.connection,
+                args.transmission_alive_heartbeat,
+                args.transmission_dead_heartbeat,
+            )
+        )
+    except KeyboardInterrupt:
+        logging.info("Encountered keyboard interrupt, exiting")
+        sys.exit(1)

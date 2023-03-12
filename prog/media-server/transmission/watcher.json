@@ -1,0 +1,86 @@
+{
+  // Valid directories where torrents will be downloaded.
+  "downloadDirectories": [
+    "$XDG_DOWNLOAD_DIR",
+    "$XDG_MEDIA_HOME/downloads"
+  ],
+
+  // Mappings between paths inside and outside of the container. For an outside
+  // container at path "src" the equivalent path is at "dest". This is used for
+  // scripts that need to pass files from outside of the container to inside.
+  // This should be setup so that "src" = "dest" when running inside the container.
+  "containerVolumeRemappings": [
+    {
+      "src": "$XDG_DOWNLOAD_DIR/",
+      "dest": "/downloads"
+    },
+    {
+      "src": "$XDG_MEDIA_HOME/downloads",
+      "dest": "/media/downloads"
+    }
+  ],
+
+  // Added torrents directory. After a file from the watch directory has been
+  // added to transmission it will be moved to this directory. The dirname of the
+  // file under this directory will match the dirname of it relative to the torrents
+  // directory (excluding any stripped rule prefixes configured below). The basename
+  // of the file will contain the hash of the added torrent (as returned by
+  // transmission) and the same suffix as the original file.
+  //
+  // Once a torrent completes if a file matching the original .magnet or .torrent
+  // file is found in the added directory it will be moved to a path under the same
+  // download directory with the same leading path as the added torrent file.
+  "addedDirectory": "$XDG_DOWNLOAD_DIR/torrents/@added",
+
+  // Sub-directory configuration (each of these are relative to a download-directory).
+  "subDirectories": {
+    // Where in-progress torrents should be placed. On completion the watcher will
+    // move torrents out of this directory into a torrent-specific subdirectory but
+    // only if it is downloaded in a subdirectory of the incomplete directory.
+    "incomplete": "incomplete",
+    // Torrent watcher directory. This directory will be watched for new .torrent
+    // or .magnet files and once detected they will be automatically added to
+    // transmission.
+    "watch": "torrents",
+    // Default subdirectory for completed torrents to be moved to. Once a torrent
+    // is completed and was downloaded to the incomplete directory and there's no
+    // other destination that can be determined for it, it will be moved from to
+    // this sub-directory of the download root directory.
+    "complete": "random"
+  },
+
+  // Automatically move torrents from one download-directory to another based on
+  // the labels it got assigned when first added to Transmission. When a new torrent
+  // is added to Transmission with any of the labels below and it is downloading to
+  // the incomplete sub-directory of its download root, it will be moved to the
+  // download root configured here.
+  "downloadDirectoryLabels": [
+    {
+      "label": "media",
+      "downloadDirectoryIndex": 1
+    }
+  ],
+
+  // Watcher rules.
+  //
+  // This configuration defines a set of rules to override the arguments forwarded
+  // to transmission when a new torrent is added based on file-paths. It works by
+  // unwinding and stripping away directory prefixes, updating a set of overrides
+  // as you do so. For example a torrent in "@start/tv-shows/foobar" will actually
+  // be interpreted as "tv-shows/foobar" with the @start prefix causing the watcher
+  // to add it with a "paused": false argument.
+  "torrentAddRules": [
+    {
+      "directory": "@high-priority",
+      "overrides": {
+        "bandwidthPriority": 1
+      }
+    },
+    {
+      "directory": "@start",
+      "overrides": {
+        "paused": false
+      }
+    }
+  ]
+}

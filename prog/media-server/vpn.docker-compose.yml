@@ -1,0 +1,61 @@
+---
+# VPN server configuration. Place any VPN specific configurations into a
+# [[file:vpn.docker-compose.override.yml]] file and make sure to set its access
+# permissions as 600.
+
+services:
+  gluetun:
+    image: qmcgaw/gluetun
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    ports:
+      # Transmission service ports (see [[file:no-vpn.docker-compose.yml]]).
+      - 9091:9091
+    volumes:
+      - $XDG_CONFIG_HOME/gluetun:/gluetun
+    environment:
+      PUID: $PUID
+      PGID: $PGID
+      TZ: Europe/London
+
+      # Set these in the override configuration file. See also [[https://github.com/qdm12/gluetun/wiki/Mullvad][documentation]].
+      # SERVER_CITIES: London
+      # VPN_SERVICE_PROVIDER: mullvad
+      # VPN_TYPE: wireguard
+      # WIREGUARD_ADDRESS:
+      # WIREGUARD_PRIVATE_KEY:
+
+      # Set this to allow port forwarding from your VPN to your bittorrent
+      # application.
+      # FIREWALL_VPN_INPUT_PORTS: $TRANSMISSION_PEER_PORT
+
+  # Set the media-server host so that caddy can still proxy to services running
+  # on the same network as gluetun.
+  caddy:
+    environment:
+      MEDIA_SERVER_HOST: gluetun
+
+  # Update services to route through the VPN network.
+  jellyfin: &vpn-config
+    depends_on:
+      gluetun:
+        condition: service_healthy
+    network_mode: "service:gluetun"
+  navidrome:
+    <<: *vpn-config
+  transmission:
+    <<: *vpn-config
+  lidarr:
+    <<: *vpn-config
+  sonarr:
+    <<: *vpn-config
+  radarr:
+    <<: *vpn-config
+  readarr:
+    <<: *vpn-config
+  prowlarr:
+    <<: *vpn-config
+  shoko:
+    <<: *vpn-config
