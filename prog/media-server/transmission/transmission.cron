@@ -1,5 +1,5 @@
 # Cleanup empty downloaded directories.
-*/5 *  * * * . ~/.config/user-dirs.dirs; find "$XDG_DOWNLOAD_DIR/tv-shows" -mindepth 1 -maxdepth 1 -type d -empty -delete
+*/5 *  * * * . ~/.config/user-dirs.dirs; [ -e "$XDG_DOWNLOAD_DIR/tv-shows" ] && find "$XDG_DOWNLOAD_DIR/tv-shows" -mindepth 1 -maxdepth 1 -type d -empty -delete
 # Backup the Transmission torrent file list and resume files.
 0   12 * * *  . ~/.profile; mkdir -m700 -p "$XDG_DOCUMENTS_DIR/backups/transmission-index" && chronic tar -cvzf "$XDG_DOCUMENTS_DIR/backups/transmission-index/transmission-index.$(date +\%Y-\%m-\%d).tar.gz" -C "$XDG_CONFIG_HOME/media-server/transmission" torrents resume
 0   12 * * *  . ~/.profile; find "$XDG_DOCUMENTS_DIR/backups/transmission-index" -type f -not -newermt "$(date -d "$(date +\%F) -7 days" +\%F)" -delete || true

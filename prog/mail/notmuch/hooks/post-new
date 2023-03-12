@@ -25,7 +25,7 @@ fi
 sed -e '/^#.*/d' -e '/^[[:space:]]*$/d' <<"EOF" | notmuch tag --batch
 # Mark any mail from individual hosts that have synced to my mail-server as local.
 +local        -- tag:new and folder:/^local\//
-+h/mk-desktop -- tag:new and folder:'/^local\/mk-desktop/'
++h/mk-desktop -- tag:new and folder:"/^local\/mk-desktop/"
 
 # Automatically read and flag any emails from myself
 -new +inbox +reminder -- tag:new and query:from-me and query:to-me and subject:/^Reminder:/
