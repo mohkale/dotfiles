@@ -35,6 +35,10 @@ import -b                                       \
   lf                                            \
   libinput                                      \
   media/*                                       \
+  media-server                                  \
+  media-server/jellyfin                         \
+  media-server/sonarr                           \
+  media-server/transmission                     \
   network-manager                               \
   pass                                          \
   polybar                                       \
@@ -47,7 +51,6 @@ import -b                                       \
   terminal/*                                    \
   thefuck                                       \
   tmux                                          \
-  transmission                                  \
   vpn/*                                         \
   wget                                          \
   wine                                          \

@@ -1,0 +1,245 @@
+#!/usr/bin/env python3
+"""
+Transmission torrent-added script.
+
+This script will be invoked every time a new torrent is added to Transmission. At
+the moment all it does is detect when the new torrent is created with a "specific"
+label and move it to a different incomplete torrent directory compared to the default
+directory. See the "downloadDirectoryLabels" configuration option in watcher.json for
+more information about how this is configured.
+"""
+
+import argparse
+import asyncio
+import logging
+import pathlib
+import sys
+
+import transmission
+import transmission.scripts as transmission_scripts
+import transmission.watcher as transmission_watcher
+
+
+@transmission.retry(5)
+async def _move_torrent(
+    client: transmission.AsyncTransmission, torrent_id: int, dest_dir: str
+):
+    """Move a torrent to `dest_dir`.
+
+    Parameters
+    ----------
+    client
+        A transmission API client.
+    torrent_id
+        The id of the torrent being moved.
+    dest_dir
+        The directory where the torrent with id `torrent_id` should be moved.
+    """
+    resp = await client.acommand(
+        "torrent-set-location", ids=torrent_id, move=True, location=dest_dir
+    )
+    if resp["result"] != "success":
+        raise transmission.StatusException("Encountered non-sucess status")
+
+
+# pylint: disable=too-many-return-statements
+async def torrent_added(
+    script_env: transmission_scripts.ScriptEnvironment,
+    daemon_config: pathlib.Path,
+    watcher_config: transmission_watcher.WatcherConfig,
+    dry_run: bool,
+) -> bool:
+    """torrent-added.
+
+    Parameters
+    ----------
+    script_env
+        The environment this script is running in.
+    daemon_config
+        Transmission daemon configuration file.
+    watcher_config
+        Transmission watcher daemon configuration file.
+    dry_run
+        Whether to skip doing anything destructive. When True this function will skip
+        not do anything destructive that might impact a subsequent invocation of this
+        script with dry_run=False.
+    """
+    location = script_env.directory / script_env.name
+
+    intended_root = next(
+        (
+            root
+            for label, root in watcher_config.download_directory_labels.items()
+            if label in script_env.labels
+        ),
+        None,
+    )
+    if intended_root is None:
+        logging.info(
+            "Skipping file=%s because it has no tracked labels",
+            location,
+        )
+        return True
+
+    root = next(
+        (
+            root
+            for root in watcher_config.download_dirs
+            if location.is_relative_to(root)
+        ),
+        None,
+    )
+    if root is None:
+        logging.info(
+            "Skipping file=%s because it is not in a download root",
+            location,
+        )
+        return True
+
+    incomplete_dir = root / watcher_config.incomplete_subdir
+    if not location.is_relative_to(incomplete_dir):
+        logging.info(
+            "Skipping file=%s it is not in the incomplete directory=%s",
+            location,
+            incomplete_dir,
+        )
+        return True
+
+    if root == intended_root:
+        logging.info(
+            "Skipping file=%s is in its intended root directory=%s",
+            location,
+            intended_root,
+        )
+        return True
+
+    destination = intended_root / watcher_config.incomplete_subdir
+    logging.info("Moving file=%s to dest=%s", location, destination)
+    if dry_run:
+        logging.info("Skipping actually moving file because dry-run=True")
+        return True
+    async with transmission.AsyncTransmission.from_conf_file(daemon_config) as client:
+        try:
+            await _move_torrent(client, script_env.id, str(destination))
+        except transmission.StatusException:
+            logging.exception(
+                "Failed to move file=%s to dest=%s", location, destination
+            )
+            return False
+    return True
+
+
+def _parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Do not actually move any completed torrents.",
+    )
+
+    logging_group = parser.add_argument_group("Logging")
+    logging_group.add_argument(
+        "-l",
+        "--log-level",
+        metavar="LEVEL",
+        default=logging.DEBUG,
+        type=lambda x: getattr(logging, x.upper()),
+        help="Verbosity of logging output for LOG_FILE.",
+    )
+    logging_group.add_argument(
+        "-L",
+        "--stdout-log-level",
+        metavar="LEVEL",
+        default=logging.INFO,
+        type=lambda x: getattr(logging, x.upper()),
+        help="Verbosity of logging output for stderr.",
+    )
+    logging_group.add_argument(
+        "--log-file",
+        metavar="LOG_FILE",
+        default=transmission.CONFIG_DIR / "torrent-added.log",
+        type=pathlib.Path,
+        help="Dump torrent-added logs to LOG_FILE.",
+    )
+
+    config_file_group = parser.add_argument_group("Configs")
+    config_file_group.add_argument(
+        "-c",
+        "--daemon-config",
+        metavar="FILE",
+        default=transmission.CONFIG_FILE,
+        type=pathlib.Path,
+        help="transmission watcher configuration file",
+    )
+    config_file_group.add_argument(
+        "-w",
+        "--watcher-config",
+        metavar="FILE",
+        default=transmission_watcher.WATCHER_FILE,
+        type=pathlib.Path,
+        help="transmission daemon configuration file",
+    )
+
+    env_group = parser.add_argument_group("Environment Overrides")
+    transmission_scripts.parse_script_environment(env_group)
+
+    # pylint: disable=redefined-outer-name
+    args = parser.parse_args()
+
+    file_handler = logging.FileHandler(str(args.log_file))
+    file_handler.setLevel(args.log_level)
+    stream_handler = logging.StreamHandler()
+    stream_handler.setLevel(args.stdout_log_level)
+    logging.basicConfig(
+        level=0,
+        handlers=[file_handler, stream_handler],
+        format="[%(asctime)s.%(msecs)03d] %(levelname)s %(message)s (%(pathname)s:%(lineno)d)",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+
+    if not args.daemon_config.exists():
+        logging.error("Daemon config file=%s does not exist", args.daemon_config)
+        sys.exit(1)
+    if not args.watcher_config.exists():
+        logging.error("Watcher config file=%s does not exist", args.watcher_config)
+        sys.exit(1)
+
+    logging.debug("Reading configuration files")
+
+    logging.debug("Reading Transmission watcher config file=%s", args.watcher_config)
+    args.watcher_config = transmission_watcher.WatcherConfig.from_file(
+        args.watcher_config
+    )
+
+    logging.debug("Reading torrent-added script environment")
+    args.script_environment = transmission_scripts.ScriptEnvironment.from_args(args)
+    logging.debug(str(args.script_environment))
+
+    return args
+
+
+def main() -> None:
+    """torrent-added main function."""
+    args = _parse_args()
+    try:
+        result = asyncio.run(
+            torrent_added(
+                args.script_environment,
+                args.daemon_config,
+                args.watcher_config,
+                args.dry_run,
+            )
+        )
+    except RuntimeError:
+        result = False
+        logging.exception("Failed to run torrent-added script")
+
+    if not result:
+        logging.error("torrent-added exiting with non-zero exit code")
+
+    sys.exit(0 if result else 1)
+
+
+if __name__ == "__main__":
+    main()

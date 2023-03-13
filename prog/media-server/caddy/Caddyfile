@@ -1,0 +1,60 @@
+# Caddy media server configuration.
+#
+# Environment variables
+# ---------------------
+# SITE_ADDRESS
+#   Default top-level address that Caddy should route to. If unset we default
+#   to localhost. Any media-server specific services such as jellyfin or sonarr
+#   will be accessible as a sub-domain of this address. For example
+#   jellyfin.localhost.
+#
+# MEDIA_SERVER_HOST
+#   The in-container hostname that media-server requests should be routed to. This
+#   should default to the hostname of the container the service is running under.
+#   Setting this allows you to run all service containers in the same network (for
+#   example to support VPN routing).
+
+# ┌────────────────┐
+# │ Global Options │
+# └────────────────┘
+
+# {
+# 	log {
+# 		level debug
+# 	}
+# }
+
+import /etc/caddy/local.d/Caddyfile.global
+
+# ┌────────────────┐
+# │    Snippets    │
+# └────────────────┘
+
+(service_proxy_to) {
+	#(service, TLD, service_host, port)
+	{args.0}.{args.1} {
+		# authorize with guests_policy
+		reverse_proxy {args.2}:{args.3}
+	}
+}
+
+(authorized_service_proxy_to) {
+	#(service, TLD, service_host, port)
+	{args.0}.{args.1} {
+		import authelia_forward_auth
+		reverse_proxy {args.2}:{args.3}
+	}
+}
+
+import /etc/caddy/local.d/Caddyfile.snippets
+
+# ┌────────────────┐
+# │     Routes     │
+# └────────────────┘
+
+{$SITE_ADDRESS} {
+	redir https://jellyfin.{$SITE_ADDRESS}{uri}
+}
+import /etc/caddy/config.d/Caddyfile.services {$SITE_ADDRESS} service_proxy_to
+
+import /etc/caddy/local.d/Caddyfile.routes

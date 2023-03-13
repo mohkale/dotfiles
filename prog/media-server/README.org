@@ -1,0 +1,789 @@
+#+TITLE: Personal Media Server
+# LocalWords:  Apps dockerised Jellyfin usenet Prowlarr Emby Kodi Readarr Radarr VPN
+# LocalWords:  Sonarr Lidarr proxying uncorrectable routable Caddy localhost PIA TiB
+# LocalWords:  authelia MiB GParted LVM Navidrome
+
+#+HTML: <div align="right" style="display: flex; justify-content: flex-end">
+#+HTML:   <a style="margin-left: 4px;" href="https://jellyfin.org/"><img src="https://img.shields.io/badge/jellyfin-latest-%23AA5CC3?logo=jellyfin&style=for-the-badge&logoColor=%2300A4DC"/></a>
+#+HTML:   <a style="margin-left: 4px;" href="https://www.navidrome.org/"><img src="https://img.shields.io/badge/navidrome-latest-yellow?logo=Apple%20Music&style=for-the-badge&logoColor=yellow"/></a>
+#+HTML:   <a style="margin-left: 4px;" href="https://transmissionbt.com/"><img src="https://img.shields.io/badge/transmission-3.00r6-orange?logo=tor%20browser&style=for-the-badge&logoColor=orange"/></a>
+#+HTML:   <a style="margin-left: 4px;" href="https://sonarr.tv/"><img src="https://img.shields.io/badge/sonarr-latest-yellow?logo=TV%20Time&style=for-the-badge&logoColor=yellow"/></a>
+#+HTML:   <a style="margin-left: 4px;" href="https://radarr.video/"><img src="https://img.shields.io/badge/radarr-latest-brightgreen?logo=coveralls&style=for-the-badge&logoColor=brightgreen"/></a>
+#+HTML:   <a style="margin-left: 4px;" href="https://lidarr.audio/"><img src="https://img.shields.io/badge/lidarr-latest-%23FB5BC5?logo=iTunes&style=for-the-badge&logoColor=%23FB5BC5"/></a>
+#+HTML:   <a style="margin-left: 4px;" href="https://readarr.com/"><img src="https://img.shields.io/badge/readerr-latest-%23141E24?logo=Read%20The%20Docs&style=for-the-badge&logoColor=%238CA1AF"/></a>
+#+HTML:   <a style="margin-left: 4px;" href="https://wiki.servarr.com/prowlarr"><img src="https://img.shields.io/badge/prowlarr-latest-%23F37626?logo=Ghostery&style=for-the-badge&logoColor=%23F37626"/></a>
+#+HTML:   <a style="margin-left: 4px;" href="https://caddyserver.com/"><img src="https://img.shields.io/badge/caddy-alpine-%23009639?logo=Nginx&style=for-the-badge&logoColor=%23009639"/></a>
+#+HTML:   <a style="margin-left: 4px;" href="https://www.wireguard.com/"><img src="https://img.shields.io/badge/wireguard-gluetun:latest-%2388171A?logo=WireGuard&style=for-the-badge"/></a>
+#+HTML:   <a style="margin-left: 4px;" href="https://www.authelia.com/"><img src="https://img.shields.io/badge/authelia-latest:latest-success?logo=Auth0&style=for-the-badge&logoColor=success"/></a>
+#+HTML:   <a style="margin-left: 4px;" href="https://heimdall.site/"><img src="https://img.shields.io/badge/authelia-latest:latest-blueviolet?logo=Dash&style=for-the-badge&logoColor=blueviolet"/></a>
+#+HTML: </div>
+
+Complete personal media server configuration in Docker.
+
+This config was heavily inspired by the documentation found [[https://wiki.servarr.com/docker-guide][here]].
+
+This directory contains all the modules needed to setup a home media server that
+hosts all my media content. I'd recommend hosting all of your media in a single
+hard-drive (better in a software-level [[https://wiki.archlinux.org/title/RAID][RAID]] layout with at least RAID1). If you can't
+find a single hard-drive large enough to host all your content you can use [[*Logical Volume Management][LVM]] to
+combine multiple physical hard-drives into a single logical volume. The [[https://wiki.archlinux.org/title/btrfs][btrfs]] file
+system is recommended for Linux servers.
+
+All the services defined here are configured with docker-compose. To simplify
+management you can use the [[file:cmds/media-server]] script which will be in the
+PATH. This is just a wrapper around =docker-compose= which changes to the current
+directory and sets some important environment variables for the service before
+calling =docker-compose "$@"=.
+
+* Service Domains
+  Each service in my media server is accessible through a separate and distinct
+  hostname under the main media-server address which defaults to localhost (see
+  [[*Public Routing to Your Server][Public Routing to Your Server]]). To see the actual mappings take a look at the
+  [[file:caddy/Caddyfile]] file. You can connect to for example jellyfin at
+  [[https:jellyfin.localhost]] if the server comes up correctly.
+
+* Directory Layout
+  This sections defines the mappings from the directories outside of my media-server
+  containers to within the container:
+
+  + =media/= - Root of the media file-system, defined as =$XDG_MEDIA_HOME=.
+    + =downloads/= - Media specific downloads directory (separate to =$XDG_DOWNLOAD_DIR=).
+      + =sonarr/= - Media indexer specific downloads sub-directories.
+      + =lidarr/=
+      + ...
+    + =content/=
+      + ~tv-shows/~ - Media sub-directories (content will be linked from =media/downloads=).
+      + ...
+  + =downloads/= - Standard system downloads directory (mapping from =$XDG_DOWNLOAD_DIR=).
+
+* Post Install Configuration
+  After building all the respective images you need to configure all the related
+  services and set them up to know about and communicate between each other.
+
+** Lidarr, Sonarr, Radarr, Readarr
+   These are /media indexer/ services. They maintain an index of all the media you have
+   downloaded or are interested in keeping up to date. They also periodically query a
+   set of configured *indexers* for new entries matching tracked content and
+   automatically add them to *download clients*. Once the download completes these
+   services will then copy (or preferably hard-link) them to your media directory.
+
+   To configure these you should:
+   1. Go to the _Media Management_ section and add your existing and intended media
+      directories into "Root folders".
+
+      Also configure the _Import Extra Files_ option to also import any other extra
+      files you're interested in (I'd suggest =srt,ass=).
+   2. Under _Download Clients_ add a client for each of the clients you intend to use.
+      In this configurations case that is Transmission. You can configure it to
+      connect to ~host=transmission~ and =port=9091=.
+
+      I'd also recommend disabling the hide advanced checkbox and setting the
+      Directory option to =/media/downloads/[INDEXER]= to ensure media related
+      downloads are kept on the same mount as your media directory.
+   3. Under _Metadata_ you can have the indexers automatically generate media
+      metadata for you. Since I use Jellyfin I'd recommend enabling the Kodi/Emby
+      metadata provider when available.
+
+
+   Note: After setup I'd recommend configuring the [[https://wiki.servarr.com/sonarr/settings#quality-profiles][quality profiles]] to match what
+   you'd desire for upgrades.
+
+*** File Naming Schemes
+    You can also configure file naming schemes for each of these indexers. I'd
+    recommend following the recommendations inspired (copy-pasted :stuck-out-tongue:) from TRaSH
+    Guides for [[https://trash-guides.info/Sonarr/Sonarr-recommended-naming-scheme/][Sonarr]] and [[https://trash-guides.info/Radarr/Radarr-recommended-naming-scheme/][Radarr]]. This can be done under _Media Management_ (you may
+    have to enable the _Rename Episodes_ option).
+
+    #+begin_src yaml
+      ---
+      ###############################################################################
+      #                                    Lidarr                                   #
+      ###############################################################################
+
+      - type: Standard Track
+        format: |-
+          {Album Title} ({Release Year})/{Artist Name} - {Album Title} - {track:00} - {Track Title}
+        examples: |-
+          The Album Title (2022)/The Artist Name - The Album Title - 03 - Track Title (1)
+
+      - type: Multi Disc Track
+        format: |-
+          {Album Title} ({Release Year})/{Medium Format} {medium:00}/{Artist Name} - {Album Title} - {track:00} - {Track Title}
+        examples: |-
+          The Album Title (2022)/CD 01/The Artist Name - The Album Title - 03 - Track Title (1)
+
+      - type: Artist Folder
+        format: |-
+          {Artist CleanName}
+        examples: |-
+          The Artist Name
+
+      ###############################################################################
+      #                                    Sonarr                                   #
+      ###############################################################################
+
+      - type: Standard TV Episodes
+        format: |-
+          {Series TitleYear} - S{season:00}E{episode:00} - {Episode CleanTitle} [{Preferred Words }{Quality Full}]{[MediaInfo VideoDynamicRangeType]}{[Mediainfo AudioCodec}{ Mediainfo AudioChannels]}{MediaInfo AudioLanguages}{[MediaInfo VideoCodec]}{-Release Group}
+        examples: |-
+          The Series Title! (2010) - S01E01 - Episode Title 1 [AMZN WEBDL-1080p Proper][DV HDR10][DTS 5.1][x264]-RlsGrp
+          The Series Title! (2010) - S01E01-E03 - Episode Title [AMZN WEBDL-1080p Proper][DV HDR10][DTS 5.1][x264]-RlsGrp
+
+      - type: Daily TV Episodes
+        format: |-
+          {Series TitleYear} - {Air-Date} - {Episode CleanTitle} [{Preferred Words }{Quality Full}]{[MediaInfo VideoDynamicRangeType]}{[Mediainfo AudioCodec}{ Mediainfo AudioChannels]}{MediaInfo AudioLanguages}{[MediaInfo VideoCodec]}{-Release Group}
+        examples: |-
+          The Series Title! (2010) - 2013-10-30 - Episode Title 1 [AMZN WEBDL-1080p Proper][DV HDR10][DTS 5.1][x264]-RlsGrp
+
+      - type: Anime TV Episodes
+        format: |-
+          {Series TitleYear} - S{season:00}E{episode:00} - {absolute:000} - {Episode CleanTitle} [{Preferred Words }{Quality Full}]{[MediaInfo VideoDynamicRangeType]}[{MediaInfo VideoBitDepth}bit]{[MediaInfo VideoCodec]}[{Mediainfo AudioCodec} { Mediainfo AudioChannels}]{MediaInfo AudioLanguages}{-Release Group}
+        examples: |-
+          The Series Title! (2010) - S01E01 - 001 - Episode Title 1 [iNTERNAL HDTV-720p v2][HDR10][10bit][x264][DTS 5.1][JA]-RlsGrp
+          The Series Title! (2010) - S01E01-E03 - 001-002-003 - Episode Title [iNTERNAL HDTV-720p v2][HDR10][10bit][x264][DTS 5.1][JA]-RlsGrp
+
+      - type: Series Container
+        format: |-
+          {Series TitleYear} [imdb-{ImdbId}]
+        examples: |-
+          The Series Title! (2010) [imdb-tt1520211]
+
+      - type: Season Folder
+        format: |-
+          Season {season:00}
+        examples: |-
+          Season 01
+
+      - type: Multi-Episode Style
+        format: |-
+          Prefixed Range
+        examples: |-
+          S01E01-E03
+
+      ###############################################################################
+      #                                    Radarr                                   #
+      ###############################################################################
+
+      - type: Movie Container
+        format: |-
+          {Movie Title} {(Release Year)} [imdb-{ImdbId}]
+        examples: |-
+          The Series Title! (2010) [imdb-tt1520211]
+
+      - type: Movie
+        format: |-
+          {Movie CleanTitle} {(Release Year)} {imdb-{ImdbId}} {edition-{Edition Tags}} {[Custom Formats]}{[Quality Full]}{[MediaInfo 3D]}{[MediaInfo VideoDynamicRangeType]}{[Mediainfo AudioCodec}{ Mediainfo AudioChannels}][{Mediainfo VideoCodec}]{-Release Group}
+        examples: |-
+          The Movie Title (2010) {imdb-tt0066921} {edition-Ultimate Extended Edition} [IMAX HYBRID][Bluray-1080p Proper][3D][DV HDR10][DTS 5.1][x264]-EVOLVE
+
+      - type: Anime Movie
+        format: |-
+          {Movie CleanTitle} {(Release Year)} {imdb-{ImdbId}} {edition-{Edition Tags}} {[Custom Formats]}{[Quality Full]}{[MediaInfo 3D]}{[MediaInfo VideoDynamicRangeType]}{[Mediainfo AudioCodec}{ Mediainfo AudioChannels}]{MediaInfo AudioLanguages}[{MediaInfo VideoBitDepth}bit][{Mediainfo VideoCodec}]{-Release Group}
+        examples: |-
+          The Movie Title (2010) {imdb-tt0066921} {edition-Ultimate Extended Edition} [Surround Sound x264][Bluray-1080p Proper][3D][DTS 5.1][DE][10bit][AVC]-EVOLVE
+
+      ###############################################################################
+      #                                   Readarr                                   #
+      ###############################################################################
+
+      - type: Book
+        format: |-
+          {Book Title}/{Author Name} - {Book CleanTitle}{ (PartNumber)}
+        examples: |-
+          The Edition Title/The Author Name - The Edition Title
+          The Edition Title/The Author Name - The Edition Title (1)
+
+      - type: Author container
+        format: |-
+          {Author Name}
+        examples: |-
+          The Author Name
+    #+end_src
+
+** Prowlarr
+   Is a tracker management service. It maintains credentials and configurations for
+   multiple trackers (usenet or torrent) and can sync them between your indexer
+   services. Its setup so that when the indexer wants to search the trackers it
+   connects to prowlarr itself instead of to the tracker directly. This vastly
+   simplifies configuring multiple indexers simultaneously.
+
+   To configure this you should:
+   1. Add the trackers/indexers you're interested in. This is mostly dependent on
+      what you want to download and what you have access to. For suggestions and tips
+      see [[https://www.reddit.com/r/trackers/][r/trackers]] and [[https://www.reddit.com/r/usenet/][r/usenet]].
+   2. In _Settings_ under _Apps_ add an application for each of the [[*Lidarr, Sonarr, Radarr, Readarr][media indexer]]
+      services configured previously. This will require access to the API keys for
+      each of these indexers (found under _Settings/General_ on each of them).
+
+
+   *Note*: You may want to add a download client entry for Transmission in prowlarr as
+   well. This will allow you to perform searches directly from prowlarr and add them
+   to the download queue.
+
+** Jellyfin
+   Is an open source media server. It catalogues media files and expose them through
+   a user-friendly web based, mobile, TV, or vide-player interface. It makes
+   maintaining a personal media server of the same quality as Netflix or Apple TV
+   much simpler
+
+** Navidrome
+   Is a music media-server. I prefer it to Jellyfin for music as opposed to Jellyfin.
+
+* Hard Drive Setup
+** New Drive Checklist
+   Adapted from this excellent reddit [[https://www.reddit.com/r/DataHoarder/comments/7seion/comment/dt49bej/?utm_source=share&utm_medium=web2x&context=3][comment]]. Once you recieve a new drive you
+   should benchmark it to ensure it's functioning to specification and contains
+   as few bad sectors as possible. Hard disk drives fail in a bell curve. It's likely
+   either going to fail in the first month, or after 5 years but rarely in-between.
+   To ensure you can detect and replace a defective drive as soon as possible (while
+   still in the warranty period for it), it's best to stress it as much as possible
+   after getting it.
+
+   - [ ] Enable S.M.A.R.T. and check S.M.A.R.T data with [[man:gsmartcontrol][GSmartControl]].
+   - [ ] Do a surface scan for bad sectors using either [[man:badblocks]] (deprecated)
+     or the alternative recommended guideline which creates a crypt layer above the
+     drive and then shreds it fully.
+
+     *WARN*: This will wipe all data from the drive.
+
+     #+begin_src shell
+       set -u
+
+       # Span a crypto layer above the device.
+       cryptsetup open "/dev/$DEVICE_NAME" "$CRYPT_NAME" --type plain --cipher aes-xts-plain64
+       # Fill the now opened decrypted layer with zeroes.
+       # This will get get written back to the device as encrypted data.
+       shred -v -n 0 -z /dev/mapper/"$CRYPT_NAME"
+       # Compare fresh zeroes with the decrypted layer.
+       cmp -b /dev/zero /dev/mapper/"$CRYPT_NAME"
+       # Close the opened crypto layer for the device.
+       cryptsetup close "$CRYPT_NAME"
+     #+end_src
+
+     It's recommended to perform this test multiple times, until you can say with
+     certainty that the drive isn't defective. Make sure to recreate the crypt map
+     for each test run to ensure new data is always being written to the device.
+
+     *Note*: This can take a very, very, long time. Writing to the disk with =shred= will
+     take a while, but comparing the contents of it with =cmp= may take even longer.
+     I'd recommend setting up a command to just watch the disk being compared just
+     for your own sanity. This can be done by simply catting the file-descriptor info
+     of the =cmp= process. For example:
+     #+begin_src bash
+       # Note: 1681592 is the pid of the cmp process. You can find this with a cursory
+       # process grep for cmp. Example: ps aux | grep cmp.
+       watch --interval=10 ls /proc/1681592/fdinfo/4
+     #+end_src
+   - [ ] Check Read/Write rates and device statistics with GSmartControl. Note a lot
+     of the metrics may be absolute [[https://askubuntu.com/a/20490][nonsense]]. The statistics you should keep an eye
+     on include: /reallocated sector count, pending count, and offline uncorrectable/.
+
+** Logical Volume Management
+   LVM is [[https://wiki.archlinux.org/title/LVM][Logical Volume Management]]. A subsystem of the Linux kernel which can
+   abstract away multiple physical drives or drive partitions as part of a larger
+   logical drive. This has several advantages for a media-server store:
+   + It lets you split data across multiple drives and easily scale up or replace
+     faulty ones with little interruption.
+   + It supports the setup of RAID or other data redundancy and reliability
+     techniques out of the box.
+   + Because all your media is installed from your point of view in a single drive
+     you can easily manage files that are technically spread across multiple physical
+     drives. For example hard links that work across physical drive boundaries are
+     perfectly fine so long as their all in the same logical volume.
+
+   *Note*: You may find the following more in-depth [[https://linuxhandbook.com/lvm-guide/][setup guide]] helpful for
+   understanding some of the more in-depth LVM concepts.
+
+*** Initial LVM Setup
+    This section demonstrates the commands I ran to setup an initial LVM drive with
+    RAID1 using 2 physical volumes of 16.4 TiB each. Data will be replicated at the
+    software level across each of these drives.
+
+    *Note*: It's [[https://wiki.archlinux.org/title/RAID#Partition_the_devices][recommended]] that before you do this you partition your large (>2 TiB)
+    drives into smaller partitions. Even if you don't wish to do this you should
+    leave a small partition (100 MiB will suffice) at the end of your RAID device.
+    This is because hard drive manufacturers aren't consistent in what size the
+    drives take up and if you put a drive with a specific size into RAID you will
+    have to find a drive of at least that much capacity to replace it. Leaving a gap
+    means you can substitute a drive with a slightly smaller total capacity very
+    easily.
+
+    #+begin_src bash
+      # Associate the partitions with LVM as physical volumes.
+      sd pvcreate /dev/sdb1 /dev/sdc1
+      sd pvscan
+      sd pvs
+      sd pvdisplay
+
+      # Create a volume group containing all the defined physical volumes.
+      sd vgcreate mediavg /dev/sdb1 /dev/sdc1
+      sd vgs
+      sd vgscan
+      sd vgdisplay
+
+      # Create a RAID1 device on mediavg called medialv using all the physical
+      # volumes associated with it and taking up all the free space available.
+      sd lvcreate --type raid1 --mirrors 1 -l 100%FREE -n medialv mediavg /dev/sdb1 /dev/sdc1
+    #+end_src
+
+* Recommended Customizations and FAQ
+  You can override the docker configuration for any of the services defined in this
+  module by creating a [[file:docker-compose.override.yml]] file and modifying some of
+  the fields. This is a standard mechanism for customizing docker-compose
+  configurations. If you're in doubt about the final configuration you can use
+  ~media-server config~ to dump the complete configuration file including overrides.
+
+** Trusting The Media Server on Localhost
+   Caddy uses its own certificate authority to authenticate localhost addresses. See
+   [[https://caddyserver.com/docs/automatic-https#local-https][local HTTPs]]. The gist of this is that you can trust the certificates Caddy
+   assigns to addresses running on localhost on your root CA list. This can be done
+   by simply running:
+
+   #+begin_src shell
+     trust anchor --store ~/.config/media-server/caddy/data/caddy/pki/authorities/local/root.crt
+   #+end_src
+
+   After doing so you will be able to see the certificate with =caddy list= under the
+   /Caddy Local Authority/ name and be able to connect to services running under Caddy
+   directly. For example you can now open "Jellyfin Media Player" and connect to
+   [[https:jellyfin.localhost]].
+
+** Hardware Acceleration in Jellyfin
+   Hardware accelerated media processing requires direct access to your graphics card
+   device files and the render group. Docker also needs to run in privileged mode for
+   this to work as expected. You can set this up by adding the following overrides
+   (substituting for your own card and render device files).
+
+   #+begin_src yaml
+     ---
+     services:
+       jellyfin:
+         privileged: true
+         group_add:
+           - render
+         devices:
+           - /dev/dri/card0
+           - /dev/dri/renderD128
+   #+end_src
+
+   After doing this you need to go into the admin dashboard on Jellyfin itself under
+   the playback section and enable hardware acceleration to this card for the
+   supported codecs. Note: this may require tweaking your installed drivers or
+   otherwise needing to configure things outside of the container environment. The
+   help on the settings page should direct you to all the information you need.
+
+** Notifications from Transmission
+   Transmission is configured to notify the logged in user when a torrent completes
+   using =libnotify= and the =notify-send= helper script. This doesn't work out of the
+   box with the current configuration because the logged-in users D-Bus session isn't
+   accessible in the container. This can be worked around by simply mounting the
+   D-Bus runtime directory into the transmission service.
+
+   #+begin_src yaml
+     ---
+     services:
+       transmission:
+         environment:
+           XDG_RUNTIME_DIR: $XDG_RUNTIME_DIR
+           # Should be within $XDG_RUNTIME_DIR.
+           DBUS_SESSION_BUS_ADDRESS: $DBUS_SESSION_BUS_ADDRESS
+         volumes:
+           # We could also just mount /run/user if the directory for our user
+           # hasn't been created yet.
+           - $XDG_RUNTIME_DIR:$XDG_RUNTIME_DIR
+   #+end_src
+
+** VPN Routing
+   You very likely want to run the remaining media-server services under a VPN. This
+   provides a certain level of security and automatically bypasses a plethora of
+   access restrictions for certain trackers by your ISP. There are many good
+   VPN options, I would recommend [[https://mullvad.net/en/][Mullvad]]. My media-server configurations supports
+   VPN proxying for all services that need it but will require some configuration on
+   your part to set it up. See [[file:vpn.docker-compose.yml]]. This will direct you to
+   the documentation on configuring your VPN service with [[https://github.com/qdm12/gluetun][gluetun]].
+
+   Once you've finalized the VPN setup you simply need to set the =MEDIA_SERVER_VPN=
+   environment variable to a non-zero value (this would best be done in your ~.profile~
+   file) and the next time you run =media-server= it will include the VPN options in
+   the container configurations.
+
+   *Note*: Even if you intend to use a VPN on your host directly, it's recommended to
+   setup a VPN in the container as well. This will allow you to configure your VPN
+   for your media-server independent of your host machine and doesn't risk your
+   security when/if the host disconnects from the VPN.
+
+*** Necessary Configuration Changes
+    After enabling a VPN setup all the services routing through the VPN will not be
+    able to access each other through their hostname. This is a quirk of how network
+    sharing and Docker works. This will mean any configurations where you set the
+    hostname to the service name (for example in prowlarr) needs to be updated to use
+    ~localhost~ instead. For a list of affected services see the =vpn-config= section in
+    [[file:vpn.docker-compose.yml]].
+
+*** Port Forwarding
+    BitTorrent is an inherently collaborative file sharing protocol. It works best
+    when there is a publicly accessible port on your device that other peers or
+    leechers can connect to for downloading. I'd recommend reading this excellent
+    [[https://www.reddit.com/r/VPNTorrents/comments/p6h7em/answered_why_you_do_need_portforwarding_for/][post]] on the topic. The long gist of it is: *if you notice really slow transfer
+    speeds (especially uploads rarely exceeding 100/200 KiB/s) its likely because you
+    haven't enabled port forwarding*. With port forwarding your VPN provider will
+    automatically forward traffic from a specific port (on a specific machine or
+    cluster of machines) to your host/container. Removing the competing traffic and
+    intermittent processing on that port will improve transfer performance and
+    reliability on you as a seeder.
+
+    To enable port forwarding in this media-server configuration you must first
+    reserve a port from your VPN provider. The specific process varies from provider
+    to provider but the documentation linked to above for gluetun should include all
+    the steps.
+
+    *Note*: If you do not use the VPN support documented here then port forwarding
+    should work automatically. The transmission container will automatically reuse
+    the network of the host container for the transmission peer ports.
+
+    After this all you have to do is make Transmission use the port you reserved
+    instead of the default peer port. This can be done by simply setting the
+    ~TRANSMISSION_PEER_PORT~ environment variable to your peer port. You must also
+    update the gluetun configuration to not block packets from the forwarded port at
+    the VPN firewall level (this is disabled by default because if you haven't setup
+    port forwarding you wouldn't traffic from the default transmission peer port to
+    reach your host).
+
+    #+CAPTION: Sample override for [[file:vpn.docker-compose.override.yml]] which allows the forwarded port through the firewall.
+    #+begin_src yaml
+      ---
+      services:
+        gluetun:
+          environment:
+            FIREWALL_VPN_INPUT_PORTS: $TRANSMISSION_PEER_PORT
+    #+end_src
+
+** Override Top Level Domain
+   Out of the box this media-server configuration only supports a single top-level
+   domain defaulting to localhost. If you intend to use this configuration to access
+   your media remotely you'll most likely want to override this address with a
+   public address that routes straight to your machine (see [[*Public Routing to Your Server][public routing to your
+   server]]). This can be done by setting the =$SITE_ADDRESS= environment variable for
+   the caddy service in the [[file:docker-compose.override.yml]] file:
+
+   #+begin_src yaml
+     ---
+     services:
+       caddy:
+         environment:
+           SITE_ADDRESS: foo.com
+   #+end_src
+
+   Now instead of Caddy binding to localhost it'll bind to =foo.com=. The rest of the
+   Caddy services should also be routable through this top-level address.
+
+   *Note*: All of this assumes there's a route from the domain to your Caddy server.
+   If there isn't you still won't be able to route through to it. Again see the
+   public routing documentation below for this.
+
+*** Supporting Multiple Top Level Domains
+    You may in practice want to support multiple domains. For example to leave
+    localhost accessible for connections from players on the local machine but
+    also to be able to access content remotely at the same time. This would remove
+    the network layer communication beyond your host machine when it isn't needed and
+    improve playback performance. To do this you have to customise the local [[file:caddy/local.d/Caddyfile.routes][Caddyfile]]
+    and have it replicate the routes of the main Caddy configuration. To make this as
+    easy as possible you can re-purpose the existing template used to setup the
+    media-server routes.
+
+    #+CAPTION: Docker compose override defining a new =SITE_ADDRESS2= option.
+    #+begin_src yaml
+      ---
+      services:
+        caddy:
+          environment:
+            # SITE_ADDRESS: localhost
+            SITE_ADDRESS2: foo.bar
+    #+end_src
+
+    #+CAPTION: Caddyfile extension setting up service routes for =$SITE_ADDRESS2=.
+    #+begin_src caddyfile
+      import /etc/caddy/config.d/Caddyfile.services {$SITE_ADDRESS2} service_proxy_to
+    #+end_src
+
+** Public Routing to Your Server
+   This is a problem in 2 parts. First you need to be able to route from any public
+   internet facing device to your server, then you need to make sure those
+   connections can communicate securely with without the possibility of snoopers or
+   man in the middle attacks.
+
+   The latter problem is easy in this case. We use [[https://caddyserver.com/][Caddy]] as a proxy server to our
+   media-server services and it automatically upgrades your connections to HTTPS for
+   both localhost and remote addresses. For localhost Caddy will generate a local SSL
+   certificate for each of the addresses you configure and sign outgoing requests
+   with them. For remote connections Caddy will use an automated certificate
+   authority provider like [[https://letsencrypt.org/][letsencrypt]] to have a certificate generated that can be
+   authenticated through the public internet. All that is needed for this is being
+   able to connect to your server from the internet through the address you configure
+   for it.
+
+   That leaves us with the former problem. Making our server publicly accessible.
+   Firstly you must determine if your router has a fixed or static IP address; this
+   is determined by your internet-service-provider. If this IP is static you can simply
+   route through to it directly and set that as the address in your Caddy
+   configuration. If its dynamic you will need some way to consistently route to it
+   whenever the IP address is changed by your ISP. I'd recommend using some sort of
+   [[https://en.wikipedia.org/wiki/Dynamic_DNS][DDNS]] system which can give you an address that your host can periodically ping to
+   update the IP address associated with it. Your router may have an option for this
+   out of the box which will bypass the need for you to setup anything host side.
+   Alternatively there are some paid DDNS options on the market and also the
+   excellent and free [[https://www.duckdns.org/][Duck DNS]] project. This can also be configured relatively easily
+   through Docker, although no configuration is setup in this repo.
+
+   #+CAPTION: Sample Duck DNS configuration.
+   #+begin_src yaml
+     ---
+     services:
+       duckdns:
+         container_name: duckdns
+         environment:
+           PUID: $PUID
+           PGID: $PGID
+           TZ: Europe/London
+           # Required fields to update the address.
+           SUBDOMAINS: foo.duckdns.org
+           TOKEN: MY_TOKEN
+         image: lscr.io/linuxserver/duckdns:latest
+         restart: unless-stopped
+         volumes:
+           - $XDG_CONFIG_HOME/media-server/duckdns:/config
+   #+end_src
+
+   After this is setup you can bring up the duck DNS image (=media-server up duckdns=)
+   and confirm a cursory =ping foo.duckdns.org= routes through to your routers public
+   IP.
+
+   *Note*: If you use a local VPN or PIA VPN provider on the same host as your server,
+   you won't be able to authenticate through DDNS correctly. The IP address
+   associated with your router will match the outgoing IP of the VPN instance you
+   connect to. If your using a provider like Mullvad you should have a
+   =mullvad-exclude= command available which can split traffic for a specific command
+   to ensure it isn't routed through your VPN. This can be used to update the DDNS
+   record directly, for example in a CRON job.
+   #+begin_src crontab
+     ,*/5 * * * * mullvad-exclude curl 'https://www.duckdns.org/update?domains=DOMAIN&token=TOKEN' >/dev/null 2>&1
+   #+end_src
+
+   After this you need to route from your router to your server. This will require
+   admin access to your router. Log in to the router management webpage and assign
+   your server host a fixed IP address. This will make it so that your server will
+   always have the same IP in the local-area network of your router and ensure any
+   firewall forwarding you enable is always routed to it. Then under firewall
+   configuration  pass through ports 80 and 443 to your servers now fixed IP address.
+   Note: This will make your server fully accessible through the internet. If you
+   haven't, you should definitely consider setting up some sort of authentication on
+   the server to restrict access only to you.
+
+*** Trusting The Media Server on Localhost
+    Caddy uses its own certificate authority to authenticate localhost addresses. See
+    [[https://caddyserver.com/docs/automatic-https#local-https][local HTTPs]]. The gist of this is that you can trust the certificates Caddy
+    assigns to addresses running on localhost on your root CA list. This can be done
+    by simply running:
+
+    #+begin_src shell
+      trust anchor --store ~/.config/media-server/caddy/data/caddy/pki/authorities/local/root.crt
+    #+end_src
+
+    After doing so you will be able to see the certificate with =caddy list= under the
+    /Caddy Local Authority/ name and be able to connect to services running under Caddy
+    directly. For example you can now open "Jellyfin Media Player" and connect to
+    [[https:jellyfin.localhost]].
+
+*** Authorised Access with Authelia
+    If you intend to access your media-server over the public internet you should
+    ensure the services are not blanket accessible to anyone trying to reach it. This
+    can be done by plugging an authentication service in front of the Caddy proxy
+    server. This can be any service you'd like, although my configuration recommends
+    [[https://www.authelia.com/][authelia]]. This can be enabled by exporting =MEDIA_SERVER_AUTHELIA=1= environment
+    variable.
+
+    After doing so the media-server configuration will automatically pull in an
+    Authelia service image and add a dependency for it to Caddy. *Note*: You will want
+    to run this once just to ensure Authelia generates some sample config files.
+
+**** Caddy Authorisation and Authentication Configuration
+     After the authelia service has been pulled you need to update Caddy to pull in
+     the builtin authentication configuration. This can be done in
+     [[file:caddy/local.d/Caddyfile.global]].
+     #+begin_src caddyfile
+       import /etc/caddy/config.d/Caddyfile.auth {$SITE_ADDRESS}
+     #+end_src
+     This will define a new proxy to the authelia service at =auth.$SITE_ADDRESS= and
+     add a snippet =authelia_forward_auth= which you can import into any existing
+     routes to ensure authelia is queried before access.
+
+     To setup all the existing service routes to require authentication beforehand
+     simply replace any calls to =service_proxy_to= in the Caddy configurations with
+     =authorized_service_proxy_to=. This can also be used with the recommended [[*Supporting Multiple Top Level Domains][multi
+     top-level domain]] configuration by adding the following to
+     [[file:caddy/local.d/Caddyfile.routes]].
+     #+begin_src caddyfile
+       {$SITE_ADDRESS2} {
+               import authelia_forward_auth
+               redir https://jellyfin.{$SITE_ADDRESS2}{uri}
+       }
+       import /etc/caddy/config.d/Caddyfile.services {$SITE_ADDRESS2} authorized_service_proxy_to
+     #+end_src
+     *Note*: You'll want to update the above =Caddyfile.auth= import to use
+     ={$SITE_ADDRESS2}= if you use =SITE_ADDRESS2= here as well.
+
+**** Authelia Configuration
+     See the [[https://www.authelia.com/integration/prologue/get-started/#configuration][getting started]] configuration.
+
+     I'd recommend overriding the following configurations in your Authelia
+     configuration. Beyond this you can customize however you'd like:
+     #+begin_src yaml
+       ---
+       # Secret used to sign authentication cookies.
+       jwt_secret: some_secret_for_signing_greater_than_20_characters
+       # Should match the value of {$SITE_ADDRESS2}.
+       default_redirection_url: https://foo.duckdns.org/
+
+       log:
+         format: text
+         file_path: /config/authelia.log
+         keep_stdout: false
+
+       # Configuration file containing user accounts and passwords.
+       authentication_backend:
+         file:
+           path: /config/users_database.yml
+
+       # Specify access control policies based on several rules.
+       access_control:
+         rules:
+           - domain: '*.foo.duckdns.org'
+             policy: one_factor
+
+       # Session cookie configuration and scope.
+       session:
+         domain: foo.duckdns.org
+         secret: some_secret_for_signing_greater_than_20_characters
+
+       # Authelia cache configuration for user perferences, 2fa, etc.
+       storage:
+         encryption_key: some_secret_for_signing_greater_than_20_characters
+         local:
+           path: /config/db.sqlite3
+
+       # SMTP notifier configuration. See the [[https://www.authelia.com/configuration/notifications/smtp/#using-gmail][GMail]] example.
+       smtp:
+         ...
+     #+end_src
+
+***** Setting up First-factor User Accounts
+      The default authelia accounts use a fixed username and password of authelia.
+      *Change this!*. You should setup a custom account username and password for
+      authelia to restrict access. Accounts can be added to authelia by simply
+      adding entries to the =user_database.yml= file that was configured above. This is
+      a plain-text configuration file of the form:
+      #+begin_src yaml
+        ---
+        users:
+          mohkale:
+            disabled: false
+            displayname: "Mohsin Kaleem"
+            password: "$argon2id$v=19$m=32768,t=1,p=8$eUhVT1dQa082YVk2VUhDMQ$E8QI4jHbUBt3EdsU1NFDu4Bq5jObKNx7nBKSn1EYQxk"
+            email: authelia@authelia.com
+            groups:
+              - admins
+              - dev
+      #+end_src
+
+      *Note*: You can generate hashes for the passwords in this file by using the
+      authelia command itself. So for example:
+      #+begin_src sh
+        authelia hash-password 'yourpassword'
+        # Digest: $argon2id$v=19$m=65536,t=3,p=4$Br03nxDpZhEVpaZHvyslig$P+4Vxz7VHLeaNvC+6oU0r1KoNw3Ph4q0v6imRCJUTtY
+      #+end_src
+
+*** Banning Bad Actors with Fail2Ban
+    When your server is accessible through the public internet, it will likely be
+    flooded with requests from bad actors. These actors make requests to login with
+    common insecure passwords or query ports trying to see what services you have
+    enabled. These are all good reasons to restrict login to your services with
+    authelia but authelia will just prevent these actors getting past the login wall,
+    it won't stop them from getting to the machine itself and if any services on your
+    host aren't protected by the firewall or queried through authelia the actor can
+    access them given enough time and resources. [[https://www.fail2ban.org/wiki/index.php/Main_Page][fail2ban]] can prevent this. It
+    monitors log files from various services for failed authorisation attempts and
+    after enough of them updates your hosts firewall rules to ban subsequent
+    requests.
+
+    This media-server configuration sets up fail2ban alongside authelia but the out
+    of box configuration will not do anything. To ban users that fail to login
+    through authelia you need to customise [[file:$XDG_CONFIG_HOME/media-server/fail2ban/jail.local][jail.local]] file. I'd recommend the
+    following configuration but you can customize and extend it at your discretion.
+    #+begin_src conf
+      [DEFAULT]
+
+      # Prevents banning LAN subnets
+      ignoreip    = 127.0.0.1/8 ::1
+                    10.0.0.0/8
+                    172.16.0.0/12
+                    192.168.0.0/16
+
+      # "bantime.increment" allows to use database for searching of previously banned ip's to increase a
+      # default ban time
+      bantime.increment = true
+
+      # "bantime.maxtime" is the max number of seconds using the ban time can reach (doesn't grow further)
+      bantime.maxtime = 1w
+
+      # "bantime.factor" is a coefficient to calculate exponent growing of the formula or common multiplier
+      bantime.factor = 6
+
+      # "bantime" is the number of seconds that a host is banned.
+      bantime = 1h
+
+      # A host is banned if it has generated "maxretry" during the last "findtime"
+      # seconds.
+      findtime = 24h
+
+      # "maxretry" is the number of failures before a host get banned.
+      maxretry = 10
+
+      [authelia-auth]
+      # configuration inherits from jail.d/authelia-auth.conf
+      enabled  = true
+      chain    = DOCKER-USER
+      action   = %(known/action)s
+    #+end_src
+
+** Starting the server services at boot
+   On systemd based environments you can configure your media server to come up at
+   system boot. This can be done by creating a new systemd unit at
+   [[file:/etc/systemd/system/media-server.service]] containg the following:
+
+   #+begin_src conf
+     [Unit]
+     Description=Media Server
+     PartOf=docker.service
+     After=docker.service
+     # If you depend on anything else being mounted through fstab you can use:
+     #   sudo systemctl list-units --type=mount
+     # to access the mount target for it (example: run-media-mohkale-MoHKale.mount)
+     # and add it as another after dependency.
+
+     [Service]
+     Type=oneshot
+     RemainAfterExit=true
+     User=mohkale
+     Group=mohkale
+     WorkingDirectory=/home/mohkale/.config/dotfiles
+
+     # ExecStart=/home/mohkale/.config/dotfiles/prog/media-server/cmds/media-server up -d --remove-orphans
+     # ExecStop=/home/mohkale/.config/dotfiles/prog/media-server/cmds/media-server down
+
+     # Use this if you need the service to inherit the same environment as an interactive shell.
+     ExecStart=/bin/sh -lip -c 'media-server up'
+     ExecStop=/bin/sh -lip -c 'media-server down'
+
+     [Install]
+     WantedBy=multi-user.target
+   #+end_src

@@ -1,9 +1,6 @@
 # -*- mode: conf-unix -*- [[https://wiki.archlinux.org/title/XDG_MIME_Applications#mimeapps.list][Mimetype]] application configuration.
 [Added Associations]
-application/vnd.comicbook-rar=sxcv.desktop;
-application/x-cb7=sxcv.desktop;
 inode/directory=org.kde.dolphin.desktop;ranger.desktop;
-
 application/x-cue=nvim.desktop;
 text/plain=nvim.desktop;
 application/x-wine-extension-ini=nvim.desktop;
@@ -34,6 +31,12 @@ x-scheme-handler/tel=org.kde.kdeconnect.handler.desktop;
 [Default Applications]
 application/x-cue=nvim.desktop;
 application/x-wine-extension-ini=nvim.desktop;
+
+application/vnd.comicbook+rar=sxcv.desktop
+application/vnd.comicbook+zip=sxcv.desktop
+application/x-cb7=sxcv.desktop;
+image/jp2=sxiv-ls.desktop
+image/svg+xml=sxiv-ls.desktop
 
 application/pdf=org.pwmt.zathura.desktop
 inode/directory=org.kde.dolphin.desktop;

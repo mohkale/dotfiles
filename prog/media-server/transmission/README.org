@@ -1,0 +1,80 @@
+* transmission
+** Description
+   [[https://github.com/transmission/transmission][transmission]] is a lightweight bittorrent engine written C with multiple frontends
+   and a JSON based RPC API. This directory houses my personal configuration for
+   transmission, designed to make smart torrent management easy :smile:.
+
+** Workflow
+*** watcher
+    [[file:scripts/watcher][watcher]] is a script to watch a directory for new torrents, automatically adding
+    them to transmission as their found. The watcher config also operates as a
+    rudimentary tagging/classification system for completed torrents.
+
+    The root downloads directory root is =~/downloads/=, other directories are
+    interpreted relative to it.
+
+    By default, any torrents in the ~torrents~ directory are added to transmission.
+    Torrents in the ~@start~ subdirectory of ~torrents~ are added and automatically
+    start downloading. The file for added torrents are are moved to the ~@added~
+    subdirectory, which is later used to help determine where they should be placed.
+
+    The default output directory for completed torrents is ~random~. Otherwise
+    torrents are placed in the appropriate directory in a smart way.
+
+    eg.
+
+    #+begin_example
+    - downloads/
+      - torrents/
+        - @start/
+          - foo.torrent
+          - bar.torrent
+          - hello/
+            - world.torrent
+        - baz.torrent
+    #+end_example
+
+    After starting watcher, each of these torrents will be added transmission
+    ~torrents~ will be restructured to:
+
+    #+begin_example
+    - downloads
+      - torrents
+        - @added
+          - foo.torrent
+          - bar.torrent
+          - baz.torrent
+          - hello/
+            - world.torrent
+    #+end_example
+
+    Once each of these downloads have completed, you'll recieve a directory structure
+    like this (assuming each torrent downloads a single equal with the same basename
+    as the torrent):
+
+    #+begin_example
+    - downloads
+      - torrents/@added/hello/
+      - random/
+        - foo
+        - bar
+        - baz
+      - hello/
+        - world
+    #+end_example
+
+    NOTE: any torrents downloaded by transmission, but not included in our
+    =~/downlaods/torrents= directory will be left where they are.
+
+    WARN: once a download is completed and a torrent moved, the original ~.torrent~
+    file from which it was made (that still exists in =~/downloads/torrents=) will be
+    deleted. This is because transmission keeps a back up anyaways and it's no longer
+    necessary.
+
+* Troubleshooting
+** Transmission uploads are failing with "Scrape error: Connection failed" and "Couldn't connect socket 43 to [IPv6 Address], port [PORT]"
+   Double check you haven't accidentally enabled port forwarding in your Transmission
+   configuration file. Since Transmission is running in an isolated container and
+   only exposes a finite set of ports to the outside world, if you let it try to
+   setup automatic forwarding for remote hosts to other ports it'll fail because
+   those ports won't be accessible outside of the container.

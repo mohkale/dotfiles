@@ -239,6 +239,7 @@ dircolors@file   $XDG_CONFIG_HOME/dircolors
 emacsrc@file     $XDG_CONFIG_HOME/lisp/+config.el
 tmuxrc@file      $TMUX_HOME/tmux.conf
 brain@dirx       $XDG_DOCUMENTS_DIR/brain
+media@dirx       $XDG_MEDIA_HOME
 
 h@dirx           ~
 gh@dirx          ~

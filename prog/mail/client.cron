@@ -1,1 +1,1 @@
-*/5 * * * * . ~/.profile; pgrep muchsync || notmuch new
+*/5 * * * * . ~/.profile; pgrep muchsync >/dev/null 2>&1 || chronic notmuch new

@@ -59,38 +59,49 @@ list_tmux_sessions() {
 list_tmuxp() {
   local TMUXP_SCRIPT
   read -r -d '' TMUXP_SCRIPT <<-"EOF"
-import os
 import itertools
+import os
 import sys
+
 import tmuxp
 
 sep = sys.argv[1]
 
+
 def list_configs():
-    root = tmuxp.cli.get_config_dir()
+    root = tmuxp.workspace.finders.get_workspace_dir()
     if not (os.path.exists(root) and os.path.isdir(root)):
         return
     for f in sorted(os.listdir(root)):
         basename, ext = os.path.splitext(f)
         f = os.path.join(root, f)
-        if os.path.isfile(f) and ext in tmuxp.cli.VALID_CONFIG_DIR_FILE_EXTENSIONS:
-            yield f, '', basename, ''
+        if (
+            os.path.isfile(f)
+            and ext in tmuxp.workspace.finders.VALID_WORKSPACE_DIR_FILE_EXTENSIONS
+        ):
+            yield f, "", basename, ""
+
 
 def list_project_configs(dirs):
-    EXTS = ['.tmuxp.yaml', '.tmuxp.yml', '.tmuxp.json']  # Copied from [[file:.local/lib/python3.9/site-packages/tmuxp/cli.py::for ext in \['.tmuxp.yaml', '.tmuxp.yml', '.tmuxp.json'\]][cli.py]].
+    EXTS = [
+        ".tmuxp.yaml",
+        ".tmuxp.yml",
+        ".tmuxp.json",
+    ]  # Copied from [[file:.local/lib/python3.9/site-packages/tmuxp/cli.py::for ext in \['.tmuxp.yaml', '.tmuxp.yml', '.tmuxp.json'\]][cli.py]].
     for proj_dir in dirs:
         for ext in EXTS:
             conf = os.path.join(proj_dir, ext)
             if not os.path.exists(conf):
                 continue
-            yield conf, proj_dir, os.path.basename(proj_dir), ''
+            yield conf, proj_dir, os.path.basename(proj_dir), ""
     return []
 
 
 for it in itertools.chain(
-        list_configs(),
-        list_project_configs(sys.stdin.read(-1).split('\n'))):
-    print('tmuxp' + sep + 'tmuxp load -y' + sep + sep.join(it))
+    list_configs(), list_project_configs(sys.stdin.read(-1).split("\n"))
+):
+    print("tmuxp" + sep + "tmuxp load -y" + sep + sep.join(it))
+
 EOF
 
   python3 -c "$TMUXP_SCRIPT" "$SEP"

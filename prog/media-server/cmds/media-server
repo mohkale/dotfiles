@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# Wrapping command for docker-compose which auto-changes to the media-server
+# dotfile directory and uses the correct configuration files for the current
+# environment.
+#
+# Config files
+# ------------
+# $XDG_CONFIG_HOME/media-server/profile.sh
+#   Optional profile file. This will be sourced just before determining which
+#   docker-compose files to source. You can use this to override any of the
+#   environment variables set by this script (example: PUID) or to set some
+#   of the variables described below.
+#
+# Environment variables
+# ---------------------
+# MEDIA_SERVER_VPN=[1]
+#   Run media server services under a VPN. Requires a VPN configuration to be
+#   setup and will block the rest of the services until after the VPN comes up.
+#   See [[file:../vpn.docker-compose.yml]].
+# MEDIA_SERVER_AUTHELIA=[1]
+#   Include an authelia service in the media-server. This will allow you to
+#   configure caddy to restrict access to services behind a login wall and
+#   even multi-factor authentication.
+
+set -e
+
+mediadot="$DOTFILES/prog/media-server"
+if ! [ -e "$mediadot" ]; then
+  echo "$0: error: Could not find media-server dotfile directory: $mediadot" >&2
+  exit 1
+fi
+cd "$mediadot" || exit 1
+
+export PUID; PUID="$(id -u)"
+export PGID; PGID="$(id -g)"
+export PWD; PWD=$(pwd)
+
+if [ -e "$XDG_CONFIG_HOME/media-server/profile.sh" ]; then
+  . "$XDG_CONFIG_HOME/media-server/profile.sh"
+fi
+
+if [ -z "$TRANSMISSION_PEER_PORT" ]; then
+  export TRANSMISSION_PEER_PORT=51413
+fi
+
+COMPOSE_FILES=( )
+add_compose_file() { # [COMPOSE].yml
+  COMPOSE_FILES+=( -f "$1.yml" )
+  if [ -e "$1.override.yml" ]; then
+    COMPOSE_FILES+=( -f "$1.override.yml" )
+  fi
+}
+
+add_compose_file docker-compose
+[ "${MEDIA_SERVER_AUTHELIA:-0}" -eq 0 ] ||
+  add_compose_file auth.docker-compose
+if [ "${MEDIA_SERVER_VPN:-0}" -ne 0 ]; then
+  add_compose_file vpn.docker-compose
+else
+  add_compose_file no-vpn.docker-compose
+fi
+
+exec docker-compose "${COMPOSE_FILES[@]}" "$@"
