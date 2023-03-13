@@ -25,8 +25,6 @@ ln -f "$DOTFILES/prog/gdb/conf.d"/* "$LOCAL_ROOT/gdb/conf.d"
 ln -f "$DOTFILES/prog/bloomberg/external/gdb/pretty-printers/gdb_bsl.py" "$LOCAL_ROOT/gdb"
 
 cat >"$LOCAL_ROOT/profile" <<-EOF
-set -e
-
 ###############################################################################
 #                                    Setup                                    #
 ###############################################################################
@@ -66,6 +64,4 @@ alias gdb='gdb --silent -nh -x "\$GDBINIT" --eval-command "source $FULL_ROOT/gdb
 alias bce='bbcmake-env'
 alias bceb='bce --action=build'
 alias bcet='bce --action=ctest'
-
-set +e
 EOF
