@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+# Recursively clone a file/directory tree using filesystem links.
+#
+# This script will recursively traverse the files in a directory and clone the
+# directory hirearchy into an output directory before either hard or symlinking
+# the physical files into the output directory.
+
+__NAME__=$(basename "$0")
+
+print_usage() {
+    echo "Usage: $__NAME__ [-h] [-s] SRC [SRC...] DEST"
+}
+
+print_help() {
+    print_usage
+    cat <<-EOF
+
+  Recursively clone a directory tree using links.
+
+Required Arguments:
+  SRC       Source directory to clone from. If multiple directories
+            are given each one will be unpacked into a matching root
+            directory of DEST.
+  DEST      Output directory to clone files from SRC into.
+
+Optional Arguments:
+  -s        Symlink files instead of using a hardlink.
+EOF
+}
+
+symlink= # symlink flags
+while getopts "hs" option; do
+    case "$option" in
+        h) print_help
+           exit 0 ;;
+        \?) print_usage >&2
+            exit 1 ;;
+        s) symlink="s" ;;
+    esac
+done
+shift $((OPTIND - 1))
+
+if [ "$#" -lt 2 ]; then
+    if [ "$#" -eq 0 ]; then
+        echo "$__NAME__: error: Must supply a src and destination directory" >&2
+    else
+        echo "$__NAME__: error: Must supply destination directory" >&2
+    fi
+    print_usage >&2
+    exit 1
+fi
+
+SRC=(  )
+src_count="$#"
+for i in $(seq "$((src_count-1))"); do
+    src="${!i}"
+    src="${src%/}"
+    if [ ! -e "$src" ]; then
+        echo "$__NAME__: error: Could not find source directory $src" >&2
+    else
+        SRC+=( "$src" )
+    fi
+done
+if [ "${#SRC[@]}" -ne "$((src_count-1))" ]; then
+    exit 1
+fi
+DEST="${!src_count}"
+
+prefix_basename=0
+if [ "${#SRC[@]}" -gt 1 ]; then
+    prefix_basename=1
+fi
+
+find "${SRC[@]}" -type f -printf "%H:%P:%f\n" |
+    awk \
+        -v prefix_basename="$prefix_basename" \
+        -v dest_root="$DEST" \
+        -F: \
+        -e '
+function basename(file) {
+    sub(".*/", "", file)
+    return file
+}' \
+        -e '
+function dirname(file) {
+    if (sub("/[^/]*$", "", file)) {
+      return file
+    }
+    return ""
+}' \
+        -e '{
+src_root = $1
+src_file = $2
+src_dirname = dirname(src_file)
+src_base = $3
+
+src = $1 "/" $2
+dest_dir = dest_root
+if (prefix_basename) {
+  dest_dir = dest_dir "/" basename(src_root)
+}
+if (src_dirname) {
+  dest_dir = dest_dir "/" src_dirname
+}
+
+# Absolute path to src-file, destination parent directory, basename
+printf("%s:%s:%s\n", src, dest_dir, src_base)
+}' |
+    while IFS=: read -r src dest_dir src_base; do
+        if ! [ -e "$dest_dir" ]; then
+            mkdir -vp "$dest_dir"
+        fi
+        ln -v"$symlink" "$src" "$dest_dir/$src_base"
+    done
