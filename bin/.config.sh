@@ -29,6 +29,7 @@ link                                            \
   "$XDG_BIN_DIR/img2pdf"                        \
   "$XDG_BIN_DIR/invert"                         \
   "$XDG_BIN_DIR/launch"                         \
+  "$XDG_BIN_DIR/link-tree"                      \
   "$XDG_BIN_DIR/ls-aliases"                     \
   "$XDG_BIN_DIR/ls-arch"                        \
   "$XDG_BIN_DIR/ls-bookmarks"                   \
