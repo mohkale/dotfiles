@@ -163,6 +163,9 @@ etd     et -l -
 etcd    etd -c
 we      EMACS_CMD=evi      with_emacs 
 wex     EMACS_CMD="evi -x" with_emacs 
+em@dirx       $XDG_CONFIG_HOME/emacs
+straight@dirx $XDG_CACHE_HOME/emacs/straight
+emrc@file     $XDG_CONFIG_HOME/lisp/+config.el
 
 # Buku
 buku      buku --np
@@ -236,7 +239,6 @@ lfrc@file        $XDG_CONFIG_HOME/lf/lfrc
 xdg@file         $XDG_CONFIG_HOME/xdg
 diricons@file    $XDG_CONFIG_HOME/diricons
 dircolors@file   $XDG_CONFIG_HOME/dircolors
-emacsrc@file     $XDG_CONFIG_HOME/lisp/+config.el
 tmuxrc@file      $TMUX_HOME/tmux.conf
 brain@dirx       $XDG_DOCUMENTS_DIR/brain
 media@dirx       $XDG_MEDIA_HOME
@@ -249,7 +251,6 @@ bin@dirx         $XDG_BIN_DIR
 box@dirx         ~/Dropbox
 dot@dirx         $DOTFILES
 dbin@dirx        $DOTFILES/bin
-em@dirx          $XDG_CONFIG_HOME/emacs
 org@dirx         $DOTFILES/core/repos/org
 cheats@dirx      $XDG_CONFIG_HOME/cheat/cheatsheets/personal
 ledger@dirx      $XDG_DOCUMENTS_DIR/ledger
