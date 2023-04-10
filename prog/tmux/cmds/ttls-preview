@@ -1,0 +1,10 @@
+#!/bin/sh
+# Usage: ttls-preview BACKEND CONFIG_ARG
+
+set -e
+
+case "$1" in
+  # TODO: tmux session previews.
+  tmux) echo "tmux session $2" ;;
+  *) preview "$2" ;;
+esac

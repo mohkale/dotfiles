@@ -1,13 +1,8 @@
 #!/usr/bin/env bash
 fztt() {
   local SEP='@'
-  local fzf_args=( -d "$SEP" --with-nth 5.. --ansi --preview-window=50%
-                   --preview '
-case {1} in
-  # TODO: tmux session previews.
-  tmux) echo "tmux session "{3} ;;
-  *) preview {3} ;;
-esac'
+  local fzf_args=( -d "$SEP" --with-nth 5.. --ansi
+                   --preview-window=50% --preview 'ttls-preview {1} {3}'
                    --history "${XDG_DATA_HOME:-$HOME/.locale/share}"/fzf/history/tt )
   [ -z "$*" ] || fzf_args+=( -q "$*" )
   # Can't spawn multiple sessions from outside of TMUX because the first one
