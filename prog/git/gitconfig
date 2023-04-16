@@ -1,40 +1,50 @@
 # Root git configuration file -*- gitconfig -*-
+
 [user]
 	name  = Mohsin Kaleem
 	email = mohkale@kisara.moe
+
 [init]
-	# For consistency I still default to master but I'll switch to main once
-	# git itself does. This is currently being tracked [[https://lore.kernel.org/git/f853fa946f5840518577584a5b8c51660da06928.1605221040.git.gitgitgadget@gmail.com/][here]].
 	defaultBranch = master
+		# For consistency I still default to master but I'll switch to main once
+		# git itself does. This is currently being tracked [[https://lore.kernel.org/git/f853fa946f5840518577584a5b8c51660da06928.1605221040.git.gitgitgadget@gmail.com/][here]].
+
 [core]
-	# Convert CRLF to LF when commiting changes back. Useful for when you clone
-	# a repo on windows, make changes and try to commit it back without the CRLF
-	# line endings showing up as changes.
 	autocrlf = input
-# Configure [[man:git-lfs][git-lfs]]. A git plugin that simplifies commiting and storage of large
-# binary files such as images.
+		# Convert CRLF to LF when commiting changes back. Useful for when you clone
+		# a repo on windows, make changes and try to commit it back without the CRLF
+		# line endings showing up as changes.
+
 [filter "lfs"]
+	# Configure [[man:git-lfs][git-lfs]]. A git plugin that simplifies commiting and storage of large
+	# binary files such as images.
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
+
 [diff "gpg"]
-	# Auto decrypt gpg encrypted files when inspecting diffs.
 	textconv = gpg --no-tty --decrypt
+		# Auto decrypt gpg encrypted files when inspecting diffs.
+
 [fetch]
-	# Automatically fetch checked-out submodules when fetching the parent repo.
 	recurseSubmodules = on-demand
+		# Automatically fetch checked-out submodules when fetching the parent repo.
+
 [push]
-	# Automatically push checked-out submodules when pushing the parent repo.
 	recurseSubmodules = on-demand
+		# Automatically push checked-out submodules when pushing the parent repo.
+
 [pull]
-	# Prevent merge conflicts when running [[man:git-pull][git pull]], just failing the pull
-	# altogether but keeping the newly fetched changes ready for a following
-	# merge or rebase.
 	ff = only
-# Git aliases are shortcuts that can be invoked directly from the base git
-# command. For example `git c` expands to `git commit`.
+		# Prevent merge conflicts when running [[man:git-pull][git pull]], just failing the pull
+		# altogether but keeping the newly fetched changes ready for a following
+		# merge or rebase.
+
 [alias]
+	# Git aliases are shortcuts that can be invoked directly from the base git
+	# command. For example `git c` expands to `git commit`.
+
 	# Shortcuts for core commands.
 	c  = commit
 	s  = status
@@ -44,15 +54,56 @@
 	d  = diff
 	l  = log
 	ch = checkout
+
 	# Mini git scripts as shortcuts.
 	rcls    = config --list
 	unstage = reset HEAD --
     undo    = reset HEAD~
+
 	# Git related shell commands interfaced through git directly.
 	z                = !git-fzlog
 	permission-reset = !git diff -p -R | grep -E \"^(diff|(old|new) mode)\" | git apply
-# Include any sub-configuration files in my config.d directory.
+
+[format]
+	coverletter = auto
+		# Automatically generate a cover-letter when creating a patch series.
+
+[sendemail]
+	# Mailing lists work through old school E-Mail :sunglasses:.
+	#
+	# You pull, edit, commit, rebase, merge etc. code just like you would normally but
+	# to submit patches upstream you have to email them as a set of patch-series through
+	# the [[man:git-send-email][git send-email]] command. This will send an initial message for the first patch
+	# (or a cover-letter) and then send the remaining messages as replies to that initial
+	# message. Developers on the mailing list will respond to each patch individually and
+	# when ready rebase the patch series onto the repository.
+	#
+	# See also [[https://git-send-email.io][git-send-email.io]].
+
+	annotate = no
+		# Don't force reviewing and annotating each patch before sending.
+
+	# smtpuser = mohkale
+    # from = mohkale@kisara.moe
+	# smtpserver = mail.kisara.moe
+	# smtpencryption = tls
+	# smtpserverport = 587
+		# SMTP server configuration for kisara.
+
+    # smtpuser = USERNAME@gmail.com
+	# from = USERNAME@gmail.com
+    # smtpserver = smtp.gmail.com
+    # smtpencryption = tls
+    # smtpserverport = 587
+		# SMTP server configuration for GMail.
+
+[credential "mail.kisara.moe"]
+    helper = store
+[credential "smtp.gmail.com"]
+    helper = store
+
 [include]
+	# Include any sub-configuration files in my config.d directory.
 	path = config.d/github
 	path = config.d/gitlab
 	path = config.d/local
