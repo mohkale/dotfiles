@@ -11,20 +11,29 @@ print_help() {
   print_usage
   cat <<-EOF
 
-  List available tmuxinator/tmuxp configurations.
+  List available tmux automated configurations.
+
+Supported backends:
+  tmux
+    Queries active tmux sessions.
+  tmuxinator
+    Queries installed tmuxinator configurations. Supports projects.
+  tmuxp
+    Queries installed tmuxp configurations. Supports projects.
 
 Optional arguments:
   -h               Show this help message and exit.
-  -a               List configs in projects as well using ls-project.
+  -a               List configs in projects as well using ls-projects.
   -l               Flush standard output after each newline print.
-  -s SEP           Set field separator on output to SEP.
+  -s SEP           Set field separator on output to SEP instead of \\t.
   -p               Pretty print instead of passwd output format.
   -q               Supress any stderr output (silent mode).
+  -b BACKEND       List targets from BACKEND
 EOF
 }
 
-all=0 pretty=0 line_buffer=0
-while getopts 'halps:q' OPTION; do
+all=0 pretty=0 line_buffer=0 backend=( )
+while getopts 'halps:qb:' OPTION; do
   case "$OPTION" in
     h) print_help
        exit 0 ;;
@@ -35,8 +44,20 @@ while getopts 'halps:q' OPTION; do
     l) line_buffer=1 ;;
     p) pretty=1 ;;
     q) exec 2>/dev/null ;;
+    b) backend+=( "$OPTARG" )
+       ;;
   esac
 done
+
+if [ "${#backend[@]}" -eq 0 ]; then
+  backend+=( tmux )
+  command -v tmuxp      >/dev/null 2>&1 && backend+=( tmuxp )
+  command -v tmuxinator >/dev/null 2>&1 && backend+=( tmuxinator )
+fi
+
+enabled() {
+    [[ " ${backend[*]} " =~ (^|[[:space:]])"$1"($|[[:space:]]) ]]
+}
 
 #  _     _     _      ____                                          _
 # | |   (_)___| |_   / ___|___  _ __ ___  _ __ ___   __ _ _ __   __| |___
@@ -156,9 +177,9 @@ EOF
 
 if [ "$all" -eq 1 ]; then ls-projects; fi |
   tee --output-error=warn-nopipe \
-      >(list_tmuxp) \
-      >(list_tmuxinator) \
-      >(list_tmux_sessions) \
+      >(enabled tmuxp && list_tmuxp) \
+      >(enabled tmuxinator && list_tmuxinator) \
+      >(enabled tmux && list_tmux_sessions) \
       >/dev/null |
   if [ "$pretty" -eq 0 ]; then
     cat

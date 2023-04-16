@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# Usage: tmux_session_new_client [SESSION [...TMUX_ARGS]]
+#
+# Helper command to start a new tmux client for an existing tmux session.
+#
+# As opposed to just attaching to an existing tmux session, this will
+# create a new psuedo-session that points to an existing session. This
+# allows the new client to be able to view a window independent of other
+# clients attached to the original session. You can either supply a session
+# directly to this procedure or it will interactively select one with fzf.
+
+tmux_session_new_client() {
+  local SEP='@'
+  local fzf_args=(
+    -d "$SEP" --with-nth 5.. --ansi
+    --preview-window=50% --preview 'ttls-preview {1} {3}'
+    --history "${XDG_DATA_HOME:-$HOME/.locale/share}"/fzf/history/tmux_session_new_client
+  )
+
+  local args=( "$@" )
+  if [ "${#args[@]}" -eq 0 ]; then
+    if ! session=$(ttls -lpq -b tmux -s "$SEP" |
+                     _mk_fzf "${fzf_args[@]}" |
+                     cut -d "$SEP" -f 3) ||
+        [ -z "$session" ]; then
+      return 1
+    fi
+    args+=( "$session" )
+  fi
+
+  tmux new-session -t "${args[@]}"
+}

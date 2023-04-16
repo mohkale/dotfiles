@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+root="${XDG_CONFIG_HOME:-$HOME/.config}/hledger/queries"
+
+find "$root" -type f -printf '%p:%P\n' |
+    fzf \
+        -d : --with-nth 2 \
+        --preview 'cat {1}' \
+        --bind 'ctrl-m:execute:hledger --color=always @{1} | ${PAGER:-less}'

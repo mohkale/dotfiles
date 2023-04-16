@@ -13,7 +13,7 @@ set shellopts '-eu'
 set ifs "\n"
 
 set icons
-set hiddenfiles .*:__pycache__*:*.pyc:*.o:node_modules:obj:*.elc:*~:folder*.ico:folder*.jpg:folder*.png
+set hiddenfiles .*:eln-cache:__pycache__*:*.pyc:*.o:node_modules:obj:*.elc:*~:folder*.ico:folder*.jpg:folder*.png
 set info size
 #set relativenumber
 set dircounts                                                                   # show number of files in directory, not size of directory inode.
@@ -24,6 +24,7 @@ set incsearch
 set nomouse
 set noanchorfind
 set noglobsearch
+set cursorpreviewfmt "\033[7m"
 
 # Special Commands
 #cmd on-cd   $printf "\e]2;$PWD\a"
@@ -67,6 +68,30 @@ map cd push :cd<space>
 map ,g push :glob-select<space>
 map ,u push :glob-unselect<space>
 $lf -remote "send $id map ,r source ${XDG_CONFIG_HOME:-$HOME/.config}/lf/lfrc"
+
+cmd down-parent-directory :updir; set dironly true; down; set nodironly; open
+cmd up-parent-directory   :updir; set dironly true; up;   set nodironly; open
+map J down-parent-directory
+map K up-parent-directory
+
+set user_default_tag *
+map t tag-default
+cmd tag-default &{{ lf -remote "send $id tag-toggle \"$lf_user_default_tag\"" }}
+
+map T tag-set-default
+cmd tag-set-default %{{
+  printf 'Set default tag character: '
+  read -r char || exit 1
+  if [ -z "$char" ]; then
+    :
+  elif [ "$(echo "$char" | wc -m)" -gt 2 ]; then
+    lf -remote "send $id echoerr Invalid tag character selection"
+    exit 1
+  fi
+
+  lf -remote "send $id set user_default_tag \"$char\""
+  echo ""
+}}
 
 ## Readline
 cmap <c-g>  cmd-escape
@@ -480,22 +505,28 @@ cmd toggle-scroll-offset ${{
     lf -remote "send $id set scrolloff $offset"
 }}
 
-map zp toggle-preview
-cmd toggle-preview &{{
-    if [ "$lf_preview" = "true" ]; then
-        lf -remote "send $id set nopreview"$'\n'"send $id set ratios 1:3"
-    else
-        lf -remote "send $id set preview"$'\n'"send $id set ratios 1:2:3"
-    fi
-}}
+set user_cycle_index 0
+map zp cycle-preview
+cmd cycle-preview &{{
+  lf_cmd=
+  max_cycles=3
 
-map zP toggle-parent-preview
-cmd toggle-parent-preview ${{
-    ratio="1:2:3"
-    if [ "$lf_ratios" = "$ratio" ]; then
-        ratio="1:1"
+  if [ "$lf_user_cycle_index" -eq 0 ]; then
+    lf_cmd="send $id set preview"$'\n'"send $id set ratios 1:2"
+  elif [ "$lf_user_cycle_index" -eq 1 ]; then
+    lf_cmd="send $id set nopreview"$'\n'"send $id set ratios 1:2"
+  else
+    lf_cmd="send $id set preview"$'\n'"send $id set ratios 1:2:3"
+    if [ "$lf_user_cycle_index" -ge "$max_cycles" ]; then
+      lf_cmd="$lf_cmd"$'\n'"send $id echoerr Unknown cycle index $lf_user_cycle_index"
     fi
-    lf -remote "send $id set ratios $ratio"
+  fi
+
+  lf_user_cycle_index=$((lf_user_cycle_index+1))
+  if [ "$lf_user_cycle_index" -ge "$max_cycles" ]; then
+    lf_user_cycle_index=0
+  fi
+  lf -remote "$lf_cmd"$'\n'"send $id set user_cycle_index $lf_user_cycle_index"
 }}
 
 cmd toggle-default-previewer &{{

@@ -21,6 +21,7 @@ import -b                                       \
   docker                                        \
   dolphin                                       \
   dropbox                                       \
+  enchant                                       \
   ffmpeg                                        \
   games/*                                       \
   gdb                                           \

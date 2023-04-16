@@ -1,7 +1,7 @@
 ---  # hledger - Financial management layout.
 
 session_name: ledger
-start_directory: ~/docs/ledger
+start_directory: $XDG_DOCUMENTS_DIR/ledger
 
 windows:
   - window_name: journal

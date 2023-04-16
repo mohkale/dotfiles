@@ -1,0 +1,72 @@
+#!/bin/sh
+
+print_usage() {
+  echo "Usage: lf-tags [-h] [-m] [-a] [FILTER]"
+}
+
+print_help() {
+  print_usage
+  cat <<EOF
+  Print files tagged by lf.
+
+Positional arguments:
+  FILTER
+    Only show files with a tag matching FILTER. FILTER should be
+    a character sequence of the form accepted by tr.
+
+Optional arguments
+  -h
+    Show this help message and exit.
+  -m
+    Show missing files alongside existing ones.
+  -a
+    Show all the fields of the lf tag file instead of just the file name.
+EOF
+}
+
+filter="" check_exists=1 show_all_fields=0
+while getopts 'hma' OPTION; do
+  case "$OPTION" in
+    h) print_help
+       exit 0 ;;
+    \?) print_usage >&2
+        exit 1 ;;
+    m) check_exists=0 ;;
+    a) show_all_fields=1 ;;
+  esac
+done
+shift $((OPTIND - 1))
+filter="$*"
+
+MARKS_FILE="$XDG_DATA_HOME/lf/tags"
+
+if ! [ -e "$MARKS_FILE" ]; then
+  echo "lf-tags: error: Marks file not found at $MARKS_FILE"
+  exit 1
+fi
+
+if [ -z "$filter" ]; then
+  cat "$MARKS_FILE"
+else
+  awk -F:                                       \
+      -v filter="[$filter]"                     \
+      -e '$2 ~ filter' "$MARKS_FILE"
+fi |
+  if [ "$check_exists" -eq 1 ]; then
+    while IFS=: read -r file tag rest; do
+      if [ -e "$file" ]; then
+        if [ "$show_all_fields" -eq 1 ]; then
+          [ -z "$rest" ] || rest=":$rest"
+          echo "$file:$tag$rest"
+        else
+          echo "$file"
+        fi
+      fi
+    done
+  else
+    if [ "$show_all_fields" -eq 1 ]; then
+      cat
+    else
+      cut -d: -f1
+    fi
+  fi
