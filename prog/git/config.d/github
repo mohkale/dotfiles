@@ -3,10 +3,6 @@
 [github]
 	user = mohkale
 
-# BB proxy configuration.
-[http "https://github.com"]
-    proxy = http://proxy.bloomberg.com:81
-	sslCAinfo = ~/.config/certificates/bloomberg-root-ca.crt
 [url "https://github.com/"]
 	insteadOf = github.com:
 [url "https://github.com/"]

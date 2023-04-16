@@ -3,10 +3,6 @@
 [gitlab]
 	user = mohkale
 
-# BB proxy configuration.
-[http "https://gitlab.com"]
-	proxy = http://proxy.bloomberg.com:81
-	sslCAinfo = ~/.config/certificates/bloomberg-root-ca.crt
 [url "https://gitlab.com/"]
 	insteadOf = gitlab.com:
 [url "https://gitlab.com/"]

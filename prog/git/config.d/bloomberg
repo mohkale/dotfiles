@@ -21,7 +21,14 @@
 
 # Note: See [[https://tutti.prod.bloomberg.com/bbgithub/configuration][here]] for how to setup proxy access for github and gitlab repos.
 
-# Extra git remotes I use for Emacs packages
+# BB proxy configuration for extra git remotes I use for Emacs packages
+# TODO: Configure correct recipe remotes for paredit, visual-mark, org-contrib
+[http "https://github.com"]
+    proxy = http://proxy.bloomberg.com:81
+    sslCAinfo = ~/.config/certificates/bloomberg-root-ca.crt
+[http "https://gitlab.com"]
+    proxy = http://proxy.bloomberg.com:81
+    sslCAinfo = ~/.config/certificates/bloomberg-root-ca.crt
 [http "https://git.savannah.gnu.org"]
 	proxy = http://proxy.bloomberg.com:81
 	sslCAinfo = ~/.config/certificates/bloomberg-root-ca.crt
