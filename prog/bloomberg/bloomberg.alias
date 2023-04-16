@@ -1,8 +1,12 @@
+# -*- conf-space -*-
+
 bce                    bbcmake-env
 alb@file               $XDG_CONFIG_HOME/aliases/bloomberg
 
-im                     ide-magic
-im-mds                 ide-magic --distribution=mds-unstable
+im                     bb-local-dev magic
+im-mds                 bb-local-dev --distribution=mds-unstable
+ide-magic-compose      bb-local-dev compose
+imc                    ide-magic-compose
 cm                     container-maintainer
 
 ki                     kinit mkaleem2@ADDEV.BLOOMBERG.COM
