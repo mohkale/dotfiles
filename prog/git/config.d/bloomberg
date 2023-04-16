@@ -32,9 +32,15 @@
 [http "https://git.savannah.gnu.org"]
 	proxy = http://proxy.bloomberg.com:81
 	sslCAinfo = ~/.config/certificates/bloomberg-root-ca.crt
-[http "https://codeberg.org"]
+[http "https://codeberg.org/ideasman42"]
 	proxy = http://proxy.bloomberg.com:81
 	sslCAinfo = ~/.config/certificates/bloomberg-root-ca.crt
 [http "https://depp.brause.cc"]
+	proxy = http://proxy.bloomberg.com:81
+	sslCAinfo = ~/.config/certificates/bloomberg-root-ca.crt
+[http "https://mumble.net/~campbell/git"]
+	proxy = http://proxy.bloomberg.com:81
+	sslCAinfo = ~/.config/certificates/bloomberg-root-ca.crt
+[http "https://git.sr.ht/~bzg/org-contrib"]
 	proxy = http://proxy.bloomberg.com:81
 	sslCAinfo = ~/.config/certificates/bloomberg-root-ca.crt
