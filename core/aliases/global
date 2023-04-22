@@ -106,7 +106,7 @@ pypr    poetry run
 
 gD      fzf_cd_all
 gF      fzf_select_all
-gz      cd_fsmap
+gz      cd_fs_aliases
 ga      select_fsmap
 gd      fzf_cd
 ge      cd_env

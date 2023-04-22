@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
-cd_fsmap() {
+cd_fs_aliases() {
     SELECT_FSMAP_ARGS=-d select_fsmap "$@"
 }

@@ -35,13 +35,13 @@ link                                            \
   "$XDG_BIN_DIR/ls-bookmarks"                   \
   "$XDG_BIN_DIR/ls-distro"                      \
   "$XDG_BIN_DIR/ls-exec"                        \
-  "$XDG_BIN_DIR/ls-fsmaps"                      \
+  "$XDG_BIN_DIR/ls-fs-aliases"                  \
   "$XDG_BIN_DIR/ls-games"                       \
   "$XDG_BIN_DIR/ls-graphics-card"               \
   "$XDG_BIN_DIR/ls-mount"                       \
   "$XDG_BIN_DIR/ls-platform"                    \
   "$XDG_BIN_DIR/ls-projects"                    \
-  "$XDG_BIN_DIR/ls-sshmaps"                     \
+  "$XDG_BIN_DIR/ls-ssh-aliases"                 \
   "$XDG_BIN_DIR/make-icons"                     \
   "$XDG_BIN_DIR/moji"                           \
   "$XDG_BIN_DIR/passgen"                        \

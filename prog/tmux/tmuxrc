@@ -377,8 +377,8 @@ bind -Tm-commands p run -b 'bash -c '"'"'\
 
 bind -Tm-commands z run -b 'bash -c '"'"'\
   . $HOME/.config/tmux/cmds/setup-fzf;\
-  . $HOME/.config/autoloads/cmds/cd_fsmap;\
-  cd_fsmap\
+  . $HOME/.config/autoloads/cmds/cd_fs_aliases;\
+  cd_fs_aliases\
 '"'"
 
 bind -Tm-commands a run -b 'bash -c '"'"'\
