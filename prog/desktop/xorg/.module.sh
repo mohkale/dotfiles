@@ -5,6 +5,7 @@ link ~/.Xresources                                    \
 link-to "$XDG_CONFIG_HOME/Xresources/" ./Xresources.d/*
 link-to "$XDG_BIN_DIR/" ./cmds/*
 run-cmd touch "$XDG_CONFIG_HOME/Xresources/local"
+run-cmd touch "$XDG_CONFIG_HOME/xprofile.local"
 
 packages                                                            \
   apt:xclip                                                         \
