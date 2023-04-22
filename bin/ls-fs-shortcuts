@@ -1,0 +1,226 @@
+#!/usr/bin/env bash
+# Multi target script to access file system bookmarks and shortcuts.
+
+print_usage() {
+  echo "Usage: ls-fs-shortcuts [-h] [-b BACKEND [-b ...]] [-r] [-e|-f|-d]"
+}
+
+print_help() {
+  print_usage
+  cat <<-EOF
+
+Supported backends:
+  fs-alias
+    Aliases with tag @file or @dirx in the files from ls-aliases.
+  envvars
+    Environment variables for directories or PATH separated entries.
+  mounts
+    Devices mounted to the file system.
+
+Options:
+  -h    Show this help message and exit.
+  -b BACKEND
+        Only use BACKEND to list shortcuts. Supply multiple times to use
+        multiple backends instead of the default which is all of them.
+  -r    Replace '$HOME/' with ~/ before outputting.
+  -e    Only show maps that currently exist.
+  -f    Only show maps that currently exist as files.
+  -d    Only show maps that currently exist as directories.
+EOF
+}
+
+SEP=:
+
+# ┌──────────────────┐
+# │ Argument Parsing │
+# └──────────────────┘
+
+# shellcheck disable=SC2016
+# Command to assert whether whether a shortcut exists or not.
+exists_cmd='while read -r p; do if [ -e "$p" ]; then echo "$p"; else echo; fi; done'
+home_relative=0          # When 1 substitute $HOME in each path with tildes.
+exists_only=0            # When 1 only output shortcuts to paths that exist.
+backend_fs_alias=0       # When 1 enable the fs-alias backend.
+backend_envvar=0         # When 1 enable the envvar backend.
+backend_mounts=0         # When 1 enable the mount backend.
+enabled_any_backend=0    # When 1 any backend has been enabled from argument parsing.
+while getopts 'hb:refd' option; do
+  case "$option" in
+    h) print_help
+       exit 0 ;;
+    \?) print_usage >&2
+        exit 1 ;;
+    r) home_relative=1 ;;
+    e) exists_only=1 ;;
+    d) exists_only=1
+       # shellcheck disable=SC2016
+       exists_cmd='while read -r p; do if [ -d "$p" ]; then echo "$p"; else echo; fi; done' ;;
+    f) exists_only=1
+       # shellcheck disable=SC2016
+       exists_cmd='while read -r p; do if [ -f "$p" ]; then echo "$p"; else echo; fi; done' ;;
+    b) case "$OPTARG" in
+         fs-alias) backend_fs_alias=1 ;;
+         envvars) backend_envvar=1 ;;
+         mounts) backend_mounts=1 ;;
+         *) echo "error: ls-fs-shortcuts: Unknown fs-shortcut backend $OPTARG" >&2
+            print_usage
+            exit 1
+            ;;
+       esac
+       enabled_any_backend=1
+       ;;
+  esac
+done
+
+if [ "$enabled_any_backend" -eq 0 ]; then
+  backend_fs_alias=1
+  backend_envvar=1
+  backend_mounts=1
+fi
+
+has_stdbuf=0
+envsubst_cmd='envsubst'
+if command -v stdbuf >/dev/null 2>&1; then
+  envsubst_cmd="stdbuf -oL $envsubst_cmd"
+  has_stdbuf=1
+fi
+
+# ┌──────────┐
+# │ Backends │
+# └──────────┘
+
+ls_fs_aliases() {
+  # Using my configured file system aliases, echo the alias and destination
+  # path separated by :.
+
+  ls-aliases |
+    build-aliases -p - |
+    awk -v sep=":" \
+        -v envsubst="$envsubst_cmd" \
+        -v has_stdbuf="$has_stdbuf" \
+        -e 'BEGIN {
+if (!has_stdbuf) # disable subprocess buffering
+  PROCINFO[envsubst, "pty"] = 1
+}' \
+        -e '$1 ~ /@dirx|@file$/ {
+  key = substr($1, 0, length($1)-5)
+
+  path = ""
+  for (i=2; i <= NF; i++) {
+    path = path (i > 2 ? FS : "") $i
+  }
+  print path |& envsubst
+  envsubst |& getline path
+
+  # skip path when destination is empty.
+  if (path ~ /^\s*$/) next
+
+  print key sep path
+}'
+}
+
+ls_env_paths() {
+  # List environment variables which look like filepaths.
+
+  printenv -0 |
+    tr -d '\n' |
+    tr '\0' '\n' |
+    awk -F = \
+        -v mount_prefix="$*" \
+        -e 'BEGIN {
+# disable subprocess buffering
+PROCINFO[envsubst, "pty"] = 1
+}' \
+        -e '$0 ~ /([^=]+)=([^:]*):/ {
+  value=$2
+  for (i=3; i <= NF; i++) {
+    value = value "=" $i
+  }
+
+  count = split(value, entries, ":")
+  delete mem # reset from previous loop
+  k = 0
+  for (j=1; j <= count; j++) {
+    if (entries[j] && !mem[entries[j]]++) {
+      printf("%s%s[%d]:%s\n", mount_prefix, $1, k++, entries[j])
+    }
+  }
+  next
+}' \
+        -e '$0 { printf("%s%s:%s\n", mount_prefix, $1, $2) }' |
+    if [ "$exists_only" -eq 1 ]; then
+      # Command will already filter out paths that don't exist so don't
+      # pre-filter here.
+      cat
+    else
+      while IFS=: read -r key value; do
+        if [ -e "$value" ]; then
+          echo "$key:$value"
+        fi
+      done
+    fi
+}
+
+ls_fs_mounts() {
+  # List file system mounts with mount device and mount path.
+
+  mount |
+    awk -v mount_prefix="$*" \
+        -e '{
+  printf("%s%s:", mount_prefix, $1)
+  for (i=NF; i >= 4; i--) {
+    if ($i == "type") break
+  }
+  for (j=3; j < i; j++) {
+    printf("%s", $j)
+  }
+  print("")
+}'
+}
+
+# ┌──────┐
+# │ Main │
+# └──────┘
+
+# shellcheck disable=SC2016
+tee \
+  </dev/null \
+  >([ "$backend_fs_alias" -eq 0 ] || ls_fs_aliases) \
+  >([ "$backend_envvar" -eq 0 ] || ls_env_paths '$') \
+  >([ "$backend_mounts" -eq 0 ] || ls_fs_mounts @) |
+  awk -F : \
+      -v check_exists="$exists_only" \
+      -v home_relative="$home_relative" \
+      -v home="$HOME" \
+      -v sep="$SEP" \
+      -v has_stdbuf="$has_stdbuf" \
+      -v exists_cmd="$exists_cmd" \
+      -e 'BEGIN {
+if (!has_stdbuf) # disable subprocess buffering
+  PROCINFO[envsubst, "pty"] = 1
+}' \
+      -e '{
+  key=$1
+  path=$2
+
+  if (path == "~" || path ~ /^~\//) {
+    path = home substr(path, 2)
+  }
+
+  if (check_exists) {
+    # pass through an exists cmd to assert whether a path
+    # exists. exists_cmd should output one line for every
+    # input line. The output should be empty if the path
+    # does not exist.
+    print path |& exists_cmd
+    exists_cmd |& getline path
+
+    if (path ~ /^\s*$/) next
+  }
+
+  if (home_relative && index(path, home) == 1) {
+    path = "~" substr(path, length(home)+1)
+  }
+
+  print key sep path
+}'
