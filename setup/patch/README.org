@@ -8,5 +8,4 @@ to compilation and they each fix one or more issues I may have with the program.
 #+CAPTION: List of all patches visible in the current working directory.
 | Patch                            | Program | Description                                                                |
 |----------------------------------+---------+----------------------------------------------------------------------------|
-| [[file:emacs-fix-terminal-underline.diff][emacs-fix-terminal-underline]]     | Emacs   | For some reason emacs doesn't read the underline terminfo entry correctly. |
 | [[file:tmux-fix-extended-key-swallowing.diff][tmux-fix-extended-key-swallowing]] | tmux    | See [[https://github.com/tmux/tmux/issues/2705][tmux#2705]].                                                             |

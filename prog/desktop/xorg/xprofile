@@ -4,5 +4,14 @@
 # Make caps-lock work like ctrl-key
 setxkbmap -option caps:ctrl_modifier
 
+# You may want to swap the alt and super key because many keyboards go control,
+# super, alt but I'm more familliar with and prefer control, alt and super.
+# setxkbmap -option altwin:swap_lalt_lwin
+
 # Load desktop-agnostic keybinding configuration
 xbindkeys -f "$XDG_CONFIG_HOME/xbindkeys/config"
+
+# Load local xprofile file when it exists
+if [ -r "$XDG_CONFIG_HOME/xprofile.local" ]; then
+  . "$XDG_CONFIG_HOME/xprofile.local"
+fi

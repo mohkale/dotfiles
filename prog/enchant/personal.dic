@@ -1,14 +1,30 @@
-# Names
-kaleem
-mohkale
-mohsin
+# Enchant personal dictionary -*- conf -*-
 
-# Dev keywords
+# Names
+Kaleem
+Mohkale
+Mohsin
+Stallman
+
+# Developer keywords
 JPG
 PNG
 JDBC
 UML
 PDF
+CMM
+
+utf
+unix
+config
+Lorem
+whitespace
+ipsum
+args
+docstring
+emacs
+
+recurse
 
 # TODO keywords
 TODO
@@ -20,9 +36,8 @@ Bloomberg
 eg
 
 # Miscellaneous
-Atomicity
-CMM
-Pipelined
+atomicity
+pipelined
 decomposable
 denormalisation
 executables

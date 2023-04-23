@@ -9,7 +9,7 @@ fzf_ssh() {
   [ -z "$*" ] || fzf_args+=( -q "$*" )
 
   local cmd
-  cmd=$(ls-sshmaps |
+  cmd=$(ls-ssh-aliases |
           sed 's/:/ /' |
           _mk_fzf "${fzf_args[@]}" |
           cut -d ' ' -f 2-)
