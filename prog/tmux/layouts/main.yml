@@ -8,5 +8,5 @@ windows:
     layout: cb48,213x58,0,0[213x29,0,0{106x29,0,0,7,106x29,107,0,26},213x28,0,30,24]
     panes:
       - htop || top || exit
-      - gotop || exit
-      - docker stats --no-stream && lazydocker || exit
+      # - gotop || exit
+      # - docker stats --no-stream && lazydocker || exit

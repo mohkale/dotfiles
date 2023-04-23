@@ -12,6 +12,9 @@ cm                     container-maintainer
 ki                     kinit mkaleem2@ADDEV.BLOOMBERG.COM
 ks                     klist
 
+# Command to run at the start of each week.
+dd-bloomberg-erase-all    sudo service docker restart && cachectl up -d --force-recreate && dd-erase-all
+
 fai-dev-1@ssh          fai-dev-1
 fai-dev-2@ssh          fai-dev-2
 fai-dev-3@ssh          fai-dev-3
