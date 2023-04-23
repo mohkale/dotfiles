@@ -289,9 +289,9 @@ bind -T copy-mode-vi C-y send-keys -X append-selection
 
 ## Rebalance view around current point in the scrollback buffer
 bind -T copy-mode-vi z switch-client -Tcopy-mode-scroll                         # Key-table prefix for scrolling
-bind -T copy-mode-scroll t scroll-top
-bind -T copy-mode-scroll z scroll-middle
-bind -T copy-mode-scroll b scroll-bottom
+bind -T copy-mode-scroll t send-keys -X scroll-top
+bind -T copy-mode-scroll z send-keys -X scroll-middle
+bind -T copy-mode-scroll b send-keys -X scroll-bottom
 
 # Regexp used to jump to the end of a shell prompt.
 set -g @shell-prompt-regexp "(^[^ ]+ )|(^\[[[:alnum:]]+@[[:alnum:]]+ .+\]# )"
