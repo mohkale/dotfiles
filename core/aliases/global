@@ -56,7 +56,9 @@ tx     tmux kill-session
 tnt    tmux_session_new_client
 tprint tmux display-message -p
 
-cls     clear
+# cls scrolls to top of window, clear does the same but also clears scrollback.
+cls     \clear
+clear   printf '\e[2J\e[3J\e[H'
 
 clamp   cut -b 1-$COLUMNS
 wai     whoami
