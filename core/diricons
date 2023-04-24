@@ -249,10 +249,10 @@ games/          
 steam/          
 
 ### Home Directories
-# ~/downloads/    
-~/media/videos/ ﳜ
-~/media/images/ 
-~/media/music/  
+~/Media/        
+~/Media/videos/ ﳜ
+~/Media/images/ 
+~/Media/music/  
 ~/.steam/       
 ~/.wine/        
 ~/.dotfiles/    
@@ -261,8 +261,7 @@ steam/          
 
 ### XDG Stuff
 # ~/user/         
-# ~/prog/         
-# ~/multi/        
+# ~/Develop/         
 # ~/OS/           
 
 # TODO

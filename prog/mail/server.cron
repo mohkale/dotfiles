@@ -1,5 +1,5 @@
 */5 *  * * * . ~/.profile; chronic cron-retry mail-sync mail-sync
-0   12 * * * notmuch dump --output="$HOME/docs/mail-backups/notmuch-dump.$(date +\%Y-\%m-\%d)"
+0   12 * * * notmuch dump --output="$HOME/Documents/mail-backups/notmuch-dump.$(date +\%Y-\%m-\%d)"
 
 ###############################################################################
 #                               Email Reminders                               #

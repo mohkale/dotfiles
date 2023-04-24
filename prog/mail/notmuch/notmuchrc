@@ -10,7 +10,7 @@
 
 [database]
 # Note: muchsync doesn't support automatic MAILDIR resolution.
-path = /home/mohkale/docs/mail
+path = /home/mohkale/Documents/mail
 
 # User configuration
 #
