@@ -249,13 +249,14 @@ games/          
 steam/          
 
 ### Home Directories
-~/Media/        
-~/Media/videos/ ﳜ
-~/Media/images/ 
-~/Media/music/  
+$XDG_MEDIA_HOME/   
+$XDG_VIDEOS_DIR/   ﳜ
+$XDG_PICTURES_DIR/ 
+$XDG_MUSIC_DIR/    
+
 ~/.steam/       
 ~/.wine/        
-~/.dotfiles/    
+$XDG_CONFIG_HOME/dotfiles/ 
 ~/.mozilla/     
 ~/.tor-browser/ 
 

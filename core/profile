@@ -57,11 +57,30 @@ LESS_TERMCAP_so=$(printf '\033[36m');    export LESS_TERMCAP_so                 
 
 if [ -e "$XDG_CONFIG_HOME/diricons" ]; then
   # Load icons from human readable config file.
-  LF_ICONS=$(sed "$XDG_CONFIG_HOME"/diricons \
-                 -e 's/[ \t]*#.*$//'       \
-                 -e '/^[ \t]*#/d'       \
-                 -e '/^[ \t]*$/d'       \
-                 -e 's/[ \t]\+/=/g'     \
+  # shellcheck disable=SC2016
+  LF_ICONS=$(sed "$XDG_CONFIG_HOME"/diricons                        \
+                 -e 's@$XDG_CONFIG_HOME@'"$XDG_CONFIG_HOME"'@'      \
+                 -e 's@$XDG_DATA_HOME@'"$XDG_DATA_HOME"'@'          \
+                 -e 's@$XDG_CACHE_HOME@'"$XDG_CACHE_HOME"'@'        \
+                 -e 's@$XDG_DOCUMENTS_DIR@'"$XDG_DOCUMENTS_DIR"'@'  \
+                 -e 's@$XDG_PICTURES_DIR@'"$XDG_PICTURES_DIR"'@'    \
+                 -e 's@$XDG_MUSIC_DIR@'"$XDG_MUSIC_DIR"'@'          \
+                 -e 's@$XDG_VIDEOS_DIR@'"$XDG_VIDEOS_DIR"'@'        \
+                 -e 's@$XDG_DESKTOP_DIR@'"$XDG_DESKTOP_DIR"'@'      \
+                 -e 's@$XDG_DOWNLOAD_DIR@'"$XDG_DOWNLOAD_DIR"'@'    \
+                 -e 's@$XDG_TEMP_DIR@'"$XDG_TEMP_DIR"'@'            \
+                 -e 's@$XDG_GAMES_DIR@'"$XDG_GAMES_DIR"'@'          \
+                 -e 's@$XDG_DEV_HOME@'"$XDG_DEV_HOME"'@'            \
+                 -e 's@$XDG_BIN_DIR@'"$XDG_BIN_DIR"'@'              \
+                 -e 's@$XDG_STATE_HOME@'"$XDG_STATE_HOME"'@'        \
+                 -e 's@$XDG_RUNTIME_DIR@'"$XDG_RUNTIME_DIR"'@'      \
+                 -e 's@$XDG_LIB_DIR@'"$XDG_LIB_DIR"'@'              \
+                 -e 's@$XDG_MEDIA_HOME@'"$XDG_MEDIA_HOME"'@'        \
+                 -e 's@'"$HOME"'@~@'                                \
+                 -e 's/[ \t]*#.*$//'                                \
+                 -e '/^[ \t]*#/d'                                   \
+                 -e '/^[ \t]*$/d'                                   \
+                 -e 's/[ \t]\+/=/g'                                 \
                  -e 's/$/ /')
   LF_ICONS="${LF_ICONS//$'\n'/:}"
   export LF_ICONS
