@@ -1,46 +1,231 @@
-# Enchant personal dictionary -*- conf -*-
+# Enchant personal dictionary -*- mode: conf-mode; +indent: 2 -*-
 
-# Names
+# ┌───────┐
+# │ Names │
+# └───────┘
+
+Mohsin
 Kaleem
 Mohkale
-Mohsin
+
 Stallman
 
-# Developer keywords
-JPG
-PNG
-JDBC
-UML
-PDF
+# ┌───────────┐
+# │ Developer │
+# └───────────┘
+
+  ## ┌─────────────────┐
+  ## │ File Extensions │
+  ## └─────────────────┘
+
 CMM
+JDBC
+JPG
+PDF
+PNG
+UML
 
-utf
-unix
-config
-Lorem
-whitespace
-ipsum
-args
-docstring
+  ## ┌──────────┐
+  ## │ Software │
+  ## └──────────┘
+
 emacs
+pylint
+Spacemacs
+unix
 
-recurse
+  ## ┌─────────────────────────┐
+  ## │ Developer Abbreviations │
+  ## └─────────────────────────┘
 
-# TODO keywords
+args
+bytecode
+config
+init
+keymap
+keymaps
+langs
+minibuffer
+subprocess
+utils
+
+  ## ┌───────────────┐
+  ## │ TODO keywords │
+  ## └───────────────┘
+
 TODO
 
-# Companies
-Bloomberg
+  ## ┌──────────┐
+  ## │ Websites │
+  ## └──────────┘
 
-# Abbreviations
+github
+
+  ## ┌─────────────────────────┐
+  ## │ Developer Miscellaneous │
+  ## └─────────────────────────┘
+
+api
+atomicity
+cli
+cryptographic
+decomposable
+decrypt
+denormalisation
+docstring
+executables
+pipelined
+recurse
+utf
+whitespace
+
+# ┌─────────────────────────┐
+# │ Companies/Organisations │
+# └─────────────────────────┘
+
+Bloomberg
+XDG
+GNU
+
+# ┌───────────────┐
+# │ Abbreviations │
+# └───────────────┘
+
 eg
 
-# Miscellaneous
-atomicity
-pipelined
-decomposable
-denormalisation
-executables
-decrypt
-cryptographic
+# ┌─────────────┐
+# │ Lorem Ipsum │
+# └─────────────┘
+
+accumsan
+adipiscing
+aenean
+aliquam
+aliquet
+amet
+arcu
+augue
+bibendum
+blandit
+commodo
+condimentum
+consectetuer
+consequat
+convallis
+cras
+curabitur
+cursus
+dapibus
+dignissim
+dolor
+donec
+dui
+eget
+eleifend
+elit
+enim
+erat
+eros
+etiam
+euismod
+facilisis
+felis
+fermentum
+feugiat
+fusce
+gravida
+hendrerit
+imperdiet
+interdum
+ipsum
+justo
+lacinia
+lacus
+laoreet
+leo
+libero
+ligula
+lobortis
+lorem
+luctus
+magna
+magnis
+malesuada
+massa
+mattis
+mauris
+molestie
+mollis
+montes
+nam
+nascetur
+natoque
+nec
+neque
+nibh
+nisl
+nulla
+nullam
+nunc
+odio
+orci
+ornare
+parturient
+pede
+pellentesque
+penatibus
+phasellus
+placerat
+porta
+posuere
+potenti
+praesent
+pretium
+proin
+pulvinar
+purus
+quam
+quis
+rhoncus
+ridiculus
+risus
+rutrum
+sagittis
+sapien
+sed
+sem
+semper
+sociis
+sodales
+suscipit
+suspendisse
+tellus
+tempor
+tempus
+tincidunt
+tortor
+tristique
+turpis
+ultrices
+ultricies
+urna
+varius
+vel
+velit
+vestibulum
+vivamus
+volutpat
+vulputate
+wisi
+
+# ┌───────────────┐
+# │ Miscellaneous │
+# └───────────────┘
+
 walkthrough
+customization
+
+# ┌─────────┐
+# │ Pending │
+# └─────────┘
+

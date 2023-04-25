@@ -12,8 +12,8 @@ Account mohkalsin-gmail
 
 MaildirStore mohkalsin-gmail-local
 SubFolders Verbatim
-Path ~/docs/mail/mohkalsin/
-Inbox ~/docs/mail/mohkalsin/Inbox
+Path ~/Documents/mail/mohkalsin/
+Inbox ~/Documents/mail/mohkalsin/Inbox
 
 Channel mohkalsin-gmail
 Far :mohkalsin-gmail-remote:
@@ -36,8 +36,8 @@ Account mohkalex-gmail
 
 MaildirStore mohkalex-gmail-local
 SubFolders Verbatim
-Path ~/docs/mail/mohkalex/
-Inbox ~/docs/mail/mohkalex/Inbox
+Path ~/Documents/mail/mohkalex/
+Inbox ~/Documents/mail/mohkalex/Inbox
 
 Channel mohkalex-gmail
 Far :mohkalex-gmail-remote:

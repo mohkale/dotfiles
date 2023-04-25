@@ -249,20 +249,20 @@ games/          
 steam/          
 
 ### Home Directories
-# ~/downloads/    
-~/media/videos/ ﳜ
-~/media/images/ 
-~/media/music/  
+$XDG_MEDIA_HOME/   
+$XDG_VIDEOS_DIR/   ﳜ
+$XDG_PICTURES_DIR/ 
+$XDG_MUSIC_DIR/    
+
 ~/.steam/       
 ~/.wine/        
-~/.dotfiles/    
+$XDG_CONFIG_HOME/dotfiles/ 
 ~/.mozilla/     
 ~/.tor-browser/ 
 
 ### XDG Stuff
 # ~/user/         
-# ~/prog/         
-# ~/multi/        
+# ~/Develop/         
 # ~/OS/           
 
 # TODO

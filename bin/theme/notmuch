@@ -21,6 +21,7 @@ class NotMuchSegment(StatusMiscSegment):
         self.tag_styles = {
             "tag:unread": self.unread_style,
             "tag:flagged": self.flagged_style,
+            "tag:inbox and tag:dev and tag:todo": self.dev_todo_style,
         }
 
     @classmethod
@@ -53,6 +54,12 @@ class NotMuchSegment(StatusMiscSegment):
             default="",
             metavar="STYLE",
             help="Styling for flagged emails.",
+        )
+        notmuch_group.add_argument(
+            flag("dev-todo-style"),
+            default="",
+            metavar="STYLE",
+            help="Styling for dev-todo emails.",
         )
 
         notmuch_group.add_argument(

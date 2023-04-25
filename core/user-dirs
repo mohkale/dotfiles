@@ -1,17 +1,17 @@
 # -*- mode: conf-unix -*- XDG directory path configuration.
 
-XDG_DOCUMENTS_DIR="$HOME/docs"
-XDG_DOWNLOAD_DIR="$HOME/downloads"
+XDG_DOCUMENTS_DIR="$HOME/Documents"
+XDG_DOWNLOAD_DIR="$HOME/Downloads"
 
 # Multimedia directories
-XDG_MUSIC_DIR="$HOME/media/music"
-XDG_PICTURES_DIR="$HOME/media/images"
-XDG_VIDEOS_DIR="$HOME/media/videos"
+XDG_MUSIC_DIR="$HOME/Media/music"
+XDG_PICTURES_DIR="$HOME/Media/images"
+XDG_VIDEOS_DIR="$HOME/Media/videos"
 
 # System directories
-XDG_DESKTOP_DIR="$HOME/desktop"
-XDG_PUBLICSHARE_DIR="$HOME/share"
-XDG_TEMPLATES_DIR="$HOME/multi/templates"
+XDG_DESKTOP_DIR="$HOME/Desktop"
+XDG_PUBLICSHARE_DIR="$HOME/Public"
+XDG_TEMPLATES_DIR="$HOME/Templates"
 
 # Configuration directories
 XDG_CONFIG_HOME="$HOME/.config"
@@ -21,8 +21,8 @@ XDG_STATE_HOME="$HOME/.local/state"
 
 # Unofficial extensions to the spec I added myself
 XDG_TEMP_DIR="$HOME/.local/temp"
-XDG_GAMES_DIR="$HOME/media/games"
-XDG_DEV_HOME="$HOME/prog"
+XDG_GAMES_DIR="$HOME/Media/games"
+XDG_DEV_HOME="$HOME/Develop"
 XDG_BIN_DIR="$HOME/.local/bin"
 XDG_LIB_HOME="$HOME/.local/lib"
-XDG_MEDIA_HOME="$HOME/media/server"
+XDG_MEDIA_HOME="$HOME/Media/server"

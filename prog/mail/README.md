@@ -24,7 +24,7 @@ show its age. It doesn't support a XDG compliant configuration directory or mail
 profiles. It also seems somewhat buggy in regard to some of its options (see
 [pre-new.server](./notmuch/hooks/pre-new.server)).
 Once you've setup the server you can initialise a local copy of the remote mailbox by
-running `muchsync --init ~/docs/mail kisara` (where kisara is the hostname of the
+running `muchsync --init ~/Documents/mail kisara` (where kisara is the hostname of the
 master server).
 At this point I'd recommend setting up cron jobs to run `notmuch new` on both the
 server and the clients. The server will fetch mail from any configured remote

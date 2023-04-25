@@ -60,6 +60,8 @@ setopt listrowsfirst
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"                         # Have completion candidates styled like ls.
 zstyle ':completion:*' matcher-list 'r:|[._-]=* r:|=*'                          # Smart matching of dashed values, e.g. f-b matching foo-bar.
 zstyle ':completion:*' completer _expand_alias _complete _ignored               # Expand aliases with tab as well (see also <C-x>+a).
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'                          # Smart case, lower-case can match upper-case but upper-case can only be upper-case.
+zstyle ':completion:*' squeeze-slashes true                                     # Interpret foo//bar as foo/bar, not foo/*/bar
 # zstyle ':completion:*' insert-tab false                                       # Don't insert a literal tab when trying to complete in an empty line.
 
 # Orders directories first, but seperates files from dirs
