@@ -1,0 +1,3 @@
+#!/bin/sh
+# getprdwin proxy script using $GETPRDWIN_COMMON_HOST.
+exec ssh -t "${GETPRDWIN_COMMON_HOST:-epslnjapmddap01}" /bb/bin/getprdwin "$@"

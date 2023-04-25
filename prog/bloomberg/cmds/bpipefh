@@ -1,0 +1,15 @@
+#!/bin/sh
+# getprdwin proxy script using for MFA appliance management.
+set -e
+
+if [ "$#" -lt 2 ] || [ "$#" -gt 3 ]; then
+    echo "Usage: bpipefh MACHINE {PRQS:NUMBER|JIRA:TICKET} [APPROVER_UUID]" >&2
+    exit 1
+fi
+
+approver=30977711 # Myself.
+if [ "$#" -eq 3 ]; then
+    approver="$3"
+fi
+
+exec getprdwin --inline --user bpipefh --approver "$approver" --work "$2" "$1"

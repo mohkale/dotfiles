@@ -30,6 +30,7 @@ else                             export EDITOR=vi
 fi
 
 [ -r "$XDG_CONFIG_HOME/bbprofile" ] && . "$XDG_CONFIG_HOME/bbprofile"
+[ -r "$XDG_CONFIG_HOME/dev-machine-bbprofile" ] && . "$XDG_CONFIG_HOME/dev-machine-bbprofile"
 
 export VISUAL="$EDITOR"
 export PAGER=less

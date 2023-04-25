@@ -1,2 +1,2 @@
 link chimera:~/.bbprofile                       \
-     bbprofile:~/.config/bbprofile
+     bbprofile:~/.config/dev-machine-bbprofile

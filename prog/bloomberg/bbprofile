@@ -1,0 +1,61 @@
+#!/bin/sh
+
+# Host to direct any getprdwin requests to.
+export GETPRDWIN_COMMON_HOST=epslnjapmddap01
+
+# ┌──────────────────────────────────┐
+# │ Berg Frontend Dependency Helpers │
+# └──────────────────────────────────┘
+#
+# Configure any local dev environments to install extra dependencies from this
+# list by adding to the BERG_FRONTEND_EXTRA_DEPENDENCIES build argument. For
+# ide-magic containers you can do this in .dev-compose.yml:
+#
+#   ---
+#   services:
+#     dev:
+#       build:
+#         args:
+#           EXTRA_DEPENDENCIES: >-
+#             git
+#             ide-magic-cmake-meta
+#             $BERG_FRONTEND_EXTRA_BASE_DEPENDENCIES
+#           EXTRA_PIP_DEPENDENCIES: $BERG_FRONTEND_EXTRA_PIP_DEPENDENCIES
+#
+# For other projects you can place the same sort of override in
+# docker-compose.override.yml.
+
+# Base dependencies you should always install.
+export BERG_FRONTEND_EXTRA_BASE_DEPENDENCIES="
+git
+ripgrep
+"
+
+# Dependencies for BAS projects.
+export BERG_FRONTEND_EXTRA_BAS_DEPENDENCIES="
+basclient
+remoteroute
+rapi3tool
+basping
+bbsend
+"
+
+# Dependencies for CPP projects.
+export BERG_FRONTEND_EXTRA_CPP_DEPENDENCIES="
+gdb
+valgrind
+clang
+clangd
+bde-format-11
+bbcmake-env
+python3.10-pygments
+"
+
+# Dependencies for Python pip projects.
+export BERG_FRONTEND_EXTRA_PIP_DEPENDENCIES="
+python-lsp-server
+pyls-black
+future
+pylsp-mypy
+pyls-isort
+"

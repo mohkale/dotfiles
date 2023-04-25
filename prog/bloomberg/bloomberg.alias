@@ -2,19 +2,31 @@
 
 bce                    bbcmake-env
 alb@file               $XDG_CONFIG_HOME/aliases/bloomberg
+bbprofile@file         $XDG_CONFIG_HOME/bbprofile
 
-im                     bb-local-dev magic
-im-mds                 bb-local-dev --distribution=mds-unstable
-ide-magic-compose      bb-local-dev compose
-imc                    ide-magic-compose
+# im                     bb-local-dev magic
+# im-mds                 bb-local-dev --distribution=mds-unstable
+# ide-magic-compose      bb-local-dev compose
+# imc                    ide-magic-compose
 cm                     container-maintainer
+
+# dev-compose wrappers.
+im                     ide-magic
+imi                    dev-compose --log-level=DEBUG install
+imc                    dev-compose compose
+imx                    [ -e .lcldev/dev-compose ] && rm -rvf .lcldev/dev-compose
+# Weekly refresh helpers
+weekly-refresh         weekly-erase-docker-cache; weekly-erase-build-cache; weekly-rebuild-project-images
+weekly-erase-docker-cache      sudo service docker restart && cachectl up -d --force-recreate && dd-erase-all
+weekly-erase-build-cache       ls-projects | sort -u | awk -F : -e '{ printf("%s/cmake-build\n", $1); printf("%s/cmake-install\n", $1) }' | parallel [ -e {} ] '&&' rm -rvf {}
+weekly-rebuild-project-images  ls-projects | sort -u | parallel --ungroup --colsep=: --max-procs=1 [ -e {1}/.lcldev/dev-compose/docker-compose.yml ] '&&' cd {1} '&&' echo {2} '&&' dev-compose compose pull '&&' dev-compose compose build --pull --parallel
+
+# Dev machine helpers
 
 ki                     kinit mkaleem2@ADDEV.BLOOMBERG.COM
 ks                     klist
 
-# Command to run at the start of each week.
-dd-bloomberg-erase-all    sudo service docker restart && cachectl up -d --force-recreate && dd-erase-all
-
+# Development hosts.
 fai-dev-1@ssh          fai-dev-1
 fai-dev-2@ssh          fai-dev-2
 fai-dev-3@ssh          fai-dev-3
@@ -22,20 +34,24 @@ fai-dev-4@ssh          fai-dev-4
 epslnjapmddap01@ssh    EPSLNJAPMDDAP01
 epslnyapmddap01@ssh    EPSLNYAPMDDAP01
 gnrld-pw-569@ssh       gnrld-pw-569
-ony-bam1@sshx          ssh -x -2 -t mkaleem2@10.117.4.16 inline ony-bam1
-getprdwin@sshx         ssh -t epslnjapmddap01 /bb/bin/getprdwin -i
-faisvc@sshx            ssh -t epslnjapmddap01 /bb/bin/getprdwin -i FAISVC
-faisva@sshx            ssh -t epslnjapmddap01 /bb/bin/getprdwin -i FAISVA
-faisva-pw-579@sshx     ssh -t epslnjapmddap01 /bb/bin/getprdwin -i FAISVA-PW-579
-faisva-ob-309@sshx     ssh -t epslnjapmddap01 /bb/bin/getprdwin -i FAISVA-OB-309
-faisvb@sshx            ssh -t epslnjapmddap01 /bb/bin/getprdwin -i FAISVB
-faisvb-pw-443@sshx     ssh -t epslnjapmddap01 /bb/bin/getprdwin -i FAISVB-PW-443
-faisvb-ob-296@sshx     ssh -t epslnjapmddap01 /bb/bin/getprdwin -i FAISVB-OB-296
-faisvp@sshx            ssh -t epslnjapmddap01 /bb/bin/getprdwin -i FAISVP
-faisvp-ob-886@sshx     ssh -t epslnjapmddap01 /bb/bin/getprdwin -i FAISVP-OB-886
-faisvp-ob-218@sshx     ssh -t epslnjapmddap01 /bb/bin/getprdwin -i FAISVP-OB-218
-faisvp-pw-618@sshx     ssh -t epslnjapmddap01 /bb/bin/getprdwin -i FAISVP-PW-618
-faisvp-pw-063@sshx     ssh -t epslnjapmddap01 /bb/bin/getprdwin -i FAISVP-PW-063
 
-ba32350@ssh            ba32350
-ba32351@ssh            ba32350
+# Gateway machine.
+ony-bam1@sshx          ssh -x -2 -t mkaleem2@10.117.4.16 inline ony-bam1
+
+# Production windows.
+faisvc@sshx            getprdwin -i FAISVC
+faisva@sshx            getprdwin -i FAISVA
+faisva-pw-579@sshx     getprdwin -i FAISVA-PW-579
+faisva-ob-309@sshx     getprdwin -i FAISVA-OB-309
+faisvb@sshx            getprdwin -i FAISVB
+faisvb-pw-443@sshx     getprdwin -i FAISVB-PW-443
+faisvb-ob-296@sshx     getprdwin -i FAISVB-OB-296
+faisvp@sshx            getprdwin -i FAISVP
+faisvp-ob-886@sshx     getprdwin -i FAISVP-OB-886
+faisvp-ob-218@sshx     getprdwin -i FAISVP-OB-218
+faisvp-pw-618@sshx     getprdwin -i FAISVP-PW-618
+faisvp-pw-063@sshx     getprdwin -i FAISVP-PW-063
+
+# Currently requires an extra ticket argument.
+ba32350@sshx           bpipefh ba32350
+ba32351@sshx           bpipefh ba32351

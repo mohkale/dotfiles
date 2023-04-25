@@ -2,7 +2,7 @@
 
 # Configuration Options
 ## interpreter for shell commands (needs to be POSIX compatible)
-set shell sh
+set shell bash
 
 ## These options are used to have safer shell commands:
 ## * -e exit when a command has a non-zero exit code.
