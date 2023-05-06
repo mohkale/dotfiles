@@ -184,6 +184,7 @@ ${POETRY_HOME:-$HOME/.poetry}/bin
 ~/.rvm/bin
 $XDG_DATA_HOME/npm/bin
 $XDG_DATA_HOME/yarn/global/node_modules/.bin
+$XDG_LIB_HOME/go/bin
 
 [CLASSPATH]
 .
