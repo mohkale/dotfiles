@@ -29,9 +29,23 @@ UML
   ## │ Software │
   ## └──────────┘
 
-emacs
-pylint
+Authelia
+Caddy
+Emby
+gpg
+hledger
+JellyFin
+Kodi
+Lidarr
+Navidrome
+Prowlarr
+Radarr
+Readarr
+Sonarr
 Spacemacs
+emacs
+notmuch
+pylint
 unix
 
   ## ┌─────────────────────────┐
@@ -40,7 +54,10 @@ unix
 
 args
 bytecode
+concat
 config
+configs
+dev
 init
 keymap
 keymaps
@@ -67,13 +84,19 @@ github
 
 api
 atomicity
+bitset
 cli
+codecs
 cryptographic
+customizations
 decomposable
 decrypt
+decrypts
 denormalisation
 docstring
 executables
+hostname
+localhost
 pipelined
 recurse
 utf
@@ -84,8 +107,10 @@ whitespace
 # └─────────────────────────┘
 
 Bloomberg
-XDG
+Displate
 GNU
+Tesco
+XDG
 
 # ┌───────────────┐
 # │ Abbreviations │
