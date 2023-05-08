@@ -55,7 +55,11 @@ async def async_print_loop(
         # Either wait until something has changed or we've reached sleep period
         # and should redraw anyways.
         done, pending = await asyncio.wait(
-            [event.wait(), asyncio.sleep(sleep)], return_when=asyncio.FIRST_COMPLETED
+            [
+                asyncio.create_task(event.wait()),
+                asyncio.create_task(asyncio.sleep(sleep)),
+            ],
+            return_when=asyncio.FIRST_COMPLETED,
         )
         for future in pending:
             future.cancel()
