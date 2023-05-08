@@ -10,7 +10,7 @@ date-alt =
 time = "%H:%M "
 time-alt = "%H:%M:%S "
 
-format-prefix = "  "
+format-prefix = " 󰥔 "
 format-prefix-foreground = ${colors.background}
 format-prefix-background = ${colors.yellow}
 
