@@ -700,7 +700,7 @@ _package_pip() {
 # Package manager the for golang module system.
 # See also https://github.com/delicb/dotbot-golang
 PACMANS+=(go)
-_package_go() { _package_simple go go '' get '' "$@"; }
+_package_go() { _package_simple go go '' install '' "$@"; }
 
 # Package manager for the node-package-manager.
 # See also https://github.com/npm/cli

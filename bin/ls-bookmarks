@@ -157,7 +157,7 @@ do_firefox() {
       # shellcheck disable=2086
       sqlite3 -separator "$d" $it '
 SELECT url, (
-  SELECT group_concat(z, "/") FROM (
+  SELECT group_concat(z, '"'"/"'"') FROM (
     WITH RECURSIVE tree(x, y, z) AS
       (SELECT id, parent, title FROM moz_bookmarks WHERE id = bm.parent
        UNION ALL

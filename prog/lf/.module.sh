@@ -1,7 +1,7 @@
 packages                                        \
   yay:lf-git                                    \
   choco:lf                                      \
-  go:github.com/gokcehan/lf
+  go:github.com/gokcehan/lf@latest
 
 clean -r "$XDG_CONFIG_HOME/lf"
 

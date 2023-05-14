@@ -29,6 +29,8 @@ services:
 
   heimdall:
     image: lscr.io/linuxserver/heimdall:latest
+    depends_on:
+      - caddy
     environment:
       PUID: $PUID
       PGID: $PGID

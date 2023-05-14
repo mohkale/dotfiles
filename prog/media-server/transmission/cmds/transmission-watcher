@@ -56,6 +56,7 @@ _DIRECTORY_WATCHER_MASK = ainotify.Mask.CREATE | ainotify.Mask.DELETE
 
 
 async def _watch_for_torrents(
+    config: WatcherConfig,
     initial_directories: List[pathlib.Path],
 ) -> AsyncIterator[pathlib.Path]:
     """Create a recursive inotify watcher starting with `initial_directories`."""
@@ -119,6 +120,11 @@ async def _watch_for_torrents(
             if event.path is None:
                 continue
             if event.mask & ainotify.Mask.IGNORED:
+                continue
+            if event.path.is_relative_to(config.added_dir):
+                logging.info(
+                    "Skipping event for file=%s because it's been ignored", event.path
+                )
                 continue
 
             if event.mask & ainotify.Mask.ISDIR:
@@ -237,7 +243,7 @@ async def directory_watcher(
     """
     directories_to_watch = await directory_reader(config, queue)
 
-    async for file in _watch_for_torrents(directories_to_watch):
+    async for file in _watch_for_torrents(config, directories_to_watch):
         root = next(
             (
                 root

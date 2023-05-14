@@ -5,4 +5,4 @@ link                                                        \
 
 packages                                        \
   yay:gotop-git                                 \
-  go:github.com/xxxserxxx/gotop/cmd/gotop
+  go:github.com/xxxserxxx/gotop/v4/cmd/gotop@latest
