@@ -17,6 +17,6 @@ format-disconnected = <label-disconnected>
 label-disconnected = " Disconnected "
 label-disconnected-foreground = ${colors.red}
 
-format-disconnected-prefix = " 睊 "
+format-disconnected-prefix = " 󰖪 "
 format-disconnected-prefix-foreground = ${colors.background}
 format-disconnected-prefix-background = ${colors.red}

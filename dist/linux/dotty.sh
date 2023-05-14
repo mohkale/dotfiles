@@ -6,7 +6,7 @@ if package yay; then
           ttf-symbola                           \
           noto-fonts                            \
           bdf-unifont                           \
-          ttf-nerd-fonts-symbols-2048-em-mono   \
+          ttf-nerd-fonts-symbols-mono           \
           ttf-meslo                             \
           s-nail                                \
           moreutils                             \

@@ -170,7 +170,7 @@ prompt_git() {
 
 prompt_root() {
   if [ "$EUID" -eq 0 ]; then
-    print -n '%F{yellow}%B%b'
+    print -n '%F{yellow}%B󰆥%b'
   fi
 }
 

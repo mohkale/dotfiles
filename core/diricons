@@ -6,18 +6,18 @@ st        # STICKY
 ow        # OTHER_WRITABLE
 dt 
 di        # DIR
-fi        # FILE
+fi        # FILE
 ln        # LINK
 or        # ORPHAN
 ex        # EXEC
 
 # Misc
 .config          
-webpack.config.* 
+webpack.config.* 󰜫
 
 # Full Matches
 README         
-LICENSE        
+LICENSE        󰈙
 .DS_Store      
 .docker*       
 Dockerfile*    
@@ -26,27 +26,27 @@ CMakeLists.txt 
 .gitlab-ci.yml 
 
 # Extension Associations
-*.git     
-*.exe     
-*.edn     
-*.pdf     
-*.db      
-*.hs      
+*.git     󰊢
+*.exe     󱓞
+*.edn     
+*.pdf     
+*.db      󰆼
+*.hs      
 *.vim     
 *.org     
-*.frm     
-*.myd     
-*.myi     
-*.mkd     
-*.ddf     
-*.sqlite  
-*.bib     
-*.part    
+*.frm     
+*.myd     
+*.myi     
+*.mkd     󰆼
+*.ddf     󰆼
+*.sqlite  
+*.bib     
+*.part    󰋔
 *.torrent 
-*.url     
-*.link    
-*.ass     
-*.srt     
+*.url     󰌷
+*.link    󰌷
+*.ass     󰨖
+*.srt     󰨖
 *.nfo     
 *.psb     
 *.psd     
@@ -86,7 +86,7 @@ CMakeLists.txt 
 *.h      
 *.hh     
 *.hpp    
-*.cs     
+*.cs     󰌛
 *.css    
 *.less   
 *.sass   
@@ -96,30 +96,29 @@ CMakeLists.txt 
 *.py     
 *.rb     
 *.go     
-*.html   
+*.html   
 *.java   
 *.md     
 *.json   
-*.sc     
-*.scala  
-*.php    
-*.rs     
-*.js     
-*.ts     
-*.tsx    
+*.sc     
+*.scala  
+*.php    󰌟
+*.rs     󱘗
+*.js     󰌞
+*.ts     󰛦
+*.tsx    󰛦
 *.jsx    
 *.kts    
 *.gradle 
-*.rss    參
+*.rss    󰑬
 
 ## Shells and Command Interpreters
-*.bash 
-*.cmd  
-*.fish 
-*.ps1  
-*.sh   
-*.zsh  
-
+*.bash 
+*.cmd  
+*.fish 
+*.ps1  
+*.sh   
+*.zsh  
 ## Archives
 *.7z   
 *.ace  
@@ -245,25 +244,25 @@ CMakeLists.txt 
 .github/        
 .config/        
 node_modules/   
-games/          
+games/          󰊗
 steam/          
 
 ### Home Directories
-$XDG_MEDIA_HOME/   
-$XDG_VIDEOS_DIR/   ﳜ
-$XDG_PICTURES_DIR/ 
+$XDG_MEDIA_HOME/   󰊠
+$XDG_VIDEOS_DIR/   󰟞
+$XDG_PICTURES_DIR/ 󰉔
 $XDG_MUSIC_DIR/    
 
 ~/.steam/       
-~/.wine/        
-$XDG_CONFIG_HOME/dotfiles/ 
-~/.mozilla/     
-~/.tor-browser/ 
+~/.wine/        
+$XDG_CONFIG_HOME/dotfiles/ 󰆥
+~/.mozilla/     󰈹
+~/.tor-browser/ 󰈹
 
 ### XDG Stuff
 # ~/user/         
-# ~/Develop/         
+# ~/Develop/      
 # ~/OS/           
 
 # TODO
-# 
+# 󰊖

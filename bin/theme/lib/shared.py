@@ -45,10 +45,7 @@ async def async_print_loop(
 
     while True:
         line = " ".join(pointer)
-        if (
-            line != last_line
-            or time.time() - last_print >= MAX_OUTPUT_INTERVAL
-        ):
+        if line != last_line or time.time() - last_print >= MAX_OUTPUT_INTERVAL:
             print(line)
             last_print = time.time()
             last_line = line
@@ -58,7 +55,10 @@ async def async_print_loop(
         # Either wait until something has changed or we've reached sleep period
         # and should redraw anyways.
         done, pending = await asyncio.wait(
-            [event.wait(), asyncio.sleep(sleep)],
+            [
+                asyncio.create_task(event.wait()),
+                asyncio.create_task(asyncio.sleep(sleep)),
+            ],
             return_when=asyncio.FIRST_COMPLETED,
         )
         for future in pending:
@@ -111,9 +111,7 @@ def render_loop(wrap: Callable[[], str]) -> Generator[str, None, None]:
         except GeneratorExit:
             break
         except RuntimeError as err:  # pylint: disable=broad-except,unused-variable
-            logging.exception(
-                "Error while processing segment %s: %s", self.name, err
-            )
+            logging.exception("Error while processing segment %s: %s", self.name, err)
             yield ""
 
 
@@ -138,10 +136,7 @@ def print_loop(
     last_output = None  # The last string we printed.
     last_print = 0  # The last time we printed at.
     for line in iterator:
-        if (
-            line != last_output
-            or time.time() - last_print >= MAX_OUTPUT_INTERVAL
-        ):
+        if line != last_output or time.time() - last_print >= MAX_OUTPUT_INTERVAL:
             print(line)
             last_print = time.time()
             last_output = line

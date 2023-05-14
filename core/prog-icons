@@ -4,8 +4,8 @@ st     
 sh     
 zsh    
 bash   
-su     
-sudo   
+su     󰆥
+sudo   󰆥
 
 # File Managers
 lf        
@@ -23,7 +23,7 @@ zip      
 unzip    
 
 # Media Players
-vlc     嗢
+vlc     󰕼
 sxiv    
 imv     
 
@@ -84,8 +84,8 @@ wget        
 curl        
 make        
 jq          
-mbsync      
-mail        
-mu          
-notmuch     
-*           ﲎ
+mbsync      󰇮
+mail        󰇮
+mu          󰇮
+notmuch     󰇮
+*           󰀲
