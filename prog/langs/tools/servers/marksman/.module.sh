@@ -1,0 +1,1 @@
+packages yay:marksman-bin

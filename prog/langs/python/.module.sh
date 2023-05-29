@@ -18,6 +18,7 @@ package pip                                     \
   colorlog                                      \
   requests                                      \
   pyperclip                                     \
+  hurry.filesize                                \
   edn_format                                    \
   youtube-dl                                    \
   beautifulsoup4                                \
