@@ -36,6 +36,7 @@ application/vnd.comicbook+rar=sxcv.desktop
 application/vnd.comicbook+zip=sxcv.desktop
 application/x-cb7=sxcv.desktop;
 image/jp2=sxiv-ls.desktop
+image/jpeg=sxiv-ls.desktop
 image/svg+xml=sxiv-ls.desktop
 
 application/pdf=org.pwmt.zathura.desktop

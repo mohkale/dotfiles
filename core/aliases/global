@@ -220,6 +220,7 @@ cd9@dir     ../../../../../../../../../
 cd10@dir    ../../../../../../../../../../
 
 cdd         cd -
+cdp         cd "$(pwd)"
 qdd         pushd -
 
 # Temporary File-system
