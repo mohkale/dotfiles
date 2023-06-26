@@ -105,7 +105,7 @@ print(root "/" it sep base "/" it)
 
 # The condition used to check whether a directory {} is a code repository or not.
 # this can be any shell expression that can be passed to `find -exec`.
-repo_assert=( [ -e '{}/.git' -o -e '{}/GemFile' -o -e '{}/__main__.py' -o -e '{}/CMakeLists.txt' -o -e '{}/.projectile' ] )
+repo_assert=( [ -e '{}/.git' -o -e '{}/.sl' -o -e '{}/GemFile' -o -e '{}/__main__.py' -o -e '{}/CMakeLists.txt' -o -e '{}/.projectile' ] )
 
 # The approach is to spawn a find process for each path that is potentially
 # a repository assert a repository test on them and print out when true.

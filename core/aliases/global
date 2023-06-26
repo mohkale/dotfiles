@@ -63,7 +63,6 @@ clear   printf '\e[2J\e[3J\e[H'
 clamp   cut -b 1-$COLUMNS
 wai     whoami
 nv      nvim
-code    codium
 netcat  ncat
 chksum  cksum
 unmount umount
@@ -247,7 +246,6 @@ brain@dirx       $XDG_DOCUMENTS_DIR/brain
 media@dirx       $XDG_MEDIA_HOME
 
 h@dirx           ~
-gh@dirx          ~
 rp@dirx          $XDG_DEV_HOME/repos
 sc@dirx          $XDG_DEV_HOME/scripts
 bin@dirx         $XDG_BIN_DIR

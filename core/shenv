@@ -105,6 +105,14 @@ case "$TERM" in
     ;;
 esac
 
+if command -v nvim >/dev/null 2>&1; then
+  alias vim=nvim
+fi
+
+if command -v codium >/dev/null 2>&1; then
+  alias code=codium
+fi
+
 [ -r "$XDG_CONFIG_HOME/shenv.local" ] &&
   . "$XDG_CONFIG_HOME/shenv.local"
 
