@@ -18,6 +18,8 @@
     insteadOf = https://bbgithub.dev.bloomberg.com/
 [url "git@bbgithub.dev.bloomberg.com:"]
     insteadOf = bbgithub:
+[url "https://git.savannah.gnu.org/git/"]
+    insteadOf = "git://git.savannah.gnu.org/"
 
 # Note: See [[https://tutti.prod.bloomberg.com/bbgithub/configuration][here]] for how to setup proxy access for github and gitlab repos.
 

@@ -17,9 +17,10 @@ imc                    dev-compose compose
 imx                    [ -e .lcldev/dev-compose ] && rm -rvf .lcldev/dev-compose
 # Weekly refresh helpers
 weekly-refresh         weekly-erase-docker-cache; weekly-erase-build-cache; weekly-rebuild-project-images
-weekly-erase-docker-cache      sudo service docker restart && cachectl up -d --force-recreate && dd-erase-all
+weekly-erase-docker-cache      sudo service docker restart && cachectl pull && cachectl up -d --force-recreate && dd-erase-all
 weekly-erase-build-cache       ls-projects | sort -u | awk -F : -e '{ printf("%s/cmake-build\n", $1); printf("%s/cmake-install\n", $1) }' | parallel [ -e {} ] '&&' rm -rvf {}
 weekly-rebuild-project-images  ls-projects | sort -u | parallel --ungroup --colsep=: --max-procs=1 [ -e {1}/.lcldev/dev-compose/docker-compose.yml ] '&&' cd {1} '&&' echo {2} '&&' dev-compose compose pull '&&' dev-compose compose build --pull --parallel
+weekly-rebuild-project-images-list ls-projects | sort -u | parallel --ungroup --colsep=: --max-procs=1 [ -e {1}/.lcldev/dev-compose/docker-compose.yml ] '&&' echo {1}
 
 # Dev machine helpers
 
@@ -55,3 +56,5 @@ faisvp-pw-063@sshx     getprdwin -i FAISVP-PW-063
 # Currently requires an extra ticket argument.
 ba32350@sshx           bpipefh ba32350
 ba32351@sshx           bpipefh ba32351
+
+rtlnd-ob-290@ssh       RTLND-OB-290

@@ -1,0 +1,13 @@
+---  # Main dashboard tmux configuration
+
+session_name: testtrep
+start_directory: ~/Develop/repos/fai/testtrep
+
+windows:
+  - window_name: testtrep
+    panes:
+      - dev-compose compose run --rm testtrep
+  - window_name: reference
+    layout: even-horizontal
+    panes:
+      - enw $XDG_DEV_HOME/repos/fai/mfa-templates/templates/SymbolMapper.xml.t $XDG_DEV_HOME/repos/fai/feedadapter/src/common/symbolmapper/fa_symbolmapper.t.cpp
