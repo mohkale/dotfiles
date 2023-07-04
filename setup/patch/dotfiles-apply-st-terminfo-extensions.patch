@@ -1,0 +1,29 @@
+diff --git prog/tmux/term/tmux-24bit.terminfo prog/tmux/term/tmux-24bit.terminfo
+index 8ff955f..ac51f8a 100644
+--- prog/tmux/term/tmux-24bit.terminfo
++++ prog/tmux/term/tmux-24bit.terminfo
+@@ -2,10 +2,12 @@
+ ## Use colon separators.
+ tmux-24bit|screen with 24-bit direct color mode,
+   use=tmux-256color,
++  use=st-256color,
+   setb24=\E[48:2:%p1%{65536}%/%d:%p1%{256}%/%{255}%&%d:%p1%{255}%&%dm,
+   setf24=\E[38:2:%p1%{65536}%/%d:%p1%{256}%/%{255}%&%d:%p1%{255}%&%dm,
+ ## Use semicolon separators.
+ tmux-24bits|screen with 24-bit direct color mode,
+   use=tmux-256color,
++  use=st-256color,
+   setb24=\E[48;2;%p1%{65536}%/%d;%p1%{256}%/%{255}%&%d;%p1%{255}%&%dm,
+   setf24=\E[38;2;%p1%{65536}%/%d;%p1%{256}%/%{255}%&%d;%p1%{255}%&%dm,
+diff --git prog/tmux/term/tmux.terminfo prog/tmux/term/tmux.terminfo
+index e0f532b..78b30e0 100644
+--- prog/tmux/term/tmux.terminfo
++++ prog/tmux/term/tmux.terminfo
+@@ -10,5 +10,7 @@
+ # annoyance 😂.
+ tmux|screen with 24-bit direct color mode,
+   use=screen,
++  use=st,
+ tmux-256color|screen with 24-bit direct color mode,
+   use=screen-256color,
++  use=st-256color,
