@@ -654,7 +654,7 @@ EOF
 # Package manager for the python pip module system.
 # See also https://github.com/sobolevn/dotbot-pip
 PACMANS+=(pip)
-_package_pip_usage="Usage: package pip [-h] [-g] PKG [PKGS...]"
+_package_pip_usage="Usage: package pip [-h] PKG [PKGS...]"
 read -d '' -r _package_pip_help <<EOF
 $_clean_usage
 
@@ -665,35 +665,36 @@ Positional arguments:
 
 Optional arguments:
   -h  Show this help message and exit
-  -g  Install PKGS globally instead of locally
 EOF
 _package_pip() {
-  local global=0
   local OPTIND
-  while getopts 'hg' OPTION; do
+  while getopts 'h' OPTION; do
     case "$OPTION" in
       h) echo "$_package_pip_help"
          return 0 ;;
       \?) echo "$_package_pip_usage" >&2
           return 1 ;;
-      g) global=1 ;;
     esac
   done
   shift "$((OPTIND-1))"
   local flags=()
-  [ "$global" -eq 0 ] &&
-    flags+=( '--user' )
 
-  if ! hash pip 2>/dev/null; then
+  if ! hash python3 pip 2>/dev/null; then
     return 1
   fi
 
   _skip_directive package && return
 
+  local venv_dir="$XDG_LIB_HOME/python-venvs/default"
+  if ! [ -e "$venv_dir" ]; then
+    debug 'Setting up venv for local pip installs'
+    _run_cmd python3 -m venv "$venv_dir"
+  fi
+
   if [ "$#" -gt 0 ]; then
     debug 'Installing packages with pip: %s' "$(_csv "$@")"
     printf '%s\n' "$@" |
-      _run_cmd_xargs python3 -m pip install "${flags[@]}"
+      _run_cmd_xargs "$venv_dir/bin/python3" -m pip install "${flags[@]}"
   fi
 }
 
