@@ -7,7 +7,7 @@ link-to "$XDG_BIN_DIR" ./cmds/*
 # Install python itself
 packages                                        \
   apt:python3,python3-pip                       \
-  msys:python python-pip                        \
+  msys:python,python-pip                        \
   choco:python                                  \
   pacman:python3,python-pip
 
