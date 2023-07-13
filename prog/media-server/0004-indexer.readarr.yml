@@ -1,0 +1,20 @@
+---
+version: "1"
+services:
+  radarr:
+    container_name: ms-radarr
+    depends_on:
+      - caddy
+      - prowlarr
+      - transmission
+    environment:
+      PUID: $PUID
+      PGID: $PGID
+      TZ: Europe/London
+    image: lscr.io/linuxserver/radarr:latest
+    profiles:
+      - movies
+    restart: unless-stopped
+    volumes:
+      - $XDG_CONFIG_HOME/media-server/radarr:/config
+      - $XDG_MEDIA_HOME:/media

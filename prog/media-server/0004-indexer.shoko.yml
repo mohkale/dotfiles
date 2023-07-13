@@ -1,0 +1,21 @@
+---
+version: "1"
+services:
+  readarr:
+    container_name: ms-readarr
+    depends_on:
+      - caddy
+      - prowlarr
+      - transmission
+    environment:
+      PUID: $PUID
+      PGID: $PGID
+      TZ: Europe/London
+    image: lscr.io/linuxserver/readarr:develop
+    profiles:
+      - books
+      - comics
+    restart: unless-stopped
+    volumes:
+      - $XDG_CONFIG_HOME/media-server/readarr:/config
+      - $XDG_MEDIA_HOME:/media

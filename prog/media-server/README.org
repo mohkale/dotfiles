@@ -355,10 +355,12 @@ calling =docker-compose "$@"=.
 
 * Recommended Customizations and FAQ
   You can override the docker configuration for any of the services defined in this
-  module by creating a [[file:docker-compose.override.yml]] file and modifying some of
-  the fields. This is a standard mechanism for customizing docker-compose
-  configurations. If you're in doubt about the final configuration you can use
-  ~media-server config~ to dump the complete configuration file including overrides.
+  module by creating a override file and modifying some of the fields. For example to
+  override [[file:0002-media.jellyfin.yml]] create a
+  [[file:0002-media.jellyfin.override.yml]] file. This is a standard mechanism for
+  customizing docker-compose configurations. If you're in doubt about the final
+  configuration you can use ~media-server config~ to dump the complete configuration
+  file including overrides.
 
 ** Trusting The Media Server on Localhost
    Caddy uses its own certificate authority to authenticate localhost addresses. See
@@ -476,7 +478,7 @@ calling =docker-compose "$@"=.
     because if you haven't setup port forwarding you wouldn't traffic from the
     default transmission peer port to reach your host).
 
-    #+CAPTION: Sample override for [[file:vpn.docker-compose.override.yml]] which allows the forwarded port through the firewall.
+    #+CAPTION: Sample override for [[file:9999-optional.vpn.override.yml]] which allows the forwarded port through the firewall.
     #+begin_src yaml
       ---
       services:
@@ -491,7 +493,7 @@ calling =docker-compose "$@"=.
    your media remotely you'll most likely want to override this address with a
    public address that routes straight to your machine (see [[*Public Routing to Your Server][public routing to your
    server]]). This can be done by setting the =$SITE_ADDRESS= environment variable for
-   the caddy service in the [[file:docker-compose.override.yml]] file:
+   the caddy service in the [[file:0001-core.caddy.override.yml]] file:
 
    #+begin_src yaml
      ---

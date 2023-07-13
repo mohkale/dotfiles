@@ -1,0 +1,20 @@
+---
+version: "1"
+services:
+  lidarr:
+    container_name: ms-lidarr
+    depends_on:
+      - caddy
+      - prowlarr
+      - transmission
+    environment:
+      PUID: $PUID
+      PGID: $PGID
+      TZ: Europe/London
+    image: lscr.io/linuxserver/lidarr:latest
+    profiles:
+      - music
+    restart: unless-stopped
+    volumes:
+      - $XDG_CONFIG_HOME/media-server/lidarr:/config
+      - $XDG_MEDIA_HOME:/media

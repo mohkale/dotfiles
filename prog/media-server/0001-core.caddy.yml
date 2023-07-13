@@ -1,0 +1,22 @@
+---
+version: "1"
+services:
+  caddy:
+    container_name: ms-caddy
+    build:
+      context: .
+      dockerfile: Dockerfile.caddy
+    environment:
+      SITE_ADDRESS: localhost
+    ports:
+      - "80:80"
+      # SSL ports needed to be able to route through HTTPs.
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - $PWD/proxy:/etc/caddy
+      # We put data into $XDG_CONFIG_HOME because it should be persisted.
+      # It may contain letsencrypt certificates or other configurations
+      # that you don't want to be removed.
+      - $XDG_CONFIG_HOME/media-server/caddy/data:/data
+      - $XDG_CONFIG_HOME/media-server/caddy/config:/config

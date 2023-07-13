@@ -1,0 +1,17 @@
+---
+version: "1"
+services:
+  heimdall:
+    container_name: ms-heimdall
+    depends_on:
+      - caddy
+    environment:
+      PUID: $PUID
+      PGID: $PGID
+      TZ: Europe/London
+    image: lscr.io/linuxserver/heimdall:latest
+    profiles:
+      - dashboard
+    restart: unless-stopped
+    volumes:
+      - $XDG_CONFIG_HOME/media-server/heimdall:/config

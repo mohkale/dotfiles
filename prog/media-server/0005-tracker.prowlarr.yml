@@ -1,0 +1,20 @@
+---
+version: "1"
+services:
+  prowlarr:
+    container_name: ms-prowlarr
+    environment:
+      PUID: $PUID
+      PGID: $PGID
+      TZ: Europe/London
+    image: lscr.io/linuxserver/prowlarr:develop
+    profiles:
+      - anime
+      - books
+      - comics
+      - movies
+      - music
+      - tv-shows
+    restart: unless-stopped
+    volumes:
+      - $XDG_CONFIG_HOME/media-server/prowlarr:/config

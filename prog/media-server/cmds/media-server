@@ -69,13 +69,16 @@ add_compose_file() { # [COMPOSE].yml
   fi
 }
 
-add_compose_file docker-compose
+while read -r compose_file; do
+  add_compose_file "${compose_file//.yml/}"
+done <<< "$(find . -mindepth 1 -maxdepth 1 -iname '*.yml' -not -iname '*.override.yml' -not -iname '9*' | sort -V)"
+
 [ "${MEDIA_SERVER_AUTHELIA:-0}" -eq 0 ] ||
-  add_compose_file auth.docker-compose
+  add_compose_file 9998-optional.auth
 if [ "${MEDIA_SERVER_VPN:-0}" -ne 0 ]; then
-  add_compose_file vpn.docker-compose
+  add_compose_file 9999-optional.vpn
 else
-  add_compose_file no-vpn.docker-compose
+  add_compose_file 9999-optional.no-vpn
 fi
 
 export COMPOSE_PROFILES="${MEDIA_SERVER_PROFILES}"

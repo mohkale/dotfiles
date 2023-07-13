@@ -1,0 +1,20 @@
+---
+version: "1"
+services:
+  navidrome:
+    container_name: ms-navidrome
+    depends_on:
+      - caddy
+    environment:
+      ND_DEFAULTTHEME: Spotify-ish
+      ND_ENABLETRANSCODINGCONFIG: true
+      ND_PROMETHEUS_ENABLED: true
+      ND_SCANSCHEDULE: "@every 1h"
+    image: deluan/navidrome:latest
+    profiles:
+      - music
+    restart: unless-stopped
+    user: $PUID:$PGID
+    volumes:
+      - $XDG_CONFIG_HOME/media-server/navidrome:/data
+      - $XDG_MEDIA_HOME/content/music:/music:ro

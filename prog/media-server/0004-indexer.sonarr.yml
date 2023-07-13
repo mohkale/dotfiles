@@ -1,0 +1,18 @@
+---
+version: "1"
+services:
+  shoko:
+    container_name: ms-shoko
+    depends_on:
+      - caddy
+    environment:
+      PUID: $PUID
+      PGID: $PGID
+      TZ: Europe/London
+    image: shokoanime/server:latest
+    profiles:
+      - anime
+    restart: unless-stopped
+    volumes:
+      - $XDG_CONFIG_HOME/media-server/shoko:/home/shoko/.shoko/
+      - $XDG_MEDIA_HOME:/media

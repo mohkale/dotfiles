@@ -1,0 +1,31 @@
+---
+version: "1"
+services:
+  jellyfin:
+    container_name: ms-jellyfin
+    build:
+      args:
+        DOTNET_VERSION: '6.0'
+      context: .
+      dockerfile: Dockerfile.jellyfin
+    depends_on:
+      - caddy
+    environment:
+      PUID: $PUID
+      PGID: $PGID
+      TZ: Europe/London
+    # Enable to support service and client discovery.
+    # ports:
+    #   - 7359:7359/udp
+    #   - 1900:1900/udp
+    profiles:
+      - anime
+      - comics
+      - movies
+      - music
+      - tv-shows
+    restart: unless-stopped
+    volumes:
+      - $XDG_CACHE_HOME/media-server/jellyfin:/cache
+      - $XDG_CONFIG_HOME/media-server/jellyfin:/config
+      - $XDG_MEDIA_HOME/content:/media/content:ro
