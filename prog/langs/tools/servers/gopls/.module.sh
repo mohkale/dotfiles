@@ -1,3 +1,1 @@
-packages \
-  go:golang.org/x/tools/gopls@latest \
-  pacman:gopls
+packagex gopls

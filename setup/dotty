@@ -15,6 +15,8 @@
 #    stdout unless explicitly required. Some executions of this script
 #    may not have an interactive stdin or terminal stdout.
 
+# shellcheck disable=SC2317
+
 set -a          # Export everything
 set -o pipefail # Fail a command when anything in its pipeline fails
 shopt -s nullglob # Make globs with no results evaluate to nothing
@@ -23,6 +25,8 @@ root="${root:-${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles}"
 exit_code=0
 fail_early=0
 BOTS_FILE="$root/setup/cache/dotty.bots"
+
+_PYTHON_VENV_DIR="$XDG_LIB_HOME/python-venvs/default"
 
 # Utils {{{
 #  _   _ _   _ _
@@ -685,16 +689,15 @@ _package_pip() {
 
   _skip_directive package && return
 
-  local venv_dir="$XDG_LIB_HOME/python-venvs/default"
-  if ! [ -e "$venv_dir" ]; then
+  if ! [ -e "$_PYTHON_VENV_DIR" ]; then
     debug 'Setting up venv for local pip installs'
-    _run_cmd python3 -m venv "$venv_dir"
+    _run_cmd python3 -m venv "$_PYTHON_VENV_DIR"
   fi
 
   if [ "$#" -gt 0 ]; then
     debug 'Installing packages with pip: %s' "$(_csv "$@")"
     printf '%s\n' "$@" |
-      _run_cmd_xargs "$venv_dir/bin/python3" -m pip install "${flags[@]}"
+      _run_cmd_xargs "$_PYTHON_VENV_DIR/bin/python3" -m pip install "${flags[@]}"
   fi
 }
 
@@ -826,6 +829,102 @@ packages() {
   # Disregard error code when we weren't meant to install anything anyways.
   _skip_directive package && return
   return 1
+}
+
+PACKAGEX_FILE="$DOTFILES/setup/packages.csv"
+
+_packagex_installed_p() { # (package, predicate)
+  local package="$1" pred="$2"
+
+  trace 'Checking if package=%s is already installed with pred=%s' "$package" "$pred"
+  if [ -z "$2" ]; then
+    trace 'No package installed predicate exists for package=%s' "$package"
+    return 1
+  fi
+
+  local result=0
+
+  local pred_type=
+  local pred_arg=
+  IFS=: read -r pred_type pred_arg <<< "$pred"
+  case "$pred_type" in
+    which*)
+      hash "$pred_arg" 2>/dev/null
+      ;;
+    stat*)
+      [ -e "$pred_arg" ]
+      ;;
+    python-module*)
+      [ -e "$_PYTHON_VENV_DIR" ] &&
+        "$_PYTHON_VENV_DIR/bin/python3" -c '
+import sys
+import importlib.util
+sys.exit(0 if importlib.util.find_spec(sys.argv[2]) is not None else 1)' -- "$pred_arg" >/dev/null 2>&1
+      ;;
+    *)
+      error 'Unsupported package installed predicate type=%s for package=%s' "$pred_type" "$package"
+      false
+      ;;
+  esac || result=1
+
+  if [ "$result" -eq 0 ]; then
+    debug 'Package installed predicate is true for package=%s' "$1"
+  else
+    debug 'Package installed predicate is false for package=%s' "$1"
+  fi
+
+  return "$result"
+}
+
+_packagex_usage="Usage: packagex [-h] PKG[,PKG...]"
+read -d '' -r _packagex_help <<EOF
+$_packagex_usage
+
+  A wrapper around packages sourcing definitions from $PACKAGEX_FILE.
+
+Positional arguments:
+  PKGS       List of packages that have declarations in packages.csv
+             to install.
+EOF
+packagex() {
+  local OPTIND
+  while getopts 'h' OPTION; do
+    case "$OPTION" in
+      h) echo "$_packagex_help"
+         return 0 ;;
+      \?) echo "$_packagex_usage" >&2
+          return 1 ;;
+    esac
+  done
+  shift "$((OPTIND-1))"
+
+  result=0
+  local package
+  for package in "$@"; do
+    trace 'Searching for package spec for package=%s' "$package"
+    local config
+    if ! config=$(grep '^'"$package"',' "$PACKAGEX_FILE"); then
+      error 'Unable to find package spec for package=%s' "$package"
+      result=1
+      continue
+    fi
+
+    local package_installed_p package_install_specs
+    IFS=, read -r _ package_installed_p package_install_specs <<< "$config"
+
+    if _packagex_installed_p "$package" "$package_installed_p"; then
+      debug "Skipping installing package=%s because it is already installed" "$package"
+      continue
+    fi
+
+    local package_install_specs_array=( )
+    IFS=, read -r -a package_install_specs_array <<< "$package_install_specs"
+    if ! packages "${package_install_specs_array[@]}"; then
+      result=1
+    fi
+  done
+
+  return "$result"
 }
 
 # Packages }}}

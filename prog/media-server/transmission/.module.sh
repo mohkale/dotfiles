@@ -25,7 +25,7 @@ makedir                                         \
   "$XDG_DOWNLOAD_DIR/incomplete"                \
   "$XDG_MEDIA_HOME/downloads/incomplete"
 
-packages yay:tremc-git
-packages pip:libtorrent,asyncinotify,"-r$(pwd)/lib/python/transmission/requirements.txt"
+packagex tremc py-libtorrent py-asyncinotify
+package pip "-r$(pwd)/lib/python/transmission/requirements.txt"
 
 import ..

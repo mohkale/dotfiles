@@ -1,1 +1,1 @@
-packages yay:lua,luarocks
+packagex lua luarocks

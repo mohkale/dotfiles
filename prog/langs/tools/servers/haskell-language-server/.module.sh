@@ -1,1 +1,1 @@
-packages yay:haskell-language-server
+packagex haskell-language-server

@@ -1,3 +1,1 @@
-packages                                        \
-  npm:vim-language-server                       \
-  yarn:vim-language-server
+packagex vim-language-server

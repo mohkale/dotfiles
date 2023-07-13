@@ -1,1 +1,1 @@
-packages pacman:ccls
+packagex ccls

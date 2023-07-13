@@ -1,3 +1,3 @@
-packages pacman:zathura,zathura-cb,zathura-pdf-mupdf
+packagex zathura zathura-cb zathura-pdf
 
 link "$XDG_CONFIG_HOME/zathura/zathurarc"

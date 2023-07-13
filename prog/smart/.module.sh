@@ -1,1 +1,1 @@
-packages pacman:smartmontools
+packagex smartmontools

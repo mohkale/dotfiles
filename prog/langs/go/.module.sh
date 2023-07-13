@@ -1,3 +1,1 @@
-packages                                        \
-  choco:golang                                  \
-  yay:go,gotools
+packagex golang

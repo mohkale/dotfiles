@@ -1,1 +1,1 @@
-packages pacman:clang
+packagex clangd

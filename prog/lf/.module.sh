@@ -1,7 +1,4 @@
-packages                                        \
-  yay:lf-git                                    \
-  choco:lf                                      \
-  go:github.com/gokcehan/lf@latest
+packagex lf
 
 clean -r "$XDG_CONFIG_HOME/lf"
 

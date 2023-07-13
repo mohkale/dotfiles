@@ -4,7 +4,7 @@ makedir                                         \
   "$XDG_CONFIG_HOME/media-server/jellyfin"      \
   "$XDG_CACHE_HOME/media-server/jellyfin"
 
-packages yay:jellyfin-media-player,mpv-mpris
+packagex jellyfin-media-player mpv-mpris
 
 link /usr/lib/mpv-mpris/mpris.so ~/.local/share/jellyfinmediaplayer/scripts/
 

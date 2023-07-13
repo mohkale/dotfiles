@@ -1,3 +1,1 @@
-packages                                        \
-  choco:tor-browser                             \
-  yay:tor-browser
+packagex tor-browser

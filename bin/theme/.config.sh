@@ -17,4 +17,4 @@ link                                            \
   "$XDG_BIN_DIR/transmission"
 
 import -f langs/python
-packages pip:pygithub,psutil,python-mpd2
+packagex py-github py-psutil py-mpd2

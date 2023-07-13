@@ -1,3 +1,1 @@
-packages                                        \
-  choco:imagemagick                             \
-  pacman:imagemagick
+packagex imagemagick

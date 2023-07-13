@@ -1,4 +1,4 @@
-packages pacman:wget
+packagex wget
 
 info "Generating WgetRC File"
 run-cmds <<-'EOF'

@@ -1,3 +1,1 @@
-packages                                        \
-  choco:firefox                                 \
-  pacman:firefox
+packagex firefox

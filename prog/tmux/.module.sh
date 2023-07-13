@@ -1,9 +1,4 @@
-packages                                        \
-  apt:tmux                                      \
-  msys:tmux                                     \
-  yay:tmux-git
-
-packages pip:tmuxp
+packagex tmux tmuxp
 
 clean -r "$XDG_CONFIG_HOME/tmux" "$XDG_CONFIG_HOME/tmuxp"
 

@@ -1,1 +1,1 @@
-packages yay:marksman-bin
+packagex marksman
