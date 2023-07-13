@@ -5,16 +5,11 @@
 
 services:
   gluetun:
-    image: qmcgaw/gluetun
+    container_name: gluetun
     cap_add:
       - NET_ADMIN
     devices:
       - /dev/net/tun:/dev/net/tun
-    ports:
-      # Transmission service ports (see [[file:no-vpn.docker-compose.yml]]).
-      - 9091:9091
-    volumes:
-      - $XDG_CONFIG_HOME/gluetun:/gluetun
     environment:
       PUID: $PUID
       PGID: $PGID
@@ -30,6 +25,12 @@ services:
       # Set this to allow port forwarding from your VPN to your bittorrent
       # application.
       # FIREWALL_VPN_INPUT_PORTS: $TRANSMISSION_PEER_PORT
+    image: qmcgaw/gluetun
+    ports:
+      # Transmission service ports (see [[file:no-vpn.docker-compose.yml]]).
+      - 9091:9091
+    volumes:
+      - $XDG_CONFIG_HOME/gluetun:/gluetun
 
   # Set the media-server host so that caddy can still proxy to services running
   # on the same network as gluetun.

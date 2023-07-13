@@ -6,6 +6,7 @@ services:
   ###############################################################################
 
   caddy:
+    container_name: caddy
     build:
       context: ./caddy
     environment:
@@ -28,13 +29,14 @@ services:
   ###############################################################################
 
   heimdall:
-    image: lscr.io/linuxserver/heimdall:latest
+    container_name: heimdall
     depends_on:
       - caddy
     environment:
       PUID: $PUID
       PGID: $PGID
       TZ: Europe/London
+    image: lscr.io/linuxserver/heimdall:latest
     volumes:
       - $XDG_CONFIG_HOME/media-server/heimdall:/config
     restart: unless-stopped
@@ -44,6 +46,7 @@ services:
   ###############################################################################
 
   jellyfin:
+    container_name: jellyfin
     build:
       args:
         DOTNET_VERSION: '6.0'
@@ -65,6 +68,7 @@ services:
       - $XDG_MEDIA_HOME/content:/media/content:ro
 
   navidrome:
+    container_name: navidrome
     depends_on:
       - caddy
     environment:
