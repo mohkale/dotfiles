@@ -6,7 +6,7 @@ services:
   ###############################################################################
 
   caddy:
-    container_name: caddy
+    container_name: ms-caddy
     build:
       context: ./caddy
     environment:
@@ -29,7 +29,7 @@ services:
   ###############################################################################
 
   heimdall:
-    container_name: heimdall
+    container_name: ms-heimdall
     depends_on:
       - caddy
     environment:
@@ -46,7 +46,7 @@ services:
   ###############################################################################
 
   jellyfin:
-    container_name: jellyfin
+    container_name: ms-jellyfin
     build:
       args:
         DOTNET_VERSION: '6.0'
@@ -68,7 +68,7 @@ services:
       - $XDG_MEDIA_HOME/content:/media/content:ro
 
   navidrome:
-    container_name: navidrome
+    container_name: ms-navidrome
     depends_on:
       - caddy
     environment:
@@ -92,7 +92,7 @@ services:
       context: ./transmission
     depends_on:
       - caddy
-    container_name: transmission
+    container_name: ms-transmission
     environment:
       PUID: $PUID
       PGID: $PGID
@@ -116,7 +116,7 @@ services:
 
   lidarr:
     # Music.
-    container_name: lidarr
+    container_name: ms-lidarr
     depends_on:
       - caddy
       - prowlarr
@@ -133,7 +133,7 @@ services:
 
   sonarr:
     # TV shows.
-    container_name: sonarr
+    container_name: ms-sonarr
     depends_on:
       - caddy
       - prowlarr
@@ -155,7 +155,7 @@ services:
 
   radarr:
     # Movies.
-    container_name: radarr
+    container_name: ms-radarr
     depends_on:
       - caddy
       - prowlarr
@@ -172,7 +172,7 @@ services:
 
   readarr:
     # Books
-    container_name: readarr
+    container_name: ms-readarr
     depends_on:
       - caddy
       - prowlarr
@@ -189,7 +189,7 @@ services:
 
   shoko:
     # Anime
-    container_name: shoko
+    container_name: ms-shoko
     depends_on:
       - caddy
     environment:
@@ -207,12 +207,12 @@ services:
   ###############################################################################
 
   prowlarr:
-    image: lscr.io/linuxserver/prowlarr:develop
-    container_name: prowlarr
+    container_name: ms-prowlarr
     environment:
       PUID: $PUID
       PGID: $PGID
       TZ: Europe/London
+    image: lscr.io/linuxserver/prowlarr:develop
     restart: unless-stopped
     volumes:
       - $XDG_CONFIG_HOME/media-server/prowlarr:/config

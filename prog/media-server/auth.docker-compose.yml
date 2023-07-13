@@ -1,7 +1,7 @@
 ---
 services:
   authelia:
-    container_name: authelia
+    container_name: ms-authelia
     environment:
       PUID: $PUID
       PGID: $PGID
@@ -15,7 +15,7 @@ services:
     cap_add:
       - NET_ADMIN
       - NET_RAW
-    container_name: fail2ban
+    container_name: ms-fail2ban
     depends_on:
       authelia:
         condition: service_healthy

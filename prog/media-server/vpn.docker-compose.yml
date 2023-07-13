@@ -5,7 +5,7 @@
 
 services:
   gluetun:
-    container_name: gluetun
+    container_name: ms-gluetun
     cap_add:
       - NET_ADMIN
     devices:

@@ -540,7 +540,7 @@ calling =docker-compose "$@"=.
      ---
      services:
        duckdns:
-         container_name: duckdns
+         container_name: ms-duckdns
          environment:
            PUID: $PUID
            PGID: $PGID
