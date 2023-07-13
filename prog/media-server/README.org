@@ -39,7 +39,7 @@ calling =docker-compose "$@"=.
   Each service in my media server is accessible through a separate and distinct
   hostname under the main media-server address which defaults to localhost (see
   [[*Public Routing to Your Server][Public Routing to Your Server]]). To see the actual mappings take a look at the
-  [[file:caddy/Caddyfile]] file. You can connect to for example jellyfin at
+  [[file:proxy/Caddyfile]] file. You can connect to for example jellyfin at
   [[https:jellyfin.localhost]] if the server comes up correctly.
 
 * Directory Layout
@@ -513,7 +513,7 @@ calling =docker-compose "$@"=.
     localhost accessible for connections from players on the local machine but
     also to be able to access content remotely at the same time. This would remove
     the network layer communication beyond your host machine when it isn't needed and
-    improve playback performance. To do this you have to customise the local [[file:caddy/local.d/Caddyfile.routes][Caddyfile]]
+    improve playback performance. To do this you have to customise the local [[file:proxy/local.d/Caddyfile.routes][Caddyfile]]
     and have it replicate the routes of the main Caddy configuration. To make this as
     easy as possible you can re-purpose the existing template used to setup the
     media-server routes.
@@ -621,7 +621,7 @@ calling =docker-compose "$@"=.
 **** Caddy Authorisation and Authentication Configuration
      After the authelia service has been pulled you need to update Caddy to pull in
      the builtin authentication configuration. This can be done in
-     [[file:caddy/local.d/Caddyfile.global]].
+     [[file:proxy/local.d/Caddyfile.global]].
      #+begin_src caddyfile
        import /etc/caddy/config.d/Caddyfile.auth {$SITE_ADDRESS}
      #+end_src
@@ -633,7 +633,7 @@ calling =docker-compose "$@"=.
      simply replace any calls to =service_proxy_to= in the Caddy configurations with
      =authorized_service_proxy_to=. This can also be used with the recommended [[*Supporting Multiple Top Level Domains][multi
      top-level domain]] configuration by adding the following to
-     [[file:caddy/local.d/Caddyfile.routes]].
+     [[file:proxy/local.d/Caddyfile.routes]].
      #+begin_src caddyfile
        {$SITE_ADDRESS2} {
                import authelia_forward_auth

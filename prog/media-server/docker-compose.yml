@@ -8,7 +8,8 @@ services:
   caddy:
     container_name: ms-caddy
     build:
-      context: ./caddy
+      context: .
+      dockerfile: Dockerfile.caddy
     environment:
       SITE_ADDRESS: localhost
     ports:
@@ -17,7 +18,7 @@ services:
       - "443:443"
       - "443:443/udp"
     volumes:
-      - $PWD/caddy:/etc/caddy
+      - $PWD/proxy:/etc/caddy
       # We put data into $XDG_CONFIG_HOME because it should be persisted.
       # It may contain letsencrypt certificates or other configurations
       # that you don't want to be removed.
@@ -52,7 +53,8 @@ services:
     build:
       args:
         DOTNET_VERSION: '6.0'
-      context: ./jellyfin
+      context: .
+      dockerfile: Dockerfile.jellyfin
     depends_on:
       - caddy
     environment:
