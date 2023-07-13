@@ -48,19 +48,24 @@ calling =docker-compose "$@"=.
 
   + =media/= - Root of the media file-system, defined as =$XDG_MEDIA_HOME=.
     + =downloads/= - Media specific downloads directory (separate to =$XDG_DOWNLOAD_DIR=).
-      + =sonarr/= - Media indexer specific downloads sub-directories.
-      + =lidarr/=
-      + ...
+      + =incomplete/= - Destination for in progress downloads.
+      + =indexers/= - Media indexer specific downloads sub-directories.
+        + =sonarr/=
+        + =lidarr/=
+        + ...
+      + =random/= - Default directory for completed downloads.
     + =content/=
       + ~tv-shows/~ - Media sub-directories (content will be linked from =media/downloads=).
       + ...
   + =downloads/= - Standard system downloads directory (mapping from =$XDG_DOWNLOAD_DIR=).
+    + =incomplete/=
+    + =random/=
 
 * Post Install Configuration
   After building all the respective images you need to configure all the related
-  services and set them up to know about and communicate between each other.
+  services and set them up to know about and communicate with each other.
 
-** Lidarr, Sonarr, Radarr, Readarr
+** Lidarr, Sonarr, Radarr, Readarr                                  :indexer:
    These are /media indexer/ services. They maintain an index of all the media you have
    downloaded or are interested in keeping up to date. They also periodically query a
    set of configured *indexers* for new entries matching tracked content and
@@ -200,7 +205,7 @@ calling =docker-compose "$@"=.
           The Author Name
     #+end_src
 
-** Prowlarr
+** Prowlarr                                                         :tracker:
    Is a tracker management service. It maintains credentials and configurations for
    multiple trackers (usenet or torrent) and can sync them between your indexer
    services. Its setup so that when the indexer wants to search the trackers it
@@ -220,13 +225,13 @@ calling =docker-compose "$@"=.
    well. This will allow you to perform searches directly from prowlarr and add them
    to the download queue.
 
-** Jellyfin
+** Jellyfin                                                  :music:tv:movie:
    Is an open source media server. It catalogues media files and expose them through
    a user-friendly web based, mobile, TV, or vide-player interface. It makes
    maintaining a personal media server of the same quality as Netflix or Apple TV
    much simpler
 
-** Navidrome
+** Navidrome                                                          :music:
    Is a music media-server. I prefer it to Jellyfin for music as opposed to Jellyfin.
 
 * Hard Drive Setup
@@ -578,21 +583,6 @@ calling =docker-compose "$@"=.
    Note: This will make your server fully accessible through the internet. If you
    haven't, you should definitely consider setting up some sort of authentication on
    the server to restrict access only to you.
-
-*** Trusting The Media Server on Localhost
-    Caddy uses its own certificate authority to authenticate localhost addresses. See
-    [[https://caddyserver.com/docs/automatic-https#local-https][local HTTPs]]. The gist of this is that you can trust the certificates Caddy
-    assigns to addresses running on localhost on your root CA list. This can be done
-    by simply running:
-
-    #+begin_src shell
-      trust anchor --store ~/.config/media-server/caddy/data/caddy/pki/authorities/local/root.crt
-    #+end_src
-
-    After doing so you will be able to see the certificate with =caddy list= under the
-    /Caddy Local Authority/ name and be able to connect to services running under Caddy
-    directly. For example you can now open "Jellyfin Media Player" and connect to
-    [[https:jellyfin.localhost]].
 
 *** Authorised Access with Authelia
     If you intend to access your media-server over the public internet you should
