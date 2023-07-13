@@ -24,6 +24,7 @@ import {args.1} jellyfin     {args.0} {$MEDIA_SERVER_HOST:jellyfin}     8096
 import {args.1} navidrome    {args.0} {$MEDIA_SERVER_HOST:navidrome}    4533
 import {args.1} qbittorrent  {args.0} {$MEDIA_SERVER_HOST:qbittorrent}  8756
 import {args.1} transmission {args.0} {$MEDIA_SERVER_HOST:transmission} 9091
+import {args.1} flood        {args.0} {$MEDIA_SERVER_HOST:flood}        3000
 import {args.1} lidarr       {args.0} {$MEDIA_SERVER_HOST:lidarr}       8686
 import {args.1} sonarr       {args.0} {$MEDIA_SERVER_HOST:sonarr}       8989
 import {args.1} radarr       {args.0} {$MEDIA_SERVER_HOST:radarr}       7878

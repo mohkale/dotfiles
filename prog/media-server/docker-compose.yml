@@ -135,6 +135,25 @@ services:
       - $XDG_MEDIA_HOME/downloads:/media/downloads
 
   ###############################################################################
+  #                                Bittorrent UIs                               #
+  ###############################################################################
+
+  flood:
+    container_name: ms-flood
+    depends_on:
+      - caddy
+    environment:
+      HOME: /config
+    image: jesec/flood:master
+    profiles:
+      - test
+    user: $PUID:$PGID
+    volumes:
+      - $XDG_CONFIG_HOME/media-server/flood:/config
+      - $XDG_DOWNLOAD_DIR:/downloads
+      - $XDG_MEDIA_HOME/downloads:/media/downloads
+
+  ###############################################################################
   #                                Media Indexer                                #
   ###############################################################################
 

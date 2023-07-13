@@ -250,6 +250,12 @@ calling =docker-compose "$@"=.
    path option because it overrides the categories path so leave that option disabled.
    Completed torrents will be moved by the torrent-done script directly.
 
+** flood                                                                 :ui:
+   Is a web UI for rTorrent, Transmission and qBittorrent.
+
+   On setup you will be asked to setup a user and password and then enter your client
+   details.
+
 * Hard Drive Setup
 ** New Drive Checklist
    Adapted from this excellent reddit [[https://www.reddit.com/r/DataHoarder/comments/7seion/comment/dt49bej/?utm_source=share&utm_medium=web2x&context=3][comment]]. Once you recieve a new drive you
@@ -811,3 +817,22 @@ calling =docker-compose "$@"=.
     =AuthenticationMethod= field to =External=.
 
     See [[https://wiki.servarr.com/prowlarr/faq#can-i-disable-forced-authentication][here]].
+
+*** Bypass Authentication with flood
+    Flood supports bypassing authentication but annoyingly refuses to remember the
+    client details already entered. You can disable authentication and hardcode the
+    client URL and user/pass in the docker-compose override file.
+
+    #+begin_src yaml
+      ---
+      services:
+        flood:
+          environment:
+            FLOOD_OPTION_AUTH: none
+            FLOOD_OPTION_QBURL: http://localhost:8756
+            FLOOD_OPTION_QBUSER: ""
+            FLOOD_OPTION_QBPASS: ""
+    #+end_src
+
+** Flood fails with "Failed to access runtime directory"
+   Run =chmod 777= on your flood data directory.
