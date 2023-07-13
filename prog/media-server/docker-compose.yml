@@ -37,9 +37,11 @@ services:
       PGID: $PGID
       TZ: Europe/London
     image: lscr.io/linuxserver/heimdall:latest
+    profiles:
+      - dashboard
+    restart: unless-stopped
     volumes:
       - $XDG_CONFIG_HOME/media-server/heimdall:/config
-    restart: unless-stopped
 
   ###############################################################################
   #                                 Media Server                                #
@@ -61,6 +63,12 @@ services:
     # ports:
     #   - 7359:7359/udp
     #   - 1900:1900/udp
+    profiles:
+      - anime
+      - comics
+      - movies
+      - music
+      - tv-shows
     restart: unless-stopped
     volumes:
       - $XDG_CACHE_HOME/media-server/jellyfin:/cache
@@ -77,6 +85,8 @@ services:
       ND_PROMETHEUS_ENABLED: true
       ND_SCANSCHEDULE: "@every 1h"
     image: deluan/navidrome:latest
+    profiles:
+      - music
     restart: unless-stopped
     user: $PUID:$PGID
     volumes:
@@ -125,6 +135,8 @@ services:
       # These are referenced in the watcher.json configuration.
       XDG_DOWNLOAD_DIR: /downloads
       XDG_MEDIA_HOME: /media
+    profiles:
+      - torrents
     volumes:
       - $XDG_CONFIG_HOME/media-server/transmission:/config
       - $PWD/transmission/scripts:/scripts
@@ -169,6 +181,8 @@ services:
       PGID: $PGID
       TZ: Europe/London
     image: lscr.io/linuxserver/lidarr:latest
+    profiles:
+      - music
     restart: unless-stopped
     volumes:
       - $XDG_CONFIG_HOME/media-server/lidarr:/config
@@ -186,6 +200,8 @@ services:
       PGID: $PGID
       TZ: Europe/London
     image: lscr.io/linuxserver/sonarr:latest
+    profiles:
+      - tv-shows
     restart: unless-stopped
     volumes:
       - $XDG_CONFIG_HOME/media-server/sonarr:/config
@@ -208,6 +224,8 @@ services:
       PGID: $PGID
       TZ: Europe/London
     image: lscr.io/linuxserver/radarr:latest
+    profiles:
+      - movies
     restart: unless-stopped
     volumes:
       - $XDG_CONFIG_HOME/media-server/radarr:/config
@@ -225,6 +243,9 @@ services:
       PGID: $PGID
       TZ: Europe/London
     image: lscr.io/linuxserver/readarr:develop
+    profiles:
+      - books
+      - comics
     restart: unless-stopped
     volumes:
       - $XDG_CONFIG_HOME/media-server/readarr:/config
@@ -240,6 +261,8 @@ services:
       PGID: $PGID
       TZ: Europe/London
     image: shokoanime/server:latest
+    profiles:
+      - anime
     restart: unless-stopped
     volumes:
       - $XDG_CONFIG_HOME/media-server/shoko:/home/shoko/.shoko/
@@ -256,6 +279,13 @@ services:
       PGID: $PGID
       TZ: Europe/London
     image: lscr.io/linuxserver/prowlarr:develop
+    profiles:
+      - anime
+      - books
+      - comics
+      - movies
+      - music
+      - tv-shows
     restart: unless-stopped
     volumes:
       - $XDG_CONFIG_HOME/media-server/prowlarr:/config

@@ -21,6 +21,18 @@
 #   Include an authelia service in the media-server. This will allow you to
 #   configure caddy to restrict access to services behind a login wall and
 #   even multi-factor authentication.
+# MEDIA_SERVER_PROFILES=[PROFILE[,PROFILES...]]
+#   Enable one or more media-server profiles. This alternates which services
+#   are enabled. Available profiles:
+#     anime
+#     books
+#     comics
+#     dashboard
+#     movies
+#     music
+#     test
+#     torrents
+#     tv-shows
 
 set -e
 
@@ -34,6 +46,9 @@ cd "$mediadot" || exit 1
 export PUID; PUID="$(id -u)"
 export PGID; PGID="$(id -g)"
 export PWD; PWD=$(pwd)
+
+# By default only the torrents profile is enabled.
+MEDIA_SERVER_PROFILES=torrents
 
 if [ -e "$XDG_CONFIG_HOME/media-server/profile.sh" ]; then
   . "$XDG_CONFIG_HOME/media-server/profile.sh"
@@ -62,5 +77,7 @@ if [ "${MEDIA_SERVER_VPN:-0}" -ne 0 ]; then
 else
   add_compose_file no-vpn.docker-compose
 fi
+
+export COMPOSE_PROFILES="${MEDIA_SERVER_PROFILES}"
 
 exec docker-compose "${COMPOSE_FILES[@]}" "$@"
