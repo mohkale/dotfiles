@@ -48,6 +48,8 @@ services:
     <<: *vpn-config
   transmission:
     <<: *vpn-config
+  qbittorrent:
+    <<: *vpn-config
   lidarr:
     <<: *vpn-config
   sonarr:

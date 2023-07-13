@@ -42,6 +42,9 @@ fi
 if [ -z "$TRANSMISSION_PEER_PORT" ]; then
   export TRANSMISSION_PEER_PORT=51413
 fi
+if [ -z "$QBITTORRENT_PEER_PORT" ]; then
+  export QBITTORRENT_PEER_PORT=51413
+fi
 
 COMPOSE_FILES=( )
 add_compose_file() { # [COMPOSE].yml

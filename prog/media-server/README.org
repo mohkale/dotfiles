@@ -79,12 +79,6 @@ calling =docker-compose "$@"=.
       Also configure the _Import Extra Files_ option to also import any other extra
       files you're interested in (I'd suggest =srt,ass=).
    2. Under _Download Clients_ add a client for each of the clients you intend to use.
-      In this configurations case that is Transmission. You can configure it to
-      connect to ~host=transmission~ and =port=9091=.
-
-      I'd also recommend disabling the hide advanced checkbox and setting the
-      Directory option to =/media/downloads/[INDEXER]= to ensure media related
-      downloads are kept on the same mount as your media directory.
    3. Under _Metadata_ you can have the indexers automatically generate media
       metadata for you. Since I use Jellyfin I'd recommend enabling the Kodi/Emby
       metadata provider when available.
@@ -233,6 +227,28 @@ calling =docker-compose "$@"=.
 
 ** Navidrome                                                          :music:
    Is a music media-server. I prefer it to Jellyfin for music as opposed to Jellyfin.
+
+** Transmission                                                  :bittorrent:
+   When using transmission you should update each indexer and tracker services
+   configuration to route to Transmission. This will be ~host=transmission~ and
+   =port=9091=.
+
+   I'd also recommend disabling the hide advanced checkbox and setting the Directory
+   option for the services to =/media/downloads/[INDEXER]= to ensure media related
+   downloads are kept on the same mount as your media directory.
+
+** qBittorrent                                                   :bittorrent:
+   Is an alternative BitTorrent client. By default the username and password for the
+   qBittorrent Docker image is admin/adminadmin.
+
+   Add qBittorrent as a download client to each indexer/tracker. You should setup a
+   client category of =[INDEXER]= and update the corresponding qBittorrent category to
+   download to =/media/downloads/[INDEXER]=.
+
+   After setup update the default torrent management mode to automatic and change the
+   default save path to =/downloads/incomplete=. We cannot use the incomplete torrents
+   path option because it overrides the categories path so leave that option disabled.
+   Completed torrents will be moved by the torrent-done script directly.
 
 * Hard Drive Setup
 ** New Drive Checklist
@@ -446,13 +462,13 @@ calling =docker-compose "$@"=.
     should work automatically. The transmission container will automatically reuse
     the network of the host container for the transmission peer ports.
 
-    After this all you have to do is make Transmission use the port you reserved
-    instead of the default peer port. This can be done by simply setting the
-    ~TRANSMISSION_PEER_PORT~ environment variable to your peer port. You must also
-    update the gluetun configuration to not block packets from the forwarded port at
-    the VPN firewall level (this is disabled by default because if you haven't setup
-    port forwarding you wouldn't traffic from the default transmission peer port to
-    reach your host).
+    After this all you have to do is make your download clients use the port you
+    reserved instead of the default peer port. This can be done by simply setting the
+    ~TRANSMISSION_PEER_PORT~ and =QBITTORRENT_PEER_PORT= environment variables to your
+    peer port. You must also update the gluetun configuration to not block packets
+    from the forwarded port at the VPN firewall level (this is disabled by default
+    because if you haven't setup port forwarding you wouldn't traffic from the
+    default transmission peer port to reach your host).
 
     #+CAPTION: Sample override for [[file:vpn.docker-compose.override.yml]] which allows the forwarded port through the firewall.
     #+begin_src yaml
@@ -460,7 +476,7 @@ calling =docker-compose "$@"=.
       services:
         gluetun:
           environment:
-            FIREWALL_VPN_INPUT_PORTS: $TRANSMISSION_PEER_PORT
+            FIREWALL_VPN_INPUT_PORTS: $TRANSMISSION_PEER_PORT,$QBITTORRENT_PEER_PORT
     #+end_src
 
 ** Override Top Level Domain
@@ -777,3 +793,21 @@ calling =docker-compose "$@"=.
      [Install]
      WantedBy=multi-user.target
    #+end_src
+
+** Bypassing Authentication
+   Several services have bespoke login walls. This is... annoying. I try to disable
+   these on each service I can find because I restrict access to localhost by default
+   and external access has a unified login wall through authelia.
+
+*** Bypass Authentication for qBittorrent
+    On settings under Web UI:
+    + Enable =Bypass authentication for clients on localhost=.
+    + Enable =Bypass authentication for clients in whitelisted IP subnets=.
+      _0.0.0.0/0_
+
+*** Bypass Authentication with Prowlarr
+    This can be done by updating the prowlarr configuration file at
+    [[file:$XDG_CONFIG_HOME/media-server/prowlarr/config.xml]] and setting the
+    =AuthenticationMethod= field to =External=.
+
+    See [[https://wiki.servarr.com/prowlarr/faq#can-i-disable-forced-authentication][here]].

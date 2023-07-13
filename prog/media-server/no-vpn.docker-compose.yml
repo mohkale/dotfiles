@@ -7,6 +7,15 @@
 # service for non-container networks.
 
 services:
+  qbittorrent:
+    network: host
+    ports:
+      # This is left public for convenience.
+      - 8756:8756
+      # These still need to be public so that peer port-forwarding works.
+      - $QBITTORRENT_PEER_PORT:$QBITTORRENT_PEER_PORT
+      - $QBITTORRENT_PEER_PORT:$QBITTORRENT_PEER_PORT/udp
+
   transmission:
     network: host
     ports:
