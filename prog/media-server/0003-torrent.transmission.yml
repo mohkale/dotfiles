@@ -16,11 +16,14 @@ services:
       # These are referenced in the watcher.json configuration.
       XDG_DOWNLOAD_DIR: /downloads
       XDG_MEDIA_HOME: /media
+      # Include the local python libraries directory in the PYTHONPATH.
+      PYTHONPATH: "${PYTHONPATH}:/local-python-modules"
     profiles:
       - torrents
     volumes:
       - $XDG_CONFIG_HOME/media-server/transmission:/config
       - $PWD/transmission/scripts:/scripts
+      - $PWD/lib:/local-python-modules/mohkale
       # We mount XDG downloads separate from media downloads. This way if I
       # need to download anything through tor that's unrelated to my media
       # server I can do so in my regular downloads directory.

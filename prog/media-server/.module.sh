@@ -32,6 +32,10 @@ makedir                                         \
 
 link-to "$XDG_BIN_DIR/" cmds/*
 link-to "$XDG_CONFIG_HOME/tmuxp" tmux/*
+link-to "$XDG_CONFIG_HOME/autoloads/cmds/" ./auto/*
+
+link                                                    \
+  "$XDG_CONFIG_HOME/cron-user.d/media-server.cron"
 
 makedir "$(pwd)/proxy/local.d"
 run-cmd-at "$(pwd)/proxy" touch local.d/Caddyfile.{global,snippets,routes}

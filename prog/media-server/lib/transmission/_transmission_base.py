@@ -10,7 +10,8 @@ CONFIG_DIR = pathlib.Path(
         "TRANSMISSION_HOME",
         os.path.join(
             os.environ.get("XDG_CONFIG_HOME", "~/.config"),
-            "transmission-daemon",
+            "media-server",
+            "transmission",
         ),
     )
 )

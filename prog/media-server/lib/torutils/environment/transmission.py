@@ -1,5 +1,5 @@
 """
-Transmission script helpers.
+Transmission script environment.
 """
 import argparse
 import os

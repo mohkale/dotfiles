@@ -13,7 +13,7 @@ windows:
     layout: even-vertical
     panes:
       - media-server-logs transmission
-      - transmission-watcher
+      - torwatcher
   - window_name: jellyfin
     panes:
       - media-server-logs jellyfin

@@ -59,7 +59,6 @@ proselint,which:proselint,yay:proselint,pip:proselint
 py-asyncinotify,python-module:asyncinotify,pip:asyncinotify
 py-ffpb,python-module:ffpb,pip:ffpb
 py-github,python-module:github,pip:pygithub
-py-libtorrent,python-module:libtorrent,pip:libtorrent
 py-mpd2,python-module:mpd,pip:python-mpd2
 py-psutil,python-module:psutil,pip:psutil
 pycodestyle,which:pycodestyle,pip:pycodestyle

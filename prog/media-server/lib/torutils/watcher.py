@@ -1,22 +1,23 @@
-"""transmission-watcher script helper module."""
+"""torwatcher script helper module."""
 
 import dataclasses
 import enum
-import functools
 import json
 import os
 import pathlib
 import re
-from typing import Any, Dict, List, NamedTuple, Optional, Tuple
+from typing import Any, Dict, List, NamedTuple, Tuple
 
-from ._transmission_base import CONFIG_DIR
+from .backend import TorrentBackend
 
-# Default config file path.
-WATCHER_FILE = CONFIG_DIR / "watcher.json"
+
+def watcher_file(backend: TorrentBackend) -> pathlib.Path:
+    """Watcher config file for `backend`."""
+    return backend.config_dir() / "watcher.json"
 
 
 class WatcherSuffixes(enum.Enum):
-    """Suffixes of files that can be added to Transmission by the watcher."""
+    """Suffixes of files that can be added to the bittorrent daemon by the watcher."""
 
     TORRENT = ".torrent"
     MAGNET = ".magnet"
@@ -48,10 +49,10 @@ _LabelMoves = Dict[str, pathlib.Path]
 
 @dataclasses.dataclass(frozen=True)
 class WatcherConfig:
-    """Transmission watcher configuration.
+    """Bittorrent daemon watcher configuration.
 
     For a description of the fields in this class see the example configuration file
-    at [[file:~/.config/dotfiles/prog/media-server/transmission/watcher.json][watcher.json]].
+    at [[file:~/.config/dotfiles/prog/media-server/watcher/watcher.json][watcher.json]].
     """
 
     download_dirs: List[pathlib.Path]

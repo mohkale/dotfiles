@@ -29,6 +29,7 @@ services:
     ports:
       # Transmission service ports (see [[file:no-vpn.docker-compose.yml]]).
       - 9091:9091
+      - 8756:8756
     volumes:
       - $XDG_CONFIG_HOME/gluetun:/gluetun
 
