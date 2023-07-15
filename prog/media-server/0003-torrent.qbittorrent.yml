@@ -3,6 +3,9 @@ version: "1"
 services:
   qbittorrent:
     container_name: ms-qbittorrent
+    build:
+      context: .
+      dockerfile: Dockerfile.qbittorrent
     depends_on:
       - caddy
     environment:
@@ -10,14 +13,18 @@ services:
       PGID: $PGID
       TZ: Europe/London
       WEBUI_PORT: 8756
+      QBITTORRENT_HOME: /config
       # These are referenced in the watcher.json coniguration.
       XDG_DOWNLOAD_DIR: /downloads
       XDG_MEDIA_HOME: /media
-    image: lscr.io/linuxserver/qbittorrent:latest
+      # Include the local python libraries directory in the PYTHONPATH.
+      PYTHONPATH: "${PYTHONPATH}:/local-python-modules"
     profiles:
       - test
     volumes:
       - $XDG_CONFIG_HOME/media-server/qbittorrent:/config
+      - $PWD/qbittorrent/scripts:/scripts
+      - $PWD/lib:/local-python-modules/mohkale
       # We mount XDG downloads separate from media downloads. This way if I
       # need to download anything through tor that's unrelated to my media
       # server I can do so in my regular downloads directory.

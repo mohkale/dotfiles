@@ -28,9 +28,12 @@ class TransmissionDaemonClient(TorrentClient):
         return await self._client.acheck()
 
     async def add_torrent(
-        self, file: pathlib.Path, overrides: Dict[str, Any]
+        self,
+        file: pathlib.Path,
+        translated_file: pathlib.Path,
+        overrides: Dict[str, Any],
     ) -> Optional[str]:
-        return await self._add(str(file), overrides)
+        return await self._add(str(translated_file), overrides)
 
     async def add_magnetlink(
         self, magnetlink: str, overrides: Dict[str, Any]

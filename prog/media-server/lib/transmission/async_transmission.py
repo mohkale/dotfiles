@@ -2,13 +2,13 @@
 Client implementation for the transmission daemon.
 """
 
-import asyncio
 import json
 import logging
 
 import aiohttp
 
 from ._transmission_base import _TransmissionBase
+from mohkale.torutils import portutils
 
 
 class AsyncTransmission(_TransmissionBase):
@@ -29,21 +29,7 @@ class AsyncTransmission(_TransmissionBase):
         Assert whether the current transmission daemon is running
         asynchronously.
         """
-        logging.debug(
-            "Checking if Transmission daemon is alive at host=%s port=%d",
-            self.host,
-            self.port,
-        )
-        reader = writer = None
-        try:
-            reader, writer = await asyncio.open_connection(self.host, self.port)
-            return True
-        except OSError:
-            return False
-        finally:
-            if writer is not None:
-                writer.close()
-                await writer.wait_closed()
+        return await portutils.is_alive(self.host, self.port)
 
     async def _make_request(self, url, data):
         logging.debug("Making request to method with body='%s'", data)

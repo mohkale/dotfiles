@@ -42,5 +42,6 @@ run-cmd-at "$(pwd)/proxy" touch local.d/Caddyfile.{global,snippets,routes}
 
 packagex jellyfin-media-player mpv-mpris
 link /usr/lib/mpv-mpris/mpris.so:~/.local/share/jellyfinmediaplayer/scripts/mpris.so
+package pip pandas "-r$(pwd)/lib/requirements.txt"
 
-import transmission
+import watcher qbittorrent transmission

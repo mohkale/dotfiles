@@ -43,4 +43,6 @@ class TorrentBackend(enum.IntEnum):
     def client(self):
         if self == TorrentBackend.TRANSMISSION:
             return clients.TransmissionDaemonClient(self.config_dir() / "settings.json")
+        if self == TorrentBackend.QBITTORRENT:
+            return clients.QBittorrentDaemonClient(self.config_dir() / "client-settings.json")
         raise ValueError(f"torrent-backend={self} has no supported client")

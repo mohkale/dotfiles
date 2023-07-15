@@ -13,7 +13,10 @@ class _WatcherClientMixin(abc.ABC):
 
     @abc.abstractmethod
     async def add_torrent(
-        self, file: pathlib.Path, overrides: Dict[str, Any]
+        self,
+        file: pathlib.Path,
+        translated_file: pathlib.Path,
+        overrides: Dict[str, Any],
     ) -> Optional[str]:
         pass
 

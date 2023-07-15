@@ -1,0 +1,115 @@
+#!/usr/bin/env python3
+import argparse
+import asyncio
+import logging
+import pathlib
+import sys
+
+from mohkale.torutils import backend, torrent_done, watcher
+from mohkale.torutils.environment import qbittorrent as qbit_scripts
+
+BACKEND = backend.TorrentBackend.QBITTORRENT
+
+
+def _parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Do not actually move any completed torrents.",
+    )
+
+    parser.add_argument(
+        "-c",
+        "--watcher-config",
+        metavar="FILE",
+        default=watcher.watcher_file(BACKEND),
+        type=pathlib.Path,
+        help="Transmission watcher configuration file",
+    )
+
+    logging_group = parser.add_argument_group("Logging")
+    logging_group.add_argument(
+        "-l",
+        "--log-level",
+        metavar="LEVEL",
+        default=logging.DEBUG,
+        type=lambda x: getattr(logging, x.upper()),
+        help="Verbosity of logging output for LOG_FILE.",
+    )
+    logging_group.add_argument(
+        "-L",
+        "--stdout-log-level",
+        metavar="LEVEL",
+        default=logging.DEBUG,
+        type=lambda x: getattr(logging, x.upper()),
+        help="Verbosity of logging output for stderr.",
+    )
+    logging_group.add_argument(
+        "--log-file",
+        metavar="LOG_FILE",
+        default=BACKEND.config_dir() / "torrent-done.log",
+        type=pathlib.Path,
+        help="Dump torrent-done logs to LOG_FILE.",
+    )
+
+    env_group = parser.add_argument_group("Environment Overrides")
+    qbit_scripts.parse_script_environment(env_group)
+
+    args = parser.parse_args()
+
+    file_handler = logging.FileHandler(str(args.log_file))
+    file_handler.setLevel(args.log_level)
+    stream_handler = logging.StreamHandler()
+    stream_handler.setLevel(args.stdout_log_level)
+    logging.basicConfig(
+        level=0,
+        handlers=[file_handler, stream_handler],
+        format="[%(asctime)s.%(msecs)03d] %(levelname)s %(message)s (%(pathname)s:%(lineno)d)",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+
+    if not args.watcher_config.exists():
+        logging.error("Watcher config file=%s does not exist", args.watcher_config)
+        sys.exit(1)
+
+    logging.debug("Reading configuration files")
+
+    logging.debug("Reading watcher config file=%s", args.watcher_config)
+    args.watcher_config = watcher.WatcherConfig.from_file(args.watcher_config)
+
+    logging.debug("Reading torrent-done script environment")
+    args.script_environment = qbit_scripts.ScriptEnvironment.from_args(args)
+    logging.debug(str(args.script_environment))
+
+    return args
+
+
+def main() -> None:
+    """torrent-done main function."""
+    args = _parse_args()
+    try:
+        result = asyncio.run(
+            torrent_done.torrent_done(
+                BACKEND,
+                args.script_environment.name,
+                args.script_environment.torrent_id,
+                args.script_environment.info_hash_v1,
+                args.script_environment.save_path,
+                args.watcher_config,
+                args.dry_run,
+            )
+        )
+    except RuntimeError:
+        result = False
+        logging.exception("Failed to run torrent-done script")
+
+    if not result:
+        logging.error("torrent-done exiting with non-zero exit code")
+
+    sys.exit(0 if result else 1)
+
+
+if __name__ == "__main__":
+    main()

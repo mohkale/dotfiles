@@ -69,6 +69,7 @@ python-lsp-isort,python-module:pyls_isort,pip:pyls-isort
 python-lsp-mypy,python-module:pylsp_mypy,pip:pyls-mypy
 python-lsp-ruff,python-module:pylsp_ruff,pip:python-lsp-ruff
 python-lsp-server,which:pylsp,pip:python-lsp-server[rope]
+qbittorrent-cli,which:qbt,yay:qbittorrent-cli-bin
 rubocop,which:rubocop,gem:rubocop
 rust,which:rust,choco:rust,pacman:rust
 rust-analyzer,which:rust-analyzer,yay:rust-analyzer
