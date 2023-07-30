@@ -484,9 +484,8 @@ def _parse_arguments() -> argparse.Namespace:
     parser.add_argument(
         "-b",
         "--backend",
-        default=backend.TorrentBackend.default(),
-        type=lambda it: backend.TorrentBackend[it],
-        choices=list(backend.TorrentBackend),
+        default=backend.TorrentBackend.default().name,
+        choices=[it.name for it in backend.TorrentBackend],
         help="Specify which torrent backend to retrieve the watcher configuration from.",
     )
     parser.add_argument(
@@ -519,6 +518,8 @@ def _parse_arguments() -> argparse.Namespace:
     )
 
     args = parser.parse_args()
+
+    args.backend = backend.TorrentBackend[args.backend]
 
     if not args.watcher_config:
         args.watcher_config = watcher.watcher_file(args.backend)
