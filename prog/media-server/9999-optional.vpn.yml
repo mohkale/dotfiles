@@ -45,23 +45,29 @@ services:
       gluetun:
         condition: service_healthy
     network_mode: "service:gluetun"
+  kavita:
+    <<: *vpn-config
   navidrome:
-    <<: *vpn-config
-  flood:
-    <<: *vpn-config
-  transmission:
     <<: *vpn-config
   qbittorrent:
     <<: *vpn-config
+  transmission:
+    <<: *vpn-config
+  flood:
+    <<: *vpn-config
+  bazarr:
+    <<: *vpn-config
   lidarr:
     <<: *vpn-config
-  sonarr:
+  mylar3:
+    <<: *vpn-config
+  prowlarr:
     <<: *vpn-config
   radarr:
     <<: *vpn-config
   readarr:
     <<: *vpn-config
-  prowlarr:
-    <<: *vpn-config
   shoko:
+    <<: *vpn-config
+  sonarr:
     <<: *vpn-config

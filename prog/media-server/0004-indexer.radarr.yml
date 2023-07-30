@@ -1,20 +1,19 @@
 ---
-version: "1"
+version: "2.2"
 services:
-  lidarr:
-    container_name: ms-lidarr
+  radarr:
+    container_name: ms-radarr
     depends_on:
       - caddy
       - prowlarr
-      - transmission
     environment:
       PUID: $PUID
       PGID: $PGID
       TZ: Europe/London
-    image: lscr.io/linuxserver/lidarr:latest
+    image: lscr.io/linuxserver/radarr:latest
     profiles:
-      - music
+      - movies
     restart: unless-stopped
     volumes:
-      - $XDG_CONFIG_HOME/media-server/lidarr:/config
+      - $XDG_CONFIG_HOME/media-server/radarr:/config
       - $XDG_MEDIA_HOME:/media

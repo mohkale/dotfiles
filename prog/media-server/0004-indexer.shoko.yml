@@ -1,21 +1,18 @@
 ---
-version: "1"
+version: "2.2"
 services:
-  readarr:
-    container_name: ms-readarr
+  shoko:
+    container_name: ms-shoko
     depends_on:
       - caddy
-      - prowlarr
-      - transmission
     environment:
       PUID: $PUID
       PGID: $PGID
       TZ: Europe/London
-    image: lscr.io/linuxserver/readarr:develop
+    image: shokoanime/server:latest
     profiles:
-      - books
-      - comics
+      - anime
     restart: unless-stopped
     volumes:
-      - $XDG_CONFIG_HOME/media-server/readarr:/config
+      - $XDG_CONFIG_HOME/media-server/shoko:/home/shoko/.shoko/
       - $XDG_MEDIA_HOME:/media

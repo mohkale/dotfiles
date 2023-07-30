@@ -19,15 +19,29 @@
 #   be a snippet that is compatible with (takes the same arguments as)
 #   service_proxy_to.
 
-import {args.1} heimdall     {args.0} heimdall                          80
-import {args.1} jellyfin     {args.0} {$MEDIA_SERVER_HOST:jellyfin}     8096
-import {args.1} navidrome    {args.0} {$MEDIA_SERVER_HOST:navidrome}    4533
-import {args.1} qbittorrent  {args.0} {$MEDIA_SERVER_HOST:qbittorrent}  8756
-import {args.1} transmission {args.0} {$MEDIA_SERVER_HOST:transmission} 9091
-import {args.1} flood        {args.0} {$MEDIA_SERVER_HOST:flood}        3000
-import {args.1} lidarr       {args.0} {$MEDIA_SERVER_HOST:lidarr}       8686
-import {args.1} sonarr       {args.0} {$MEDIA_SERVER_HOST:sonarr}       8989
-import {args.1} radarr       {args.0} {$MEDIA_SERVER_HOST:radarr}       7878
-import {args.1} readarr      {args.0} {$MEDIA_SERVER_HOST:readarr}      8787
-import {args.1} shoko        {args.0} {$MEDIA_SERVER_HOST:shoko}        8111
-import {args.1} prowlarr     {args.0} {$MEDIA_SERVER_HOST:prowlarr}     9696
+# Importer        | Subdomain  | TLD      | Host                            | Port
+
+# Dashboards
+import   {args.1}   heimdall     {args.0}   heimdall                          80
+
+# Media Servers
+import   {args.1}   jellyfin     {args.0}   {$MEDIA_SERVER_HOST:jellyfin}     8096
+import   {args.1}   kavita       {args.0}   {$MEDIA_SERVER_HOST:kavita}       5000
+import   {args.1}   navidrome    {args.0}   {$MEDIA_SERVER_HOST:navidrome}    4533
+
+# Bittorrent Clients
+import   {args.1}   qbittorrent  {args.0}   {$MEDIA_SERVER_HOST:qbittorrent}  8756
+import   {args.1}   transmission {args.0}   {$MEDIA_SERVER_HOST:transmission} 9091
+
+# User Interfaces
+import   {args.1}   flood        {args.0}   {$MEDIA_SERVER_HOST:flood}        3000
+
+# Indexers
+import   {args.1}   bazarr       {args.0}   {$MEDIA_SERVER_HOST:lidarr}       6767
+import   {args.1}   lidarr       {args.0}   {$MEDIA_SERVER_HOST:lidarr}       8686
+import   {args.1}   mylar3       {args.0}   {$MEDIA_SERVER_HOST:mylar3}       8090
+import   {args.1}   prowlarr     {args.0}   {$MEDIA_SERVER_HOST:prowlarr}     9696
+import   {args.1}   radarr       {args.0}   {$MEDIA_SERVER_HOST:radarr}       7878
+import   {args.1}   readarr      {args.0}   {$MEDIA_SERVER_HOST:readarr}      8787
+import   {args.1}   shoko        {args.0}   {$MEDIA_SERVER_HOST:shoko}        8111
+import   {args.1}   sonarr       {args.0}   {$MEDIA_SERVER_HOST:sonarr}       8989

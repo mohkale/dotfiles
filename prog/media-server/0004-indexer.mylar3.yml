@@ -1,0 +1,17 @@
+---
+version: "2.2"
+services:
+  mylar3:
+    container_name: ms-mylar3
+    environment:
+      PUID: $PUID
+      PGID: $PGID
+      TZ: Europe/London
+    image: lscr.io/linuxserver/mylar3:latest
+    profiles:
+      - comics
+    restart: unless-stopped
+    volumes:
+      - $XDG_MEDIA_HOME/content/books:/media/content/books
+      - $XDG_CONFIG_HOME/media-server/mylar3:/config
+      - $XDG_MEDIA_HOME/downloads:/media/downloads

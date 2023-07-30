@@ -1,5 +1,5 @@
 ---
-version: "1"
+version: "2.2"
 services:
   transmission:
     build:
@@ -19,7 +19,7 @@ services:
       # Include the local python libraries directory in the PYTHONPATH.
       PYTHONPATH: "${PYTHONPATH}:/local-python-modules"
     profiles:
-      - torrents
+      - transmission
     volumes:
       - $XDG_CONFIG_HOME/media-server/transmission:/config
       - $PWD/transmission/scripts:/scripts

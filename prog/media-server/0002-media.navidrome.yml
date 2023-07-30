@@ -1,5 +1,5 @@
 ---
-version: "1"
+version: "2.2"
 services:
   navidrome:
     container_name: ms-navidrome

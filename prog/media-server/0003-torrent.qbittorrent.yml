@@ -1,5 +1,5 @@
 ---
-version: "1"
+version: "2.2"
 services:
   qbittorrent:
     container_name: ms-qbittorrent
@@ -20,7 +20,7 @@ services:
       # Include the local python libraries directory in the PYTHONPATH.
       PYTHONPATH: "${PYTHONPATH}:/local-python-modules"
     profiles:
-      - test
+      - qbittorrent
     volumes:
       - $XDG_CONFIG_HOME/media-server/qbittorrent:/config
       - $PWD/qbittorrent/scripts:/scripts

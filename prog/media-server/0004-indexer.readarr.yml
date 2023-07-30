@@ -1,20 +1,20 @@
 ---
-version: "1"
+version: "2.2"
 services:
-  radarr:
-    container_name: ms-radarr
+  readarr:
+    container_name: ms-readarr
     depends_on:
       - caddy
       - prowlarr
-      - transmission
     environment:
       PUID: $PUID
       PGID: $PGID
       TZ: Europe/London
-    image: lscr.io/linuxserver/radarr:latest
+    image: lscr.io/linuxserver/readarr:develop
     profiles:
-      - movies
+      - books
+      - comics
     restart: unless-stopped
     volumes:
-      - $XDG_CONFIG_HOME/media-server/radarr:/config
+      - $XDG_CONFIG_HOME/media-server/readarr:/config
       - $XDG_MEDIA_HOME:/media

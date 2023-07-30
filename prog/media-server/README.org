@@ -39,7 +39,7 @@ calling =docker-compose "$@"=.
   Each service in my media server is accessible through a separate and distinct
   hostname under the main media-server address which defaults to localhost (see
   [[*Public Routing to Your Server][Public Routing to Your Server]]). To see the actual mappings take a look at the
-  [[file:proxy/Caddyfile]] file. You can connect to for example jellyfin at
+  [[file:proxy/Caddyfile]] file. You can connect to for example Jellyfin at
   [[https:jellyfin.localhost]] if the server comes up correctly.
 
 * Directory Layout
@@ -215,18 +215,19 @@ calling =docker-compose "$@"=.
       each of these indexers (found under _Settings/General_ on each of them).
 
 
-   *Note*: You may want to add a download client entry for Transmission in prowlarr as
-   well. This will allow you to perform searches directly from prowlarr and add them
-   to the download queue.
+   *Note*: You may want to add a download client entry for Transmission/qBittorrent in
+   prowlarr as well. This will allow you to perform searches directly from prowlarr
+   and add them to the download queue.
 
 ** Jellyfin                                                  :music:tv:movie:
    Is an open source media server. It catalogues media files and expose them through
-   a user-friendly web based, mobile, TV, or vide-player interface. It makes
+   a user-friendly web based, mobile, TV, or video-player interface. It makes
    maintaining a personal media server of the same quality as Netflix or Apple TV
    much simpler
 
 ** Navidrome                                                          :music:
-   Is a music media-server. I prefer it to Jellyfin for music as opposed to Jellyfin.
+   Is a music media-server. I prefer it to Jellyfin for music mostly because of the
+   nicer interface.
 
 ** Transmission                                                  :bittorrent:
    When using transmission you should update each indexer and tracker services
@@ -275,6 +276,9 @@ calling =docker-compose "$@"=.
 
      #+begin_src shell
        set -u
+
+       # DEVICE_NAME=sda
+       # CRYPT_NAME=sda-crypt
 
        # Span a crypto layer above the device.
        cryptsetup open "/dev/$DEVICE_NAME" "$CRYPT_NAME" --type plain --cipher aes-xts-plain64
@@ -337,23 +341,38 @@ calling =docker-compose "$@"=.
 
     #+begin_src bash
       # Associate the partitions with LVM as physical volumes.
-      sd pvcreate /dev/sdb1 /dev/sdc1
-      sd pvscan
-      sd pvs
-      sd pvdisplay
+      sudo pvcreate /dev/sdb1 /dev/sdc1
+      sudo pvscan
+      sudo pvs
+      sudo pvdisplay
 
       # Create a volume group containing all the defined physical volumes.
-      sd vgcreate mediavg /dev/sdb1 /dev/sdc1
-      sd vgs
-      sd vgscan
-      sd vgdisplay
+      sudo vgcreate mediavg /dev/sdb1 /dev/sdc1
+      sudo vgs
+      sudo vgscan
+      sudo vgdisplay
 
       # Create a RAID1 device on mediavg called medialv using all the physical
       # volumes associated with it and taking up all the free space available.
-      sd lvcreate --type raid1 --mirrors 1 -l 100%FREE -n medialv mediavg /dev/sdb1 /dev/sdc1
+      sudo lvcreate --type raid1 --mirrors 1 -l 100%FREE -n medialv mediavg /dev/sdb1 /dev/sdc1
     #+end_src
 
-* Recommended Customizations and FAQ
+*** Expanding Available LVM Storage
+    #+begin_src bash
+      # Associate the new partitions with LVM as physical volumes.
+      sudo pvcreate /dev/sda /dev/sdc
+
+      # Add the new physical volumes to the media server volume group.
+      sudo vgextend mediavg /dev/sda /dev/sdc
+
+      # Expand the media server logical volume to fill all the available space.
+      sudo lvresize -l +100%FREE /dev/mediavg/medialv
+
+      # Expand the btrfs file system with the new storage space.
+      sudo btrfs filesystem resize max /home/mohkale/Media/server
+    #+end_src
+
+* Recommended Customisation's and FAQ
   You can override the docker configuration for any of the services defined in this
   module by creating a override file and modifying some of the fields. For example to
   override [[file:0002-media.jellyfin.yml]] create a
@@ -362,7 +381,7 @@ calling =docker-compose "$@"=.
   configuration you can use ~media-server config~ to dump the complete configuration
   file including overrides.
 
-** Trusting The Media Server on Localhost
+** Trusting The Media Server on localhost
    Caddy uses its own certificate authority to authenticate localhost addresses. See
    [[https://caddyserver.com/docs/automatic-https#local-https][local HTTPs]]. The gist of this is that you can trust the certificates Caddy
    assigns to addresses running on localhost on your root CA list. This can be done
@@ -493,7 +512,7 @@ calling =docker-compose "$@"=.
    your media remotely you'll most likely want to override this address with a
    public address that routes straight to your machine (see [[*Public Routing to Your Server][public routing to your
    server]]). This can be done by setting the =$SITE_ADDRESS= environment variable for
-   the caddy service in the [[file:0001-core.caddy.override.yml]] file:
+   the Caddy service in the [[file:0001-core.caddy.override.yml]] file:
 
    #+begin_src yaml
      ---
@@ -520,7 +539,7 @@ calling =docker-compose "$@"=.
     easy as possible you can re-purpose the existing template used to setup the
     media-server routes.
 
-    #+CAPTION: Docker compose override defining a new =SITE_ADDRESS2= option.
+    #+CAPTION: Docker compose override defining a new =SITE_ADDRESS2= option in [[file:0001-core.caddy.override.yml]].
     #+begin_src yaml
       ---
       services:
@@ -530,7 +549,7 @@ calling =docker-compose "$@"=.
             SITE_ADDRESS2: foo.bar
     #+end_src
 
-    #+CAPTION: Caddyfile extension setting up service routes for =$SITE_ADDRESS2=.
+    #+CAPTION: Caddyfile extension setting up service routes for =$SITE_ADDRESS2= in [[file:proxy/local.d/Caddyfile.routes]].
     #+begin_src caddyfile
       import /etc/caddy/config.d/Caddyfile.services {$SITE_ADDRESS2} service_proxy_to
     #+end_src
@@ -551,62 +570,171 @@ calling =docker-compose "$@"=.
    able to connect to your server from the internet through the address you configure
    for it.
 
-   That leaves us with the former problem. Making our server publicly accessible.
-   Firstly you must determine if your router has a fixed or static IP address; this
-   is determined by your internet-service-provider. If this IP is static you can simply
-   route through to it directly and set that as the address in your Caddy
-   configuration. If its dynamic you will need some way to consistently route to it
-   whenever the IP address is changed by your ISP. I'd recommend using some sort of
-   [[https://en.wikipedia.org/wiki/Dynamic_DNS][DDNS]] system which can give you an address that your host can periodically ping to
-   update the IP address associated with it. Your router may have an option for this
-   out of the box which will bypass the need for you to setup anything host side.
-   Alternatively there are some paid DDNS options on the market and also the
-   excellent and free [[https://www.duckdns.org/][Duck DNS]] project. This can also be configured relatively easily
-   through Docker, although no configuration is setup in this repo.
+*** Setting DNS Records to Point to Your Server
+    That leaves us with the former problem. Making our server publicly accessible.
+    Firstly you must determine if your router has a dynamic or static IP address; this
+    is determined by your internet-service-provider.
 
-   #+CAPTION: Sample Duck DNS configuration.
-   #+begin_src yaml
-     ---
-     services:
-       duckdns:
-         container_name: ms-duckdns
-         environment:
-           PUID: $PUID
-           PGID: $PGID
-           TZ: Europe/London
-           # Required fields to update the address.
-           SUBDOMAINS: foo.duckdns.org
-           TOKEN: MY_TOKEN
-         image: lscr.io/linuxserver/duckdns:latest
-         restart: unless-stopped
-         volumes:
-           - $XDG_CONFIG_HOME/media-server/duckdns:/config
-   #+end_src
+**** Static IP Routing
+     If your routers IP is static then things are a lot simpler. Simply login to your
+     domain name provider and update the DNS records with an A record to your server.
+     You'll want to setup a regular A record for your domain and also a wildcard
+     record for all subdomains of that domain. This will let you route both to your
+     site-address and any service running on a subdomain of that address.
 
-   After this is setup you can bring up the duck DNS image (=media-server up duckdns=)
-   and confirm a cursory =ping foo.duckdns.org= routes through to your routers public
-   IP.
+     #+CAPTION: Sample DNS configuration to route to your server from the media subdomain of =site.com=.
+     | Record Type | Host             |        Answer |
+     |-------------+------------------+---------------|
+     | A           | media.site.com   | 27.241.155.98 |
+     | A           | *.media.site.com | 27.241.155.98 |
 
-   *Note*: If you use a local VPN or PIA VPN provider on the same host as your server,
-   you won't be able to authenticate through DDNS correctly. The IP address
-   associated with your router will match the outgoing IP of the VPN instance you
-   connect to. If your using a provider like Mullvad you should have a
-   =mullvad-exclude= command available which can split traffic for a specific command
-   to ensure it isn't routed through your VPN. This can be used to update the DDNS
-   record directly, for example in a CRON job.
-   #+begin_src crontab
-     ,*/5 * * * * mullvad-exclude curl 'https://www.duckdns.org/update?domains=DOMAIN&token=TOKEN' >/dev/null 2>&1
-   #+end_src
+**** Dynamic IP Routing
+     If your routers IP is instead dynamic then you will need some way to consistently
+     route to it whenever the IP address is changed by your ISP. I'd recommend using
+     some sort of [[https://en.wikipedia.org/wiki/Dynamic_DNS][DDNS]] system which can give you an address or API that your host can
+     periodically ping to update the IP address associated with it.
 
-   After this you need to route from your router to your server. This will require
-   admin access to your router. Log in to the router management webpage and assign
-   your server host a fixed IP address. This will make it so that your server will
-   always have the same IP in the local-area network of your router and ensure any
-   firewall forwarding you enable is always routed to it. Then under firewall
-   configuration  pass through ports 80 and 443 to your servers now fixed IP address.
-   Note: This will make your server fully accessible through the internet. If you
-   haven't, you should definitely consider setting up some sort of authentication on
-   the server to restrict access only to you.
+     *Note*: Your router may have an option for this out of the box which will bypass
+     the need for you to setup anything host side. Or your ISP might provide free
+     services for this such as [[https://porkbun.com][porkbun.com]].
+
+***** DDNS via Duck DNS
+      [[https://www.duckdns.org/][Duck DNS]] is a free DDNS provider. You can use it for prototyping or for your
+      final DDNS solution. Sadly DuckDNS won't let you update the DNS records of any
+      domains you already own so you'll have to settle for a =.duckdns.org= TLD.
+
+      #+CAPTION: Sample Duck DNS configuration.
+      #+begin_src yaml
+        ---
+        services:
+          duckdns:
+            container_name: ms-duckdns
+            environment:
+              PUID: $PUID
+              PGID: $PGID
+              TZ: Europe/London
+              # Required fields to update the address.
+              SUBDOMAINS: foo.duckdns.org
+              TOKEN: MY_TOKEN
+            image: lscr.io/linuxserver/duckdns:latest
+            restart: unless-stopped
+            volumes:
+              - $XDG_CONFIG_HOME/media-server/duckdns:/config
+      #+end_src
+
+      After this is setup you can bring up the duck DNS image (=media-server up duckdns=)
+      and confirm a cursory =ping foo.duckdns.org= routes through to your routers public
+      IP.
+
+      *Note*: If you use a local VPN or PIA VPN provider on the same host as your server,
+      you won't be able to authenticate through DDNS correctly. The IP address
+      associated with your router will match the outgoing IP of the VPN instance you
+      connect to. If your using a provider like Mullvad you should have a
+      =mullvad-exclude= command available which can split traffic for a specific command
+      to ensure it isn't routed through your VPN. This can be used to update the DDNS
+      record directly, for example in a CRON job.
+      #+begin_src crontab
+        ,*/5 * * * * mullvad-exclude curl 'https://www.duckdns.org/update?domains=DOMAIN&token=TOKEN' >/dev/null 2>&1
+      #+end_src
+
+***** DDNS via Pork Bun
+      Pork bun is a domain name registrar that also has a very extensive API allowing
+      you to update domain name records. There's also containers available to let you
+      streamline and daemonize your DDNS update configuration.
+
+      *Note*: Because my media-server is so resource intensive I prefer not to leave it
+      running indefinitely. Due to this (and because I usually run a VPN on my
+      media-server host for regular internet browsing as well) I've moved the Pork
+      bun DDNS configuration into an externally raspberry-pi host which I then route
+      to from my media-server if necessary. This configuration reflects this setup.
+
+      Firstly I setup a docker-compose configuration for a service that can update
+      DNS records through various API back-ends, including porkbun.
+
+      #+CAPTION: /etc/media-server/docker-compose.yaml
+      #+begin_src yaml
+        ---
+        version: "2.2"
+        services:
+          ddns-updater:
+            container_name: ms-ddns-updater
+            image: qmcgaw/ddns-updater
+            #environment:
+            #  LOG_LEVEL: debug
+            restart: unless-stopped
+            ports:
+              - 8000:8000
+            volumes:
+              - /etc/media-server/config/ddns-updater:/updater/data
+      #+end_src
+
+      This requires a configuration specifying which provider to use and which DNS
+      records to create. In this case that would be the =media.site.com= and
+      =*.media.site.com= subdomains of =site.com=.
+
+      #+CAPTION: /etc/media-server/config/ddns-updater/config.json
+      #+begin_src json-ts
+        {
+            "settings": [
+                {
+                    "provider": "porkbun",
+                    "domain": "site.com",
+                    "host": "media,*.media",
+                    "api_key": "API_KEY",
+                    "secret_api_key": "SECRET_API_KEY",
+                    "ip_version": "ipv4"
+                }
+            ]
+        }
+      #+end_src
+
+      Next we create a systemd service configuration that we can enable to run this
+      DDNS update script at startup. After creation you have to link this into the
+      systemd location and enable the service.
+      #+begin_src shell
+        ln -sv /etc/media-server/media-server.service /etc/systemd/system/media-server.service
+        systemctl enable --now media-server
+      #+end_src
+
+      #+CAPTION: /etc/media-server/media-server.service
+      #+begin_src conf
+        [Unit]
+        Description=Media Server
+        PartOf=docker.service
+        After=docker.service
+
+        [Service]
+        Type=oneshot
+        RemainAfterExit=true
+        User=root
+        Group=root
+        WorkingDirectory=/etc/media-server
+
+        ExecStart=docker-compose up -d
+        ExecStop=docker-compose down
+
+        [Install]
+        WantedBy=multi-user.target
+      #+end_src
+
+      Next you'll probably want to create a media-server route from our Caddy proxy
+      to the DDNS updater webpage. This can be done by adding a new local route and
+      substituting the host or IP address of the updater:
+
+      #+begin_src caddyfile
+        import service_proxy_to ddns-updater {$SITE_ADDRESS} UPDATER_HOST_OR_IP_ADDRESS 8000
+      #+end_src
+
+**** Firewall Bypass from your Router to your Media Server
+     After this you need to route from your router to your server. This will require
+     admin access to your router. Log in to the router management webpage and assign
+     your server host a fixed IP address. This will make it so that your server will
+     always have the same IP in the local-area network of your router and ensure any
+     firewall forwarding you enable is always routed to it. Then under firewall
+     configuration  pass through ports 80 and 443 to your servers now fixed IP address.
+     Note: This will make your server fully accessible through the internet. If you
+     haven't, you should definitely consider setting up some sort of authentication on
+     the server to restrict access only to you.
 
 *** Authorised Access with Authelia
     If you intend to access your media-server over the public internet you should
@@ -772,7 +900,7 @@ calling =docker-compose "$@"=.
 ** Starting the server services at boot
    On systemd based environments you can configure your media server to come up at
    system boot. This can be done by creating a new systemd unit at
-   [[file:/etc/systemd/system/media-server.service]] containg the following:
+   [[file:/etc/systemd/system/media-server.service]] containing the following:
 
    #+begin_src conf
      [Unit]
@@ -795,7 +923,7 @@ calling =docker-compose "$@"=.
      # ExecStop=/home/mohkale/.config/dotfiles/prog/media-server/cmds/media-server down
 
      # Use this if you need the service to inherit the same environment as an interactive shell.
-     ExecStart=/bin/sh -lip -c 'media-server up'
+     ExecStart=/bin/sh -lip -c 'media-server up -d'
      ExecStop=/bin/sh -lip -c 'media-server down'
 
      [Install]
@@ -838,3 +966,8 @@ calling =docker-compose "$@"=.
 
 ** Flood fails with "Failed to access runtime directory"
    Run =chmod 777= on your flood data directory.
+
+* Appendix                                                          :ARCHIVE:
+# Local Variables:
+# jinx-local-words: "Authelia Bittorrent Caddy Emby GParted Jellyfin Kodi Lidarr MiB Navidrome Prowlarr QBittorrent Radarr Readarr Sonarr TiB authelia daemonize dockerised localhost porkbun prowlarr proxying routable systemd uncorrectable usenet"
+# End:
