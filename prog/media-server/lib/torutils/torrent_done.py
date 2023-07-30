@@ -91,6 +91,7 @@ async def _move_completed_torrent(
     location: pathlib.Path,
     watcher_config: watcher.WatcherConfig,
     dry_run: bool,
+    skip_move: bool,
 ) -> bool:
     """Move a just completed torrent into a completed download directory."""
     if not location.exists():
@@ -121,23 +122,30 @@ async def _move_completed_torrent(
         )
         return True
 
-    logging.info("Moving file=%s to dest=%s", location, destination)
-    if dry_run:
-        logging.info("Skipping actually moving file because dry-run=True")
-        return True
+    if skip_move:
+        logging.info(
+            "Skipping moving file=%s to dest=%s due to predicate", location, destination
+        )
+    else:
+        logging.info("Moving file=%s to dest=%s", location, destination)
+        if dry_run:
+            logging.info("Skipping actually moving file because dry-run=True")
+            return True
 
-    async with torrent_backend.client() as client:
-        if not await client.move(id_, str(destination)):
-            logging.exception(
-                "Failed to move file=%s to dest=%s", location, destination
-            )
-            if added_file is not None:
-                new_added_file = added_file.parent / (added_file.stem + ".completed")
-                logging.info(
-                    "Moving source file=%s to dest=%s", added_file, new_added_file
+        async with torrent_backend.client() as client:
+            if not await client.move(id_, str(destination)):
+                logging.exception(
+                    "Failed to move file=%s to dest=%s", location, destination
                 )
-                added_file.rename(new_added_file)
-            return False
+                if added_file is not None:
+                    new_added_file = added_file.parent / (
+                        added_file.stem + ".completed"
+                    )
+                    logging.info(
+                        "Moving source file=%s to dest=%s", added_file, new_added_file
+                    )
+                    added_file.rename(new_added_file)
+                return False
 
     # If the torrent was moved sucesfully, we no longer have any need for
     # the watch file the torrent was added with so it can be removed.
@@ -155,6 +163,7 @@ async def torrent_done(
     torrent_location: pathlib.Path,
     watcher_config: watcher.WatcherConfig,
     dry_run: bool,
+    skip_move: bool = False,
 ) -> bool:
     tasks = []
     tasks.append(notify.notify_complete(torrent_backend, torrent_name))
@@ -166,6 +175,7 @@ async def torrent_done(
             torrent_location,
             watcher_config,
             dry_run,
+            skip_move,
         )
     )
 

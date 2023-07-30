@@ -99,6 +99,7 @@ def main() -> None:
                 args.script_environment.save_path,
                 args.watcher_config,
                 args.dry_run,
+                args.script_environment.category is not None,
             )
         )
     except RuntimeError:

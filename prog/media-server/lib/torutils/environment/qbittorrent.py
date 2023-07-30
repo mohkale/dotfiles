@@ -7,7 +7,7 @@ class ScriptEnvironment(NamedTuple):
     """Variables parsed from the current qBittorrent script environment."""
 
     name: str
-    category: str
+    category: Optional[str]
     tags: List[str]
     content_path: Optional[pathlib.Path]
     root_path: Optional[pathlib.Path]
@@ -24,7 +24,7 @@ class ScriptEnvironment(NamedTuple):
         """Create a `ScriptEnvironment` from a parsed argparse Namespace."""
         return cls(
             args.torrent_name,
-            args.category,
+            args.category if args.category else None,
             args.tags.split(",") if args.tags.strip() else [],
             args.content_path,
             args.root_path,
