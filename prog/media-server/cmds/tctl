@@ -96,6 +96,8 @@ def get_torrents(
     if select:
         torrents = select(torrents)
 
+    torrents.sort_index(inplace=True)
+
     return torrents
 
 
