@@ -137,6 +137,7 @@ async def _watch_for_torrents(
                 # Some programs seem to call write() even on empty files.
                 if (
                     event.mask & ainotify.Mask.CLOSE_WRITE
+                    and os.path.exists(event.path)
                     and os.path.getsize(event.path) == 0
                 ):
                     # Firefox creates both the final file and the partial download

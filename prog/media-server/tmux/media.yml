@@ -8,17 +8,17 @@ windows:
       - shell_command:
         - media-server up --detach --no-recreate
         - sleep 2
-        - tremc --skip-version-check
+        - media-server exec transmission true && tremc --skip-version-check
   - window_name: torrent
     layout: even-vertical
     panes:
-      - media-server-logs transmission
+      - media-server-logs transmission qbittorrent
       - torwatcher
   - window_name: jellyfin
     panes:
-      - media-server-logs jellyfin
+      - media-server-logs jellyfin kavita navidrome
   - window_name: indexers
     layout: tiled
     panes:
       - media-server-logs prowlarr
-      - media-server-logs lidarr sonarr radarr readarr
+      - media-server-logs bazarr lidarr mylar3 sonarr radarr readarr
