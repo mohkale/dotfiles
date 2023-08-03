@@ -1,39 +1,46 @@
 [$Version]
-update_info=kwin.upd:replace-scalein-with-scale,kwin.upd:port-minimizeanimation-effect-to-js,kwin.upd:port-scale-effect-to-js,kwin.upd:port-dimscreen-effect-to-js,kwin.upd:auto-bordersize,kwin.upd:animation-speed,kwin.upd:desktop-grid-click-behavior,kwin.upd:no-swap-encourage,kwin.upd:make-translucency-effect-disabled-by-default,kwin.upd:remove-flip-switch-effect,kwin.upd:remove-cover-switch-effect,kwin.upd:remove-cubeslide-effect,kwin.upd:remove-xrender-backend
+update_info=kwin.upd:replace-scalein-with-scale,kwin.upd:port-minimizeanimation-effect-to-js,kwin.upd:port-scale-effect-to-js,kwin.upd:port-dimscreen-effect-to-js,kwin.upd:auto-bordersize,kwin.upd:animation-speed,kwin.upd:desktop-grid-click-behavior,kwin.upd:no-swap-encourage,kwin.upd:make-translucency-effect-disabled-by-default,kwin.upd:remove-flip-switch-effect,kwin.upd:remove-cover-switch-effect,kwin.upd:remove-cubeslide-effect,kwin.upd:remove-xrender-backend,kwin.upd:enable-scale-effect-by-default,kwin.upd:overview-group-plugin-id,kwin.upd:animation-speed-cleanup
 
 [Compositing]
 OpenGLIsUnsafe=false
 
 [Desktops]
+BorderActivate=9
+BorderActivateSphere=9
 Id_1=128161c9-b85d-440b-90f4-a1f4ed7cf116
-Id_2=1b8f9d55-0551-4876-b3b4-2c6c623e2ee6
-Id_3=a4dd51a9-de26-425e-9a37-ebfc1ba0a452
-Id_4=4be569cb-6e8d-4550-8422-2ed336db6d52
-Id_5=5a7b1c60-d78f-4edf-9339-ab759f57e498
-Id_6=6c0c68c0-0d09-4d91-8b3c-cb280f2aa25e
-Id_7=235a1507-fc1b-40ac-926f-e5cf2f61b720
-Id_8=fae4f9ef-9a50-4274-b792-932f935b9df7
-Id_9=767833c7-01b7-44ad-8b35-0c7a45e7a1a4
+Id_2=4be569cb-6e8d-4550-8422-2ed336db6d52
+Id_3=b007168a-58b8-423c-becb-f9f9337f9f53
+Id_4=4cc64d2f-bbfc-4b5d-976b-38850d7adbc4
 Name_1=1
 Name_2=2
 Name_3=3
 Name_4=4
-Name_5=5
-Name_6=6
-Name_7=7
-Name_8=8
-Name_9=9
-Number=9
+Number=4
 Rows=3
 
 [Effect-Cube]
 BorderActivate=9
 BorderActivateSphere=9
 
+[Effect-Overview]
+LayoutMode=0
+
 [Effect-PresentWindows]
 BorderActivate=3
 BorderActivateAll=5
 BorderActivateClass=9
+
+[Effect-overview]
+LayoutMode=0
+
+[Effect-presentwindows]
+BorderActivate=3
+BorderActivateAll=5
+BorderActivateClass=9
+
+[Effect-windowview]
+BorderActivate=3
+BorderActivateAll=5
 
 [ElectricBorders]
 Bottom=None
@@ -44,9 +51,6 @@ Right=None
 Top=None
 TopLeft=None
 TopRight=None
-
-[KDE]
-AnimationDurationFactor=0.5
 
 [ModifierOnlyShortcuts]
 Meta=
@@ -70,6 +74,7 @@ CommandWindow3=Activate and pass click
 CommandWindowWheel=Scroll
 
 [NightColor]
+Active=true
 LatitudeAuto=53.3678
 LongitudeAuto=-1.5065
 Mode=Constant
@@ -82,11 +87,66 @@ kwin4_effect_dimscreenEnabled=true
 kwin4_effect_fadeEnabled=false
 kwin4_effect_scaleEnabled=true
 mouseclickEnabled=true
+overviewEnabled=true
 windowgeometryEnabled=false
 
 [Script-desktopchangeosd]
 PopupHideDelay=500
 TextOnly=true
+
+[SubSession: 53965751-b407-4f41-b55d-f7396ee40545]
+active=-1
+activities1=53965751-b407-4f41-b55d-f7396ee40545
+activities2=53965751-b407-4f41-b55d-f7396ee40545
+count=2
+desktop1=3
+desktop2=3
+fsrestore1=0,0,0,0
+fsrestore2=692,300,600,451
+fullscreen1=0
+fullscreen2=0
+geometry1=992,30,928,1049
+geometry2=692,330,600,420
+iconified1=false
+iconified2=false
+keepBelow1=false
+keepBelow2=false
+maximize1=1
+maximize2=0
+opacity1=1
+opacity2=1
+resourceClass1=dolphin
+resourceClass2=vlc
+resourceName1=dolphin
+resourceName2=vlc
+restore1=992,0,928,0
+restore2=692,300,600,451
+sessionId1=1014114e98d8000164295499500000009750016
+sessionId2=1014114e98d8000164295500100000009750017
+shaded1=false
+shaded2=false
+shortcut1=
+shortcut2=
+skipPager1=false
+skipPager2=false
+skipSwitcher1=false
+skipSwitcher2=false
+skipTaskbar1=false
+skipTaskbar2=false
+stackingOrder1=2
+stackingOrder2=3
+staysOnTop1=false
+staysOnTop2=false
+sticky1=false
+sticky2=false
+userNoBorder1=false
+userNoBorder2=false
+windowRole1=Dolphin#1
+windowRole2=vlc-main
+windowType1=Normal
+windowType2=Normal
+wmCommand1=
+wmCommand2=
 
 [SubSession: 7e1a8d08-751d-434a-921f-7d5de9e867f9]
 active=-1
@@ -157,6 +217,21 @@ LayoutName=big_icons
 DesktopMode=0
 LayoutName=big_icons
 
+[Tiling]
+padding=4
+
+[Tiling][2704c47f-10c3-5fda-b4ec-0124c19bb2f2]
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
+
+[Tiling][40dd8db1-6f60-5739-8dd0-6e93924a0254]
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
+
+[Tiling][7be65168-21d0-5218-9d10-0c6d07d4657e]
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
+
+[Tiling][deb7e05a-5606-5085-ad23-8598afc2f45c]
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
+
 [Windows]
 ActiveMouseScreen=true
 AutoRaise=false
@@ -184,6 +259,9 @@ ShadeHoverInterval=250
 SnapOnlyWhenOverlapping=false
 TitlebarDoubleClickCommand=Maximize
 WindowSnapZone=10
+
+[Xwayland]
+Scale=1
 
 [org.kde.kdecoration2]
 BorderSize=NoSides
