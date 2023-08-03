@@ -11,7 +11,7 @@ class TorrentBackend(enum.IntEnum):
 
     @classmethod
     def default(cls) -> "TorrentBackend":
-        return cls.TRANSMISSION
+        return cls.QBITTORRENT
 
     @property
     def title(self):

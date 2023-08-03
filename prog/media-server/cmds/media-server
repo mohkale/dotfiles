@@ -30,8 +30,9 @@
 #     dashboard
 #     movies
 #     music
+#     qbittorrent
 #     test
-#     torrents
+#     transmission
 #     tv-shows
 
 set -e
