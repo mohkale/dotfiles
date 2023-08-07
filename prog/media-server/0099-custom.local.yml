@@ -1,0 +1,4 @@
+---
+# Custom compose file to override for the local user. Use when no other
+# compose file override really makes sense.
+services: {}

@@ -1,0 +1,14 @@
+---
+version: "2.2"
+services:
+  kavita:
+    container_name: ms-kavita
+    depends_on:
+      - caddy
+    image: kizaing/kavita:latest
+    profiles:
+      - comics
+    restart: unless-stopped
+    volumes:
+      - $XDG_MEDIA_HOME/content:/media/content:ro
+      - $XDG_CONFIG_HOME/media-server/kavita:/kavita/config

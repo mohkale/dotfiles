@@ -5,8 +5,12 @@ start_directory: ~/
 
 windows:
   - window_name: dash
-    layout: cb48,213x58,0,0[213x29,0,0{106x29,0,0,7,106x29,107,0,26},213x28,0,30,24]
+    layout: even-vertical
     panes:
-      - htop || top || exit
-      # - gotop || exit
-      # - docker stats --no-stream && lazydocker || exit
+      - gotop || htop || top || exit
+  - window_name: net
+    panes:
+      - nethogs || nload || iftop || exit
+  - window_name: mail
+    panes:
+      - emacs -nw --eval '(unless (require (quote notmuch) nil t) (kill-emacs 1))' --eval '(progn (setq auto-revert-interval 60 auto-revert--lockout-interval 60) (add-hook (quote notmuch-search-hook) (quote auto-revert-mode)) (notmuch-hello) (goto-char (point-min)) (re-search-forward "inbox") (widget-button-press (1- (point))))' || exit

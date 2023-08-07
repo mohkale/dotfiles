@@ -12,21 +12,22 @@
 
 if ! [ -d "$ZGEN_DIR" ]; then
   echo "zgen: installation not found, installing now"
-  git clone --quiet https://github.com/tarjoilija/zgen.git "$ZGEN_DIR"
+  git clone --quiet https://github.com/jandamm/zgenom.git "$ZGEN_DIR"
 fi
 ZGEN_RESET_ON_CHANGE=("$ZDOTDIR/.zshrc")
-source "$ZGEN_DIR/zgen.zsh"
+source "$ZGEN_DIR/zgenom.zsh"
 
 unset ZSH_AUTOSUGGEST_USE_ASYNC                                                  # See [[https://github.com/zsh-users/zsh-autosuggestions/issues/483][conflict]] with syntax-highlighting.
 
-if ! zgen saved; then
-  zgen load 'mafredri/zsh-async'                                                 # Asynchronous actions (for prompt)
-  zgen load 'zsh-users/zsh-completions'                                          # Completions not in zsh mainline (yet)
-  zgen load 'zsh-users/zsh-autosuggestions'                                      # Preview completions/suggestions
-  zgen load 'zsh-users/zsh-syntax-highlighting'                                  # Highlight keywords/commands as you write ([[https://github.com/zsh-users/zsh-syntax-highlighting#why-must-zsh-syntax-highlightingzsh-be-sourced-at-the-end-of-the-zshrc-file][must be setup last]])
-  # zgen load 'zdharma-continuum/fast-syntax-highlighting'                       # Syntax highlighting alternative with more features.
+zgenom autoupdate
+if ! zgenom saved; then
+  zgenom load 'mafredri/zsh-async'                                               # Asynchronous actions (for prompt)
+  zgenom load 'zsh-users/zsh-completions'                                        # Completions not in zsh mainline (yet)
+  zgenom load 'zsh-users/zsh-autosuggestions'                                    # Preview completions/suggestions
+  zgenom load 'zsh-users/zsh-syntax-highlighting'                                # Highlight keywords/commands as you write ([[https://github.com/zsh-users/zsh-syntax-highlighting#why-must-zsh-syntax-highlightingzsh-be-sourced-at-the-end-of-the-zshrc-file][must be setup last]])
+  # zgenom load 'zdharma-continuum/fast-syntax-highlighting'                     # Syntax highlighting alternative with more features.
 
-  zgen save
+  zgenom save
 fi
 
 source "$XDG_CONFIG_HOME/shenv"

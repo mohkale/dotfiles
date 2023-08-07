@@ -15,3 +15,6 @@ link                                            \
   "$XDG_BIN_DIR/notmuch"                        \
   "$XDG_BIN_DIR/status-misc"                    \
   "$XDG_BIN_DIR/transmission"
+
+import -f langs/python
+packagex py-github py-psutil py-mpd2

@@ -1,4 +1,4 @@
 link-to "$XDG_BIN_DIR" cmds/*
 
 # Provides chronic.
-packages pacman:moreutils
+packagex chronic

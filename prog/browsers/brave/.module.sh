@@ -1,6 +1,4 @@
-packages                                        \
-  yay:brave-bin                                 \
-  choco:brave
+packagex brave
 
 # There's no automated way to install unofficial chrome extensions, so if
 # you want the start-page you're going to have to open brave://extensions,

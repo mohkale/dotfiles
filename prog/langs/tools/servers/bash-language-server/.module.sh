@@ -1,1 +1,1 @@
-packages yay:bash-language-server
+packagex bash-language-server

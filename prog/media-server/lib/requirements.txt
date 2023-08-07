@@ -1,0 +1,5 @@
+aiohttp
+asyncinotify
+requests
+qbittorrent-api
+tenacity

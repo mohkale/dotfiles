@@ -1,4 +1,4 @@
-packages yay:polybar
+packagex polybar
 
 link                                            \
   "$XDG_CONFIG_HOME/polybar/config"             \

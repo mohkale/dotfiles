@@ -1,11 +1,4 @@
-packages                                        \
-  apt:tmux                                      \
-  msys:tmux                                     \
-  yay:tmux-git
-
-packages pip:tmuxp
-# Theme command extensions
-packages pip:pygithub,psutil,python-mpd2
+packagex tmux tmuxp
 
 clean -r "$XDG_CONFIG_HOME/tmux" "$XDG_CONFIG_HOME/tmuxp"
 

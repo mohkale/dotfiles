@@ -1,1 +1,1 @@
-packages gem:solargraph
+packagex solargraph

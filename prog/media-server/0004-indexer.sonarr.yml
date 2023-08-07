@@ -1,0 +1,24 @@
+---
+version: "2.2"
+services:
+  sonarr:
+    container_name: ms-sonarr
+    depends_on:
+      - caddy
+      - prowlarr
+    environment:
+      PUID: $PUID
+      PGID: $PGID
+      TZ: Europe/London
+    image: lscr.io/linuxserver/sonarr:latest
+    profiles:
+      - tv-shows
+    restart: unless-stopped
+    volumes:
+      - $XDG_CONFIG_HOME/media-server/sonarr:/config
+      # sonarr will move files between my downloads and media directories. To make
+      # this process as quick as possible we give it access to the media root
+      # directory. Once a download completes it can hardlink it to the content
+      # directory and once seeding finishes it can disable or delete the content in
+      # the download directory.
+      - $XDG_MEDIA_HOME:/media

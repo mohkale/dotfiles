@@ -1,0 +1,8 @@
+ARG LINUXSERVER_IMAGE_VERSION=latest
+FROM lscr.io/linuxserver/qbittorrent:${LINUXSERVER_IMAGE_VERSION}
+
+COPY lib/requirements.txt /tmp/requirements.txt
+RUN apk add --update-cache py-pip libnotify         \
+ && python3 -m pip install -r /tmp/requirements.txt \
+ && rm -f /tmp/requirements.txt                     \
+ && rm -rf /var/cache/apk

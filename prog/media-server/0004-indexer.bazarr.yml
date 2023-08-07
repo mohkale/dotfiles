@@ -1,0 +1,20 @@
+---
+version: "2.2"
+services:
+  bazarr:
+    container_name: ms-bazarr
+    depends_on:
+      - caddy
+    environment:
+      PUID: $PUID
+      PGID: $PGID
+      TZ: Europe/London
+    image: lscr.io/linuxserver/bazarr:latest
+    profiles:
+      - anime
+      - movies
+      - tv-shows
+    restart: unless-stopped
+    volumes:
+      - $XDG_MEDIA_HOME/content:/media/content
+      - $XDG_CONFIG_HOME/media-server/bazarr:/config

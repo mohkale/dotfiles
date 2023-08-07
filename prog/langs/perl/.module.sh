@@ -1,2 +1,2 @@
-packages yay:perl
+packagex perl
 # packages cpan:Perl::Tidy

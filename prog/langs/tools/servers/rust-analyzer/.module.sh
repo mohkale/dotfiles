@@ -1,1 +1,1 @@
-packages yay:rust-analyzer
+packagex rust-analyzer

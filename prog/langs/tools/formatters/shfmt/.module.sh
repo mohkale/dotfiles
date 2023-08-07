@@ -1,1 +1,1 @@
-packages pacman:shfmt
+packagex shfmt

@@ -21,6 +21,19 @@
 #   Include an authelia service in the media-server. This will allow you to
 #   configure caddy to restrict access to services behind a login wall and
 #   even multi-factor authentication.
+# MEDIA_SERVER_PROFILES=[PROFILE[,PROFILES...]]
+#   Enable one or more media-server profiles. This alternates which services
+#   are enabled. Available profiles:
+#     anime
+#     books
+#     comics
+#     dashboard
+#     movies
+#     music
+#     qbittorrent
+#     test
+#     transmission
+#     tv-shows
 
 set -e
 
@@ -35,12 +48,18 @@ export PUID; PUID="$(id -u)"
 export PGID; PGID="$(id -g)"
 export PWD; PWD=$(pwd)
 
+# By default only the torrents profile is enabled.
+MEDIA_SERVER_PROFILES=torrents
+
 if [ -e "$XDG_CONFIG_HOME/media-server/profile.sh" ]; then
   . "$XDG_CONFIG_HOME/media-server/profile.sh"
 fi
 
 if [ -z "$TRANSMISSION_PEER_PORT" ]; then
   export TRANSMISSION_PEER_PORT=51413
+fi
+if [ -z "$QBITTORRENT_PEER_PORT" ]; then
+  export QBITTORRENT_PEER_PORT=51413
 fi
 
 COMPOSE_FILES=( )
@@ -51,13 +70,18 @@ add_compose_file() { # [COMPOSE].yml
   fi
 }
 
-add_compose_file docker-compose
+while read -r compose_file; do
+  add_compose_file "${compose_file//.yml/}"
+done <<< "$(find . -mindepth 1 -maxdepth 1 -iname '*.yml' -not -iname '*.override.yml' -not -iname '9*' | sort -V)"
+
 [ "${MEDIA_SERVER_AUTHELIA:-0}" -eq 0 ] ||
-  add_compose_file auth.docker-compose
+  add_compose_file 9998-optional.auth
 if [ "${MEDIA_SERVER_VPN:-0}" -ne 0 ]; then
-  add_compose_file vpn.docker-compose
+  add_compose_file 9999-optional.vpn
 else
-  add_compose_file no-vpn.docker-compose
+  add_compose_file 9999-optional.no-vpn
 fi
+
+export COMPOSE_PROFILES="${MEDIA_SERVER_PROFILES}"
 
 exec docker-compose "${COMPOSE_FILES[@]}" "$@"

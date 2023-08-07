@@ -1,1 +1,1 @@
-packages yarn:jsonlint npm:jsonlint
+packagex jsonlint

@@ -1,1 +1,1 @@
-packages pacman:lollypop,gstreamer,gst-plugins-good
+packagex lollypop gstreamer gst-plugins-good

@@ -1,1 +1,1 @@
-packages pip:cmake-language-server
+packagex cmake-language-server

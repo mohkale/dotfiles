@@ -1,1 +1,1 @@
-packages yay:mullvad-vpn-bin
+packagex mullvad-vpn
