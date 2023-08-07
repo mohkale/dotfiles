@@ -49,6 +49,7 @@ clangd
 bde-format-11
 bbcmake-env
 python3.10-pygments
+ide-magic-cmake-meta
 "
 
 # Dependencies for Python pip projects.

@@ -3,6 +3,7 @@
 bce                    bbcmake-env
 alb@file               $XDG_CONFIG_HOME/aliases/bloomberg
 bbprofile@file         $XDG_CONFIG_HOME/bbprofile
+bb@dirx                $XDG_DEV_HOME/repos/bloomberg
 
 # im                     bb-local-dev magic
 # im-mds                 bb-local-dev --distribution=mds-unstable
@@ -10,17 +11,19 @@ bbprofile@file         $XDG_CONFIG_HOME/bbprofile
 # imc                    ide-magic-compose
 cm                     container-maintainer
 
+dd-rapi3tool           docker run --rm -v "$(pwd -P):/workarea" -v "/tmp:/mnttmp:ro" -e USER="${USER}" -e KRB5CCNAME="/mnttmp/krb5cc_$(id -u $USER)" -it artprod.dev.bloomberg.com/training/rapi3tool:latest rapi3tool
+
 # dev-compose wrappers.
 im                     ide-magic
 imi                    dev-compose --log-level=DEBUG install
 imc                    dev-compose compose
 imx                    [ -e .lcldev/dev-compose ] && rm -rvf .lcldev/dev-compose
 # Weekly refresh helpers
-weekly-refresh         weekly-erase-docker-cache; weekly-erase-build-cache; weekly-rebuild-project-images
-weekly-erase-docker-cache      sudo service docker restart && cachectl pull && cachectl up -d --force-recreate && dd-erase-all
+weekly-refresh                 weekly-erase-docker-cache; weekly-erase-build-cache; weekly-fetch-repos; weekly-rebuild-project-images
+weekly-erase-docker-cache      sudo service docker restart && dd-erase-all
 weekly-erase-build-cache       ls-projects | sort -u | awk -F : -e '{ printf("%s/cmake-build\n", $1); printf("%s/cmake-install\n", $1) }' | parallel [ -e {} ] '&&' rm -rvf {}
-weekly-rebuild-project-images  ls-projects | sort -u | parallel --ungroup --colsep=: --max-procs=1 [ -e {1}/.lcldev/dev-compose/docker-compose.yml ] '&&' cd {1} '&&' echo {2} '&&' dev-compose compose pull '&&' dev-compose compose build --pull --parallel
-weekly-rebuild-project-images-list ls-projects | sort -u | parallel --ungroup --colsep=: --max-procs=1 [ -e {1}/.lcldev/dev-compose/docker-compose.yml ] '&&' echo {1}
+weekly-rebuild-project-images  ls-projects | sort -u | parallel --colsep=: [ -e {1}/.lcldev/dev-compose/docker-compose.yml ] '&&' echo {1} | grep -E 'testtrep|feedadapter|feedadapter-rules' | parallel --ungroup --colsep=: --max-procs=1 cd {1} '&&' echo {2} '&&' dev-compose compose pull '&&' dev-compose compose build --pull --parallel
+weekly-fetch-repos             ls-projects | sort -u | parallel --max-procs=1 --colsep=: echo {2} '&&' cd {1} '&&' git fetch --all
 
 # Dev machine helpers
 
@@ -34,6 +37,8 @@ fai-dev-3@ssh          fai-dev-3
 fai-dev-4@ssh          fai-dev-4
 epslnjapmddap01@ssh    EPSLNJAPMDDAP01
 epslnyapmddap01@ssh    EPSLNYAPMDDAP01
+mddapd-pw-173@ssh      MDDAPD-PW-173
+mddapd-tt-006@ssh      MDDAPD-TT-006
 gnrld-pw-569@ssh       gnrld-pw-569
 
 # Gateway machine.
@@ -58,3 +63,14 @@ ba32350@sshx           bpipefh ba32350
 ba32351@sshx           bpipefh ba32351
 
 rtlnd-ob-290@ssh       RTLND-OB-290
+
+rtlnb-rr-033@sshx      getprdwin -i RTLNB-RR-033
+rtlnb-ob-017@sshx      getprdwin -i RTLNB-OB-017
+rtlnp-ob-241@sshx      getprdwin -i RTLNP-OB-241
+rtlnp-ob-434@sshx      getprdwin -i RTLNP-OB-434
+rtlnp-ob-299@sshx      getprdwin -i RTLNP-OB-299
+rtlnp-ob-323@sshx      getprdwin -i RTLNP-OB-323
+rtlnp-rr-503@sshx      getprdwin -i RTLNP-RR-503
+rtlnp-rr-201@sshx      getprdwin -i RTLNP-RR-201
+rtlnp-rr-352@sshx      getprdwin -i RTLNP-RR-352
+rtlnp-rr-229@sshx      getprdwin -i RTLNP-RR-229

@@ -79,7 +79,7 @@ dcrr              docker-compose run --rm
 fix-time-skew     sudo ntpdate -dv time.windows.com
 
 pj@dirx           /mnt/c/Projects
-fai@dirx          ~/prog/repos/fai
+fai@dirx          $XDG_DEV_HOME/repos/bloomberg/fai
 
 xgeometry         xdotool selectwindow getwindowgeometry
 

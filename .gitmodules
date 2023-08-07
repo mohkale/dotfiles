@@ -1,6 +1,6 @@
 [submodule "editors/emacs"]
 	path = prog/editors/emacs
-	url = git@github.com:mohkale/emacs.git
+	url = git@bbgithub.dev.bloomberg.com:mkaleem2/emacs.git
 	ignore = dirty
 	branch = master
 [submodule "prog/konsole/themes/an-old-hope"]
