@@ -12,6 +12,8 @@ set verbose off
 set history filename ~/.cache/gdb_history
 set history save
 set logging file ~/.local/share/gdb.log
+set startup-quietly on
+set debuginfod enabled off
 
 # These make gdb never pause in its output
 set pagination off

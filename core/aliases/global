@@ -80,6 +80,7 @@ od      xopen .
 stamp   sh -c '[ "$#" -eq 0 ] && exit 0; printf "%s\0" "$@" | xargs -r0 -I{} date -d @{}' --
 dig     dig +noall +answer
 digs    dig +short
+whatsmyip curl icanhazip.com
 
 rm      rm -v
 mv      mv -iv

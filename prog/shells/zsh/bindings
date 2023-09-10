@@ -85,6 +85,7 @@ zle -N zle_ge; bindkey "^x^e" zle_ge
 for fzf_script in /usr/share/fzf/key-bindings.zsh /etc/profile.d/fzf.zsh; do
   if [ -e "$fzf_script" ]; then
     source "$fzf_script"
+    bindkey "^s" fzf-history-widget
     bindkey "^T" transpose-chars                                                  # Restore default ctrl-t binding.
     bindkey '\ec' capitalize-word                                                 # Restore default alt-c binding.
     FZF_CTRL_R_OPTS="$FZF_SHELL_OPTS --history '""$XDG_DATA_HOME""'/fzf/history/sh-history"
