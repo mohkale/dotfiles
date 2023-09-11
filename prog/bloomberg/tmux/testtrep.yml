@@ -4,10 +4,10 @@ session_name: testtrep
 start_directory: ~/Develop/repos/bloomberg/fai/testtrep
 
 windows:
-  - window_name: testtrep
-    panes:
-      - dev-compose compose run --rm testtrep-start
   - window_name: reference
     layout: even-horizontal
     panes:
       - enw $XDG_DEV_HOME/repos/bloomberg/fai/mfa-templates/templates/SymbolMapper.xml.t $XDG_DEV_HOME/repos/bloomberg/fai/feedadapter/src/common/symbolmapper/fa_symbolmapper.t.cpp
+  - window_name: BETA
+    panes:
+      - BHOST=ba32351 dev-compose compose run --rm testtrep-start

@@ -42,11 +42,7 @@ bbsend
 
 # Dependencies for CPP projects.
 export BERG_FRONTEND_EXTRA_CPP_DEPENDENCIES="
-gdb
 valgrind
-clang
-clangd
-bde-format-11
 bbcmake-env
 python3.10-pygments
 ide-magic-cmake-meta
