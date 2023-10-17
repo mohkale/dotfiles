@@ -39,6 +39,7 @@ export LANG=en_GB.UTF-8 LC_MESSAGES="C"
 export MANPATH=$XDG_DATA_HOME/man:$MANPATH
 export MANPAGER='less -s -M +Gg'
 export MAN_KEEP_FORMATTING=1
+export MANROFFOPT="-P -c"
 export INFOPATH=$XDG_DATA_HOME/info:$INFOPATH
 export OPENER='xopen'                                                           # Command used to open files/URLs.
 ESHELL="$(command -v bash 2>/dev/null || echo /bin/sh)"; export ESHELL          # Shell used by emacs for various shell like purposes.
