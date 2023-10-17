@@ -21,8 +21,7 @@ def setup_prompt(color_map):
 
     # Actual body of the prompt before adding metadata and styling.
     PROMPT_CONTENT = ">>>"
-    # Unicode suffix for the prompt. Will be replaced with a space on TUI mode.
-    PROMPT_SUFFIX = " "
+    PROMPT_SUFFIX = " \[\033]133;A\007\]"
 
     def colorise(string, color):
         if color not in color_map or gdb.convenience_variable("USECOLOR") == 0:

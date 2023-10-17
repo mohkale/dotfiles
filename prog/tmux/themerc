@@ -149,6 +149,7 @@ set -g display-panes-colour $AOH_GREY
 #{?#{&&:#{window_linked},#{||:#{==:#{@theme-show-link-flag-on-original-window},1},#{!=:#{s/^#S,.*/ /:window_linked_sessions_list}, }}},L,}\
 #{?window_marked_flag,M,}\
 #{?window_zoomed_flag,Z,}\
+#{?#{&&:#{pane_in_mode},#{pane_unseen_changes}},U,}\
 '
 %hidden TMUX_FMT_WINFLAGS="#{?#{==:$TMUX_FMT_WINFLAGS,},,#{=1:@theme-winflag-sep}#[bright,fg=$TMUX_FLAG_HL]$TMUX_FMT_WINFLAGS#[default]#{=-1:@theme-winflag-sep}}"
 

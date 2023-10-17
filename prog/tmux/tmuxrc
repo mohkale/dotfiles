@@ -293,28 +293,10 @@ bind -T copy-mode-scroll t send-keys -X scroll-top
 bind -T copy-mode-scroll z send-keys -X scroll-middle
 bind -T copy-mode-scroll b send-keys -X scroll-bottom
 
-# Regexp used to jump to the end of a shell prompt.
-set -g @shell-prompt-regexp "(^[^ ]+ )|(^\[[[:alnum:]]+@[[:alnum:]]+ .+\]# )"
-
 bind M-k copy-mode\; send-keys M-k
-bind -T copy-mode-vi -r M-k {
-  send-keys -X start-of-line
-  send-keys -XF search-backward "#{@shell-prompt-regexp}"
-  # I have to use a subshell here because the width format specifier cannot
-  # properly handle unicode prompt characters like λ or non-blocking spaces.
-  if -F '#{!=:#{n:search_match},0}' {
-    run-shell "sh -c 'tmux send-keys -F -N \${#1} -X cursor-right' -- #{q:search_match} >/dev/null 2>&1"
-  }
-}
-
+bind -T copy-mode-vi -r M-k send-keys -X previous-prompt
 bind M-j copy-mode\; send-keys M-j
-bind -T copy-mode-vi -r M-j {
-  send-keys -X end-of-line
-  send-keys -XF search-forward "#{@shell-prompt-regexp}"
-  if -F '#{!=:#{n:search_match},0}' {
-    run-shell "sh -c 'tmux send-keys -F -N \${#1} -X cursor-right' -- #{q:search_match} >/dev/null 2>&1"
-  }
-}
+bind -T copy-mode-vi -r M-j send-keys -X next-prompt
 
 # curtesy of [[https://gist.github.com/samoshkin/05e65f7f1c9b55d3fc7690b59d678734][samoshkin]]. let's you nest tmux sessions safely (kind-of)
 # and makes focusing on the current pane (as if tmux isn't active)
