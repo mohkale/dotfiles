@@ -21,7 +21,7 @@ def load_configs():
             for chunk in re.split("([0-9]+)", str(key))
         ]
 
-    ENV_GDBINIT = os.environ.get("GDBINIT")
+    ENV_GDBINIT = os.environ.get("GDBINIT", os.path.expanduser("~/.config/gdb/gdbinit"))
     if ENV_GDBINIT is None:
         print("Warning: GDBINIT environment variable was not set")
         return
