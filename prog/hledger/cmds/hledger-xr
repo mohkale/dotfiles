@@ -18,7 +18,7 @@ CURRENCIES = {
 # Exclude the following currencies when possible.
 EXCLUDED_CURRENCIES = set()
 # Map invalid currency names into an alternative name.
-CURRENCY_MAP = {"1inch": "inch"}
+CURRENCY_MAP = {"1inch": "inch", "00": "ZERO"}
 
 resp = requests.get(
     "https://raw.githubusercontent.com/fawazahmed0/currency-api/1"
