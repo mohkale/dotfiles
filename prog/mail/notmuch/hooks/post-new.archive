@@ -1,0 +1,178 @@
+#!/usr/bin/env bash
+# Helper script to archive and delete old mail with notmuch.
+#
+# Notmuch itself does not support permanently deleting mail. The recommendation
+# is to instead just remove all tags from it or add a hidden tag and keep it
+# accessible as archived mail. This is good in concept but not in practice IMO.
+# I (as I presume most people) get a tonne of spam mail and having to keep it
+# archived when I can confirm 100% that I never want to search it is a waste of
+# both storage and bandwidth. This section of my post-new script processes each
+# msg with a deleted tag, moves it to the deleted sub-directory of whatever
+# account it's from and then later deletes it once it's been left there for
+# enough time. This is the same basic concept as GMails bin, if a little more
+# hacky.
+#
+# This script section makes use of some custom configuration extensions in my
+# notmuchrc, I've opted to recommend reading that instead of duplicating the
+# info here. Just to summarise attach a +deleted tag to any mail, it'll be moved
+# into a pending deletion directory and after a configured interval be deleted.
+# To undo this you can later remove the -deleted tag but that will not move the
+# mail out of the deletion directory (it just won't delete it because notmuch
+# doesn't see it as deleted).
+#
+# Note: gmail isn't a very good IMAP provider. There's no intended way to disable
+# the default spam filter, some of the options just don't seem to work such as
+# the move to bin for deleted mail option and you can't customize the deletion
+# duration for the bin. For the first issue you can create a new filter which
+# matches everything (doesn't contain a random word sequence) and direct it to
+# never put the mail in spam. The second and third issue I just reimplement the
+# "auto deletion after a certain number of days" functionality in this script,
+# set it to less than 30 days and make GMail immediately delete the mail that's
+# deleted in this server as well.
+
+prog="$(basename "$0")"
+
+notmuch_delete() {
+  local expunge_age
+  expunge_age=$(notmuch config get mk.trash.expunge_age)
+  if [ -z "$expunge_age" ]; then
+    echo "$prog: warning: Not removing deleted mail because expunge age is unassigned" >&2
+    return 0
+  fi
+
+  local base_dir
+  if ! base_dir=$(notmuch config get database.path); then
+    echo "$prog: warning: Could not determine notmuch mail base directory" >&2
+    return 1
+  fi
+
+  local maildir_map
+  maildir_map=$(notmuch config list |
+                  awk -F =                                                    \
+                      -v rx='^mk\\.trash-maildir\\.'                          \
+                      -e 'sub(rx, "", $0) { sub("=", "/", $0); print($0) }')
+  if [ -z "$maildir_map" ]; then
+    echo "$prog: warning: No maildir mapping for trash" >&2
+    return 1
+  fi
+
+  local index
+  index=$(mktemp)
+  _notmuch_delete_get_index "$base_dir" > "$index"
+  trap 'rm -f '"$index" EXIT
+  if ! [ -s "$index" ]; then
+    echo "$prog: info: No mail with deleted tags found" >&2
+    return 0
+  fi
+
+  local index2="$index.2"
+  _notmuch_delete_find_deleted_locations "$index" "$maildir_map" > "$index2"
+  trap 'rm -f '"$index $index.2" EXIT
+
+  _notmuch_delete_update_deleted_messages "$index" "$base_dir" "$maildir_map" "$expunge_age"
+}
+
+_notmuch_delete_get_index() { #(base_dir)
+  # Generate an index of all the emails with deleted tags and finally output
+  # the path to the index file.
+  local base_dir="$1"
+
+  local delete_tags delete_tags_search
+  delete_tags=$(notmuch config get mk.trash.delete_tags)
+  [ -z "$delete_tags" ] && delete_tags=deleted
+  delete_tags_search=$(echo "$delete_tags" |
+                         tr '\n' '\t' |
+                         sed -e 's/\b[^\t]/tag:\0/g'  \
+                             -e '$s/\t$//'            \
+                             -e 's/\t/ OR /g')
+
+  # Index contains a list of message files with the MAILDIR prefix removed.
+  notmuch search --exclude=false --output=files -- "$delete_tags_search" |
+    awk -v base_dir="$base_dir"                 \
+        -v prog="$prog"                         \
+        -e '{
+  if (index($0, base_dir) == 1) {
+    print(substr($0, length(base_dir)+2))
+  } else {
+    print prog ": warning: message file is not relative to maildir '"'"'" $0 "'"'"'" > "/dev/stderr"
+  }
+}'
+}
+
+_notmuch_delete_find_deleted_locations() { #(index, maildir_map)
+  local index="$1" maildir_map="$2"
+
+  awk -v map="$maildir_map" \
+      -e 'BEGIN {
+    # Populate the patterns alist with tuples of length 2.
+    # The 1st entry being the account directory for this mapping entry.
+    # The 2nd entry being the trash subdirectory for this mapping entry.
+    pattern_count = split(map, map_arr, "\n")
+    for (i=1; i <= pattern_count; i++) {
+      i_count = split(map_arr[i], i_arr, "/")
+
+      patterns[i][1] = i_arr[1]
+      patterns[i][2] = i_arr[1]
+      for (j=2; j <= i_count; j++) {
+        patterns[i][2] = patterns[i][2] "/" i_arr[j]
+      }
+    }
+  }' \
+      -e '{
+    for (i=1; i <= pattern_count; i++) {
+      if (index($0, patterns[i][1]) == 1) {
+        # Only delete if this entry has not already been deleted.
+        if (index($0, patterns[i][2]) != 1) {
+          path_count = split($0, path_arr, "/")
+
+          new_basename = path_arr[path_count]
+          # The U=NUMBER flag on mail file names causes issues with isync when
+          # syncing back to the remote. Simply removing it seems to fix the issue.
+          sub(/,U=[0-9]+/, "", new_basename)
+          # maildir paths are often grouped into cur, new and tmp. Technically
+          # notmuch should only process files in cur since others have not been
+          # processed yet, but for consistency I include it in the trash path.
+          # The basename at path_arr[path_count] should be guaranteed to be
+          # unique across all paths in MAILDIR.
+          $0 = patterns[i][2] "/" path_arr[path_count-1] "/" new_basename
+        }
+        break
+      }
+    }
+
+    print($0)
+  }' \
+      "$index"
+}
+
+_notmuch_delete_update_deleted_messages() { #(index, base_dir, maildir_map, expunge_age)
+  # Move deleted mail into the deletion directory for each account
+  # or delete mail that's already been in that directory for a long
+  # time.
+  local index="$1" base_dir="$2" maildir_map="$3" expunge_age="$4"
+
+  local ref_date
+  ref_date=$(date -d "now - $expunge_age days" +%s)
+
+  # TODO: Efficient way to stat everything in $index.2 (assuming it exists
+  # and matches the same entry in $index).
+  paste "$index" "$index.2" |
+    while IFS=$(printf '\t') read -r src dest; do
+      if [ "$src" = "$dest" ]; then
+        local dest_date
+        dest_date=$(stat --format='%Y' "$base_dir/$dest")
+        if [ "$expunge_age" -eq 0 ] || [ "$ref_date" -ge "$dest_date" ]; then
+          echo "$prog: info: Deleting mail file '$dest'" >&2
+          rm "$base_dir/$dest"
+        else
+          echo "$prog: debug: Skipping deleting mail file because it's too recent '$dest'" >&2
+        fi
+      else
+        echo "$prog: info: Moving message to deletion maildir '$src'" >&2
+        mv "$base_dir/$src" "$base_dir/$dest" &&
+          touch "$base_dir/$dest"
+      fi
+    done
+}
+
+notmuch_delete
