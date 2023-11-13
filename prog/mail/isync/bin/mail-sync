@@ -1,5 +1,10 @@
 #!/bin/sh
 # Sync mail with mail-server through mbsync. -*- +indent: 2 -*-
 
-mbsync --verbose -c "${XDG_CONFIG_HOME:-$HOME/.config}"/isync/mbsyncrc all &&
-  notmuch new
+if pgrep mbsync >/dev/null 2>&1; then
+  echo "error: $0: isync appears to already be running" >&2
+  exit 1
+else
+  mbsync --verbose -c "${XDG_CONFIG_HOME:-$HOME/.config}"/isync/mbsyncrc all &&
+    notmuch new
+fi
