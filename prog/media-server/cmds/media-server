@@ -13,10 +13,6 @@
 #
 # Environment variables
 # ---------------------
-# MEDIA_SERVER_VPN=[1]
-#   Run media server services under a VPN. Requires a VPN configuration to be
-#   setup and will block the rest of the services until after the VPN comes up.
-#   See [[file:../vpn.docker-compose.yml]].
 # MEDIA_SERVER_AUTHELIA=[1]
 #   Include an authelia service in the media-server. This will allow you to
 #   configure caddy to restrict access to services behind a login wall and
@@ -35,6 +31,7 @@
 #     test
 #     transmission
 #     tv-shows
+#     vpn
 
 set -e
 
@@ -86,15 +83,15 @@ done <<< "$(find . -mindepth 1 -maxdepth 1 -iname '*.yml' -not -iname '*.overrid
 
 [ "${MEDIA_SERVER_AUTHELIA:-0}" -eq 0 ] ||
   add_compose_file 9998-optional.auth
-if [ "${MEDIA_SERVER_VPN:-0}" -ne 0 ]; then
+if is_profile_enabled vpn; then
   add_compose_file 9999-optional.vpn
 else
   add_compose_file 9999-optional.no-vpn
 fi
 
 if is_profile_enabled socks-proxy; then
-  if [ "${MEDIA_SERVER_VPN:-0}" -eq 0 ]; then
-    echo "error: $0: The socks-proxy module requires MEDIA_SERVER_VPN to be enabled" >&2
+  if ! is_profile_enabled vpn; then
+    echo "error: $0: The socks-proxy module requires vpn profile to be enabled" >&2
     exit 1
   fi
   add_compose_file 9999-optional.socks-proxy

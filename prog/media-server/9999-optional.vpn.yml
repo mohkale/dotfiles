@@ -30,6 +30,8 @@ services:
       # Transmission service ports (see [[file:no-vpn.docker-compose.yml]]).
       - 9091:9091
       - 8756:8756
+    profiles:
+      - vpn
     volumes:
       - $XDG_CONFIG_HOME/media-server/gluetun:/gluetun
 
@@ -45,6 +47,8 @@ services:
       gluetun:
         condition: service_healthy
     network_mode: "service:gluetun"
+    profiles:
+      - vpn
   kavita:
     <<: *vpn-config
   navidrome:

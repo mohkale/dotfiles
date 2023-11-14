@@ -451,10 +451,10 @@ calling =docker-compose "$@"=.
    your part to set it up. See [[file:vpn.docker-compose.yml]]. This will direct you to
    the documentation on configuring your VPN service with [[https://github.com/qdm12/gluetun][gluetun]].
 
-   Once you've finalized the VPN setup you simply need to set the =MEDIA_SERVER_VPN=
-   environment variable to a non-zero value (this would best be done in your ~.profile~
-   file) and the next time you run =media-server= it will include the VPN options in
-   the container configurations.
+   Once you've finalized the VPN setup you simply need to set include =vpn=
+   in your =$MEDIA_SERVER_PROFILES= environment variable (this would best be done
+   in your ~.profile~ file) and the next time you run =media-server= it will
+   include the VPN options in the container configurations.
 
    *Note*: Even if you intend to use a VPN on your host directly, it's recommended to
    setup a VPN in the container as well. This will allow you to configure your VPN
@@ -521,8 +521,7 @@ calling =docker-compose "$@"=.
    media-server profile config.
 
    #+begin_src bash
-     MEDIA_SERVER_VPN=1
-     MEDIA_SERVER_PROFILES='socks-proxy'
+     MEDIA_SERVER_PROFILES='vpn,socks-proxy'
    #+end_src
 
    Now you can use a browser plugin like [[https://addons.mozilla.org/en-GB/firefox/addon/multi-account-containers/][Firefox Multi-Account Containers]] to
