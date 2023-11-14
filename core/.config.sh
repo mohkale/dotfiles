@@ -32,9 +32,6 @@ if is-unix; then
 fi
 link-to "$XDG_PICTURES_DIR/wallpapers" ./walls/*.{png,jpg,jpeg,gif}
 
-info 'Installing terminfo declarations'
-run-cmd find "$(pwd)/term" -mindepth 1 -maxdepth 1 -iname '*.terminfo' -exec tic -x {} \;
-
 clean -r "$XDG_DATA_HOME/fonts"
 link-to "$XDG_DATA_HOME/fonts" ./fonts/*.{ttf,otf}
 
@@ -48,4 +45,4 @@ fi
 
 link-to "$XDG_CONFIG_HOME/aliases" ./aliases/*
 
-import auto repos
+import auto term repos

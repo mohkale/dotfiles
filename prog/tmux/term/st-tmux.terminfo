@@ -1,0 +1,7 @@
+# -*- mode: conf -*- Terminfo declaration for st with tmux which just alias screen.
+st-tmux|screen in st with 24-bit direct color mode,
+  use=tmux,
+  use=st,
+st-tmux-256color|screen in st with 24-bit direct color mode,
+  use=tmux-256color,
+  use=st-256color,

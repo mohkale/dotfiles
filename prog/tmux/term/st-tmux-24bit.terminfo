@@ -1,0 +1,7 @@
+# -*- mode: conf -*- Variant of [[file:tmux-24bit.terminfo]] for st and tmux.
+st-tmux-24bit|screen with 24-bit direct color mode,
+  use=tmux-24bit,
+  use=st-256colorx,
+st-tmux-24bits|screen with 24-bit direct color mode,
+  use=tmux-24bits,
+  use=st-256color,

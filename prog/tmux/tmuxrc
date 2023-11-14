@@ -36,10 +36,14 @@ setw -g aggressive-resize on                                         # Auto-resi
 # Assign the TERM environment variable depending on the current
 # terminal. I'll add support for other true-color terms as I use
 # them.
-%if '#{==:#{TERM},st-256color}'
-set -g default-terminal "tmux-24bit"
+%if '#{m:st*,#{TERM}}'
+  %if '#{==:#{TERM},st-256color}'
+    set -g default-terminal "st-tmux-24bit"
+  %else
+    set -g default-terminal "st-tmux-256color"
+  %endif
 %else
-set -g default-terminal "tmux-256color"
+  set -g default-terminal "tmux-256color"
 %endif
 
 # Detect events in windows and mark appropriately. Supported events include:
