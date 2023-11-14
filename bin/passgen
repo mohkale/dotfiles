@@ -1,18 +1,24 @@
 #!/usr/bin/env python3
 """
 Script to generate a dice based password inspired by https://www.eff.org/dice .
+Building on purely word based passwords this script adds in support for capitalising
+words, adding numbers and adding special symbols. This is because most online systems
+require passwords to be of this form and better a script randomly applies it than a
+human manually starts patterning passwords in the easiest to mock way.
 
 See obligatory https://xkcd.com/936/
 """
 
 import argparse
+import itertools
 import logging
 import os
 import pathlib
+import random
 import re
 import secrets
 import sys
-from typing import Dict, NamedTuple, Optional
+from typing import Dict, List, NamedTuple, Optional
 
 import requests
 
@@ -29,6 +35,12 @@ WORDLIST_FILE = (
     pathlib.Path(os.environ.get("XDG_DATA_HOME", "~/.local/share"))
     / "passgen-wordlist.txt"
 )
+# Supported numbers to include in generated passwords. Multi word passwords will
+# always contain at least one number as the separator between words.
+NUMBER_SEQUENCE = "".join(map(str, range(0, 10)))
+# Supported special characters to include in generated passwords. Adapted from
+# https://owasp.org/www-community/password-special-characters.
+SPECIAL_SYMBOLS = r"!#$%&+,-.:;=?@^_~"
 
 
 class Index(NamedTuple):
@@ -87,9 +99,45 @@ def get_word(index: Index) -> str:
     return word
 
 
+def randomly_capitalise_words(words: List[str]) -> List[str]:
+    assert len(words) > 0
+    permutations = 0
+    while permutations == 0:
+        permutations = secrets.randbits(len(words))
+
+    result = []
+    for i, word in enumerate(words):
+        if permutations & (1 << i):
+            result.append(word.capitalize())
+        else:
+            result.append(word)
+    return result
+
+
+def get_word_separators(word_count: int) -> List[str]:
+    separators = []
+    # Ensure at least one number and separator is in the list.
+    if word_count > 1:
+        separators.append(secrets.choice(NUMBER_SEQUENCE))
+    if word_count > 2:
+        separators.append(secrets.choice(SPECIAL_SYMBOLS))
+    # Populate remaining separators.
+    remaining_symbols = NUMBER_SEQUENCE + SPECIAL_SYMBOLS
+    for word in range(0, word_count - 3):
+        separators.append(secrets.choice(remaining_symbols))
+
+    random.shuffle(separators)
+    # Append a blank separator to the end so length matches word size.
+    separators.append("")
+    return separators
+
+
 def get_password(index: Index, word_count: int) -> str:
     """Get a password containing `word_count` words from `index`."""
-    return " ".join(get_word(index) for _ in range(word_count))
+    words = [get_word(index) for _ in range(word_count)]
+    words = randomly_capitalise_words(words)
+    separators = get_word_separators(word_count)
+    return "".join(itertools.chain.from_iterable(zip(words, separators)))
 
 
 def main(args: argparse.Namespace) -> int:
@@ -115,7 +163,7 @@ def _parse_args() -> argparse.Namespace:
         "-c",
         "--word-count",
         type=int,
-        default=8,
+        default=3,
         help="Minimum number of words to include in password",
     )
     parser.add_argument(
