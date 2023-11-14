@@ -165,7 +165,8 @@ _notmuch_delete_update_deleted_messages() { #(index, base_dir, maildir_map, expu
           echo "$prog: info: Deleting mail file '$dest'" >&2
           rm "$base_dir/$dest"
         else
-          echo "$prog: debug: Skipping deleting mail file because it's too recent '$dest'" >&2
+          #echo "$prog: debug: Skipping deleting mail file because it's too recent '$dest'" >&2
+          :
         fi
       else
         echo "$prog: info: Moving message to deletion maildir '$src'" >&2
