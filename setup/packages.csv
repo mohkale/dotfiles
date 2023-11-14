@@ -1,4 +1,5 @@
 # Package, Predicate, Package Install Specs...
+airvpn,which:eddie-ui,yay:airvpn-bin
 alacritty,which:alacritty,pacman:alacritty
 bash-language-server,which:bash-language-server,yay:bash-language-server
 black,python-module:black,pip:black
