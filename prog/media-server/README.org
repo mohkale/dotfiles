@@ -16,6 +16,7 @@
 #+HTML:   <a style="margin-left: 4px;" href="https://www.wireguard.com/"><img src="https://img.shields.io/badge/wireguard-gluetun:latest-%2388171A?logo=WireGuard&style=for-the-badge"/></a>
 #+HTML:   <a style="margin-left: 4px;" href="https://www.authelia.com/"><img src="https://img.shields.io/badge/authelia-latest:latest-success?logo=Auth0&style=for-the-badge&logoColor=success"/></a>
 #+HTML:   <a style="margin-left: 4px;" href="https://heimdall.site/"><img src="https://img.shields.io/badge/authelia-latest:latest-blueviolet?logo=Dash&style=for-the-badge&logoColor=blueviolet"/></a>
+#+HTML:   <a style="margin-left: 4px;" href="https://github.com/serjs/socks5-server"><img src="https://img.shields.io/badge/socksproxy-latest:latest-yellow?logo=Envoy%20Proxy&style=for-the-badge&logoColor=yellow"/></a>
 #+HTML: </div>
 
 Complete personal media server configuration in Docker.
@@ -505,6 +506,27 @@ calling =docker-compose "$@"=.
           environment:
             FIREWALL_VPN_INPUT_PORTS: $TRANSMISSION_PEER_PORT,$QBITTORRENT_PEER_PORT
     #+end_src
+
+*** Socks Proxy
+   Generally it's recommended to run a VPN provider directly on your host with
+   a secure protocol like OpenVPN or WireGuard. Sadly docker can sometimes
+   conflict with such a setup and break networking within your containers when
+   you connect or disconnect from the VPN. As a workaround my media-server can
+   optionally setup a SOCKS proxy that reroutes traffic through the same VPN
+   connection as gluetun. This can let you setup proxy configurations in your
+   browser so you can access the same sites as the media-server without ISP
+   tracking or blocking you.
+
+   To enable simply export the socks-proxy media-server profile in your
+   media-server profile config.
+
+   #+begin_src bash
+     MEDIA_SERVER_VPN=1
+     MEDIA_SERVER_PROFILES='socks-proxy'
+   #+end_src
+
+   Now you can use a browser plugin like [[https://addons.mozilla.org/en-GB/firefox/addon/multi-account-containers/][Firefox Multi-Account Containers]] to
+   assign a container to route traffic through the SOCKS proxy.
 
 ** Override Top Level Domain
    Out of the box this media-server configuration only supports a single top-level

@@ -31,6 +31,7 @@
 #     movies
 #     music
 #     qbittorrent
+#     socks-proxy
 #     test
 #     transmission
 #     tv-shows
@@ -50,6 +51,12 @@ export PWD; PWD=$(pwd)
 
 # By default only the torrents profile is enabled.
 MEDIA_SERVER_PROFILES=torrents
+is_profile_enabled() {
+  case ",$MEDIA_SERVER_PROFILES," in
+    *,"$1",*) return 0 ;;
+    *)      return 1 ;;
+  esac
+}
 
 if [ -e "$XDG_CONFIG_HOME/media-server/profile.sh" ]; then
   . "$XDG_CONFIG_HOME/media-server/profile.sh"
@@ -60,6 +67,9 @@ if [ -z "$TRANSMISSION_PEER_PORT" ]; then
 fi
 if [ -z "$QBITTORRENT_PEER_PORT" ]; then
   export QBITTORRENT_PEER_PORT=51413
+fi
+if [ -z "$SOCKS_PROXY_PEER_PORT" ]; then
+  export SOCKS_PROXY_PEER_PORT=1080
 fi
 
 COMPOSE_FILES=( )
@@ -80,6 +90,14 @@ if [ "${MEDIA_SERVER_VPN:-0}" -ne 0 ]; then
   add_compose_file 9999-optional.vpn
 else
   add_compose_file 9999-optional.no-vpn
+fi
+
+if is_profile_enabled socks-proxy; then
+  if [ "${MEDIA_SERVER_VPN:-0}" -eq 0 ]; then
+    echo "error: $0: The socks-proxy module requires MEDIA_SERVER_VPN to be enabled" >&2
+    exit 1
+  fi
+  add_compose_file 9999-optional.socks-proxy
 fi
 
 export COMPOSE_PROFILES="${MEDIA_SERVER_PROFILES}"
