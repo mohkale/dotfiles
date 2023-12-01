@@ -6,4 +6,4 @@ run-cmd find                                    \
     st-tmux.terminfo                            \
     tmux-24bit.terminfo                         \
     st-tmux-24bit.terminfo                      \
-  -type f -exec tic -x {} \;
+  -exec tic -x {} \;
