@@ -12,6 +12,7 @@ cheat,which:cheat,yay:cheat-bin
 chronic,which:chronic,pacman:moreutils
 clangd,which:clangd,pacman:clang
 clojure,which:clojure,pacman:clojure
+cookiecutter,python-module:cookiecutter,pip:cookiecutter
 cmake-language-server,which:cmake-language-server,pip:cmake-language-server
 docker,which:docker,pacman:docker
 docker-compose,which:docker-compose,pacman:docker-compose

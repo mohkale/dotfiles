@@ -16,6 +16,7 @@ import -b                                       \
   buku                                          \
   cava                                          \
   cron                                          \                                          \
+  cookiecutter                                  \
   cheat                                         \
   docker                                        \
   dolphin                                       \

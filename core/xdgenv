@@ -107,6 +107,8 @@ export LEDGER_FILE="$XDG_DOCUMENTS_DIR"/ledger/main.journal                     
 
 export ZDOTDIR="$XDG_CONFIG_HOME/zshell"                                        # zshell
 
+export COOKIECUTTER_CONFIG="$XDG_CONFIG_HOME/cookiecutter/cookiecutterrc"
+
 # Notmuch configuration location. Notmuch itself has XDG compliance but muchsync
 # does not yet.
 export NOTMUCH_CONFIG="$XDG_CONFIG_HOME/notmuch/${NOTMUCH_PROFILE:-default}/config"

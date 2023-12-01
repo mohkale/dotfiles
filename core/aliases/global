@@ -82,6 +82,9 @@ dig     dig +noall +answer
 digs    dig +short
 whatsmyip curl icanhazip.com
 
+cookie       cookiecutter
+cookies@dirx $XDG_DEV_HOME/cookiecutters
+
 rm      rm -v
 mv      mv -iv
 cp      cp -iv

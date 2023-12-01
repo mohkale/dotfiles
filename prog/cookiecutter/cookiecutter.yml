@@ -1,0 +1,11 @@
+---
+default_context:
+  author_name: "Mohsin Kaleem"
+  full_name: "Mohsin Kaleem"
+  email: "mohkale@kisara.moe"
+  github_username: "mohkale"
+cookiecutters_dir: "/home/mohkale/Develop/repos/cookiecutters"
+replay_dir: "/home/mohkale/.local/state/cookiecutter/replay"
+abbreviations:
+  gh: https://github.com/{0}.git
+  lang:golang: https://github.com/lacion/cookiecutter-golang
