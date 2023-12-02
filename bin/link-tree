@@ -42,9 +42,9 @@ shift $((OPTIND - 1))
 
 if [ "$#" -lt 2 ]; then
     if [ "$#" -eq 0 ]; then
-        echo "$__NAME__: error: Must supply a src and destination directory" >&2
+        echo "$__NAME__: error: Must supply a source and a destination directory" >&2
     else
-        echo "$__NAME__: error: Must supply destination directory" >&2
+        echo "$__NAME__: error: Must supply a destination directory" >&2
     fi
     print_usage >&2
     exit 1
@@ -56,7 +56,7 @@ for i in $(seq "$((src_count-1))"); do
     src="${!i}"
     src="${src%/}"
     if [ ! -e "$src" ]; then
-        echo "$__NAME__: error: Could not find source directory $src" >&2
+        echo "$__NAME__: error: Could not find source $src" >&2
     else
         SRC+=( "$src" )
     fi
@@ -65,6 +65,7 @@ if [ "${#SRC[@]}" -ne "$((src_count-1))" ]; then
     exit 1
 fi
 DEST="${!src_count}"
+DEST="${DEST%/}"
 
 prefix_basename=0
 if [ "${#SRC[@]}" -gt 1 ]; then
@@ -88,15 +89,39 @@ function dirname(file) {
     }
     return ""
 }' \
+        -e '# shell_quote --- quote an argument for passing to the shell -- https://www.gnu.org/software/gawk/manual/html_node/Shell-Quoting.html
+
+function shell_quote(s,             # parameter
+    SINGLE, QSINGLE, i, X, n, ret)  # locals
+{
+    if (s == "")
+        return "\"\""
+
+    SINGLE = "\x27"  # single quote
+    QSINGLE = "\"\x27\""
+    n = split(s, X, SINGLE)
+
+    ret = SINGLE X[1] SINGLE
+    for (i = 2; i <= n; i++)
+        ret = ret QSINGLE SINGLE X[i] SINGLE
+
+    return ret
+}' \
+        -e '
+function isdir(file) {
+  return !system("test -d " shell_quote(file))
+}' \
         -e '{
 src_root = $1
 src_file = $2
 src_dirname = dirname(src_file)
 src_base = $3
 
-src = $1 "/" $2
+src = $1
+if ($2) { src = src  "/" $2 }
+
 dest_dir = dest_root
-if (prefix_basename) {
+if (prefix_basename && isdir(src_root)) {
   dest_dir = dest_dir "/" basename(src_root)
 }
 if (src_dirname) {
