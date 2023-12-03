@@ -5,38 +5,65 @@ DP-1 YPosition 1920x1080=67
 MenuBar=Disabled
 State=AAAA/wAAAAD9AAAAAgAAAAAAAADlAAADxvwCAAAAA/sAAAAWAGYAbwBsAGQAZQByAHMARABvAGMAawAAAAAuAAAAnwAAAF0BAAAD+wAAABQAcABsAGEAYwBlAHMARABvAGMAawEAAAAuAAAByAAAAF0BAAAD+wAAABAAaQBuAGYAbwBEAG8AYwBrAQAAAfcAAAH9AAABDwEAAAMAAAADAAAAAAAAAAD8AQAAAAH7AAAAGAB0AGUAcgBtAGkAbgBhAGwARABvAGMAawAAAAAA/////wAAAAoBAAADAAADKwAAA8YAAAAEAAAABAAAAAgAAAAI/AAAAAEAAAACAAAAAQAAABYAbQBhAGkAbgBUAG8AbwBsAEIAYQByAQAAAAD/////AAAAAAAAAAA=
 
+[$Version]
+update_info=dolphin_detailsmodesettings.upd:rename-leading-padding,dolphin_detailsmodesettings.upd:move-content-display
+
 [Baloo KEditCommentDialog]
 DP-1 Height 1920x1080=252
 DP-1 Width 1920x1080=276
 
 [CompactMode]
-FontWeight=50
 PreviewSize=16
 
+[CreateDialog]
+LastMimeType=application/x-7z-compressed
+
 [DetailsMode]
-FontWeight=50
+IconSize=64
+PreviewSize=96
+
+[ExtractDialog]
+DP-2 DP-3 Height 1920x1080=560
+DP-2 DP-3 Width 1920x1080=1280
+DirHistory[$e]=$HOME/2605/,$HOME/2444/
 
 [General]
 ConfirmClosingMultipleTabs=false
 GlobalViewProps=false
 RememberOpenedTabs=false
 ShowToolTips=true
-Version=200
+Version=202
 ViewPropsTimestamp=2021,2,28,17,27,2.598
 
 [IconsMode]
-FontWeight=50
-IconSize=176
-PreviewSize=176
+IconSize=192
+PreviewSize=192
 
 [KFileDialog Settings]
-Recent Files[$e]=file:$HOME/dolphin.shortcuts,file:$HOME/dolphin.shortcuts
-Recent URLs[$e]=file:$HOME/,file:$HOME/documents/
+Places Icons Auto-resize=false
+Places Icons Static Size=22
+Recent Files[$e]=file:$HOME
+Recent URLs[$e]=file:$HOME/,file:$HOME/2444/,file:$HOME/2605/
 iconViewIconSize=43
+listViewIconSize=22
 
 [KPropertiesDialog]
+2 screens: Height=486
+2 screens: Width=438
 DP-1 Height 1920x1080=486
 DP-1 Width 1920x1080=438
+DP-2 DP-3 Height 1920x1080=458
+DP-2 DP-3 Height 1920x1080 DP-2=616
+DP-2 DP-3 Height 1920x1080 DP-3=458
+DP-2 DP-3 Width 1920x1080=382
+DP-2 DP-3 Width 1920x1080 DP-2=438
+DP-2 DP-3 Width 1920x1080 DP-3=400
+DP-3 DP-2 Height 1920x1080=486
+DP-3 DP-2 Width 1920x1080=438
+DP-3 Height 1920x1080=616
+DP-3 Width 1920x1080=438
+DisplayPort-2 Height 1920x1080=464
+DisplayPort-2 Width 1920x1080=417
 
 [MainWindow]
 DP-1 Height 1920x1080=1049
@@ -45,12 +72,11 @@ DP-1 XPosition 1920x1080=918
 DP-1 YPosition 1920x1080=30
 MenuBar=Disabled
 RestorePositionForNextInstance=false
-State=AAAA/wAAAAD9AAAAAgAAAAAAAADmAAACg/wCAAAAA/sAAAAWAGYAbwBsAGQAZQByAHMARABvAGMAawAAAAAA/////wAAAAoBAAAD+wAAABQAcABsAGEAYwBlAHMARABvAGMAawEAAAAuAAABGgAAAF0BAAAD+wAAABAAaQBuAGYAbwBEAG8AYwBrAQAAAUkAAAFoAAABDwEAAAMAAAADAAAAAAAAAAD8AQAAAAH7AAAAGAB0AGUAcgBtAGkAbgBhAGwARABvAGMAawAAAAAA/////wAAAAoBAAADAAADMQAAAoMAAAAEAAAABAAAAAgAAAAI/AAAAAEAAAACAAAAAQAAABYAbQBhAGkAbgBUAG8AbwBsAEIAYQByAQAAAAD/////AAAAAAAAAAA=
 ToolBarsMovable=Disabled
 
 [Open-with settings]
 CompletionMode=1
-History=neovim,vlc,brave,vim,zath
+History=vim,sxcv,vlc,sxiv-ls,neovim,brave,zath
 
 [PreviewSettings]
 Plugins=appimagethumbnail,audiothumbnail,comicbookthumbnail,cursorthumbnail,djvuthumbnail,ebookthumbnail,exrthumbnail,directorythumbnail,fontthumbnail,imagethumbnail,jpegthumbnail,kraorathumbnail,windowsexethumbnail,windowsimagethumbnail,opendocumentthumbnail,svgthumbnail

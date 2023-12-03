@@ -12,16 +12,6 @@ Syntax: argv
 | Print program arguments. Set arguments using "set args [ARG [...ARGS]]".
 end
 
-define frame
-  info frame
-  info args
-  info locals
-end
-document frame
-Syntax: frame
-| Print stack frame.
-end
-
 define func
   if $argc == 0
     info functions

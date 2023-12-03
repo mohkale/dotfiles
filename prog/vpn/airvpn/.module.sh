@@ -1,1 +1,1 @@
-packagex airvpn
+packagex airvpn airvpn-cli

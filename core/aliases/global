@@ -171,6 +171,7 @@ etcd    etd -c
 we      EMACS_CMD=evi      with_emacs 
 wex     EMACS_CMD="evi -x" with_emacs 
 em@dirx       $XDG_CONFIG_HOME/emacs
+dotem@dirx    $DOTFILES/prog/editors/emacs
 straight@dirx $XDG_CACHE_HOME/emacs/straight
 emrc@file     $XDG_CONFIG_HOME/lisp/+config.el
 
@@ -181,14 +182,14 @@ buku-tags buku -t
 ## jq
 jqr jq --raw-output
 
-# Transmission
-trr     tctl_fzf
-tra     tctl add
-trs     tctl start
-trp     tctl pause
-trd     tctl remove
-trl     tctl list
-trv     tctl verify
+# Transmission and QBittorrent
+trr     qctl_fzf
+trs     qctl start
+trp     qctl pause
+trd     qctl remove
+trl     qctl list
+trv     qctl verify
+qremote qbt
 tremote transmission-remote
 torclip clipsink -l - | grep --line-buffer '^magnet' | tee /dev/tty | tctl add -
 

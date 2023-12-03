@@ -15,8 +15,8 @@ import -b                                       \
   browsers/*                                    \
   buku                                          \
   cava                                          \
-  cron                                          \                                          \
   cookiecutter                                  \
+  cron                                          \
   cheat                                         \
   docker                                        \
   dolphin                                       \
@@ -37,9 +37,8 @@ import -b                                       \
   libinput                                      \
   media/*                                       \
   media-server                                  \
-  media-server/jellyfin                         \
-  media-server/sonarr                           \
   media-server/transmission                     \
+  media-server/qbittorrent                      \
   network-manager                               \
   pass                                          \
   polybar                                       \

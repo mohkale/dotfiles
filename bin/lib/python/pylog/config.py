@@ -86,6 +86,7 @@ def load_config(script: typing.Optional[str], default=None):
     return config if loaded else default
 
 def use_config(script, default=None, level=None,
+               stdout_level=None,
                log_file=None, overwrite_std_with_log_file=False,
                **_kwargs):
     """Proxy for `load_config` that also uses the config.
@@ -101,6 +102,8 @@ def use_config(script, default=None, level=None,
       any existing handlers which would write to stdout/stderr.
     """
     conf = load_config(script, default)
+    if stdout_level is None:
+        stdout_level = level
     if conf:
         logging.config.dictConfig(conf)
 
@@ -130,5 +133,8 @@ def use_config(script, default=None, level=None,
         # You override the level of all the root-level handlers
         # if you pass one to use_config, including file handlers.
         for handler in logging.getLogger().handlers:
-            handler.setLevel(level)
+            if isinstance(handler, logging.StreamHandler) and handler.stream in (sys.stdout, sys.stderr):
+                handler.setLevel(stdout_level)
+            else:
+                handler.setLevel(level)
     return conf
