@@ -91,8 +91,7 @@ export VSCODE_PORTABLE="$XDG_DATA_HOME"/vscode                                  
 
 alias  info='info --init-file "$XDG_CONFIG_HOME/infokey"'                       # GNU info
 
-export GDBINIT="$XDG_CONFIG_HOME/gdb/init"                                      # GDB
-alias gdb='GDBINIT=$GDBINIT gdb --silent -nh -x "$GDBINIT"'
+alias  gdb='gdb --silent'
 
 alias  mbsync='mbsync -c "$XDG_CONFIG_HOME"/isync/mbsyncrc'                     # isync
 
@@ -107,6 +106,8 @@ export PGSERVICEFILE="$XDG_CONFIG_HOME/pg/pg_service.conf"
 export LEDGER_FILE="$XDG_DOCUMENTS_DIR"/ledger/main.journal                     # Ledger
 
 export ZDOTDIR="$XDG_CONFIG_HOME/zshell"                                        # zshell
+
+export COOKIECUTTER_CONFIG="$XDG_CONFIG_HOME/cookiecutter/cookiecutterrc"
 
 # Notmuch configuration location. Notmuch itself has XDG compliance but muchsync
 # does not yet.

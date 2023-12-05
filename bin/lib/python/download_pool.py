@@ -25,15 +25,17 @@ DEFAULT_HEADERS = {
 _DOWNLOAD_CALLBACK_T = t.Callable[[str, t.Optional[Exception]], None]
 
 def _download(url, dest, args, kwargs):
-    callback: t.Optional[_DOWNLOAD_CALLBACK_T] = kwargs.pop('callback', None)
-    chunk_size: int = kwargs.pop('chunk_size', 2 ** 10)  # default=1MB
-    check_status: bool = kwargs.pop('check_status', True)
-    attempt_count: int = max(1, kwargs.pop('attempt_count', 10))
-    attempt_delay: int = max(0, kwargs.pop('attempt_delay', 3))
-    req_method = kwargs.pop('req_method', requests.get)
+    callback: t.Optional[_DOWNLOAD_CALLBACK_T] = kwargs.get('callback', None)
+    chunk_size: int = kwargs.get('chunk_size', 2 ** 10)  # default=1MB
+    check_status: bool = kwargs.get('check_status', True)
+    attempt_count: int = max(1, kwargs.get('attempt_count', 10))
+    attempt_delay: int = max(0, kwargs.get('attempt_delay', 3))
+    req_method = kwargs.get('req_method', requests.get)
+
+    request_kwargs = {}
     headers = DEFAULT_HEADERS.copy()
     headers.update(kwargs.get('headers', {}))
-    kwargs['headers'] = headers
+    request_kwargs['headers'] = headers
 
     buf, complete = io.BytesIO(), False
     try:
@@ -45,7 +47,7 @@ def _download(url, dest, args, kwargs):
                 buf.seek(0)
             else:
                 try:
-                    req = req_method(url, *args, **kwargs, stream=True)
+                    req = req_method(url, *args, **request_kwargs, stream=True)
                     if check_status:
                         req.raise_for_status()
                     for chunk in req.iter_content(chunk_size):
@@ -115,9 +117,9 @@ class DownloadPool(object):
         if isinstance(urls, str):
             urls = [urls]
             # Generate a collection of parameters to be sent to `download'
-        it = ((url if isinstance(url, str) else url[0],
+        it = [(url if isinstance(url, str) else url[0],
                self._default_dest(url) if isinstance(url, str) else url[1],
-               args, kwargs) for url in urls)
+               args, kwargs) for url in urls]
         return self.pool.starmap_async(_download, it)
 
     @staticmethod

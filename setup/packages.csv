@@ -1,4 +1,6 @@
 # Package, Predicate, Package Install Specs...
+airvpn,which:eddie-ui,yay:eddie-ui-git
+airvpn-cli,which:eddie-ui,yay:eddie-cli-git
 alacritty,which:alacritty,pacman:alacritty
 bash-language-server,which:bash-language-server,yay:bash-language-server
 black,python-module:black,pip:black
@@ -11,6 +13,7 @@ cheat,which:cheat,yay:cheat-bin
 chronic,which:chronic,pacman:moreutils
 clangd,which:clangd,pacman:clang
 clojure,which:clojure,pacman:clojure
+cookiecutter,python-module:cookiecutter,pip:cookiecutter
 cmake-language-server,which:cmake-language-server,pip:cmake-language-server
 docker,which:docker,pacman:docker
 docker-compose,which:docker-compose,pacman:docker-compose

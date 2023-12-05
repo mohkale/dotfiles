@@ -8,11 +8,10 @@ to compilation and they each fix one or more issues I may have with the program.
 For example:
 
 #+begin_src shell
-  patch -p0 < "$DOTFILES/setup/patch/dotfiles-apply-st-terminfo-extensions.patch"
+  patch -p0 < "$DOTFILES/setup/patch/tmux-fix-extended-key-swallowing.diff"
 #+end_src
 
 #+CAPTION: List of all patches visible in the current working directory.
 | Patch                                       | Program  | Description                                 |
 |---------------------------------------------+----------+---------------------------------------------|
 | [[file:tmux-fix-extended-key-swallowing.diff][tmux-fix-extended-key-swallowing]]            | tmux     | See [[https://github.com/tmux/tmux/issues/2705][tmux#2705]].                              |
-| [[file:dotfiles-apply-st-terminfo-extensions.patch][dotfiles-apply-st-terminfo-extensions.patch]] | dotfiles | Make st terminfo extensions usable in tmux. |

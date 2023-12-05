@@ -17,7 +17,7 @@ set hiddenfiles .*:eln-cache:__pycache__*:*.pyc:*.o:node_modules:obj:*.elc:*~:fo
 set info size
 #set relativenumber
 set dircounts                                                                   # show number of files in directory, not size of directory inode.
-$lf -remote "send $id set previewer ${XDG_CONFIG_HOME:-$HOME/.config}/lf/cmds/lf-preview"
+set previewer ~/.config/lf/cmds/lf-preview
 set globsearch
 set errorfmt "\033[1;31merror\033[0m: %s"
 set incsearch

@@ -19,7 +19,7 @@ class NotMuchSegment(StatusMiscSegment):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.tag_styles = {
-            "tag:unread": self.unread_style,
+            "tag:inbox and tag:unread": self.unread_style,
             "tag:flagged": self.flagged_style,
             "tag:inbox and tag:dev and tag:todo": self.dev_todo_style,
         }

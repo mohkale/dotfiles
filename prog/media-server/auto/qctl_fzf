@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+qctl_fzf() {
+  echo -e 'ls:List
+select:select
+start:Start
+start --now:Start Now
+pause:Pause
+verify:Verify
+remove:Remove
+remove --force:Delete
+queue-top:Move Queue Top
+queue-bottom:Move Queue Bottom' |
+    _mk_fzf --delimiter : --with-nth 2.. --prompt='QBittorrent: ' |
+    cut -d : -f 1 |
+    xargs -r qctl "$@"
+}

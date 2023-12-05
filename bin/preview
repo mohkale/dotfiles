@@ -413,6 +413,7 @@ esac && exit 0
 case "$MIMETYPE" in
   */json) do_json "$FILE_PATH" ;;
   */html) do_html "$FILE_PATH" ;;
+  */javascript) highlight_bat -l typescript -- "$FILE_PATH" ;;
   *sqlite3) do_sqlite3 "$FILE_PATH" ;;
 
   # Generic classifications

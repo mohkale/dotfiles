@@ -13,15 +13,15 @@ set $COLOR_CPUFLAGS = $RED
 # to a dim color and switch to a more colorful prompt when there's a process
 # running.
 
-set prompt >>> 
 python
+import os
+
 def setup_prompt(color_map):
     assert "reset" in color_map
 
     # Actual body of the prompt before adding metadata and styling.
     PROMPT_CONTENT = ">>>"
-    # Unicode suffix for the prompt. Will be replaced with a space on TUI mode.
-    PROMPT_SUFFIX = " "
+    PROMPT_SUFFIX = " \[\033]133;A\007\]"
 
     def colorise(string, color):
         if color not in color_map or gdb.convenience_variable("USECOLOR") == 0:
@@ -43,15 +43,16 @@ def setup_prompt(color_map):
     return prompt_function
 
 
-gdb.prompt_hook = setup_prompt(
-    {
-        # Reset all color codes
-        "reset": "\[\e[0m\]",
-        # Inferior process is not running
-        "idle": "\[\e[90m\]",
-        # Inferior process is running
-        "active": "\[\e[1;35m\]",
-    }
-)
+if os.environ.get("TERM") != "dumb":
+    gdb.prompt_hook = setup_prompt(
+        {
+            # Reset all color codes
+            "reset": "\[\e[0m\]",
+            # Inferior process is not running
+            "idle": "\[\e[90m\]",
+            # Inferior process is running
+            "active": "\[\e[1;35m\]",
+        }
+    )
 
 end

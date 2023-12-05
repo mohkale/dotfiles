@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Status misc segment for showing NordVPN connection status."""
+"""Status misc segment for showing Transmission download status."""
 
 import asyncio
 import enum

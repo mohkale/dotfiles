@@ -2,7 +2,7 @@ import json
 import logging
 import pathlib
 from types import TracebackType
-from typing import Any, Dict, Optional, Type
+from typing import Any, Dict, List, Optional, Type
 
 import qbittorrentapi as qbit
 import tenacity
@@ -104,8 +104,45 @@ class QBittorrentDaemonClient(TorrentClient):
     def _add(self, *args, **kwargs) -> Optional[str]:
         logging.debug("Adding torrent with args=%s kwargs=%s", repr(args), repr(kwargs))
         try:
-            if self._add2(*args, **kwargs):
-                return self._get_most_recently_added_torrent_hash()
+            try:
+                last_torrent_hash = self._get_most_recently_added_torrent_hash()[0]
+            except IndexError:
+                last_torrent_hash = None
+
+            if not self._add2(*args, **kwargs):
+                return None
+
+            attempt = 1
+            while attempt <= 10:
+                attempt += 1
+
+                recent_torrent_hashes = self._get_most_recently_added_torrent_hash(
+                    count=5
+                )
+                if last_torrent_hash is None:
+                    next_position = 0
+                else:
+                    try:
+                        last_torrent_hash_position = recent_torrent_hashes.index(
+                            last_torrent_hash
+                        )
+                    except ValueError:
+                        logging.error(
+                            "Failed to find last torrent hash=%s in current torrent list",
+                            last_torrent_hash,
+                        )
+                        continue
+                    else:
+                        next_position = last_torrent_hash_position - 1
+
+                if next_position < 0:
+                    continue
+                if next_position != 0:
+                    logging.warning(
+                        "Multiple candidate torrent hashes in recent torrent hash list"
+                    )
+
+                return recent_torrent_hashes[next_position]
         except tenacity.RetryError:
             logging.exception(
                 "Failed to add torrent with args=%s kwargs=%s", repr(args), repr(kwargs)
@@ -129,8 +166,10 @@ class QBittorrentDaemonClient(TorrentClient):
         stop=tenacity.stop_after_attempt(5),
         wait=tenacity.wait_random(min=1, max=5),
     )
-    def _get_most_recently_added_torrent_hash(self) -> Optional[str]:
-        torrents = self._client.torrents_info(sort="added_on", limit=1, reverse=True)
+    def _get_most_recently_added_torrent_hash(self, count: int = 1) -> List[str]:
+        torrents = self._client.torrents_info(
+            sort="added_on", limit=count, reverse=True
+        )
         if len(torrents) == 0:
             raise ValueError("No torrents in qbittorrent")
-        return torrents[0]["hash"]
+        return [it["hash"] for it in torrents]

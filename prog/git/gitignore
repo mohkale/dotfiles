@@ -69,6 +69,7 @@ local.properties
 .buildpath
 flycheck_*
 native-lisp/
+.dir-locals-2.el
 
 # Netbeans
 nbproject/private/

@@ -1,0 +1,24 @@
+---
+# Install a SOCKs proxy image which will route requests through your gluetun
+# VPN network. Useful for just browsing sites that may be locked by your
+# regular ISP but accessible to your media-server network.
+
+services:
+  gluetun:
+    environment:
+      HTTPPROXY: on
+      HTTPPROXY_STEALTH: on
+    ports:
+      - $SOCKS_PROXY_PEER_PORT:1080
+
+  socks-proxy:
+    image: serjs/go-socks5-proxy
+    container_name: ms-socks-proxy
+    depends_on:
+      gluetun:
+        condition: service_healthy
+    environment:
+      PROXY_PORT: 1080
+    network_mode: "service:gluetun"
+    profiles:
+      - socks-proxy
