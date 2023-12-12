@@ -23,7 +23,7 @@ weekly-refresh                 weekly-refresh-docker; weekly-fetch-repos
 weekly-refresh-docker          weekly-erase-docker-cache; weekly-rebuild-project-images
 weekly-erase-docker-cache      sudo service docker restart && dd-erase-all --force && docker volume prune --all --force
 weekly-erase-build-cache       ls-projects | sort -u | awk -F : -e '{ printf("%s/cmake-build\n", $1); printf("%s/cmake-install\n", $1) }' | parallel [ -e {} ] '&&' rm -rvf {}
-weekly-rebuild-project-images  ls-projects | sort -u | parallel --colsep=: [ -e {1}/.lcldev/dev-compose/docker-compose.yml ] '&&' echo {1} | grep -E 'testtrep|feedadapter|feedadapter-rules' | parallel --ungroup --colsep=: --max-procs=1 cd {1} '&&' echo {2} '&&' dev-compose compose pull '&&' dev-compose compose build --pull --parallel
+weekly-rebuild-project-images  ls-projects | sort -u | parallel --colsep=: [ -e {1}/.lcldev/dev-compose/docker-compose.yml ] '&&' echo {1} | grep -E 'testtrep|feedadapter|feedadapter-rules' | parallel --ungroup --colsep=: --max-procs=1 cd {1} '&&' echo {1} '&&' dev-compose compose pull '&&' dev-compose compose build --pull --parallel
 weekly-fetch-repos             ls-projects | sort -u | parallel --max-procs=8 --colsep=: echo {2} '&&' cd {1} '&&' git pull --all --ff-only
 
 # Dev machine helpers
@@ -41,6 +41,7 @@ epslnyapmddap01@ssh    EPSLNYAPMDDAP01
 mddapd-pw-173@ssh      MDDAPD-PW-173
 mddapd-tt-006@ssh      MDDAPD-TT-006
 gnrld-pw-569@ssh       gnrld-pw-569
+redsvd-ob-947@ssh      redsvd-ob-947
 
 # Gateway machine.
 ony-bam1@sshx          ssh -x -2 -t mkaleem2@10.117.4.16 inline ony-bam1
