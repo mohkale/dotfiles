@@ -4,6 +4,8 @@
 # shellcheck shell=bash
 
 bindkey -v
+
+# shellcheck disable=SC2034
 KEYTIMEOUT=1                                                                    # 10ms for escape keys.
 
 # Support different curosors for different vi-modes.

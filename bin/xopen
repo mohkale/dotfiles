@@ -226,7 +226,7 @@ def desktop_list_parser(desktop_list_fn, mime_type_find=None, find_all=False):
     )
     mime_type_desktop_map = {}
     desktop_files = []
-    with open(desktop_list_fn) as f:
+    with open(desktop_list_fn, encoding='utf-8') as f:
         for line in f:
             m = mt_df_re.search(line)
             if not m:
@@ -312,7 +312,7 @@ class URL(object):
                 mtype = mime.types_map.get(ext, None)
                 if not mtype:
                     logging.warning(
-                        "mimetypes could not determine mimetype" "from extension: %s",
+                        "mimetypes could not determine mimetype from extension: %s",
                         ext,
                     )
                 return mtype
@@ -373,7 +373,7 @@ class DesktopFind(object):
         # quick and simple instance based hash.
         return hash(repr(self))
 
-    @functools.lru_cache(maxsize=None)  # cache all mime lookups
+    @functools.lru_cache(maxsize=100_00)
     def get_file(self, *args, **kwargs):
         """Alias for `get_files' which returns the first desktop file found.
         Generates tuples of (filepath: str, filecontents: dict)
@@ -414,7 +414,7 @@ class DesktopFind(object):
         logging.debug("Parsing desktop file: %s", fpath)
         df = configparser.ConfigParser()
         try:
-            with open(fpath, "r") as fd:
+            with open(fpath, "r", encoding='utf-8') as fd:
                 df.read_file(fd)
                 return df._sections  # pylint: disable=protected-access
         except:  # pylint: disable=bare-except

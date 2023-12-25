@@ -4,7 +4,7 @@
 
 import logging
 import re
-from distutils.spawn import find_executable as which
+import shutil
 from typing import Callable
 
 from lib.shared import run_process
@@ -65,7 +65,7 @@ class MullvadVPNSegment(StatusMiscSegment):
     # pylint: disable=invalid-overridden-method
     async def render(self):
         """MullvadVPN status-line section."""
-        if not which("mullvad"):
+        if not shutil.which("mullvad"):
             logging.debug(
                 "Skipping segment=%s because mullvad is not installed.", self.name
             )

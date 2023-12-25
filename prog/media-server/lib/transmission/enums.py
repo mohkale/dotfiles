@@ -5,7 +5,8 @@ class TransmissionTorrentStatus(enum.IntEnum):
     """
     Possible values for the status field in the torrent-get request.
 
-    See the [[https://github.com/transmission/transmission/blob/master/libtransmission/transmission.h#L1652][tr_torrent_activity]] enumeration in the transmission src.
+    See the [[https://github.com/transmission/transmission/blob/master/libtransmission/transmission.h#L1652][tr_torrent_activity]]
+    enumeration in the transmission src.
     """
 
     stopped = 0

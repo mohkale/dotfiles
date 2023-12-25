@@ -23,7 +23,7 @@ while getopts 'hvd' OPTION; do
   case "$OPTION" in
     \?) print_usage >&2
         exit 1 ;;
-    h) print_usage
+    h) print_help
        exit 0 ;;
     v) verbose=1 ;;
     d) dry_run=1 ;;
@@ -195,6 +195,6 @@ fi
 while IFS=: read -r src dest; do
   echo "$src: error: non-existant symlink $dest"
   exit=1
-done < <(./bin/broken-links)
+done < <(./bin/broken-links | grep -v --fixed-strings --file ./setup/conf/lint.ignore)
 
 exit "$exit"

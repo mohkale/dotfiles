@@ -4,7 +4,7 @@
 
 import logging
 import re
-from distutils.spawn import find_executable as which
+import shutil
 from typing import Callable
 
 from lib.shared import run_process
@@ -51,7 +51,7 @@ class NordVPNSegment(StatusMiscSegment):
     async def render(self):
         """Nordvpn status-line section."""
         # pylint: disable=no-member
-        if not which("nordvpn"):
+        if not shutil.which("nordvpn"):
             logging.debug(
                 "Skipping segment=%s because nordvpn is not installed.", self.name
             )

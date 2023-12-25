@@ -240,7 +240,7 @@ _choose_device_file() { #(prompt, confirmation_prompt, error_msg, device_choices
         local dest_device; dest_device=$(collection_prompt "$1" <<< "$partitions")
 
         # shellcheck disable=SC2059,SC2181
-        if [ -n "$dest_device" ] && [ "$?" -eq 0 ]; then
+        if [ "$?" -eq 0 ] && [ -n "$dest_device" ]; then
             if yes_no_prompt "$(printf "$2" "$dest_device")"; then
                 echo "$dest_device"
                 return 0

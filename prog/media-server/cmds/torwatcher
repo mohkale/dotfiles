@@ -532,6 +532,7 @@ def _parse_arguments() -> argparse.Namespace:
 
 
 def main() -> bool:
+    """Torwatcher entrypoint."""
     args = _parse_arguments()
 
     try:

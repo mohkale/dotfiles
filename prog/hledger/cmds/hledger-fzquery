@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 root="${XDG_CONFIG_HOME:-$HOME/.config}/hledger/queries"
 
+# shellcheck disable=SC2016
 find "$root" -type f -printf '%p:%P\n' |
     fzf \
         -d : --with-nth 2 \

@@ -16,8 +16,8 @@ then summary count will be ommited.
 
 import enum
 import logging
+import shutil
 from collections import Counter
-from distutils.spawn import find_executable as which
 from typing import Callable
 
 from lib.shared import run_process
@@ -116,7 +116,7 @@ class DockerSegment(StatusMiscSegment):
 
     # pylint: disable=invalid-overridden-method
     async def render(self) -> str:
-        if not which("docker"):
+        if not shutil.which("docker"):
             logging.debug(
                 "Skipping segment=%s because docker is not installed.", self.name
             )

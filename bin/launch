@@ -38,7 +38,7 @@ function list-entries() {
 ${XDG_DATA_HOME-${HOME}/.local/share}:\
 ${XDG_DATA_DIRS-/usr/local/share:/usr/share}"
   for i in "${!dirs[@]}"; do
-    dirs[$i]="${dirs[$i]}/applications"
+    dirs["$i"]="${dirs[$i]}/applications"
   done
 
   # Awk script adapted from [[https://github.com/Biont/sway-launcher-desktop/blob/master/sway-launcher-desktop.sh#L106][sway-launcher-desktop]].

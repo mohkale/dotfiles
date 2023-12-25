@@ -11,9 +11,7 @@ import os
 import pathlib
 import shlex
 import subprocess
-import sys
 import tempfile
-from typing import Set
 
 import click
 import pandas as pd
@@ -53,6 +51,7 @@ class _QbittorrentStatus(enum.Enum):
     UNKNOWN = "unknown"
 
     def format(self):
+        """Pretty format a QBittorrent status.""" 
         QT = _QbittorrentStatus
         try:
             return {
@@ -77,7 +76,7 @@ class _QbittorrentStatus(enum.Enum):
                 QT.UNKNOWN: "Unknown",
             }[self]
         except KeyError:
-            return str(state)
+            return str(self)
 
 
 def _render_frame(df):
@@ -145,7 +144,7 @@ async def _select(torrents, *fzf_args):
 
 
 async def _get_torrents(client, ids=None):
-    resp = client._client.torrents_info(torrent_hashes=ids)
+    resp = client._client.torrents_info(torrent_hashes=ids) # pylint: disable=protected-access
     torrents = pd.DataFrame(resp).set_index("hash")
 
     torrents.sort_index(inplace=True)
@@ -187,6 +186,7 @@ def _status_filter(*acceptable_filters, exclude: bool = False):
     return filter_callback
 
 
+# pylint: disable=too-many-arguments
 async def _act_on_torrents_cmd(
     ctx,
     client,
@@ -215,6 +215,7 @@ async def _act_on_torrents_cmd(
 @click.option("--fzf", metavar="CMD", default="fzf")
 @click.pass_context
 def cli(ctx, log_level: int, fzf: str):
+    """QBittorrent controller script."""
     try:
         # pylint: disable=ungrouped-imports
         from mohkale.pylog.config import use_config as use_logging_config
@@ -231,6 +232,7 @@ def cli(ctx, log_level: int, fzf: str):
 @cli.command()
 @_click_coro_wrapper
 async def ls():
+    """List torrents."""
     async with BACKEND.client() as client:
         print(_render_frame(await _get_torrents(client)))
 
@@ -239,6 +241,7 @@ async def ls():
 @click.pass_context
 @_click_coro_wrapper
 async def select(ctx):
+    """Interactively select torrents and print their id."""
     async with BACKEND.client() as client:
         selected_torrents = await _select(
             await _get_torrents(client),
@@ -255,11 +258,13 @@ async def select(ctx):
 @click.pass_context
 @_click_coro_wrapper
 async def move(ctx, dest: pathlib.Path):
+    """Move a torrents download location."""
     async with BACKEND.client() as client:
         return await _act_on_torrents_cmd(
             ctx,
             client,
             _run_client_command_callback(
+                # pylint: disable=protected-access
                 client._client.torrents_set_location, location=str(dest)
             ),
             f"Move torrents to {dest}: ",
@@ -271,6 +276,7 @@ async def move(ctx, dest: pathlib.Path):
 @click.pass_context
 @_click_coro_wrapper
 async def start(ctx, now: bool):
+    """Start a paused torrent."""
     filtered_statuses = [
         _QbittorrentStatus.PAUSED_DOWNLOADING,
         _QbittorrentStatus.PAUSED_COMPLETE,
@@ -288,6 +294,7 @@ async def start(ctx, now: bool):
             ctx,
             client,
             _run_client_command_callback(
+                # pylint: disable=protected-access
                 client._client.torrents_set_force_start
                 if now
                 else client._client.torrents_resume
@@ -301,11 +308,15 @@ async def start(ctx, now: bool):
 @click.pass_context
 @_click_coro_wrapper
 async def pause(ctx):
+    """Pause a running torrent."""
     async with BACKEND.client() as client:
         return await _act_on_torrents_cmd(
             ctx,
             client,
-            _run_client_command_callback(client._client.torrents_pause),
+            _run_client_command_callback(
+                # pylint: disable=protected-access
+                client._client.torrents_pause
+            ),
             "Pause torrents: ",
             torrent_filter=_status_filter(
                 _QbittorrentStatus.DOWNLOADING,
@@ -324,11 +335,13 @@ async def pause(ctx):
 @click.pass_context
 @_click_coro_wrapper
 async def remove(ctx, force: bool):
+    """Remove a torrent."""
     async with BACKEND.client() as client:
         return await _act_on_torrents_cmd(
             ctx,
             client,
             _run_client_command_callback(
+                # pylint: disable=protected-access
                 client._client.torrents_delete, delete_files=force
             ),
             "Remove" + (" and delete" if force else "") + " torrents: ",
@@ -339,11 +352,15 @@ async def remove(ctx, force: bool):
 @click.pass_context
 @_click_coro_wrapper
 async def queue_top(ctx):
+    """Move a torrent to the top of the download queue."""
     async with BACKEND.client() as client:
         return await _act_on_torrents_cmd(
             ctx,
             client,
-            _run_client_command_callback(client._client.torrents_top_priority),
+            _run_client_command_callback(
+                # pylint: disable=protected-access
+                client._client.torrents_top_priority
+            ),
             "Move to bottom of queue: ",
         )
 
@@ -352,11 +369,15 @@ async def queue_top(ctx):
 @click.pass_context
 @_click_coro_wrapper
 async def queue_bottom(ctx):
+    """Move a torrent to the bottom of the download queue."""
     async with BACKEND.client() as client:
         return await _act_on_torrents_cmd(
             ctx,
             client,
-            _run_client_command_callback(client._client.torrents_bottom_priority),
+            _run_client_command_callback(
+                # pylint: disable=protected-access
+                client._client.torrents_bottom_priority
+            ),
             "Move to bottom of queue: ",
         )
 
@@ -364,14 +385,18 @@ async def queue_bottom(ctx):
 @click.pass_context
 @_click_coro_wrapper
 async def verify(ctx):
+    """Start verifying a torrent."""
     async with BACKEND.client() as client:
         return await _act_on_torrents_cmd(
             ctx,
             client,
-            _run_client_command_callback(client._client.torrents_recheck),
+            _run_client_command_callback(
+                # pylint: disable=protected-access
+                client._client.torrents_recheck
+            ),
             "Recheck torrents: ",
         )
 
 
 if __name__ == "__main__":
-    cli()
+    cli() # pylint: disable=no-value-for-parameter

@@ -18,13 +18,13 @@ class _WatcherClientMixin(abc.ABC):
         translated_file: pathlib.Path,
         overrides: Dict[str, Any],
     ) -> Optional[str]:
-        pass
+        """Add a torrent file to the client."""
 
     @abc.abstractmethod
     async def add_magnetlink(
         self, magnetlink: str, overrides: Dict[str, Any]
     ) -> Optional[str]:
-        pass
+        """Add a magnetlink to the client."""
 
 
 class _TorrentMoveMixin(abc.ABC):
@@ -32,10 +32,12 @@ class _TorrentMoveMixin(abc.ABC):
 
     @abc.abstractmethod
     async def move(self, torrent_id: Any, dest: str) -> bool:
-        pass
+        """Update the location of a torrent."""
 
 
 class TorrentClient(_WatcherClientMixin, _TorrentMoveMixin, abc.ABC):
+    """Abstract interface for a torrent client.
+    """
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod

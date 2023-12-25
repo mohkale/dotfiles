@@ -130,7 +130,7 @@ the pipeline by exiting with the same code.
     try:
         if args.read_stdin or not sys.stdin.isatty():
             logging.info("Reading stdin into temp file: %s", dest_file)
-            with dest_file.open("w") as fd:
+            with dest_file.open("w", encoding='utf-8') as fd:
                 for line in sys.stdin:
                     fd.write(line)
 
@@ -146,7 +146,7 @@ the pipeline by exiting with the same code.
         if res.returncode != 0:
             logging.error("Process exited with non-0 exit code: %d", exit_code)
         else:
-            with dest_file.open("r") as fd:
+            with dest_file.open("r", encoding='utf-8') as fd:
                 for line in fd:
                     sys.stdout.write(line)
     finally:

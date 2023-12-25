@@ -46,20 +46,18 @@ def parse_script_environment(env_group: argparse._ArgumentGroup) -> None:
             return None
         return pathlib.Path(arg)
 
-    """
-    --torrent-name "%N"
-    --category "%L"
-    --tags "%G"
-    --content-path "%F"
-    --root-path "%R"
-    --save-path "%D"
-    --file-count "%C"
-    --torrent-size "%Z"
-    --current-tracker "%T"
-    --info-hash-v1 "%I"
-    --info-hash-v2 "%J"
-    --torrent-id "%K"
-    """
+    # --torrent-name "%N"
+    # --category "%L"
+    # --tags "%G"
+    # --content-path "%F"
+    # --root-path "%R"
+    # --save-path "%D"
+    # --file-count "%C"
+    # --torrent-size "%Z"
+    # --current-tracker "%T"
+    # --info-hash-v1 "%I"
+    # --info-hash-v2 "%J"
+    # --torrent-id "%K"
     env_group.add_argument(
         "--torrent-name",
         metavar="NAME",

@@ -9,6 +9,7 @@ from ._base import TorrentClient
 
 
 class TransmissionDaemonClient(TorrentClient):
+    """Client interface for a transmission daemon."""
     def __init__(self, config_file: pathlib.Path):
         self._client = t.AsyncTransmission.from_conf_file(config_file)
 

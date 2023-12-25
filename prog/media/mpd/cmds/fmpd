@@ -14,7 +14,7 @@
 # support visualisers in the same way due to input redirection. It's recommended
 # you start a visualiser in a separate shell or outside of an interactive session.
 #
-# shellcheck disable=SC2120
+# shellcheck disable=SC2120,SC2317
 
 set -a # export everything
 set -o pipefail
