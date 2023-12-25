@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
 <!DOCTYPE gui SYSTEM 'kpartgui.dtd'>
-<gui name="dolphin" version="38">
+<gui version="38" name="dolphin">
  <MenuBar>
   <Menu name="file">
    <Action name="new_menu"/>
@@ -76,7 +76,7 @@
    <Action name="change_remote_encoding"/>
   </Menu>
  </MenuBar>
- <ToolBar name="mainToolBar" noMerge="1" alreadyVisited="1">
+ <ToolBar alreadyVisited="1" noMerge="1" name="mainToolBar">
   <text translationDomain="dolphin" context="@title:menu">Main Toolbar</text>
   <Action name="go_back"/>
   <Action name="go_forward"/>
@@ -122,7 +122,7 @@
  </State>
  <ActionProperties scheme="Default">
   <Action name="activate_next_tab" shortcut="Ctrl+]; Ctrl+Tab"/>
-  <Action name="activate_prev_tab" shortcut="Ctrl+Shift+Tab; Ctrl+[; Ctrl+Shift+Tab"/>
+  <Action name="activate_prev_tab" shortcut="Ctrl+[; Ctrl+Shift+Tab"/>
   <Action name="compact" priority="0"/>
   <Action name="copy_location" shortcut="Alt+C; "/>
   <Action name="create_dir" priority="0"/>
@@ -138,7 +138,7 @@
   <Action name="icons" priority="0"/>
   <Action name="new_menu" priority="0"/>
   <Action name="show_filter_bar" shortcut="Ctrl+S"/>
-  <Action name="show_hidden_files" priority="0" icon="gnumeric-column-unhide"/>
+  <Action name="show_hidden_files" icon="gnumeric-column-unhide" priority="0"/>
   <Action name="show_preview" priority="0" shortcut="Ctrl+P"/>
   <Action name="split_stash" shortcut=""/>
   <Action name="split_view" priority="0"/>
@@ -149,5 +149,6 @@
   <Action name="view_zoom_in" priority="0"/>
   <Action name="view_zoom_out" priority="0"/>
   <Action name="view_zoom_reset" priority="0"/>
+  <Action name="activate_last_tab" shortcut="Alt+0; "/>
  </ActionProperties>
 </gui>
