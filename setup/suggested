@@ -23,28 +23,28 @@ presets=(
   [develop.doc]="Development and code writing tools"
   [develop.windows]="wsl cmder"
 
-  [develop/python]="python pylint pycodestyle"
+  [develop/python]="python pylint pycodestyle black python-lsp-server"
   [develop/python.doc]="Python programming language"
 
   [develop/yaml]="yamllint"
   [develop/yaml.doc]="Yet another markup language"
 
-  [develop/ruby]="ruby rubocop"
+  [develop/ruby]="ruby rubocop solargraph"
   [develop/ruby.doc]="Ruby programming language"
 
-  [develop/shell]="shellcheck"
+  [develop/shell]="shellcheck bash-language-server"
   [develop/shell.doc]="sh/bash scripting"
 
-  [develop/shell]="markdownlint"
+  [develop/shell]="markdownlint marksman"
   [develop/shell.doc]="Markdown markup language"
 
-  [develop/node]="node"
+  [develop/node]="node typescript-language-server"
   [develop/node.doc]="Javascript programming language"
 
-  [develop/golang]="go"
+  [develop/golang]="go gopls"
   [develop/golang.doc]="Golang programming language"
 
-  [develop/c]="gdb"
+  [develop/c]="gdb clangd cmake-language-server"
   [develop/c.doc]="C/C++ programming language"
 
   ## Used for torrent boxes which I use to download torrents
