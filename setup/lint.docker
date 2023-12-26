@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+repo="$(git rev-parse --show-toplevel)"
+
+docker=(docker)
+if [[ "$OSTYPE" != darwin* ]] && [[ "$EUID" != 0 ]] && id -nG | grep -v docker ; then
+    docker=(sudo -E "${docker[@]}")
+fi
+
+it=()
+
+if [[ -t 0 ]]; then
+    it+=(-it)
+fi
+
+argv=( "$@" )
+if [ "${#argv[@]}" -eq 0 ]; then
+  argv+=( ./setup/lint )
+fi
+
+"${docker[@]}" build -t dotfiles-lint:latest --file "${repo}/setup/lint.Dockerfile" "${repo}/setup"
+"${docker[@]}" run "${it[@]}" --rm -v "${repo}:/workarea" --env DOTFILES="/workarea" dotfiles-lint:latest "${argv[@]}"
