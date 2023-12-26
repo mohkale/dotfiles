@@ -4,6 +4,7 @@ bce                    bbcmake-env
 alb@file               $XDG_CONFIG_HOME/aliases/bloomberg
 bbprofile@file         $XDG_CONFIG_HOME/bbprofile
 bb@dirx                $XDG_DEV_HOME/repos/bloomberg
+bb-proxy               http_proxy=http://proxyeu.bloomberg.com:81 https_proxy=http://proxyeu.bloomberg.com:81 
 
 # im                     bb-local-dev magic
 # im-mds                 bb-local-dev --distribution=mds-unstable
@@ -27,21 +28,22 @@ weekly-rebuild-project-images  ls-projects | sort -u | parallel --colsep=: [ -e 
 weekly-fetch-repos             ls-projects | sort -u | parallel --max-procs=8 --colsep=: echo {2} '&&' cd {1} '&&' git pull --all --ff-only
 
 # Dev machine helpers
-
 ki                     kinit mkaleem2@ADDEV.BLOOMBERG.COM
 ks                     klist
+ti                     tsh --proxy=v6.dev.bloomberg.com login
+tl                     tsh ls
 
 # Development hosts.
-fai-dev-1@ssh          fai-dev-1
-fai-dev-2@ssh          fai-dev-2
-fai-dev-3@ssh          fai-dev-3
-fai-dev-4@ssh          fai-dev-4
-epslnjapmddap01@ssh    EPSLNJAPMDDAP01
-epslnyapmddap01@ssh    EPSLNYAPMDDAP01
-mddapd-pw-173@ssh      MDDAPD-PW-173
-mddapd-tt-006@ssh      MDDAPD-TT-006
-gnrld-pw-569@ssh       gnrld-pw-569
-redsvd-ob-947@ssh      redsvd-ob-947
+fai-dev-1@tsh         dev-10-34-8-186.pw1.bcc.bloomberg.com
+fai-dev-2@tsh         dev-10-42-1-167.rr1.bcc.bloomberg.com
+fai-dev-3@tsh         dev-10-34-11-32.pw1.bcc.bloomberg.com
+fai-dev-4@tsh         dev-10-42-9-177.rr1.bcc.bloomberg.com
+epslnjapmddap01@tsh   EPSLNJAPMDDAP01
+epslnyapmddap01@tsh   EPSLNYAPMDDAP01
+mddapd-pw-173@tsh     MDDAPD-PW-173
+mddapd-tt-006@tsh     MDDAPD-TT-006
+gnrld-pw-569@tsh      gnrld-pw-569
+redsvd-ob-947@tsh     redsvd-ob-947
 
 # Gateway machine.
 ony-bam1@sshx          ssh -x -2 -t mkaleem2@10.117.4.16 inline ony-bam1
@@ -64,8 +66,7 @@ faisvp-pw-063@sshx     getprdwin -i FAISVP-PW-063
 ba32350@sshx           bpipefh ba32350
 ba32351@sshx           bpipefh ba32351
 
-rtlnd-ob-290@ssh       RTLND-OB-290
-
+rtlnd-ob-290@tsh       RTLND-OB-290
 rtlnb-rr-033@sshx      getprdwin -i RTLNB-RR-033
 rtlnb-ob-017@sshx      getprdwin -i RTLNB-OB-017
 rtlnp-ob-241@sshx      getprdwin -i RTLNP-OB-241
