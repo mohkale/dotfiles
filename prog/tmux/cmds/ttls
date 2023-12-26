@@ -175,7 +175,7 @@ EOF
   ruby -e "$TMUXINATOR_SCRIPT" "$SEP"
 }
 
-if [ "$all" -eq 1 ]; then ls-projects; fi |
+if [ "$all" -eq 1 ]; then ls-projects | cut -d ':' -f1; fi |
   tee --output-error=warn-nopipe \
       >(enabled tmuxp && list_tmuxp) \
       >(enabled tmuxinator && list_tmuxinator) \
