@@ -119,7 +119,8 @@ def list_project_configs(dirs):
 
 
 for it in itertools.chain(
-    list_configs(), list_project_configs(sys.stdin.read(-1).split("\n"))
+    list_configs(),
+    list_project_configs(it for it in sys.stdin.read(-1).split("\n") if not it == ""),
 ):
     print("tmuxp" + sep + "tmuxp load -y" + sep + sep.join(it))
 
