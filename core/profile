@@ -218,6 +218,7 @@ $XDG_DEV_HOME/upwork/
 $DOTFILES
 $XDG_LIB_HOME/go/src/*/*/
 $XDG_LIB_HOME/ruby/gems/
+$XDG_CACHE_HOME/emacs/straight/repos/
 EOF
 
 unset -f lines_to_path
