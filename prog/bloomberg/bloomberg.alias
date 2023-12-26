@@ -4,7 +4,7 @@ bce                    bbcmake-env
 alb@file               $XDG_CONFIG_HOME/aliases/bloomberg
 bbprofile@file         $XDG_CONFIG_HOME/bbprofile
 bb@dirx                $XDG_DEV_HOME/repos/bloomberg
-bb-proxy               http_proxy=http://proxyeu.bloomberg.com:81 https_proxy=http://proxyeu.bloomberg.com:81 
+bb-proxy               http_proxy=http://proxyeu.bloomberg.com:81 https_proxy=https://proxyeu.bloomberg.com:81 
 
 # im                     bb-local-dev magic
 # im-mds                 bb-local-dev --distribution=mds-unstable
