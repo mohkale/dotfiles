@@ -101,6 +101,7 @@ __build_aliases_@dirx() {
 # should be a host. sshx is a complete ssh command used as is.
 __build_aliases_@ssh()  { echo "alias $1=ssh' '$2"; }
 __build_aliases_@sshx() { __build_aliases_plain "$@"; }
+__build_aliases_@tsh()  { echo "alias $1=tsh' 'ssh' '$2"; }
 
 parse_aliases() {
   local ed; ed="$(printf %q "$editor")"
