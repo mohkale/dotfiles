@@ -62,11 +62,11 @@ ignore=$(tr '\n' : < ./setup/conf/lint.ignore)
   xargs -r -d '\n' file --dereference --mime-type -- |
   awk -F ': *' \
       -v shell_lint='
-if command -v shellcheck >/dev/null 2>&1; then
   # Annoyingly shellcheck treats warnings as errors (in regards to
   # the exit code) but I only want failures on errors. Not warnings.
   '"$batch_str"' shellcheck -x -f gcc --exclude SC1091,SC1090 |
-    awk -F : -e '"'"'{
+    awk -F : -e '"'"'
+{
   if (code == 0) {
     level = $4
     sub(/^[ \t]+/, "", level)
@@ -77,49 +77,21 @@ if command -v shellcheck >/dev/null 2>&1; then
     out = out FS $i
   }
   print(out)
-}'"'"' -e '"'"'END { exit(code) }'"'"'
-else
-  echo "warn: lint: no linter for shell installed" >&2
-  cat >/dev/null
-fi' \
+}'"'"' -e '"'"'END { exit(code) }'"'"'' \
       -v python_lint="
-if command -v pylint >/dev/null 2>&1; then
   $batch_str pylint --rcfile setup/conf/pylintrc --msg-template='{path}:{line}:{column}: {category}: {msg} [{symbol} {msg_id}]' --disable C0103,R0801,E0401 --reports n --score n
-elif command -v pycodestyle >/dev/null 2>&1; then
-  $batch_str pycodestyle --config setup/conf/pycodestyle --format '%(path)s:%(row)d:%(col)d: %(text)s [%(code)s]'
-else
-  echo 'warn: lint: no linter for python installed' >&2
-  cat >/dev/null
-fi" \
+" \
       -v ruby_lint="
-if command -v rubocop >/dev/null 2>&1; then
   $batch_str rubocop -f emacs --config setup/conf/rubocoprc
-else
-  echo 'warn: lint: no linter for ruby installed' >&2
-  cat >/dev/null
-fi" \
+" \
       -v json_lint="
-if command -v jsonlint >/dev/null 2>&1; then
   $batch_str jsonlint --quiet
-else
-  echo 'warn: lint: no linter for json installed' >&2
-  cat >/dev/null
-fi" \
+" \
       -v yaml_lint="
-if command -v yamllint >/dev/null 2>&1; then
   $batch_str yamllint -f parsable -c setup/conf/yamlrc | sed -e 's/\\\\[\\\\([^ ]*\\\\)\\\\]/\\\\1/'
-else
-  echo 'warn: lint: no linter for yaml installed' >&2
-  cat >/dev/null
-fi
 " \
     -v md_lint="
-if command -v mdl >/dev/null 2>&1; then
   $batch_str mdl -s  setup/conf/mdlstyle.rb
-else
-  echo 'warn: lint: no linter for markdown installed' >&2
-  cat >/dev/null
-fi
 " \
       -v verbose="$verbose" \
       -e 'END {
@@ -134,8 +106,8 @@ fi
     code = close(codes[key])
     exit_code = code
     # See [[https://www.gnu.org/software/gawk/manual/html_node/Close-Files-And-Pipes.html][awk-pipes]]
-    if (code < 0 || code > 255) {
-      exit_code = 1
+    if (code == -1) {
+      exit_code = 0
     }
 
     if (exit_code != 0) {
@@ -170,7 +142,7 @@ fi
     switch ($1) {
       # Ideally your computer should have a mimetype setup for
       # this but seeing as mine doesnt I have to use this hack
-      case /\.yml$/:
+      case /\.ya?ml$/:
         print $1 | yaml_lint
         break
       case /\.md$|\.markdown$/:
