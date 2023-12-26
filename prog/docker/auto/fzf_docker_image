@@ -24,7 +24,7 @@ EOF
     run --rm --interactive --tty
     --env COLUMNS="$(tput cols)"
     --env LINES="$(tput lines)"
-    --env TERM=xterm-256color
+    --env TERM=screen-256color
     -v "$(pwd)":/workarea
     # We mount our local docker socket into the container so we can run
     # docker builds using our outer daemon from within the container if
