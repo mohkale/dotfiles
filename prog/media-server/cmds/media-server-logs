@@ -22,4 +22,5 @@ if [ "$#" -eq 1 ]; then
   prefix_flag="--no-log-prefix"
 fi
 
+# shellcheck disable=SC2086
 exec media-server logs --tail 1 --follow ${prefix_flag:-} -- "$@"

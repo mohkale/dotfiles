@@ -49,16 +49,16 @@ exit_color() { #(exit_code, substr)
             # SIGBUS
             # SIGFPE
             # Exit Status Out Of Range
-            if [ -n "$zsh" ]; then echo -n '%B%F{white}'; else echo -n '\e[1;37m'; fi ;;
+            if [ -n "$zsh" ]; then echo -n '%B%F{white}'; else printf '\e[1;37m'; fi ;;
         127) # command not found
-            if [ -n "$zsh" ]; then echo -n '%B%F{blue}'; else echo -n '\e[1;34m'; fi ;;
+            if [ -n "$zsh" ]; then echo -n '%B%F{blue}'; else printf '\e[1;34m'; fi ;;
         130) # SIGINT
-            if [ -n "$zsh" ]; then echo -n '%B%F{yellow}'; else echo -n '\e[1;33m'; fi ;;
+            if [ -n "$zsh" ]; then echo -n '%B%F{yellow}'; else printf '\e[1;33m'; fi ;;
         137) # SIGKILL
-            if [ -n "$zsh" ]; then echo -n '%B%F{red}'; else echo -n '\e[1;31m'; fi ;;
+            if [ -n "$zsh" ]; then echo -n '%B%F{red}'; else printf '\e[1;31m'; fi ;;
     esac
 
     echo -n "$2"
     [ "$found" -eq 1 ] &&
-        if [ -n "$zsh" ]; then echo -n '%f%b'; else echo -n '\e[1;39m'; fi
+        if [ -n "$zsh" ]; then echo -n '%f%b'; else printf '\e[1;39m'; fi
 }

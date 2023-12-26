@@ -24,7 +24,7 @@ fi
 
 prompt() { #(msg)
   printf '%s. Press [ENTER] to continue.' "$*"
-  read
+  read -r
 }
 export -f prompt
 
@@ -99,4 +99,4 @@ main() {
 }
 export -f main
 
-main
+main "$@"

@@ -21,10 +21,10 @@ EOF
 }
 
 COLOR_PASS_FILE=''
-COLOR_PASS_DIR=$'\e[33m'
-COLOR_TOMB_DIR=$'\e[31m'
+COLOR_PASS_DIR=$(printf '\e[33m')
+COLOR_TOMB_DIR=$(printf '\e[31m')
 COLOR_TOMB_FILE=''
-COLOR_RESET=$'\e[0m'
+COLOR_RESET=$(printf '\e[0m')
 while getopts 'hC' OPTION; do
   case "$OPTION" in
     h) print_help

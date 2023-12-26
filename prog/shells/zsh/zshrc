@@ -10,11 +10,12 @@
 #
 # shellcheck shell=bash
 
+# shellcheck disable=SC2034
+ZGEN_RESET_ON_CHANGE=("$ZDOTDIR/.zshrc")
 if ! [ -d "$ZGEN_DIR" ]; then
   echo "zgen: installation not found, installing now"
   git clone --quiet https://github.com/jandamm/zgenom.git "$ZGEN_DIR"
 fi
-ZGEN_RESET_ON_CHANGE=("$ZDOTDIR/.zshrc")
 source "$ZGEN_DIR/zgenom.zsh"
 
 unset ZSH_AUTOSUGGEST_USE_ASYNC                                                  # See [[https://github.com/zsh-users/zsh-autosuggestions/issues/483][conflict]] with syntax-highlighting.

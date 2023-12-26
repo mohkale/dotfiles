@@ -40,8 +40,10 @@ def asciify_image(image, dest_file, chars=SIMPLE_CHARS, cols=None):
     if cols > width or rows > height:
         raise ValueError("too many columns or rows")
 
-    get_x = lambda X: X * cell_width
-    get_y = lambda Y: Y * cell_height
+    def get_x(X):
+        return X * cell_width
+    def get_y(Y):
+        return Y * cell_height
 
     for i in range(rows):
         for j in range(cols):

@@ -1,3 +1,4 @@
+core/repos/org
 prog/sxiv/src/README.md
 prog/sxiv/src/CONTRIBUTING.md
 prog/sxiv/src/TODO.md
@@ -6,3 +7,4 @@ prog/konsole/themes/an-old-hope/README.md
 prog/terminal/yakuake/themes/an-old-hope/README.md
 prog/editors/emacs/bin/tangle-targets
 prog/gdb/gdbinit
+prog/gdb/conf.d/01-theme

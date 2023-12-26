@@ -154,6 +154,7 @@ highlight_bat() {
       --paging never \
       --tabs "$PREVIEW_TABWIDTH" \
       --theme 'an-old-hope' \
+      --style plain \
       ${options[bat]:-} \
       "$@"
 }

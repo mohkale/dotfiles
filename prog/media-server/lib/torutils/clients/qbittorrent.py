@@ -12,6 +12,7 @@ from ._base import TorrentClient
 
 
 class QBittorrentDaemonClient(TorrentClient):
+    """Client interface for a qbittorrent daemon."""
     def __init__(self, config_file: pathlib.Path):
         with config_file.open("r", encoding="utf-8") as config_fd:
             config = json.loads(config_fd.read())

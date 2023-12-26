@@ -104,22 +104,25 @@ def list_configs():
 
 
 def list_project_configs(dirs):
-    EXTS = [
+    STANDARD_EXTS = [
         ".tmuxp.yaml",
         ".tmuxp.yml",
         ".tmuxp.json",
     ]  # Copied from [[file:.local/lib/python3.9/site-packages/tmuxp/cli.py::for ext in \['.tmuxp.yaml', '.tmuxp.yml', '.tmuxp.json'\]][cli.py]].
+    EXTS = [*STANDARD_EXTS, ".lcldev/dev-compose/tmuxp.yaml"]
     for proj_dir in dirs:
         for ext in EXTS:
             conf = os.path.join(proj_dir, ext)
             if not os.path.exists(conf):
                 continue
             yield conf, proj_dir, os.path.basename(proj_dir), ""
+            break
     return []
 
 
 for it in itertools.chain(
-    list_configs(), list_project_configs(sys.stdin.read(-1).split("\n"))
+    list_configs(),
+    list_project_configs(it for it in sys.stdin.read(-1).split("\n") if not it == ""),
 ):
     print("tmuxp" + sep + "tmuxp load -y" + sep + sep.join(it))
 
@@ -175,7 +178,7 @@ EOF
   ruby -e "$TMUXINATOR_SCRIPT" "$SEP"
 }
 
-if [ "$all" -eq 1 ]; then ls-projects; fi |
+if [ "$all" -eq 1 ]; then ls-projects | cut -d ':' -f1; fi |
   tee --output-error=warn-nopipe \
       >(enabled tmuxp && list_tmuxp) \
       >(enabled tmuxinator && list_tmuxinator) \

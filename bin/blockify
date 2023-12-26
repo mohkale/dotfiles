@@ -179,13 +179,14 @@ class InteractiveSxiv:
                 0o700,
             ),
             "w",
+            encoding='utf-8'
         ) as h:
             h.write(self._key_handler_script(args, vargs))
         # pylint: disable=consider-using-with
-        self.src = open(os.path.join(self.d.name, "src.txt"), "w")
+        self.src = open(os.path.join(self.d.name, "src.txt"), "w", encoding='utf-8')
 
         # Update env to point to temp directory.
-        env = dict(**os.environ)
+        env = {**os.environ}
         env["REAL_XDG_CONFIG_HOME"] = env.get("XDG_CONFIG_HOME", "")
         env["XDG_CONFIG_HOME"] = self.d.name
         env["BLOCKIFY_DONE_DIR"] = str(args.output / args.interactive)
@@ -358,7 +359,9 @@ def main(args, vargs, parser):  # pylint: disable=unused-argument
         _sxiv = InteractiveSxiv(args, vargs)
         proc_fd, cleanup = _sxiv, _sxiv.cleanup
     else:
-        proc_fd, cleanup = None, lambda *_: None
+        def cleanup(*_):
+            pass
+        proc_fd = None
 
     failed = False
     try:

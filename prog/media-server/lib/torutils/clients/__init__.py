@@ -1,7 +1,3 @@
 from ._base import TorrentClient
-from .transmission import TransmissionDaemonClient
 from .qbittorrent import QBittorrentDaemonClient
-
-TorrentClient
-TransmissionDaemonClient
-QBittorrentDaemonClient
+from .transmission import TransmissionDaemonClient

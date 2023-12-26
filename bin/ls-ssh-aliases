@@ -16,6 +16,9 @@ ls-aliases |
     -e 'match($1, /(.+)@ssh$/, arr) {
   printf("%s" sep "%s\n", arr[1], "ssh " rest())
 }' \
+    -e 'match($1, /(.+)@tsh$/, arr) {
+  printf("%s" sep "%s\n", arr[1], "tsh ssh " rest())
+}' \
     -e 'match($1, /(.+)@sshx$/, arr) {
   printf("%s" sep "%s\n", arr[1], rest())
 }'

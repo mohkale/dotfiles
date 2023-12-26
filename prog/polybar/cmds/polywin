@@ -5,6 +5,8 @@
 # on the X-org window system. This is required because splitting up
 # listing from actions would need references in this script to external
 # scripts in the polybar format of the win-list command.
+#
+# shellcheck disable=SC2317
 
 max_window_count=10
 ignore_window_classes=(Plasmashell Polybar Conky Gmrun)

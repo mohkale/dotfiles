@@ -100,6 +100,8 @@ def get_word(index: Index) -> str:
 
 
 def randomly_capitalise_words(words: List[str]) -> List[str]:
+    """Randomly capitalize at least one word in `words`.
+    """
     assert len(words) > 0
     permutations = 0
     while permutations == 0:
@@ -115,6 +117,8 @@ def randomly_capitalise_words(words: List[str]) -> List[str]:
 
 
 def get_word_separators(word_count: int) -> List[str]:
+    """Return a list of special separator chars of size `word_count` - 1.
+    """
     separators = []
     # Ensure at least one number and separator is in the list.
     if word_count > 1:
@@ -123,7 +127,7 @@ def get_word_separators(word_count: int) -> List[str]:
         separators.append(secrets.choice(SPECIAL_SYMBOLS))
     # Populate remaining separators.
     remaining_symbols = NUMBER_SEQUENCE + SPECIAL_SYMBOLS
-    for word in range(0, word_count - 3):
+    for _ in range(0, word_count - 3):
         separators.append(secrets.choice(remaining_symbols))
 
     random.shuffle(separators)

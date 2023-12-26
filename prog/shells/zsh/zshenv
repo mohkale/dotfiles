@@ -20,5 +20,8 @@ if [[ -o login ]]; then
   . "$HOME"/.profile
 fi
 
+# shellcheck disable=SC2034
 ZGEN_DIR="$XDG_CACHE_HOME/zgen"
+
+# shellcheck disable=SC2034
 ZSHELL_BINDING_STYLE=emacs                                                      # Configure vi or emacs emulation.

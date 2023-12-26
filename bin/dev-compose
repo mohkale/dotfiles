@@ -1,0 +1,514 @@
+#!/usr/bin/env python3
+# Helper script to make local docker configurations respect my dotfile
+# configurations.
+#
+# Docker is fantastic for creating isolated build and deployment environments.
+# Sadly it sucks at making these environments usable for highly configured
+# development configurations like my dotfiles. Editors like VSCode work
+# around this partially with the [[https://code.visualstudio.com/docs/devcontainers/containers][devcontainers]] plugin. This identifies a local
+# docker environment and then extends it by passing through the local user UID
+# and GID or copying the users git configuration. This script is my attempt to
+# support something similar.
+
+import copy
+import dataclasses
+import itertools
+import logging
+import os
+import pathlib
+import shlex
+from typing import Any, Dict, List, Optional, Tuple, Union
+
+import click
+import yaml
+
+CWD = pathlib.Path(".")
+
+# Base directory where local configuration state will be saved.
+LOCAL_CONFIG_DIR = pathlib.Path(".lcldev") / "dev-compose"
+
+# Path to a local Dockerfile which will override the standard dev-compose one.
+LOCAL_DOCKERFILE = LOCAL_CONFIG_DIR / "dev-compose.Dockerfile"
+
+# Custom compose configuration file for dev-compose overrides.
+LOCAL_COMPOSE_FILE = LOCAL_CONFIG_DIR / "docker-compose.yml"
+
+# Path to a local shell profile. This is just a stub script, you
+# shouldn't modify it.
+LOCAL_SHELL_PROFILE = LOCAL_CONFIG_DIR / "profile"
+
+# Path to a local tmuxp configuration file to bootstrap a new project session in
+# tmux.
+LOCAL_TMUXP_CONFIG = LOCAL_CONFIG_DIR / "tmuxp.yaml"
+
+# Main docker-compose files. Only one of these should exist in a project.
+MAIN_COMPOSE_FILES = [
+    pathlib.Path("docker-compose.yaml"),
+    pathlib.Path("docker-compose.yml"),
+    pathlib.Path(".dev-compose.yml"),
+]
+
+# Main Dockerfile files. These are used for environments with no main
+# compose file so the bulk of the environment configuration needs to
+# be setup by this script directly.
+MAIN_DOCKERFILE = [pathlib.Path("Dockerfile")]
+
+# Various extra docker-compose files. All of these can exist in a project.
+# dev-compose will supply them one after the other to docker-compose so
+# later entries in this list will override the earlier ones.
+EXTRA_COMPOSE_FILES = [
+    pathlib.Path("docker-compose.override.yaml"),
+    pathlib.Path("docker-compose.override.yml"),
+    LOCAL_COMPOSE_FILE,
+    LOCAL_COMPOSE_FILE.parent
+    / (LOCAL_COMPOSE_FILE.stem + ".override" + LOCAL_COMPOSE_FILE.suffix),
+]
+
+# Default suffix appended to the existing projects Dockerfile or base image
+# configuration. This is the recommended configuration that is setup on install
+# but it isn't mandatory. You can modify it after setup.
+DOCKERFILE_SUFFIX = r"""
+###############################################################################
+#                        Extra Dependency Installation                        #
+###############################################################################
+
+# Install any extra dependencies I'd like for local development.
+
+RUN if command -v yum >/dev/null; then \
+        yum -y install openssh-clients && \
+            yum -y clean all && \
+            rm -rf /var/cache; \
+    elif command -v apt-get >/dev/null; then \
+        apt-get update && \
+            apt-get install -y openssh-client && \
+            apt-get clean && \
+            rm -rf /var/lib/apt/lists/*; \
+    fi
+
+###############################################################################
+#                             Local User Creation                             #
+###############################################################################
+
+# Within the container we require a user with the necessary permissions to be
+# able to interact with the source repository. This isn't a hard requirement
+# but if you want files created within the container to still be editable out
+# of it or you use tools like git which restrict interacting with a repository
+# created by a different user (UID+GID) to your own then this will be mandatory.
+
+ARG PUID
+ARG PGID
+
+# We either create a new user with the required UID and GID or just update the
+# existing nobody user to use the set UID and GID permissions.
+RUN if getent group nobody; then \
+      groupmod --gid $PGID -o nobody; \
+    else \
+      groupadd --gid $PGID --non-unique nobody; \
+    fi \
+ && if getent passwd nobody; then \
+      [ -e /home/nobody ] || mkdir -p /home/nobody; \
+      usermod --uid $PUID --gid $PGID --home /home/nobody nobody; \
+    else \
+      useradd --uid $PUID --gid $PGID --non-unique --shell /bin/sh --create-home --home-dir /home/nobody nobody; \
+    fi \
+ && chown -R $PUID:$PGID /home/nobody
+
+# Run any of the following commands as the nobody user to ensure they have the
+# right permissions.
+USER nobody
+
+# Ensure the in-container image uses my local git configuration.
+RUN printf '%s\n' \
+    '[include]' 'path = /dotfiles-git/config' \
+    '[core]' 'excludesFile = /dotfiles-git/ignore' \
+    > /home/nobody/.gitconfig
+
+# Copy the default profile to a local copy so we can install a custom profile.
+RUN touch /home/nobody/.profile \
+ && cp /home/nobody/.profile /home/nobody/.profile2
+
+# Ensure the default image user runs as root (dev-containers can start as root
+# with the compose user override).
+USER root
+"""
+
+# Overrides for the main dev-compose service.
+DOCKER_COMPOSE_OVERRIDE = yaml.safe_load(
+    f"""
+---
+build:
+  args:
+    PUID: {os.getuid()}
+    PGID: {os.getgid()}
+  context: .
+  dockerfile: {LOCAL_DOCKERFILE}
+user: nobody
+environment:
+  TERMINFO: /usr/share/terminfo
+volumes:
+  - $DOTFILES:/dotfiles:ro
+  # Clone of actual home directory so nested symlinks still work.
+  - $DOTFILES:$DOTFILES:ro
+  - {LOCAL_SHELL_PROFILE}:/home/nobody/.profile:ro
+  - $XDG_CONFIG_HOME/git:/dotfiles-git:ro
+  - $XDG_CONFIG_HOME/gdb:/dotfiles-gdb:ro
+  - $HOME/.ssh:/home/nobody/.ssh:ro
+"""
+)
+
+# Shell profile script used to augment the in-container profile.
+DOTFILE_PROFILE = """
+. /home/nobody/.profile2
+[ -e /etc/bashrc ] && . /etc/bashrc
+
+# GDB setup
+export GDBINIT=/dotfiles-gdb/gdbinit
+mkdir -p ~/.cache/gdb
+alias gdb='gdb --silent -nh -x "$GDBINIT" --eval-command "source /dotfiles-gdb/gdb_bsl.py"'
+"""
+
+# Template for local project specific tmuxp configs. This is expanded to
+# 'LOCAL_TMUXP_CONFIG'.
+TMUXP_CONFIG = """
+--- # Local dev-compose tmuxp configuration
+
+session_name: {project_name}
+
+windows:
+  - options:
+      automatic-rename: on
+    panes:
+      - enw
+  - layout: "f655,203x55,0,0[203x4,0,0,58,203x50,0,5,59]"
+    options:
+      automatic-rename: on
+    panes:
+      - imc up
+      # We wait until the service is up and then attach to it directly.
+      - >
+         while ! imc exec --no-TTY -- {dev_service} true 2>/dev/null; do
+           sleep 1
+         done; clear; imc exec {dev_service} bash -l
+"""
+
+###############################################################################
+#                                  Utilities                                  #
+###############################################################################
+
+
+def _join_paths(base: pathlib.Path, paths: List[pathlib.Path]) -> List[pathlib.Path]:
+    return [base / file_ for file_ in paths]
+
+
+def _filter_existing_files(files: List[pathlib.Path]) -> pathlib.Path:
+    return [file_ for file_ in files if file_.exists()]
+
+
+def _update_config(
+    existing_config: Dict[Any, Any], override: Dict[Any, Any], force: bool
+) -> None:
+    for key, value in override.items():
+        if key not in existing_config:
+            existing_config[key] = value
+        elif type(value) is not type(existing_config[key]):
+            raise ValueError(
+                f"Cannot update value of type={type(value)} with value "
+                f"of type={type(existing_config[key])} for key={key}"
+            )
+        elif isinstance(value, dict):
+            _update_config(existing_config[key], value, force)
+        elif isinstance(value, list):
+            for subvalue in value:
+                if subvalue not in existing_config[key]:
+                    existing_config[value].append(subvalue)
+        elif force:
+            existing_config[key] = value
+        else:
+            existing_config.setdefault(key, value)
+
+
+@dataclasses.dataclass
+class Project:
+    name: str
+
+    # Main compose file.
+    main_compose: Optional[pathlib.Path]
+
+    # Existing extra compose files.
+    extra_compose: List[pathlib.Path]
+
+    # Base image the dev container should derive from. This should either be a path
+    # to an existing Dockerfile and its build context or the base service to derive
+    # the development image from.
+    _BaseImageType = Union[Tuple[pathlib.Path, pathlib.Path], str]
+    base_image: _BaseImageType
+
+    # Name of docker-compose service to run as the primary dev-compose "Development"
+    # service.
+    dev_service: str
+
+    @classmethod
+    def identify(
+        cls, cwd: pathlib.Path, dev_service_override: Optional[str]
+    ) -> "Project":
+        """Identify the current project and compose state."""
+
+        logging.info("Identifying project directory=%s", cwd)
+
+        name = cwd.name
+        main_compose = None
+        extra_compose = []
+        base_image = None
+
+        main_compose_files = _filter_existing_files(
+            _join_paths(cwd, MAIN_COMPOSE_FILES)
+        )
+        if len(main_compose_files) > 0:
+            if len(main_compose_files) > 1:
+                raise ValueError(
+                    f"Project directory={cwd} contains multiple main "
+                    f"compose files={main_compose_files!r}"
+                )
+
+            main_compose = next(iter(main_compose_files))
+            logging.debug("Main compose file=%s found", main_compose)
+            dev_service, base_image = cls._parse_base_image_from_compose_config(
+                main_compose, cwd, dev_service_override
+            )
+        else:
+            logging.debug("No main compose file, searching for a Dockerfile")
+            dockerfiles = _filter_existing_files(_join_paths(cwd, MAIN_DOCKERFILE))
+
+            if len(dockerfiles) == 1:
+                base_image = next(iter(dockerfiles)), cwd
+            elif len(dockerfiles) > 1:
+                raise ValueError(
+                    f"Project directory={cwd} contains multiple main "
+                    f"dockerfiles={dockerfiles!r}"
+                )
+
+            # We'll create one ourselves as there is no compose configuration.
+            dev_service = "dev"
+
+        extra_compose = _filter_existing_files(_join_paths(cwd, EXTRA_COMPOSE_FILES))
+
+        if base_image is None:
+            raise ValueError(
+                f"Could not find a main-compose or Dockerfile for project={cwd}"
+            )
+
+        return cls(name, main_compose, extra_compose, base_image, dev_service)
+
+    @staticmethod
+    def _parse_base_image_from_compose_config(
+        compose_file: pathlib.Path,
+        root: pathlib.Path,
+        dev_service_override: Optional[str],
+    ) -> Tuple[str, _BaseImageType]:
+        with compose_file.open("r", encoding="utf-8") as file_:
+            config = yaml.safe_load(file_)
+
+        services = config.get("services", {})
+        if not services:
+            raise ValueError("Main compose file={compose_file} has no services")
+
+        project_name = root.name
+        if dev_service_override is not None:
+            if dev_service_override not in services:
+                raise ValueError(
+                    f"Overridden dev-service={dev_service_override} not in file={compose_file}"
+                )
+            service = dev_service_override
+            service_config = services[dev_service_override]
+        else:
+            possible_services = {
+                project_name,
+                "dev",
+            }
+            for service in possible_services:
+                logging.debug("Checking for service with name=%s", service)
+                if service in services:
+                    break
+            else:
+                raise ValueError(
+                    f"Could not determine main service from compose-file={compose_file}"
+                )
+            service_config = services[service]
+
+        logging.debug("Found main service=%s in compose file=%s", service, compose_file)
+        if "image" in service_config:
+            return service, service_config["image"]
+        if "build" in service_config:
+            build_config = service_config.get("build")
+            build_context = root
+            dockerfile = pathlib.Path("Dockerfile")
+            if isinstance(build_config, str):
+                build_context = root / build_config
+                dockerfile = build_context / "Dockerfile"
+            else:
+                if "context" in build_config:
+                    build_context = root / build_config["context"]
+                if "dockerfile" in build_config:
+                    dockerfile = build_context / build_config["dockerfile"]
+
+            if not build_context.exists():
+                raise ValueError(
+                    f"Main compose file={compose_file} points to a build "
+                    f"context={build_context} or dockerfile={dockerfile} "
+                    "that does not exist."
+                )
+
+            return service, (dockerfile, build_context.relative_to(root))
+
+        raise ValueError(
+            f"Main compose file={compose_file} has an unsupported build configuration"
+        )
+
+    @property
+    def compose_override(self) -> Dict[str, Any]:
+        dev_override = copy.deepcopy(DOCKER_COMPOSE_OVERRIDE)
+        if isinstance(self.base_image, tuple):
+            dev_override["build"]["context"] = str(self.base_image[1])
+        return {"services": {self.dev_service: dev_override}}
+
+    @property
+    def dockerfile_body(self) -> str:
+        result = ""
+        if isinstance(self.base_image, str):
+            result += f"FROM {self.base_image}"
+        else:
+            with self.base_image[0].open("r", encoding="utf-8") as file_:
+                result += file_.read()
+        result += DOCKERFILE_SUFFIX
+        return result
+
+
+###############################################################################
+#                                     Main                                    #
+###############################################################################
+
+
+@click.group()
+@click.option(
+    "--log-level",
+    type=lambda lvl: getattr(logging, lvl.upper()),
+    metavar="LEVEL",
+    default="INFO",
+    help="Set verbosity of logging output.",
+)
+def cli(log_level: int) -> None:
+    try:
+        from mohkale.pylog import use_config as use_logging_config
+    except ImportError:
+        logging.basicConfig(level=log_level)
+    else:
+        use_logging_config("dev-compose", level=log_level)
+
+
+@cli.command()
+@click.option(
+    "-f",
+    "--force",
+    is_flag=True,
+    help="Force reset configurations that may have been modified since a prior install.",
+)
+@click.option(
+    "-c",
+    "--clean",
+    is_flag=True,
+    help="Erase existing dev-compose configuration files before installing new ones.",
+)
+@click.option(
+    "-s",
+    "--dev-service",
+    help="Name of an explicit dev service to derive the dev container from.",
+)
+@click.pass_context
+def install(
+    ctx: click.Context, force: bool, clean: bool, dev_service: Optional[str]
+) -> None:
+    # TODO: Support granular installation with force.
+    # TODO: Support explicit base image instead of override.
+    try:
+        project = Project.identify(CWD.absolute(), dev_service)
+    except ValueError as err:
+        logging.error(str(err))
+        ctx.exit(1)
+
+    LOCAL_CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+    if clean:
+        if LOCAL_COMPOSE_FILE.exists():
+            LOCAL_COMPOSE_FILE.unlink()
+        if LOCAL_DOCKERFILE.exists():
+            LOCAL_DOCKERFILE.unlink()
+        if LOCAL_SHELL_PROFILE.exists():
+            LOCAL_SHELL_PROFILE.unlink()
+        if LOCAL_TMUXP_CONFIG.exists():
+            LOCAL_TMUXP_CONFIG.unlink()
+
+    compose_config = {}
+    if LOCAL_COMPOSE_FILE.exists():
+        with LOCAL_COMPOSE_FILE.open("r", encoding="utf-8") as file_:
+            compose_config = yaml.safe_load(file_)
+    _update_config(compose_config, project.compose_override, force)
+    with LOCAL_COMPOSE_FILE.open("w", encoding="utf-8") as file_:
+        file_.write(yaml.dump(compose_config, width=2, sort_keys=False))
+
+    if LOCAL_DOCKERFILE.exists():
+        logging.warning("Skipping updating dockerfile because it already exists")
+    else:
+        dockerfile_body = project.dockerfile_body
+        with LOCAL_DOCKERFILE.open("w", encoding="utf-8") as file_:
+            file_.write(dockerfile_body)
+
+    if LOCAL_SHELL_PROFILE.exists():
+        logging.warning("Skipping updating profile because it already exists")
+    else:
+        profile_body = DOTFILE_PROFILE
+        with LOCAL_SHELL_PROFILE.open("w", encoding="utf-8") as file_:
+            file_.write(profile_body)
+
+    if LOCAL_TMUXP_CONFIG.exists():
+        logging.warning("Skipping updating tmuxp config because it already exists")
+    else:
+        tmuxp_body = TMUXP_CONFIG.format(
+            project_name=project.name, dev_service=project.dev_service
+        )
+        with LOCAL_TMUXP_CONFIG.open("w", encoding="utf-8") as file_:
+            file_.write(tmuxp_body)
+
+
+@cli.command(context_settings={"ignore_unknown_options": True})
+@click.option(
+    "--dry-run",
+    is_flag=True,
+    show_default=True,
+    help="Echo out compose command instead of running it.",
+)
+@click.argument("compose_args", nargs=-1, type=click.UNPROCESSED)
+@click.pass_context
+def compose(ctx, dry_run: bool, compose_args: click.UNPROCESSED) -> None:
+    """Run docker-compose with local-dev compose files."""
+    cwd = CWD.absolute()
+    compose_files = _filter_existing_files(
+        [
+            cwd / file
+            for file in itertools.chain(MAIN_COMPOSE_FILES, EXTRA_COMPOSE_FILES)
+        ]
+    )
+
+    compose_command = ["docker-compose"]
+    for file in compose_files:
+        compose_command.extend(["-f", str(file)])
+
+    compose_command.extend(compose_args)
+
+    if dry_run:
+        print(" ".join(shlex.quote(it) for it in compose_command))
+        return
+
+    os.execlp(compose_command[0], *compose_command)
+
+
+if __name__ == "__main__":
+    cli()

@@ -5,4 +5,4 @@ packagex brave
 # enable developer mode, load-unpacked, then navigate to ./startpage and
 # load it.
 sync-submodule startpage
-link -f startpage.json:startpage/config.json
+run-cmd ln -sf ../startpage.json startpage/config.json

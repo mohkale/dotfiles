@@ -88,6 +88,8 @@ for fzf_script in /usr/share/fzf/key-bindings.zsh /etc/profile.d/fzf.zsh; do
     bindkey "^s" fzf-history-widget
     bindkey "^T" transpose-chars                                                  # Restore default ctrl-t binding.
     bindkey '\ec' capitalize-word                                                 # Restore default alt-c binding.
+
+    # shellcheck disable=SC2034
     FZF_CTRL_R_OPTS="$FZF_SHELL_OPTS --history '""$XDG_DATA_HOME""'/fzf/history/sh-history"
     break
   fi

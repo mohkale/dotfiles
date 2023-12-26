@@ -162,8 +162,6 @@ class MonitorStdinClipsink(Clipsink):
         finally:
             await self.on_stdin_eof()
 
-    # pylint: disable=no-self-use
-
     async def on_stdin_read(self, line: str) -> None:
         """Event handler for newly read lines from stdin."""
         logging.debug("Read line='%s' from stdin", line)

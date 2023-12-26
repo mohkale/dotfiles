@@ -265,7 +265,7 @@ def _edntag_load(path):
     try:
         if _dir != "":
             os.chdir(_dir)
-        with open(path, "r") as fd:
+        with open(path, "r", encoding='utf-8') as fd:
             return edn.loads(fd.read(), debug=False)
     finally:
         os.chdir(cwd)

@@ -438,7 +438,9 @@ if __name__ == "__main__":
             return path
 
     else:
-        prettify = lambda x: x
+        def prettify(x):
+            """Identity function."""
+            return x
 
     main_index = mktemp("index")
     preselect_line = None  # line number of file to pre-select
