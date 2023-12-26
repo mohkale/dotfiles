@@ -104,17 +104,19 @@ def list_configs():
 
 
 def list_project_configs(dirs):
-    EXTS = [
+    STANDARD_EXTS = [
         ".tmuxp.yaml",
         ".tmuxp.yml",
         ".tmuxp.json",
     ]  # Copied from [[file:.local/lib/python3.9/site-packages/tmuxp/cli.py::for ext in \['.tmuxp.yaml', '.tmuxp.yml', '.tmuxp.json'\]][cli.py]].
+    EXTS = [*STANDARD_EXTS, ".lcldev/dev-compose/tmuxp.yaml"]
     for proj_dir in dirs:
         for ext in EXTS:
             conf = os.path.join(proj_dir, ext)
             if not os.path.exists(conf):
                 continue
             yield conf, proj_dir, os.path.basename(proj_dir), ""
+            break
     return []
 
 
