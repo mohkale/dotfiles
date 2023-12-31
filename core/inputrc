@@ -43,10 +43,11 @@ $endif
 $if term=dumb
 $else
 $if mode=emacs
-"\C-h": backward-word
-"\C-l": forward-word
-"\C-j": next-history
-"\C-k": previous-history
+# Conflicts with GDB :/.
+# "\C-h": backward-word
+# "\C-l": forward-word
+# "\C-j": next-history
+# "\C-k": previous-history
 
 "\M-j": history-search-forward
 "\M-k": history-search-backward

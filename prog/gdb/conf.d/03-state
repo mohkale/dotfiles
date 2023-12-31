@@ -77,6 +77,14 @@ Syntax: threads
 | Print threads in target.
 end
 
+define bta
+  thread apply all backtrace
+end
+document bta
+Syntax: bta
+| Print a backtrace in all threads
+end
+
 define dis
   if $argc == 0
     disassemble
