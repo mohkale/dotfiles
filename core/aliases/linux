@@ -4,7 +4,7 @@ pdf        zathura
 ywd        sh -c 'if [ "$#" -gt 0 ]; then cd "$*" || exit 1; fi; pwd | tee /dev/tty | clip -t' ywd
 sd         sudo 
 se         sudoedit
-ct         TERM=screen-256color 
+ut         TERM=screen-256color 
 xres@file  ~/.Xresources
 xp         . ~/.xprofile
 iproute    traceroute
