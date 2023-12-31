@@ -20,12 +20,12 @@ imi                    dev-compose --log-level=DEBUG install
 imc                    dev-compose compose
 imx                    [ -e .lcldev/dev-compose ] && rm -rvf .lcldev/dev-compose
 # Weekly refresh helpers
-weekly-refresh                 weekly-refresh-docker; weekly-fetch-repos
+weekly-refresh                 weekly-fetch-repos; weekly-refresh-docker
 weekly-refresh-docker          weekly-erase-docker-cache; weekly-rebuild-project-images
 weekly-erase-docker-cache      sudo service docker restart && dd-erase-all --force && docker volume prune --all --force
 weekly-erase-build-cache       ls-projects | sort -u | awk -F : -e '{ printf("%s/cmake-build\n", $1); printf("%s/cmake-install\n", $1) }' | parallel [ -e {} ] '&&' rm -rvf {}
 weekly-rebuild-project-images  ls-projects | sort -u | parallel --colsep=: [ -e {1}/.lcldev/dev-compose/docker-compose.yml ] '&&' echo {1} | grep -E 'testtrep|feedadapter|feedadapter-rules' | parallel --ungroup --colsep=: --max-procs=1 cd {1} '&&' echo {1} '&&' dev-compose compose pull '&&' dev-compose compose build --pull --parallel
-weekly-fetch-repos             ls-projects | sort -u | parallel --max-procs=8 --colsep=: echo {2} '&&' cd {1} '&&' git pull --all --ff-only
+weekly-fetch-repos             ls-projects | sort -u | grep -v $XDG_CACHE_HOME | parallel --max-procs=8 --colsep=: echo {2} '&&' cd {1} '&&' git pull --all --ff-only
 
 # Dev machine helpers
 ki                     kinit mkaleem2@ADDEV.BLOOMBERG.COM
@@ -63,6 +63,7 @@ faisvp-pw-618@sshx     getprdwin -i FAISVP-PW-618
 faisvp-pw-063@sshx     getprdwin -i FAISVP-PW-063
 
 # Currently requires an extra ticket argument.
+ba32349@sshx           bpipefh ba32349
 ba32350@sshx           bpipefh ba32350
 ba32351@sshx           bpipefh ba32351
 
