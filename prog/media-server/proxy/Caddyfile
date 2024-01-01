@@ -32,17 +32,17 @@ import /etc/caddy/local.d/Caddyfile.global
 
 (service_proxy_to) {
 	#(service, TLD, service_host, port)
-	{args.0}.{args.1} {
+	{args[0]}.{args[1]} {
 		# authorize with guests_policy
-		reverse_proxy {args.2}:{args.3}
+		reverse_proxy {args[2]}:{args[3]}
 	}
 }
 
 (authorized_service_proxy_to) {
 	#(service, TLD, service_host, port)
-	{args.0}.{args.1} {
-		import authelia_forward_auth {args.1}
-		reverse_proxy {args.2}:{args.3}
+	{args[0]}.{args[1]} {
+		import authelia_forward_auth {args[1]}
+		reverse_proxy {args[2]}:{args[3]}
 	}
 }
 
