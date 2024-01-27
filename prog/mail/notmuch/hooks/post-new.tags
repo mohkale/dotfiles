@@ -20,9 +20,11 @@
 
 # Alerts
 -new +inbox +unread +a/price              -- tag:new and from:@steampowered.com and subject:'Steam wishlist now on sale'
+-new +inbox +unread +a/release            -- tag:new and from:@steampowered.com and subject:'now available on Steam'
 -new +inbox +unread +a/price              -- tag:new and from:@email.gog.com and subject:'Items on your wishlist are now discounted'
 -new +inbox +unread +a/price              -- tag:new and from:noreply@camelcamelcamel.com and subject:'Price drop alert'
 -new                +a/price              -- tag:new and from:noreply@camelcamelcamel.com and subject:"/^Your price watch for/"
+-new +inbox +unread +a/release            -- tag:new and from:webmaster@blu-ray.com and subject:'new release notification'
 -new +inbox +unread +a/price              -- tag:new and from:metalposters@displate.com content:"Limited Edition"
 -new +inbox +unread +a/security +security -- tag:new and from:@haveibeenpwned.com and subject:"/^Confirm your Have I Been Pwned registration/"
 -new        +unread +a/devci    +dev      -- tag:new and from:notifications@github.com and subject:"/PR run failed|Run failed:/"
@@ -105,10 +107,12 @@
 -new +inbox -unread          +delivery                     -- tag:new and from:no-reply@royalmail.com and subject:"/Your (Royal Mail )?parcel from/"
 -new +inbox -unread +finance                               -- tag:new and from:@fastspring.com and subject:"/here is a link to manage your orders/"
 -new +inbox -unread +finance                               -- tag:new and from:@pimoroni.com and subject:"/Order .* confirmed/"
+-new +inbox -unread          +delivery                     -- tag:new and from:@pimoroni.com and subject:"/shipment from order .* is on the way/"
 -new +inbox -unread +finance                               -- tag:new and from:googleplay-noreply@google.com and subject:"/Your Google Play Order Receipt/"
 -new +inbox -unread +finance                               -- tag:new and from:@porkbun.com and subject:"Order Thank You"
 -new +inbox -unread +finance                               -- tag:new and from:'Grasscity Sales'
 -new +inbox -unread          +delivery                     -- tag:new and ( from:'Grasscity via Route' or ( from:'Grasscity' and ( subject:'was delivered' or subject:'out for delivery' or subject:'in transit' or subject:'Tracking update' ) ) )
+-new +inbox -unread +finance                               -- tag:new and from:'Fopp Covent Garden' and subject:'/receipt from Fopp Covent Garden/'
 
 # Home Related
 -new +inbox +unread +home -- tag:new and from:@britishgas.co.uk
@@ -116,7 +120,7 @@
 -new +inbox +unread +home -- tag:new and from:@eonnext.com
 
 # Promotional mail (borderline spam)
--new +inbox +unread +promotion +l/bfi -- tag:new and from:no-reply@bfimessages.org.uk and subject:'Priority Booking'
+-new +inbox +unread +promotion +l/bfi -- tag:new and from:no-reply@bfimessages.org.uk and ( subject:'Priority Booking' or from:'BFI Shop' )
 -new        +unread +promotion        -- tag:new and from:"NatWest MyRewards" and subject:'here are your latest offers'
 -new        +unread +promotion        -- tag:new and from:newsletter@grasscity.com
 -new        +unread +promotion        -- tag:new and from:info@n.zavvi.com
@@ -127,7 +131,7 @@
 -new +inbox +unread +l/dont-pay  -- tag:new and from:info@dontpay.uk
 -new +inbox +unread +l/mse       -- tag:new and from:@moneysavingexpert.com
 -new +inbox +unread +l/monevator -- tag:new and from:theinvestor@monevator.com
--new +inbox +unread +l/bfi       -- tag:new and from:no-reply@bfimessages.org.uk
+-new +inbox +unread +l/bfi       -- tag:new and ( from:no-reply@bfimessages.org.uk or from:'BFI Membership' )
 
 # Tag any mail in the bin as deleted.
 -new       +deleted -- folder:/\[Gmail\]/ and folder:/Bin$/
@@ -136,7 +140,7 @@
 
 -new +spam -inbox -- tag:new and from:@findeveryjob.co.uk
 -new +spam -inbox -- tag:new and from:@jamrecruitment.co.uk
--new +spam -inbox -- tag:new and from:@the-career-wallet.com
+-new +spam -inbox -- tag:new and ( from:@the-career-wallet.com or from:@thecareerwallet.uk )
 # Uber has a spam problem, and there is no setting which makes it stop.
 -new +spam -inbox -- tag:new and from:@uber.com and ( subject:'running low' or subject:'free delivery' or subject:'enjoy off' or subject:'off groceries' or subject:'get groceries' or subject: or subject:'win' or subject:'discount available' or subject:'new dishes' or subject:'chance' or subject:'get out off' or subject:'off next order' or subject:'grab essentials' )
 -new +spam -inbox -- tag:new and from:@deliveroo.co.uk and ( from:@feedback.deliveroo.com or from:@announcement.deliveroo.co.uk )
