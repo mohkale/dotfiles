@@ -223,10 +223,6 @@ EOF
 
 unset -f lines_to_path
 
-if [ -e "$XDG_LIB_HOME/python-venvs/default/bin/activate" ]; then
-  . "$XDG_LIB_HOME/python-venvs/default/bin/activate"
-fi
-
 case "$(ls-platform)" in
   windows)
     # For programs that don't care about the environment,

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3-dotfiles-venv
 """Display the amount of free disk space at different mount points."""
 # pylint: disable=no-member,invalid-name,access-member-before-definition
 

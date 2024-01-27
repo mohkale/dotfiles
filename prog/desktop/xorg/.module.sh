@@ -10,7 +10,7 @@ run-cmd touch "$XDG_CONFIG_HOME/xprofile.local"
 packages                                                            \
   apt:xclip                                                         \
   yay:xorg,xorg-xinit,xbindkeys,xorg-setxkbmap,wmctrl,xdotool,xclip
-packages pip:notify-send
+packagex notify-send
 
 if [ -e "$DOTFILES/setup/cache/arch" ]; then
   info 'Installing Graphics Drivers for Xorg'

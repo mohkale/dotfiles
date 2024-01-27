@@ -1,0 +1,2 @@
+#!/bin/sh
+exec "$HOME/.local/lib/python-venvs/default/bin/python3" "$@"

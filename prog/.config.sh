@@ -54,6 +54,7 @@ import -b                                       \
   vpn/*                                         \
   wget                                          \
   wine                                          \
+  youtube-dl                                    \
   zathura
 
 if bots mail.server mail.client; then

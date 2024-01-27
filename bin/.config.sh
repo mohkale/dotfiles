@@ -49,6 +49,7 @@ link                                            \
   "$XDG_BIN_DIR/project-files"                  \
   "$XDG_BIN_DIR/project-root"                   \
   "$XDG_BIN_DIR/pschain"                        \
+  "$XDG_BIN_DIR/python3-dotfiles-venv"          \
   "$XDG_BIN_DIR/show-banners"                   \
   "$XDG_BIN_DIR/spawn-term"                     \
   "$XDG_BIN_DIR/tmux-popup"                     \

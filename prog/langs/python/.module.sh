@@ -6,20 +6,18 @@ link-to "$XDG_BIN_DIR" ./cmds/*
 
 # Install python itself
 packages                                        \
-  apt:python3,python3-pip                       \
-  msys:python,python-pip                        \
+  apt:python3,python3-pip,python3-pipx          \
+  msys:python,python-pip,python-pipx            \
   choco:python                                  \
-  pacman:python3,python-pip
+  pacman:python3,python-pip,python-pipx
 
 # Install the python packages I always want :-)
 package pip                                     \
-  pylint                                        \
   pyyaml                                        \
   colorlog                                      \
   requests                                      \
   pyperclip                                     \
   hurry.filesize                                \
   edn_format                                    \
-  youtube-dl                                    \
   beautifulsoup4                                \
   git+https://github.com/mohkale/RequestMixin

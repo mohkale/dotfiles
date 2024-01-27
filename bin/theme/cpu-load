@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3-dotfiles-venv
 """
 Theme script to periodically inspect the CPU load on the current system
 and print it out.

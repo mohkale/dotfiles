@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3-dotfiles-venv
 """
 Output all the code-points in a given font-files.
 

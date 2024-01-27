@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3-dotfiles-venv
 """
 Convert an image to some asciified text.
 """

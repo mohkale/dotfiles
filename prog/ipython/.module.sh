@@ -1,4 +1,4 @@
-packages pip:ipython
+packagex ipython
 
 link                                                                                    \
   config.py:"$XDG_CONFIG_HOME/jupyter/profile_default/ipython_config.py"                \
