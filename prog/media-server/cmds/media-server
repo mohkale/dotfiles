@@ -24,6 +24,7 @@
 #     books
 #     comics
 #     dashboard
+#     http-proxy
 #     movies
 #     music
 #     qbittorrent
@@ -68,6 +69,9 @@ fi
 if [ -z "$SOCKS_PROXY_PEER_PORT" ]; then
   export SOCKS_PROXY_PEER_PORT=1080
 fi
+if [ -z "$HTTP_PROXY_PEER_PORT" ]; then
+  export HTTP_PROXY_PEER_PORT=1081
+fi
 
 COMPOSE_FILES=( )
 add_compose_file() { # [COMPOSE].yml
@@ -87,6 +91,10 @@ if is_profile_enabled vpn; then
   add_compose_file 9999-optional.vpn
 else
   add_compose_file 9999-optional.no-vpn
+fi
+
+if is_profile_enabled http-proxy; then
+  add_compose_file 9999-optional.http-proxy
 fi
 
 if is_profile_enabled socks-proxy; then

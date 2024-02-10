@@ -1,0 +1,11 @@
+---
+# Enable gluetuns builtin HTTP proxy.
+
+services:
+  gluetun:
+    environment:
+      HTTPPROXY: on
+      HTTPPROXY_STEALTH: on
+      HTTPPROXY_LISTENING_ADDRESS: :8888
+    ports:
+      - $HTTP_PROXY_PEER_PORT:8888

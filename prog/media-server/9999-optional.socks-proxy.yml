@@ -5,9 +5,6 @@
 
 services:
   gluetun:
-    environment:
-      HTTPPROXY: on
-      HTTPPROXY_STEALTH: on
     ports:
       - $SOCKS_PROXY_PEER_PORT:1080
 
