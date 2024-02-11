@@ -17,6 +17,8 @@ import logging
 import os
 import pathlib
 import shlex
+import subprocess
+import time
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import click
@@ -143,6 +145,9 @@ build:
   context: .
   dockerfile: {LOCAL_DOCKERFILE}
 user: nobody
+command:
+  - sleep
+  - infinity
 environment:
   TERMINFO: /usr/share/terminfo
 volumes:
@@ -183,12 +188,10 @@ windows:
     options:
       automatic-rename: on
     panes:
-      - imc up
+      - dev-compose compose up
       # We wait until the service is up and then attach to it directly.
       - >
-         while ! imc exec --no-TTY -- {dev_service} true 2>/dev/null; do
-           sleep 1
-         done; clear; imc exec {dev_service} bash -l
+        dev-compose wait-up -s {dev_service}; clear; dev-compose compose exec {dev_service} bash -l
 """
 
 ###############################################################################
@@ -200,7 +203,7 @@ def _join_paths(base: pathlib.Path, paths: List[pathlib.Path]) -> List[pathlib.P
     return [base / file_ for file_ in paths]
 
 
-def _filter_existing_files(files: List[pathlib.Path]) -> pathlib.Path:
+def _filter_existing_files(files: List[pathlib.Path]) -> List[pathlib.Path]:
     return [file_ for file_ in files if file_.exists()]
 
 
@@ -257,7 +260,7 @@ class Project:
 
         name = cwd.name
         main_compose = None
-        extra_compose = []
+        extra_compose: List[pathlib.Path] = []
         base_image = None
 
         main_compose_files = _filter_existing_files(
@@ -383,6 +386,23 @@ class Project:
         return result
 
 
+def _compose_command() -> List[str]:
+    cwd = CWD.absolute()
+    compose_files = _filter_existing_files(
+        [
+            cwd / file
+            for file in itertools.chain(MAIN_COMPOSE_FILES, EXTRA_COMPOSE_FILES)
+        ]
+    )
+
+    compose_command = ["docker-compose"]
+    compose_command += ["--project-directory", str(cwd)]
+    for file in compose_files:
+        compose_command.extend(["-f", str(file)])
+
+    return compose_command
+
+
 ###############################################################################
 #                                     Main                                    #
 ###############################################################################
@@ -489,18 +509,7 @@ def install(
 @click.pass_context
 def compose(ctx, dry_run: bool, compose_args: click.UNPROCESSED) -> None:
     """Run docker-compose with local-dev compose files."""
-    cwd = CWD.absolute()
-    compose_files = _filter_existing_files(
-        [
-            cwd / file
-            for file in itertools.chain(MAIN_COMPOSE_FILES, EXTRA_COMPOSE_FILES)
-        ]
-    )
-
-    compose_command = ["docker-compose"]
-    for file in compose_files:
-        compose_command.extend(["-f", str(file)])
-
+    compose_command = _compose_command()
     compose_command.extend(compose_args)
 
     if dry_run:
@@ -508,6 +517,42 @@ def compose(ctx, dry_run: bool, compose_args: click.UNPROCESSED) -> None:
         return
 
     os.execlp(compose_command[0], *compose_command)
+
+
+@cli.command()
+@click.option(
+    "-s",
+    "--dev-service",
+    help="Name of an explicit dev service to derive the dev container from.",
+)
+@click.option(
+    "-i",
+    "--interval",
+    default=1,
+    help="Frequency of up checks.",
+)
+@click.pass_context
+def wait_up(ctx, dev_service: Optional[str], interval: int) -> None:
+    if not dev_service:
+        logging.debug("No dev-service supplied, detecting project")
+        try:
+            project = Project.identify(CWD.absolute(), dev_service)
+        except ValueError as err:
+            logging.error(str(err))
+            ctx.exit(1)
+
+        dev_service = project.dev_service
+
+    logging.info("Waiting for service=%s to come up", dev_service)
+    is_up_cmd = [*_compose_command(), "exec", "--no-TTY", "--", dev_service, "true"]
+    while True:
+        result = subprocess.run(is_up_cmd, check=False, capture_output=True)
+        logging.debug("Command stdout=%s", result.stdout)
+        logging.debug("Command stderr=%s", result.stderr)
+        if result.returncode == 0:
+            break
+        else:
+            time.sleep(interval)
 
 
 if __name__ == "__main__":
