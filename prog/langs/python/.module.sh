@@ -13,6 +13,7 @@ packages                                        \
 
 # Install the python packages I always want :-)
 package pip                                     \
+  click                                         \
   pyyaml                                        \
   colorlog                                      \
   requests                                      \
