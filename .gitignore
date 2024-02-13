@@ -7,4 +7,5 @@ setup/cache/
 __pycache__/
 dotenv.local
 /prog/media-server/*.override.yml
+/prog/media-server/*.override.env
 /prog/media-server/caddy/Caddyfile.local

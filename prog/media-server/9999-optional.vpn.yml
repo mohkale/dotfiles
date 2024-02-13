@@ -11,23 +11,24 @@ services:
     devices:
       - /dev/net/tun:/dev/net/tun
     environment:
-      PUID: $PUID
-      PGID: $PGID
-      TZ: Europe/London
+      PUID: "$PUID"
+      PGID: "$PGID"
+      TZ: "$TZ"
 
-      # Set these in the override configuration file. See also [[https://github.com/qdm12/gluetun/wiki/Mullvad][documentation]].
-      # SERVER_CITIES: London
-      # VPN_SERVICE_PROVIDER: mullvad
-      # VPN_TYPE: wireguard
-      # WIREGUARD_ADDRESS:
-      # WIREGUARD_PRIVATE_KEY:
+      # See also [[https://github.com/qdm12/gluetun/wiki/Mullvad][documentation]].
+      VPN_TYPE: wireguard
+      VPN_SERVICE_PROVIDER: "$VPN_SERVICE_PROVIDER"
+      WIREGUARD_PRIVATE_KEY: "$VPN_WG_PRIVATE_KEY"
+      WIREGUARD_PRESHARED_KEY: "$VPN_WG_PRESHARED_KEY"
+      WIREGUARD_ADDRESSES: "$VPN_WG_ADDRESSES"
+      SERVER_COUNTRIES: "$VPN_SERVER_COUNTRIES"
 
-      # Set this to allow port forwarding from your VPN to your bittorrent
-      # application.
+      # Set this in the override file to allow port forwarding from your VPN to your
+      # bittorrent application.
       # FIREWALL_VPN_INPUT_PORTS: $TRANSMISSION_PEER_PORT
     image: qmcgaw/gluetun
     logging:
-      driver: $LOGGING_DRIVER
+      driver: "$LOGGING_DRIVER"
     ports:
       # Transmission service ports (see [[file:no-vpn.docker-compose.yml]]).
       - 9091:9091

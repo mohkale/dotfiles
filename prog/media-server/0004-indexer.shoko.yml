@@ -6,12 +6,12 @@ services:
     depends_on:
       - caddy
     environment:
-      PUID: $PUID
-      PGID: $PGID
-      TZ: Europe/London
+      PUID: "$PUID"
+      PGID: "$PGID"
+      TZ: "$TZ"
     image: shokoanime/server:latest
     logging:
-      driver: $LOGGING_DRIVER
+      driver: "$LOGGING_DRIVER"
     profiles:
       - anime
     restart: unless-stopped

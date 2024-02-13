@@ -11,11 +11,11 @@ services:
     depends_on:
       - caddy
     environment:
-      PUID: $PUID
-      PGID: $PGID
-      TZ: Europe/London
+      PUID: "$PUID"
+      PGID: "$PGID"
+      TZ: "$TZ"
     logging:
-      driver: $LOGGING_DRIVER
+      driver: "$LOGGING_DRIVER"
     # Enable to support service and client discovery.
     # ports:
     #   - 7359:7359/udp

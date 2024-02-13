@@ -9,9 +9,9 @@ services:
     depends_on:
       - caddy
     environment:
-      PUID: $PUID
-      PGID: $PGID
-      TZ: Europe/London
+      PUID: "$PUID"
+      PGID: "$PGID"
+      TZ: "$TZ"
       WEBUI_PORT: 8756
       QBITTORRENT_HOME: /config
       # These are referenced in the watcher.json coniguration.
@@ -20,7 +20,7 @@ services:
       # Include the local python libraries directory in the PYTHONPATH.
       PYTHONPATH: "${PYTHONPATH}:/local-python-modules"
     logging:
-      driver: $LOGGING_DRIVER
+      driver: "$LOGGING_DRIVER"
     profiles:
       - qbittorrent
     volumes:

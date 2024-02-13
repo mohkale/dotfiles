@@ -7,12 +7,12 @@ services:
       - caddy
       - prowlarr
     environment:
-      PUID: $PUID
-      PGID: $PGID
-      TZ: Europe/London
+      PUID: "$PUID"
+      PGID: "$PGID"
+      TZ: "$TZ"
     image: lscr.io/linuxserver/readarr:develop
     logging:
-      driver: $LOGGING_DRIVER
+      driver: "$LOGGING_DRIVER"
     profiles:
       - books
       - comics

@@ -4,12 +4,12 @@ services:
   prowlarr:
     container_name: ms-prowlarr
     environment:
-      PUID: $PUID
-      PGID: $PGID
-      TZ: Europe/London
+      PUID: "$PUID"
+      PGID: "$PGID"
+      TZ: "$TZ"
     image: lscr.io/linuxserver/prowlarr:develop
     logging:
-      driver: $LOGGING_DRIVER
+      driver: "$LOGGING_DRIVER"
     profiles:
       - anime
       - books

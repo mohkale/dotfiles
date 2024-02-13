@@ -12,11 +12,11 @@ services:
       ND_SCANSCHEDULE: "@every 1h"
     image: deluan/navidrome:latest
     logging:
-      driver: $LOGGING_DRIVER
+      driver: "$LOGGING_DRIVER"
     profiles:
       - music
     restart: unless-stopped
-    user: $PUID:$PGID
+    user: "$PUID:$PGID"
     volumes:
       - $XDG_CONFIG_HOME/media-server/navidrome:/data
       - $XDG_MEDIA_HOME/content/music:/music:ro

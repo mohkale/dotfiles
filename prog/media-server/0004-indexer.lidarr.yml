@@ -7,9 +7,9 @@ services:
       - caddy
       - prowlarr
     environment:
-      PUID: $PUID
-      PGID: $PGID
-      TZ: Europe/London
+      PUID: "$PUID"
+      PGID: "$PGID"
+      TZ: "$TZ"
     image: lscr.io/linuxserver/lidarr:latest
     logging:
       driver: $LOGGING_DRIVER

@@ -59,22 +59,12 @@ is_profile_enabled() {
 if [ -e "$XDG_CONFIG_HOME/media-server/profile.sh" ]; then
   . "$XDG_CONFIG_HOME/media-server/profile.sh"
 fi
-
-if [ -z "$TRANSMISSION_PEER_PORT" ]; then
-  export TRANSMISSION_PEER_PORT=51413
+set -o allexport
+source "media-server.env"
+if [ -e "media-server.override.env" ]; then
+  source "media-server.override.env"
 fi
-if [ -z "$QBITTORRENT_PEER_PORT" ]; then
-  export QBITTORRENT_PEER_PORT=51413
-fi
-if [ -z "$SOCKS_PROXY_PEER_PORT" ]; then
-  export SOCKS_PROXY_PEER_PORT=1080
-fi
-if [ -z "$HTTP_PROXY_PEER_PORT" ]; then
-  export HTTP_PROXY_PEER_PORT=1081
-fi
-if [ -z "$LOGGING_DRIVER" ]; then
-  export LOGGING_DRIVER=json-file
-fi
+set +o allexport
 
 COMPOSE_FILES=( )
 add_compose_file() { # [COMPOSE].yml

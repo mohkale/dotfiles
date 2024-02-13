@@ -4,12 +4,12 @@ services:
   authelia:
     container_name: ms-authelia
     environment:
-      PUID: $PUID
-      PGID: $PGID
-      TZ: Europe/London
+      PUID: "$PUID"
+      PGID: "$PGID"
+      TZ: "$TZ"
     image: authelia/authelia:latest
     logging:
-      driver: $LOGGING_DRIVER
+      driver: "$LOGGING_DRIVER"
     restart: unless-stopped
     volumes:
       - $XDG_CONFIG_HOME/media-server/authelia:/config
@@ -23,11 +23,11 @@ services:
       authelia:
         condition: service_healthy
     environment:
-      PUID: $PUID
-      PGID: $PGID
-      TZ: Europe/London
+      PUID: "$PUID"
+      PGID: "$PGID"
+      TZ: "$TZ"
     logging:
-      driver: $LOGGING_DRIVER
+      driver: "$LOGGING_DRIVER"
     image: lscr.io/linuxserver/fail2ban:latest
     restart: unless-stopped
     volumes:

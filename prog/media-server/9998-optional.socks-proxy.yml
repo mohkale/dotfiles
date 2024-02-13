@@ -17,7 +17,7 @@ services:
     environment:
       PROXY_PORT: 1080
     logging:
-      driver: $LOGGING_DRIVER
+      driver: "$LOGGING_DRIVER"
     network_mode: "service:gluetun"
     profiles:
       - socks-proxy
