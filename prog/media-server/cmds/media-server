@@ -89,7 +89,7 @@ while read -r compose_file; do
 done <<< "$(find . -mindepth 1 -maxdepth 1 -iname '*.yml' -not -iname '*.override.yml' -not -iname '9*' | sort -V)"
 
 [ "${MEDIA_SERVER_AUTHELIA:-0}" -eq 0 ] ||
-  add_compose_file 9998-optional.auth
+  add_compose_file 9996-optional.auth
 if is_profile_enabled vpn; then
   add_compose_file 9999-optional.vpn
 else
@@ -97,7 +97,7 @@ else
 fi
 
 if is_profile_enabled http-proxy; then
-  add_compose_file 9999-optional.http-proxy
+  add_compose_file 9997-optional.http-proxy
 fi
 
 if is_profile_enabled socks-proxy; then
@@ -105,7 +105,7 @@ if is_profile_enabled socks-proxy; then
     echo "error: $0: The socks-proxy module requires vpn profile to be enabled" >&2
     exit 1
   fi
-  add_compose_file 9999-optional.socks-proxy
+  add_compose_file 9998-optional.socks-proxy
 fi
 
 export COMPOSE_PROFILES="${MEDIA_SERVER_PROFILES}"
