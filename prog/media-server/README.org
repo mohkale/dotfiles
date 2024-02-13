@@ -921,35 +921,8 @@ calling =docker-compose "$@"=.
 ** Starting the server services at boot
    On systemd based environments you can configure your media server to come up at
    system boot. This can be done by creating a new systemd unit at
-   [[file:/etc/systemd/system/media-server.service]] containing the following:
-
-   #+begin_src conf
-     [Unit]
-     Description=Media Server
-     PartOf=docker.service
-     After=docker.service
-     # If you depend on anything else being mounted through fstab you can use:
-     #   sudo systemctl list-units --type=mount
-     # to access the mount target for it (example: run-media-mohkale-MoHKale.mount)
-     # and add it as another after dependency.
-
-     [Service]
-     Type=oneshot
-     RemainAfterExit=true
-     User=mohkale
-     Group=mohkale
-     WorkingDirectory=/home/mohkale/.config/dotfiles
-
-     # ExecStart=/home/mohkale/.config/dotfiles/prog/media-server/cmds/media-server up -d --remove-orphans
-     # ExecStop=/home/mohkale/.config/dotfiles/prog/media-server/cmds/media-server down
-
-     # Use this if you need the service to inherit the same environment as an interactive shell.
-     ExecStart=/bin/sh -lip -c 'media-server up -d'
-     ExecStop=/bin/sh -lip -c 'media-server down'
-
-     [Install]
-     WantedBy=multi-user.target
-   #+end_src
+   [[file:$XDG_CONFIG_HOME/systemd/user/media-server.service]] containing the sample
+   service config at [[file:media-server.service]].
 
 ** Bypassing Authentication
    Several services have bespoke login walls. This is... annoying. I try to disable

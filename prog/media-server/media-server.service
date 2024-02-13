@@ -1,0 +1,19 @@
+[Unit]
+Description=Media Server
+PartOf=docker.service
+After=docker.service systemd-networkd-wait-online.service
+# If you depend on anything else being mounted through fstab you can use:
+#   sudo systemctl list-units --type=mount
+# to access the mount target for it (example: run-media-mohkale-MoHKale.mount)
+# and add it as another after dependency.
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+WorkingDirectory=/home/mohkale/.config/dotfiles
+
+ExecStart=/bin/sh -lip -c 'exec media-server up -d --remove-orphans'
+ExecStop=/bin/sh -lip -c 'exec media-server down'
+
+[Install]
+WantedBy=basic.target
