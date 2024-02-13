@@ -11,6 +11,8 @@ services:
       PGID: $PGID
       TZ: Europe/London
     image: lscr.io/linuxserver/sonarr:latest
+    logging:
+      driver: $LOGGING_DRIVER
     profiles:
       - tv-shows
     restart: unless-stopped

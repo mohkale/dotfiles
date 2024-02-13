@@ -26,6 +26,8 @@ services:
       # application.
       # FIREWALL_VPN_INPUT_PORTS: $TRANSMISSION_PEER_PORT
     image: qmcgaw/gluetun
+    logging:
+      driver: $LOGGING_DRIVER
     ports:
       # Transmission service ports (see [[file:no-vpn.docker-compose.yml]]).
       - 9091:9091

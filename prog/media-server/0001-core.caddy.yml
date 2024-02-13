@@ -8,6 +8,8 @@ services:
       dockerfile: Dockerfile.caddy
     environment:
       SITE_ADDRESS: localhost
+    logging:
+      driver: $LOGGING_DRIVER
     ports:
       - "80:80"
       # SSL ports needed to be able to route through HTTPs.

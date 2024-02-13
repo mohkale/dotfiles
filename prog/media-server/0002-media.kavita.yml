@@ -6,6 +6,8 @@ services:
     depends_on:
       - caddy
     image: kizaing/kavita:latest
+    logging:
+      driver: $LOGGING_DRIVER
     profiles:
       - comics
     restart: unless-stopped

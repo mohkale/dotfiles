@@ -8,6 +8,8 @@ services:
       PGID: $PGID
       TZ: Europe/London
     image: lscr.io/linuxserver/prowlarr:develop
+    logging:
+      driver: $LOGGING_DRIVER
     profiles:
       - anime
       - books

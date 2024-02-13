@@ -8,6 +8,8 @@ services:
     environment:
       HOME: /config
     image: jesec/flood:master
+    logging:
+      driver: $LOGGING_DRIVER
     profiles:
       - test
     user: $PUID:$PGID

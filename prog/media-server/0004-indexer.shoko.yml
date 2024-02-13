@@ -10,6 +10,8 @@ services:
       PGID: $PGID
       TZ: Europe/London
     image: shokoanime/server:latest
+    logging:
+      driver: $LOGGING_DRIVER
     profiles:
       - anime
     restart: unless-stopped

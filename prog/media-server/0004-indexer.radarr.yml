@@ -11,6 +11,8 @@ services:
       PGID: $PGID
       TZ: Europe/London
     image: lscr.io/linuxserver/radarr:latest
+    logging:
+      driver: $LOGGING_DRIVER
     profiles:
       - movies
     restart: unless-stopped

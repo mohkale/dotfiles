@@ -11,6 +11,8 @@ services:
       ND_PROMETHEUS_ENABLED: true
       ND_SCANSCHEDULE: "@every 1h"
     image: deluan/navidrome:latest
+    logging:
+      driver: $LOGGING_DRIVER
     profiles:
       - music
     restart: unless-stopped

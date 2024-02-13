@@ -10,6 +10,8 @@ services:
       PGID: $PGID
       TZ: Europe/London
     image: lscr.io/linuxserver/bazarr:latest
+    logging:
+      driver: $LOGGING_DRIVER
     profiles:
       - anime
       - movies

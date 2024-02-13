@@ -72,6 +72,9 @@ fi
 if [ -z "$HTTP_PROXY_PEER_PORT" ]; then
   export HTTP_PROXY_PEER_PORT=1081
 fi
+if [ -z "$LOGGING_DRIVER" ]; then
+  export LOGGING_DRIVER=json-file
+fi
 
 COMPOSE_FILES=( )
 add_compose_file() { # [COMPOSE].yml

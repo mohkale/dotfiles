@@ -8,6 +8,8 @@ services:
       PGID: $PGID
       TZ: Europe/London
     image: lscr.io/linuxserver/mylar3:latest
+    logging:
+      driver: $LOGGING_DRIVER
     profiles:
       - comics
     restart: unless-stopped

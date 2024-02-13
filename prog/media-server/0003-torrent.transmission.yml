@@ -18,6 +18,8 @@ services:
       XDG_MEDIA_HOME: /media
       # Include the local python libraries directory in the PYTHONPATH.
       PYTHONPATH: "${PYTHONPATH}:/local-python-modules"
+    logging:
+      driver: $LOGGING_DRIVER
     profiles:
       - transmission
     volumes:

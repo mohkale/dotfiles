@@ -8,6 +8,8 @@ services:
       PGID: $PGID
       TZ: Europe/London
     image: authelia/authelia:latest
+    logging:
+      driver: $LOGGING_DRIVER
     restart: unless-stopped
     volumes:
       - $XDG_CONFIG_HOME/media-server/authelia:/config
@@ -24,6 +26,8 @@ services:
       PUID: $PUID
       PGID: $PGID
       TZ: Europe/London
+    logging:
+      driver: $LOGGING_DRIVER
     image: lscr.io/linuxserver/fail2ban:latest
     restart: unless-stopped
     volumes:
