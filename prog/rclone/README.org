@@ -1,0 +1,24 @@
+#+Title: RClone
+
+RClone is a file sync tool for interfacing with remote storage providers like Google
+Drive or Dropbox. It lets you mount these provider services through the FUSE file
+system so you can access your files transparently. After installation you'll need to
+configure the specific rclone backends you want to use (see [[https://rclone.org/docs/][here]]).
+
+* Automount on Login
+  You can use systemd to automatically mount a rclone account when you login. There's
+  a rclone-mount-service utility package this module will install. To enable it you
+  can run =systemctl --user enable --now rclone@GoogleDrive.service=. After this I'd
+  also recommend adding a unit override to mount to a custom location:
+
+  #+begin_src conf
+    [Unit]
+    AssertPathIsDirectory=
+    AssertPathIsDirectory="%h/External/%I"
+
+    [Service]
+    ExecStart=
+    ExecStart=/usr/bin/rclone mount "%I:" "%h/External/%I"
+    ExecStop=
+    ExecStop=/bin/fusermount -u "%h/External/%I"
+  #+end_src

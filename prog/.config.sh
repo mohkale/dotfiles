@@ -43,6 +43,7 @@ import -b                                       \
   pass                                          \
   polybar                                       \
   ranger                                        \
+  rclone                                        \
   ripgrep                                       \
   shells/*                                      \
   smart                                         \

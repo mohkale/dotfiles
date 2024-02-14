@@ -70,6 +70,9 @@ pydocstyle,which:pydocstyle,pipx:pydocstyle
 pylint,which:pylint,pipx:pylint
 python-lsp-server,which:pylsp,pipx:python-lsp-server[rope] --preinstall pyls-isort --preinstall python-lsp-black --preinstall pyls-isort --preinstall pyls-mypy --preinstall python-lsp-ruff
 qbittorrent-cli,which:qbt,yay:qbittorrent-cli-bin
+rclone,which:rclone,pacman:rclone
+rclone-browser,which:rclone-browser,yay:rclone-browser
+rclone-mount-service,stat:/usr/lib/systemd/user/rclone@.service,yay:rclone-mount-service
 rubocop,which:rubocop,gem:rubocop
 rust,which:rust,choco:rust,pacman:rust
 rust-analyzer,which:rust-analyzer,yay:rust-analyzer

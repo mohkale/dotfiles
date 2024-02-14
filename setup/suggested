@@ -12,7 +12,7 @@ declare -A presets
 # The special presets *default* is always installed.
 presets=(
   # Configurations to always setup
-  [default]="tmux python wget bat gotop dropbox vlc cheat"
+  [default]="tmux python wget bat gotop rclone vlc cheat"
   [default.doc]="Configurations that are always installed"
   [default.windows]="powershell vscode"
   [default.linux]="zsh wine nvim st lf ripgrep zathura"
