@@ -72,9 +72,9 @@ class GithubNotificationsSegment(StatusMiscSegment):
                 # pip install pygithub
                 # pylint: disable=import-outside-toplevel
                 import github
-                from github.MainClass import DEFAULT_BASE_URL
+                from github.Consts import DEFAULT_BASE_URL
             except ImportError:
-                logging.warning("Failed to import github")
+                logging.exception("Failed to import github")
                 return None
             base_url, pass_key = self.pass_key
             if not pass_key:
