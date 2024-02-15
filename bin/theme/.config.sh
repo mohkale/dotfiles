@@ -14,6 +14,7 @@ link                                            \
   "$XDG_BIN_DIR/nordvpn"                        \
   "$XDG_BIN_DIR/notmuch"                        \
   "$XDG_BIN_DIR/status-misc"                    \
+  "$XDG_BIN_DIR/systemd"                        \
   "$XDG_BIN_DIR/transmission"
 
 import -f langs/python

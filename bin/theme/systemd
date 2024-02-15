@@ -1,0 +1,132 @@
+#!/usr/bin/env python3-dotfiles-venv
+"""Status misc segment for showing systemd user units."""
+
+import argparse
+import collections
+import json
+import logging
+import shutil
+from typing import Callable, Literal, TypedDict, cast
+
+from lib.shared import run_process
+from lib.status_misc.segment import StatusMiscSegment
+
+
+class _SystemdUnits(TypedDict):
+    unit: str
+    load: Literal["loaded", "not-found", "bad-setting", "error", "masked"]
+    active: Literal[
+        "active", "reloading", "inactive", "failed", "activating", "deactivating"
+    ]
+    sub: str
+    description: str
+
+
+class SystemdSegment(StatusMiscSegment):
+    """Status line segment showing systemd units."""
+
+    name = "systemd"
+    sleep_time = 15
+
+    @classmethod
+    def parser_args(
+        cls, parser: argparse.ArgumentParser, flag: Callable[[str], str]
+    ) -> None:
+        systemd_group = parser.add_argument_group("Systemd")
+        super().parser_args(systemd_group, flag)
+
+        systemd_group.add_argument(
+            flag("icon"),
+            default="S",
+            metavar="ICON",
+            help="Icon for systemd unit counts",
+        )
+        systemd_group.add_argument(
+            flag("icon-style"),
+            default="",
+            metavar="ICON",
+            help="Default style for ICON",
+        )
+        systemd_group.add_argument(
+            flag("format"),
+            default="{:02d}",
+            help="Format string for systemd unit counts.",
+        )
+        for state in ("active", "failed", "starting"):
+            systemd_group.add_argument(
+                flag(f"{state}-style"),
+                default="",
+                metavar="STYLE",
+                help=f"Styling for {state} systemd services",
+            )
+            systemd_group.add_argument(
+                flag(f"{state}-hide-zero"),
+                action="store_true",
+                help=f"Hide count for {state} systemd services when the count is zero",
+            )
+        systemd_group.add_argument(
+            flag("hide-active-unless-other"),
+            action="store_true",
+            help="Hide active if one of the other slots are rendered (supersedes hide-zero)",
+        )
+
+    async def render(self):
+        if not shutil.which("systemctl"):
+            logging.debug(
+                "Skipping segment=%s because systemctl is not installed.", self.name
+            )
+            return None
+        returncode, stdout, _stderr = await run_process(
+            ["systemctl", "--user", "--output=json", "list-units"],
+        )
+        if returncode != 0:
+            logging.warning(
+                "Warning failed to run systemctl process for segment=%s", self.name
+            )
+            return None
+        try:
+            systemd_user_units = cast(_SystemdUnits, json.loads(stdout))
+        except json.JsonError:
+            logging.error("Sytemd unit list command outputted invalid json")
+            return None
+
+        systemd_unit_state_counts = collections.Counter(
+            it["active"] for it in systemd_user_units if it["load"] == "loaded"
+        )
+
+        failed_count = systemd_unit_state_counts["failed"]
+        starting_count = (
+            systemd_unit_state_counts["activating"]
+            + systemd_unit_state_counts["reloading"]
+        )
+        active_count = systemd_unit_state_counts["active"]
+
+        res = []
+        if not self.starting_hide_zero or starting_count != 0:
+            res.append(
+                self._style(self.format.format(starting_count), self.starting_style)
+            )
+        if not self.failed_hide_zero or failed_count != 0:
+            res.append(self._style(self.format.format(failed_count), self.failed_style))
+
+        if (not self.active_hide_zero or active_count != 0) and (
+            not self.hide_active_unless_other or res
+        ):
+            res = [
+                self._style(self.format.format(active_count), self.active_style)
+            ] + res
+
+        if res:
+            style = self.icon_style
+            if failed_count and self.failed_style:
+                style = self.failed_style
+            if starting_count and self.starting_style:
+                style = self.starting_style
+            res = [self._style(self.icon, style)] + res
+
+        if res:
+            return " ".join(res)
+
+
+if __name__ == "__main__":
+    SystemdSegment.main()

@@ -28,6 +28,7 @@ for _module_name, _file_name in (
     ("status_misc.mullvad_vpn", "mullvad-vpn"),
     ("status_misc.nordvpn", "nordvpn"),
     ("status_misc.notmuch", "notmuch"),
+    ("status_misc.systemd", "systemd"),
     ("status_misc.transmission", "transmission"),
 ):
     # pylint: disable=deprecated-method,no-value-for-parameter
