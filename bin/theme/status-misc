@@ -25,8 +25,6 @@ for _module_name, _file_name in (
     ("status_misc.docker", "docker"),
     ("status_misc.github_notifications", "github-notifications"),
     ("status_misc.mpd_playback", "mpd-playback"),
-    ("status_misc.mullvad_vpn", "mullvad-vpn"),
-    ("status_misc.nordvpn", "nordvpn"),
     ("status_misc.notmuch", "notmuch"),
     ("status_misc.systemd", "systemd"),
     ("status_misc.transmission", "transmission"),
