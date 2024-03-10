@@ -10,6 +10,8 @@ xp         . ~/.xprofile
 iproute    traceroute
 
 btctl             bluetoothctl
+sctl              systemctl
+ssctl             sd sctl
 jctl              journalctl --no-pager
 jctlr             journalctl --reverse
 jctl-errors       journalctl --priority 3 --catalog --boot

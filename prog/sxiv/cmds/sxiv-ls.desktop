@@ -6,5 +6,5 @@ TryExec=nsxiv
 Exec=sxiv-ls %F
 GenericName=Image Viewer
 NoDisplay=true
-Icon=sxiv
+Icon=nsxiv
 MimeType=image/bmp;image/gif;image/jpeg;image/jpg;image/png;image/tiff;image/x-bmp;image/x-portable-anymap;image/x-portable-bitmap;image/x-portable-graymap;image/x-tga;image/x-xpixmap;image/webp;image/jp2;image/heif;image/avif

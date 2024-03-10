@@ -1,4 +1,11 @@
 # Root git configuration file -*- gitconfig -*-
+#
+# Post install suggestions for specific repos:
+#   git maintenance start
+#     Sets up cron/systemd hooks to run maintenance tasks on cloned git repos.
+#   git config core.fsmonitor true
+#     Git commands like status will spawn a daemon that monitors for filesystem
+#     changes to optimise future command invocations.
 
 [user]
 	name  = Mohsin Kaleem
@@ -58,7 +65,7 @@
 	# Mini git scripts as shortcuts.
 	rcls    = config --list
 	unstage = reset HEAD --
-    undo    = reset HEAD~
+	undo    = reset HEAD~
 
 	# Git related shell commands interfaced through git directly.
 	z                = !git-fzlog
@@ -67,6 +74,14 @@
 [format]
 	coverletter = auto
 		# Automatically generate a cover-letter when creating a patch series.
+
+[column]
+	ui = auto
+		# Automatically show various ui elements (example: `git branch`) in columns.
+
+[branch]
+	sort = -committerdate
+		# Sort git branches by most recent commit.
 
 [sendemail]
 	# Mailing lists work through old school E-Mail :sunglasses:.
@@ -78,29 +93,37 @@
 	# message. Developers on the mailing list will respond to each patch individually and
 	# when ready rebase the patch series onto the repository.
 	#
+	# When creating a follow up set of patches you should export the patch-set with the
+	# reroll-count argument to increment the patch:
+	#   git format-patch --reroll-count=2 HEAD -- outputfile.patch
+	# You should then find the email chain tracking your pull request and select the raw
+	# Message-ID field and supply this as the --in-reply-to argument to git-send-email to
+	# continue the message chain. For example:
+	#   git send-email --to 62994@debbugs.gnu.org -v2 --in-reply-to='<handler.62994.B.168208734930664.ack@debbugs.gnu.org>' *.patch
+	#
 	# See also [[https://git-send-email.io][git-send-email.io]].
 
 	annotate = no
 		# Don't force reviewing and annotating each patch before sending.
 
 	# smtpuser = mohkale
-    # from = mohkale@kisara.moe
+	# from = mohkale@kisara.moe
 	# smtpserver = mail.kisara.moe
 	# smtpencryption = tls
 	# smtpserverport = 587
 		# SMTP server configuration for kisara.
 
-    # smtpuser = USERNAME@gmail.com
+	# smtpuser = USERNAME@gmail.com
 	# from = USERNAME@gmail.com
-    # smtpserver = smtp.gmail.com
-    # smtpencryption = tls
-    # smtpserverport = 587
+	# smtpserver = smtp.gmail.com
+	# smtpencryption = tls
+	# smtpserverport = 587
 		# SMTP server configuration for GMail.
 
 [credential "mail.kisara.moe"]
-    helper = store
+	helper = store
 [credential "smtp.gmail.com"]
-    helper = store
+	helper = store
 
 [include]
 	# Include any sub-configuration files in my config.d directory.
