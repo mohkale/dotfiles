@@ -3,11 +3,9 @@ version: "2.2"
 services:
   caddy:
     container_name: ms-caddy
-    build:
-      context: .
-      dockerfile: Dockerfile.caddy
     environment:
       SITE_ADDRESS: "$SITE_ADDRESS"
+    image: caddy:latest
     logging:
       driver: "$LOGGING_DRIVER"
     ports:
