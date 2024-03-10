@@ -23,6 +23,7 @@
 
 # Dashboards
 import   {args[1]}   heimdall     {args[0]}   heimdall                          80
+import   {args[1]}   gluetun      {args[0]}   {$MEDIA_SERVER_HOST:gluetun}     8000
 
 # Media Servers
 import   {args[1]}   jellyfin     {args[0]}   {$MEDIA_SERVER_HOST:jellyfin}     8096
