@@ -218,15 +218,24 @@ DesktopMode=0
 LayoutName=big_icons
 
 [Tiling]
-padding=4
+padding=0
 
 [Tiling][2704c47f-10c3-5fda-b4ec-0124c19bb2f2]
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
+
+[Tiling][3270ec47-f476-5fd8-b311-ddf92c20e3fb]
 tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
 
 [Tiling][40dd8db1-6f60-5739-8dd0-6e93924a0254]
 tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
 
 [Tiling][7be65168-21d0-5218-9d10-0c6d07d4657e]
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
+
+[Tiling][92e842d7-5928-5c43-884a-4912e7cc82ed]
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
+
+[Tiling][c29af62e-2030-519b-ae98-836db798c37a]
 tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
 
 [Tiling][deb7e05a-5606-5085-ad23-8598afc2f45c]
