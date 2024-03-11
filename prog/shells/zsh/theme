@@ -58,7 +58,10 @@ zle_highlight+="paste:fg=cyan"
 typeset -Ag prompt_data # cache variable
 
 # The trailing space on the prompt is a non-breaking space.
-DEFAULT_PROMPT="%F{white}λ%f%b %{$(printf '\033]133;A\]')%}"
+DEFAULT_PROMPT="%F{white}λ%f%b "
+if [ -z "$SSH_CLIENT" ] && [ -z "$SSH_TTY" ]; then
+  DEFAULT_PROMPT="$DEFAULT_PROMPT%{$(printf '\033]133;A\]')%}"
+fi
 DEFAULT_PROMPT_RHS="$(ancestor_icons)"'%B%F{green}%n@%m%f %F{yellow}%~%f%b'
 
 if ! hash __git_prompt 1>/dev/null 2>&1; then
