@@ -1,0 +1,14 @@
+[Unit]
+Description=Avahi CName
+PartOf=docker.service
+After=docker.service dbus.socket systemd-networkd-wait-online.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStart=docker run --name avahi-cname -d --network host -v "/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket" ghcr.io/grishy/go-avahi-cname:v2.0.3
+ExecStop=docker stop avahi-cname
+ExecStop=docker remove avahi-cname
+
+[Install]
+WantedBy=basic.target

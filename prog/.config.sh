@@ -11,6 +11,7 @@ import                                          \
   desktop
 
 import -b                                       \
+  avahi                                         \
   bat                                           \
   browsers/*                                    \
   buku                                          \
