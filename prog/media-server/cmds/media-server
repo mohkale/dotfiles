@@ -13,6 +13,8 @@
 #
 # Environment variables
 # ---------------------
+# MEDIA_SERVER_METRICS=[1]
+#   Enable metric reporting and display services like grafana.
 # MEDIA_SERVER_AUTHELIA=[1]
 #   Include an authelia service in the media-server. This will allow you to
 #   configure caddy to restrict access to services behind a login wall and
@@ -78,9 +80,13 @@ while read -r compose_file; do
   add_compose_file "${compose_file//.yml/}"
 done <<< "$(find . -mindepth 1 -maxdepth 1 -iname '*.yml' -not -iname '*.override.yml' -not -iname '9*' | sort -V)"
 
+[ "${MEDIA_SERVER_METRICS:-0}" -eq 0 ] ||
+  add_compose_file 9997-optional.metrics
 [ "${MEDIA_SERVER_AUTHELIA:-0}" -eq 0 ] ||
   add_compose_file 9996-optional.auth
 if is_profile_enabled vpn; then
+  [ "${MEDIA_SERVER_METRICS:-0}" -eq 0 ] ||
+    add_compose_file 9997-optional.metrics+vpn
   add_compose_file 9999-optional.vpn
 else
   add_compose_file 9999-optional.no-vpn

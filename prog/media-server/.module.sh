@@ -19,6 +19,8 @@ makedir                                         \
   "$XDG_CONFIG_HOME/media-server/shoko"         \
   "$XDG_CONFIG_HOME/media-server/sonarr"        \
                                                 \
+  "$XDG_CONFIG_HOME/media-server/prometheus/config" \
+  "$XDG_CONFIG_HOME/media-server/prometheus/data" \
   "$XDG_CONFIG_HOME/media-server/authelia"      \
   "$XDG_CONFIG_HOME/media-server/caddy/data"    \
   "$XDG_CONFIG_HOME/media-server/caddy/config"
@@ -33,6 +35,9 @@ makedir                                         \
 link-to "$XDG_BIN_DIR/" cmds/*
 link-to "$XDG_CONFIG_HOME/tmuxp" tmux/*
 link-to "$XDG_CONFIG_HOME/autoloads/cmds/" ./auto/*
+
+link -H                                                 \
+  prometheus/prometheus.yml:"$XDG_CONFIG_HOME/media-server/prometheus/config/prometheus.yml"
 
 link                                                    \
   "$XDG_CONFIG_HOME/cron-user.d/media-server.cron"      \

@@ -1,0 +1,30 @@
+---
+version: "2.2"
+services:
+  qbit-prometheus:
+    environment:
+      QBITTORRENT_BASE_URL: http://gluetun:8756
+
+  sonarr-prometheus:
+    environment:
+      URL: http://gluetun:8989
+
+  radarr-prometheus:
+    environment:
+      URL: http://gluetun:7878
+
+  prowlarr-prometheus:
+    environment:
+      URL: http://gluetun:9696
+
+  bazarr-prometheus:
+    environment:
+      URL: http://gluetun:6767
+
+  lidarr-prometheus:
+    environment:
+      URL: http://gluetun:8686
+
+  readarr-prometheus:
+    environment:
+      URL: http://gluetun:8787

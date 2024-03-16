@@ -1,0 +1,157 @@
+---
+version: "2.2"
+services:
+  grafana:
+    container_name: ms-grafana
+    depends_on:
+      - caddy
+    image: grafana/grafana
+    restart: unless-stopped
+    user: root
+    volumes:
+      - $XDG_CONFIG_HOME/media-server/grafana:/var/lib/grafana
+
+  prometheus:
+    container_name: ms-prometheus
+    depends_on:
+      - caddy
+    image: prom/prometheus
+    restart: unless-stopped
+    volumes:
+      - $XDG_CONFIG_HOME/media-server/prometheus/config:/etc/prometheus
+      - $XDG_CONFIG_HOME/media-server/prometheus/data:/prometheus
+
+  qbit-prometheus:
+    container_name: ms-qbit-prometheus
+    depends_on:
+      prometheus:
+        condition: service_started
+      qbittorrent:
+        condition: service_started
+    environment:
+      QBITTORRENT_BASE_URL: http://qbittorrent:8756
+    image: caseyscarborough/qbittorrent-exporter:latest
+    profiles:
+      - qbittorrent
+    restart: unless-stopped
+
+  sonarr-prometheus:
+    command: ["sonarr"]
+    container_name: ms-sonarr-prometheus
+    depends_on:
+      prometheus:
+        condition: service_started
+      sonarr:
+        condition: service_started
+    environment:
+      APIKEY: $SONARR_PROMETHEUS_APIK
+      URL: sonarr:8989
+      PORT: 80
+      ENABLE_ADDITIONAL_METRICS: true
+      ENABLE_UNKNOWN_QUEUE_ITEMS: true
+    image: ghcr.io/onedr0p/exportarr:latest
+    profiles:
+      - tv-shows
+    restart: unless-stopped
+
+  radarr-prometheus:
+    command: ["radarr"]
+    container_name: ms-radarr-prometheus
+    depends_on:
+      prometheus:
+        condition: service_started
+      radarr:
+        condition: service_started
+    environment:
+      APIKEY: $RADARR_PROMETHEUS_APIK
+      URL: radarr:7878
+      PORT: 80
+      ENABLE_ADDITIONAL_METRICS: true
+      ENABLE_UNKNOWN_QUEUE_ITEMS: true
+    image: ghcr.io/onedr0p/exportarr:latest
+    profiles:
+      - movies
+    restart: unless-stopped
+
+  prowlarr-prometheus:
+    command: ["prowlarr"]
+    container_name: ms-prowlarr-prometheus
+    depends_on:
+      prometheus:
+        condition: service_started
+      prowlarr:
+        condition: service_started
+    environment:
+      APIKEY: $PROWLARR_PROMETHEUS_APIK
+      URL: prowlarr:9696
+      PORT: 80
+      ENABLE_ADDITIONAL_METRICS: true
+      ENABLE_UNKNOWN_QUEUE_ITEMS: true
+      # PROWLARR__BACKFILL: true
+    image: ghcr.io/onedr0p/exportarr:latest
+    profiles:
+      - anime
+      - books
+      - comics
+      - movies
+      - music
+      - tv-shows
+    restart: unless-stopped
+
+  bazarr-prometheus:
+    command: ["bazarr"]
+    container_name: ms-bazarr-prometheus
+    depends_on:
+      prometheus:
+        condition: service_started
+      bazarr:
+        condition: service_started
+    environment:
+      APIKEY: $BAZARR_PROMETHEUS_APIK
+      URL: bazarr:6767
+      PORT: 80
+      ENABLE_ADDITIONAL_METRICS: true
+      ENABLE_UNKNOWN_QUEUE_ITEMS: true
+    image: ghcr.io/onedr0p/exportarr:latest
+    profiles:
+      - anime
+      - movies
+      - tv-shows
+    restart: unless-stopped
+
+  lidarr-prometheus:
+    command: ["lidarr"]
+    container_name: ms-lidarr-prometheus
+    depends_on:
+      prometheus:
+        condition: service_started
+      lidarr:
+        condition: service_started
+    environment:
+      APIKEY: $LIDARR_PROMETHEUS_APIK
+      URL: lidarr:8686
+      PORT: 80
+    image: ghcr.io/onedr0p/exportarr:latest
+    profiles:
+      - music
+    restart: unless-stopped
+
+  readarr-prometheus:
+    command: ["readarr"]
+    container_name: ms-readarr-prometheus
+    depends_on:
+      prometheus:
+        condition: service_started
+      readarr:
+        condition: service_started
+    environment:
+      APIKEY: $READARR_PROMETHEUS_APIK
+      URL: readarr:8787
+      PORT: 80
+      ENABLE_ADDITIONAL_METRICS: true
+      ENABLE_UNKNOWN_QUEUE_ITEMS: true
+    image: ghcr.io/onedr0p/exportarr:latest
+    profiles:
+      - books
+      - comics
+    restart: unless-stopped
