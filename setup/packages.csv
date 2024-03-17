@@ -89,6 +89,7 @@ tmuxp,which:tmuxp,pipx:tmuxp
 tor-browser,,choco:tor-browser,yay:tor-browser
 tremc,which:tremc,yay:tremc-git
 typescript-language-server,which:typescript-language-server,yarn:typescript-language-server,npm:typescript-language-server
+vale,which:vale,yay:vale
 vim-language-server,which:vim-language-server,yarn:vim-language-server,npm:vim-language-server
 vlc,which:vlc,choco:vlc,pacman:vlc
 vscode-css-languageserver,which:css-languageserver,yarn:vscode-css-languageserver-bin,npm:vscode-css-languageserver-bin
