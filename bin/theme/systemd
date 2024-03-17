@@ -1,5 +1,6 @@
 #!/usr/bin/env python3-dotfiles-venv
 """Status misc segment for showing systemd user units."""
+# pylint: disable=no-member
 
 import argparse
 import collections
@@ -70,12 +71,14 @@ class SystemdSegment(StatusMiscSegment):
             help="Hide active if one of the other slots are rendered (supersedes hide-zero)",
         )
 
+    # pylint: disable=invalid-overridden-method
     async def render(self):
         if not shutil.which("systemctl"):
             logging.debug(
                 "Skipping segment=%s because systemctl is not installed.", self.name
             )
             return None
+        # TODO: Filter units in `systemctl --user --output=json list-dependencies`
         returncode, stdout, _stderr = await run_process(
             ["systemctl", "--user", "--output=json", "list-units"],
         )
@@ -86,7 +89,7 @@ class SystemdSegment(StatusMiscSegment):
             return None
         try:
             systemd_user_units = cast(_SystemdUnits, json.loads(stdout))
-        except json.JsonError:
+        except json.JSONDecodeError:
             logging.error("Sytemd unit list command outputted invalid json")
             return None
 
