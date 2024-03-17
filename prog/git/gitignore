@@ -57,6 +57,7 @@ Icon?
 .project
 .metadata
 .lcldev/
+CMakeUserPresets.json
 # bin
 # bin/**
 *~.nib
