@@ -6,8 +6,9 @@ import argparse
 import collections
 import json
 import logging
+import os
 import shutil
-from typing import Callable, Literal, TypedDict, cast
+from typing import Callable, Literal, Optional, Set, TypedDict, cast
 
 from lib.shared import run_process
 from lib.status_misc.segment import StatusMiscSegment
@@ -70,6 +71,42 @@ class SystemdSegment(StatusMiscSegment):
             action="store_true",
             help="Hide active if one of the other slots are rendered (supersedes hide-zero)",
         )
+        systemd_group.add_argument(
+            flag("filter-user-units"),
+            action="store_true",
+            help="Filter units by those in the current users dependencies",
+        )
+
+    async def _list_units_dependencies(self) -> Optional[Set[str]]:
+        returncode, stdout, _stderr = await run_process(
+            ["systemctl", "--user", "--output=json", "list-dependencies"],
+        )
+        if returncode != 0:
+            logging.warning(
+                "Warning failed to list systemctl unit dependencies for segment=%s",
+                self.name,
+            )
+            return None
+        units = set()
+        for line in stdout.split(os.linesep):
+            if line.startswith(" "):
+                units.add(line.lstrip())
+        return units
+
+    async def _list_units(self) -> Optional[_SystemdUnits]:
+        returncode, stdout, _stderr = await run_process(
+            ["systemctl", "--user", "--output=json", "list-units"],
+        )
+        if returncode != 0:
+            logging.warning(
+                "Warning failed to list systemctl units for segment=%s", self.name
+            )
+            return None
+        try:
+            return cast(_SystemdUnits, json.loads(stdout))
+        except json.JSONDecodeError:
+            logging.error("Sytemd unit list command outputted invalid json")
+            return None
 
     # pylint: disable=invalid-overridden-method
     async def render(self):
@@ -79,19 +116,15 @@ class SystemdSegment(StatusMiscSegment):
             )
             return None
         # TODO: Filter units in `systemctl --user --output=json list-dependencies`
-        returncode, stdout, _stderr = await run_process(
-            ["systemctl", "--user", "--output=json", "list-units"],
-        )
-        if returncode != 0:
-            logging.warning(
-                "Warning failed to run systemctl process for segment=%s", self.name
-            )
-            return None
-        try:
-            systemd_user_units = cast(_SystemdUnits, json.loads(stdout))
-        except json.JSONDecodeError:
-            logging.error("Sytemd unit list command outputted invalid json")
-            return None
+        systemd_user_units = await self._list_units()
+
+        if self.filter_user_units:
+            user_unit_dependencies = await self._list_units_dependencies()
+            if user_unit_dependencies is None:
+                return None
+            systemd_user_units = [
+                it for it in systemd_user_units if it["unit"] in user_unit_dependencies
+            ]
 
         systemd_unit_state_counts = collections.Counter(
             it["active"] for it in systemd_user_units if it["load"] == "loaded"
