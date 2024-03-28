@@ -19,6 +19,7 @@ import -b                                       \
   cookiecutter                                  \
   cron                                          \
   cheat                                         \
+  direnv                                        \
   docker                                        \
   dolphin                                       \
   dropbox                                       \

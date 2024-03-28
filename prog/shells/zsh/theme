@@ -299,6 +299,29 @@ prompt_exit() { #(code)
   exit_color "$1" ${(l:3::0:)1}
 }
 
+# Suppress direnv messages in favour of shell prompts.
+export DIRENV_LOG_FORMAT=""
+
+prompt_direnv() {
+  cd -q "$1" || return 1
+  if ! prompt::exists direnv; then
+    return 0
+  fi
+
+  local color
+  case $(direnv status) in
+    *"Found RC allowed 0"*)
+      color='%F{blue}'
+      ;;
+    *"Found RC allowed 1"*)
+      color='%F{red}'
+      ;;
+    *)
+      return 0
+  esac
+  echo -n "%b${color}󰇐 "
+}
+
 PROMPT_EXEC_TIME_SHOW=true                                                   # Flag to enable or disable exec time display
 PROMPT_EXEC_TIME_START=                                                      # When the last command was started
 PROMPT_EXEC_TIME_DURATION=                                                   # Formatted exec time string to be placed in prompt
@@ -396,6 +419,7 @@ prompt_refresh() {
   local right_rendered
   right_rendered=$(prompt_join                        \
                      "${prompt_data[prompt_docker]}"  \
+                     "${prompt_data[prompt_direnv]}"  \
                 )
   if [ -n "${prompt_data[exec_time]}" ]; then
     right_rendered="[${prompt_data[exec_time]}] $right_rendered"
@@ -458,6 +482,7 @@ prompt_precmd() {
   async_job 'prompt' prompt_exit "$prompt_last_exit"
   async_job 'prompt' prompt_python "${root:-$PWD}"
   async_job 'prompt' prompt_rust "${root:-$PWD}"
+  async_job 'prompt' prompt_direnv "${root:-$PWD}"
 }
 add-zsh-hook precmd prompt_precmd
 

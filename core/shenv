@@ -90,6 +90,13 @@ case "$-" in
       alias fx='eval "$(thefuck --alias fx)" && unalias fx && fx'
     fi
 
+    if command -v direnv >/dev/null 2>&1; then
+      case "$shell" in
+        bash)   eval "$(direnv hook bash)" ;;
+        zshell) eval "$(direnv hook zsh)" ;;
+      esac
+    fi
+
     load-aliases() { eval "$(ls-aliases | xargs -d '\n' -r build-aliases -1c -e e)"; }
     load-aliases
     ;;
