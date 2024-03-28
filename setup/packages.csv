@@ -3,6 +3,7 @@ avahi,which:avahi-daemon,pacman:avahi
 airvpn,which:eddie-ui,yay:eddie-ui-git
 airvpn-cli,which:eddie-ui,yay:eddie-cli-git
 alacritty,which:alacritty,pacman:alacritty
+basedpyright,which:basedpyright-langserver,pipx:basedpyright
 bash-language-server,which:bash-language-server,yay:bash-language-server
 black,which:black,pipx:black
 brave,which:brave,yay:brave-bin,choco:brave
