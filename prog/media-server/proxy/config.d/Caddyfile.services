@@ -19,6 +19,10 @@
 #   be a snippet that is compatible with (takes the same arguments as)
 #   service_proxy_to.
 
+{args[0]} {
+	redir https://jellyfin.{args[0]}{uri}
+}
+
 # Importer         | Subdomain             | TLD       | Host                            | Port
 
 # Dashboards

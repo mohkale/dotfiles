@@ -52,9 +52,5 @@ import /etc/caddy/local.d/Caddyfile.snippets
 # │     Routes     │
 # └────────────────┘
 
-{$SITE_ADDRESS} {
-	redir https://jellyfin.{$SITE_ADDRESS}{uri}
-}
 import /etc/caddy/config.d/Caddyfile.services {$SITE_ADDRESS} service_proxy_to
-
 import /etc/caddy/local.d/Caddyfile.routes
