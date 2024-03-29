@@ -1,6 +1,40 @@
+// -*- mode: js; apheleia-formatter: prettier-json -*-
 {
-    "workbench.colorTheme": "An Old Hope",
-    "files.autoSave": "afterDelay",
-    "editor.wordWrapColumn": 120,
-    "window.restoreWindows": "none"
+  "workbench.colorTheme": "An Old Hope",
+  "files.autoSave": "afterDelay",
+  "editor.wordWrapColumn": 120,
+  "window.restoreWindows": "none",
+  "extensions.experimental.affinity": {
+    "vscodevim.vim": 1
+  }
+
+  // Vim mode configuration.
+  "vim.easymotion": true,
+  "vim.incsearch": true,
+  "vim.useSystemClipboard": true,
+  "vim.useCtrlKeys": true,
+  "vim.hlsearch": true,
+  "vim.leader": "<space>",
+  "vim.normalModeKeyBindingsNonRecursive": [
+    {
+      "before": ["<leader>", "<leader>"],
+      "commands": ["workbench.action.showCommands"],
+      "silent": true
+    },
+    {
+      "before": ["<leader>", "f", "f"],
+      "commands": ["workbench.action.quickOpen"],
+      "silent": true
+    },
+    {
+      "before": ["<leader>", "j", "i"],
+      "commands": ["editor.action.goToLocations"],
+      "silent": true
+    }
+    {
+      "before": ["<leader>", "s", "r"],
+      "commands": ["workbench.action.findInFiles"],
+      "silent": true
+    },
+  ],
 }
