@@ -80,6 +80,11 @@ dce               docker-compose exec
 dcr               docker-compose run
 dcrr              docker-compose run --rm
 
+devc              devcontainer
+devcb             devc build
+devce             devc exec
+devcu             devc up
+
 xgeometry         xdotool selectwindow getwindowgeometry
 
 ag                apt-get

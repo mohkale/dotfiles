@@ -17,6 +17,7 @@ clangd,which:clangd,pacman:clang
 clojure,which:clojure,pacman:clojure
 cmake-language-server,which:cmake-language-server,pipx:cmake-language-server
 cookiecutter,which:cookiecutter,pipx:cookiecutter
+devcontainers-cli,which:devcontainer,yarn:@devcontainers/cli,npm:@devcontainers/cli
 direnv,which:direnv,pacman:direnv
 docker,which:docker,pacman:docker
 docker-compose,which:docker-compose,pacman:docker-compose
