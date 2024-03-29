@@ -1,0 +1,7 @@
+#!/bin/sh
+[ -e /etc/bashrc ] && . /etc/bashrc
+
+# GDB setup
+export GDBINIT=$HOME/.config/gdb/gdbinit
+mkdir -p ~/.cache/gdb
+alias gdb='gdb --silent -nh -x "$GDBINIT"'

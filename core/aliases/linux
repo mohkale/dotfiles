@@ -83,7 +83,7 @@ dcrr              docker-compose run --rm
 devc              devcontainer
 devcb             devc build
 devce             devc exec
-devcu             devc up
+devcu             devc up --dotfiles-repository https://github.com/mohkale/dotfiles --dotfiles-install-command './manage install --except package ./prog/docker/devcontainers'
 
 xgeometry         xdotool selectwindow getwindowgeometry
 

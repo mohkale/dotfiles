@@ -21,7 +21,7 @@ set -a          # Export everything
 set -o pipefail # Fail a command when anything in its pipeline fails
 shopt -s nullglob # Make globs with no results evaluate to nothing
 
-root="${root:-${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles}"
+root="${DOTFILES:-${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles}"
 exit_code=0
 fail_early=0
 BOTS_FILE="$root/setup/cache/dotty.bots"
