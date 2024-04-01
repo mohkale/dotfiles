@@ -1,5 +1,4 @@
 ---
-version: "2.2"
 services:
   authelia:
     container_name: ms-authelia

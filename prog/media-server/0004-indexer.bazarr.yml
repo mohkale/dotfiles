@@ -1,5 +1,4 @@
 ---
-version: "2.2"
 services:
   bazarr:
     container_name: ms-bazarr

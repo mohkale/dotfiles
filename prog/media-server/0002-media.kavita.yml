@@ -1,5 +1,4 @@
 ---
-version: "2.2"
 services:
   kavita:
     container_name: ms-kavita

@@ -1,5 +1,4 @@
 ---
-version: "2.2"
 services:
   shoko:
     container_name: ms-shoko

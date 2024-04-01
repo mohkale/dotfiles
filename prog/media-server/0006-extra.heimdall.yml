@@ -1,5 +1,4 @@
 ---
-version: "2.2"
 services:
   heimdall:
     container_name: ms-heimdall

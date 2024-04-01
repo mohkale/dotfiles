@@ -1,5 +1,4 @@
 ---
-version: "2.2"
 services:
   lidarr:
     container_name: ms-lidarr

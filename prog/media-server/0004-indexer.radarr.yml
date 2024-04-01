@@ -1,5 +1,4 @@
 ---
-version: "2.2"
 services:
   radarr:
     container_name: ms-radarr

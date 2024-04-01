@@ -1,5 +1,4 @@
 ---
-version: "2.2"
 services:
   grafana:
     container_name: ms-grafana

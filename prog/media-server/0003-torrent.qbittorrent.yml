@@ -1,5 +1,4 @@
 ---
-version: "2.2"
 services:
   qbittorrent:
     container_name: ms-qbittorrent

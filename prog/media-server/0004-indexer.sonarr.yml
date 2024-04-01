@@ -1,5 +1,4 @@
 ---
-version: "2.2"
 services:
   sonarr:
     container_name: ms-sonarr

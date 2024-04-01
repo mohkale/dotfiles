@@ -1,5 +1,4 @@
 ---
-version: "2.2"
 services:
   prowlarr:
     container_name: ms-prowlarr
