@@ -16,7 +16,7 @@ reset=$(printf '\e[0m')
 # and zip the image information into it.
 
 # Image ID, Prefix, Image ID (replaced with container format), Suffix.
-image_format="{{.ID}}$sep$magenta#{{.ID}}$reset$sep{{.Image}}$sep"'['"$green{{.Size}}$reset]"
+image_format="{{.ID}}$sep$magenta#{{.ID}}$reset$sep{{.Image}}$sep"'['"$green{{.Status}}$reset]"
 containers=$(docker ps --format "$image_format")
 
 # In this format string all but the last field are keys that map to the last field.
