@@ -13,8 +13,9 @@ $USAGE
   by docker.
 
 Optional arguments:
-  -h      Show this help message and exit
-  -c CMD  Specify command to run within container
+  -h       Show this help message and exit
+  -u USER  Specify user to run within container
+  -c CMD   Specify command to run within container
 EOF
 
   local cmd='bash -li'
@@ -24,13 +25,14 @@ EOF
     --env LINES="$(tput lines)"
     --env TERM=screen-256color
   )
-  while getopts 'hc:' OPTION; do
+  while getopts 'hc:u:' OPTION; do
     case "$OPTION" in
       h) echo "$HELP"
          return 0 ;;
       \?) echo "$USAGE"
           return 1 ;;
       c) cmd="$OPTARG" ;;
+      u) args+=( --user "$OPTARG" ) ;;
     esac
   done
 
