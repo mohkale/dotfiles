@@ -1,0 +1,38 @@
+[colors]
+draw_bold_text_with_bright_colors = true
+
+[colors.bright]
+black = "#525560"
+blue = "#21acde"
+cyan = "#63e9c7"
+green = "#6cc653"
+magenta = "#ce64b7"
+red = "#f1223e"
+white = "#ffffff"
+yellow = "#edcd2c"
+
+[colors.cursor]
+cursor = "#4fb4d8"
+text = "#4fb4d8"
+
+[colors.normal]
+black = "#3b3d45"
+blue = "#4fb4d8"
+cyan = "#85e0c9"
+green = "#78bd65"
+magenta = "#c46eb1"
+red = "#eb3d54"
+white = "#ffffff"
+yellow = "#e5cd52"
+
+[colors.primary]
+background = "#1c1c1c"
+foreground = "#abb2bf"
+
+[cursor]
+blink_interval = 0
+unfocused_hollow = true
+
+[cursor.style]
+blinking = "Off"
+shape = "Block"

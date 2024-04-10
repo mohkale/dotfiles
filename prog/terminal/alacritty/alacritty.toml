@@ -1,0 +1,13 @@
+import = ["$XDG_CONFIG_HOME/alacritty/an-old-hope.toml"]
+live_config_reload = false
+
+[font]
+normal = { family = "Meslo LG M DZ", style = "Regular" }
+size = 13
+
+[[mouse.bindings]]
+action = "Paste"
+mouse = "Right"
+
+[selection]
+save_to_clipboard = true
