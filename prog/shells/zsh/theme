@@ -310,10 +310,10 @@ prompt_direnv() {
 
   local color
   case $(direnv status) in
-    *"Found RC allowed 0"*)
+    *"Found RC allowed 1"*|*"Found RC allowed true"*)
       color='%F{blue}'
       ;;
-    *"Found RC allowed 1"*)
+    *"Found RC allowed 0"*|*"Found RC allowed false"*)
       color='%F{red}'
       ;;
     *)
