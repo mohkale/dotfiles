@@ -1,0 +1,49 @@
+#!/bin/sh
+
+if ! command -v tsh >/dev/null 2>&1; then
+  exit 1
+fi
+
+green=$(printf '\e[32m')
+reset=$(printf '\e[0m')
+
+# The config file is a standard JSON object in this directory. It can have
+# the following properties:
+#   {
+#     // Don't include these labels in the client preview.
+#     "excludedLabels": ["ABC", "YYY"],
+#     // When set replace the preview name with these labels.
+#     "aliasLabels": ["ABC, DEF"],
+#   }
+config_dir="$XDG_CONFIG_HOME/ls-teleport-nodes"
+config='{}'
+if [ -f "$config_dir/config.json" ]; then
+  config="$(cat "$config_dir/config.json")"
+fi
+
+tsh ls --format json |
+  jq --raw-output \
+    --arg colorgreen "$green" \
+    --arg colorreset "$reset" \
+    --argjson config "$config" \
+    '# -*- mode: jq -*-
+
+def findConfiguredNameLabel(nameLabels):
+    .key as $nameLabel | select(any(nameLabels[]; . == $nameLabel)).value;
+
+def pickNodeName(nameLabels):
+  (.labels | to_entries[] | findConfiguredNameLabel(nameLabels))
+  // .name;
+
+def filterExcludedLabels(excludedLabels):
+    .key as $nodeLabel
+    | select(any(excludedLabels[]; . == $nodeLabel) | not);
+
+.[].metadata
+| pickNodeName($config.aliasLabels // []) as $name
+| ([.labels
+    | to_entries[]
+    | filterExcludedLabels($config.excludedLabels // [])
+    | "\(.key)=\(.value)"])
+   as $labels
+| "\($name) [\($colorgreen)\($labels | join(","))\($colorreset)]:tsh ssh \(.name)"'

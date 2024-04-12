@@ -2,17 +2,17 @@
 # Interactively select an ssh alias and run it.
 
 fzf_ssh() {
-  local fzf_args=( -d ' ' --with-nth 1
+  local fzf_args=( -d '\t' --with-nth 1 --ansi
                    --history "${XDG_STATE_HOME:-$HOME/.locale/state}"/fzf/history/ssh
                    --preview 'echo {2..} | preview -l bash -'
                    --preview-window=down:1 )
   [ -z "$*" ] || fzf_args+=( -q "$*" )
 
   local cmd
-  cmd=$(ls-ssh-aliases |
-          sed 's/:/ /' |
+  cmd=$({ls-ssh-aliases; ls-teleport-nodes;} |
+          sed 's/:/\t/' |
           _mk_fzf "${fzf_args[@]}" |
-          cut -d ' ' -f 2-)
+          cut -d $'\t' -f 2-)
   if [ -n "$cmd" ]; then
     TERM=screen-256color $cmd
   fi

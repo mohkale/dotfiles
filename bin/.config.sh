@@ -41,6 +41,7 @@ link                                            \
   "$XDG_BIN_DIR/ls-platform"                    \
   "$XDG_BIN_DIR/ls-projects"                    \
   "$XDG_BIN_DIR/ls-ssh-aliases"                 \
+  "$XDG_BIN_DIR/ls-teleport-nodes"              \
   "$XDG_BIN_DIR/make-icons"                     \
   "$XDG_BIN_DIR/moji"                           \
   "$XDG_BIN_DIR/passgen"                        \
