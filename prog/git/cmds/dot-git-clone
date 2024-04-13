@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Usage:
+#   dot-git-clone [REPO] [GIT_CLONE_OPTS]
+# Wrapper command for [[man:git-clone]] to simplify cloning repositories to
+# [[file:$XDG_DEV_HOME]].
+
+set -e
+
+if [ "$#" -lt 1 ] || [[ "$1" = -* ]]; then
+  echo "Usage: $0 [REPO] [GIT_CLONE_OPTS]" >&2
+  exit 1
+fi
+
+root="$XDG_DEV_HOME/repos"
+remote="$1"; shift
+git_clone_args=( git clone "$@" -- "$remote" "$root/$(dot-git-clone-path <<< "$remote")" )
+
+"${git_clone_args[@]}"

@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+# Helper to convert a git remote into a path hirearchy for cloning.
+#
+# For example when provided 'https://github.com/mohkale/dotfiles' on stdin
+# this script will output mohkale/dotfiles.
+#
+# If it is unclear how to convert a remote to a path that remote will be
+# skipped and this command will exit non-zero.
+
+set -e
+shopt -s extglob
+
+normalize_protocol() {
+  local remote="$1"
+  case "$remote" in
+    git@*)
+      remote="${remote/git@/}"
+      remote="${remote/:/\/}"
+      remote="https://$remote"
+      ;;
+    git://*)
+      remote="${remote/git:/}"
+      remote="https:$remote"
+      ;;
+  esac
+
+  echo "$remote"
+}
+
+remote_path() {
+  local remote="$1"
+  remote="${remote/http?(s):\/\//}"
+  remote="${remote%.git}"
+  local domain="${remote%%/*}"
+  remote="${remote#*\/}"
+
+  case "$domain" in
+    github.com|gitlab.com|codeberg.org|code.bsdgeek.org|gitlab.freedesktop.org)
+      ;;
+    git.savannah.gnu.org*)
+      remote="${remote#git/}"
+      remote="${remote/emacs\//emacs-}"
+      remote="gnu/$remote"
+      ;;
+    aur.archlinux.org*)
+      remote="aur/$remote"
+      ;;
+    sourceware.org*)
+      remote="${remote#git/}"
+      remote="sourceware/$remote"
+      ;;
+    git.sr.ht|mumble.net)
+      remote="${remote#\~}"
+      remote="${remote/\/git\//\/}"
+      ;;
+    git.notmuchmail.org)
+      remote="${remote#git\/}"
+      remote="notmuchmail/$remote"
+      ;;
+    depp.brause.cc)
+      remote="wasamasa/$remote"
+      ;;
+    git.zx2c4.com)
+      remote="zx2c4/$remote"
+      ;;
+    invent.kde.org)
+      remote="${remote/\//-}"
+      remote="kde/$remote"
+      ;;
+    git.musl-libc.org)
+      remote="${remote#git\/}"
+      remote="musl/$remote"
+      ;;
+    *)
+      echo "error: $0: unable to determine apropriate git-clone path for $1" >&2
+      return 1
+  esac
+
+  echo "$remote"
+}
+
+exit_code=0
+while read -r remote; do
+  remote=$(normalize_protocol "$remote")
+  if remote=$(remote_path "$remote"); then
+    echo "$remote"
+  else
+    exit_code=1
+  fi
+done
+exit "$exit_code"

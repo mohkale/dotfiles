@@ -10,6 +10,7 @@ clean -r "$GIT_CONFIG_DIR"
 link                                                \
   gitignore:"$GIT_CONFIG_DIR/ignore"                \
   gitconfig:"$GIT_CONFIG_DIR/config"
+link-to "$XDG_BIN_DIR" ./cmds/*
 link-to "$GIT_CONFIG_DIR/config.d/" config.d/*
 
 run-cmd touch "$GIT_CONFIG_DIR/config.d/local"

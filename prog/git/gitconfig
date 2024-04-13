@@ -57,7 +57,7 @@
 	s  = status
 	a  = add
 	b  = branch
-	cl = clone
+	cl = !dot-git-clone
 	d  = diff
 	l  = log
 	ch = checkout
