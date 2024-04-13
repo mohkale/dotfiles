@@ -9,7 +9,7 @@ fzf_ssh() {
   [ -z "$*" ] || fzf_args+=( -q "$*" )
 
   local cmd
-  cmd=$({ls-ssh-aliases; ls-teleport-nodes;} |
+  cmd=$({ ls-ssh-aliases; ls-teleport-nodes; } |
           sed 's/:/\t/' |
           _mk_fzf "${fzf_args[@]}" |
           cut -d $'\t' -f 2-)
