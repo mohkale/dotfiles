@@ -128,7 +128,7 @@ for it in itertools.chain(
 
 EOF
 
-  python3 -c "$TMUXP_SCRIPT" "$SEP"
+  "$XDG_DATA_HOME/pipx/venvs/tmuxp/bin/python3" -c "$TMUXP_SCRIPT" "$SEP"
 }
 
 list_tmuxinator() {
