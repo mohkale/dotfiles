@@ -214,8 +214,8 @@ $XDG_DATA_HOME/npm/lib/node_modules
 [:REPO_PATH]
 $XDG_DEV_HOME/repos/
 $XDG_DEV_HOME/repos/*/
-$XDG_DEV_HOME/upwork/
 $DOTFILES
+$XDG_LIB_HOME/go/pkg/mod/*/
 $XDG_LIB_HOME/go/src/*/*/
 $XDG_LIB_HOME/ruby/gems/
 $XDG_CACHE_HOME/emacs/straight/repos/
