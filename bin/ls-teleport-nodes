@@ -21,7 +21,24 @@ if [ -f "$config_dir/config.json" ]; then
   config="$(cat "$config_dir/config.json")"
 fi
 
-tsh ls --format json |
+teleport_cache=/tmp/ls-teleport-nodes.$USER.cache
+tsh_ls() {
+  # Use cache file if it exists and is up-to-date.
+  local ref_file
+  if [ -e "$teleport_cache" ]; then
+    ref_file=$(mktemp)
+    trap '\rm $ref_file' RETURN
+    touch -d 1 "$ref_file"
+    if [ "$teleport_cache" -nt "$ref_file" ]; then
+      cat "$teleport_cache"
+      return 0
+    fi
+  fi
+
+  tsh ls --format json | tee "$teleport_cache"
+}
+
+tsh_ls |
   jq --raw-output \
     --arg colorgreen "$green" \
     --arg colorreset "$reset" \
