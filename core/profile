@@ -219,6 +219,10 @@ $XDG_LIB_HOME/go/pkg/mod/*/
 $XDG_LIB_HOME/go/src/*/*/
 $XDG_LIB_HOME/ruby/gems/
 $XDG_CACHE_HOME/emacs/straight/repos/
+
+[:REPO_PATH_ALIASES]
+$XDG_DEV_HOME/repos/,
+$XDG_CACHE_HOME/emacs/straight/repos/,straight
 EOF
 
 unset -f lines_to_path

@@ -1,12 +1,23 @@
 #!/usr/bin/env bash
 # List repositories on my system using the REPO_PATH environment variable.
 #
-# REPO_PATH either points to code repositories or to directories which can
-# contain one or more code repositories. A trailing slash indicates a container
-# whereas the absence of one indicates a repo.
+# ENVIRONMENT VARIABLES
+#   REPO_PATH
+#     PATH style variable pointing to code repositories or to directories which can
+#     contain one or more code repositories. A trailing slash indicates a container
+#     whereas the absence of one indicates a repo.
 #
-# REPO_PATH can contain globs such as ~/foo/*/*/ and all of the directories expanded
-# by the glob will also be considered as potential repository containers.
+#     REPO_PATH can contain globs such as ~/foo/*/*/ and all of the directories
+#     expanded by the glob will also be considered as potential repository
+#     containers.
+#
+#   REPO_PATH_ALIASES
+#     PATH style variable for declaring repository aliases. By default ls-projects
+#     lists each project with its basename. In some cases a path derived from the
+#     directory hierarchy of the project would be clearer. For example 'mohkale/dotfiles'
+#     over just dotfiles. This can be achieved for ~/repos/mohkale/dotfiles by
+#     setting an alias of '~/repo,'. You can also substitute a custom prefix in place
+#     of this path prefix like so '~/straight/repos,straight'.
 
 sep=':'
 
@@ -83,24 +94,70 @@ maybe_repos() {
     exec 3>&-
 }
 
-include_submodules() {
+add_subprojects() {
+  local it sub_projects
   while read -r it; do
-    it_base="$(basename "$it")"
-    echo "$it$sep$it_base"
+    sub_projects=
     if [ -e "$it/.gitmodules" ]; then
-      git config --file "$it/.gitmodules" --get-regexp path |
-        awk -v root="$it" \
-            -v base="$it_base" \
-            -v sep="$sep" \
-            -e '{
-it = $2
-for (i=3; i <= NF; i++) {
-  it = it FS $i
-}
-print(root "/" it sep base "/" it)
-}'
+      sub_projects=$(git config --file "$it/.gitmodules" --get-regexp path |
+                       cut -d' ' -f 2- |
+                       tr '\n' ,)
+      sub_projects="${sub_projects/%,/}"
+    fi
+
+    if [ -n "$sub_projects" ]; then
+      echo "$it,$sub_projects"
+    else
+      echo "$it"
     fi
   done
+}
+
+expand_repos_with_title() {
+  awk -F , \
+      -v sep="$sep" \
+      -v repo_path_aliases="$REPO_PATH_ALIASES" \
+      -e 'BEGIN {
+  c1 = split(repo_path_aliases, alias_lines, ":")
+  for (i = 1; i <= c1; i++) {
+    c2 = split(alias_lines[i], alias_record, ",")
+    src = alias_record[1]
+    dest = alias_record[2]
+    aliases[src] = dest;
+  }
+}' \
+      -e 'function basename(path, _repo_segments, _repo_segments_count) {
+  _repo_segments_count = split(path, _repo_segments, "/")
+  return _repo_segments[_repo_segments_count]
+}' \
+      -e 'function string_prefix_p(str, prefix) {
+  return 1 == index(prefix, substr(str, 0, length(prefix)))
+}' \
+      -e 'function repo_title(path) {
+  for (alias in aliases) {
+    if (string_prefix_p(path, alias)) {
+      path = substr(path, length(alias))
+      # Remove leading / prefix.
+      if (substr(path, 0, 1) == "/") {
+        path = substr(path, 2)
+      }
+      # Append aliased prefix.
+      if (aliases[alias]) {
+        path = aliases[alias] "/" path
+      }
+      return path
+    }
+  }
+  return basename(path)
+}' \
+      -e '{
+  path = $1
+  title = repo_title($1)
+  print($1 sep title)
+  for (i = 2; i <= NF; i++) {
+    print($1 "/" $i sep title "/" $i)
+  }
+}'
 }
 
 # The condition used to check whether a directory {} is a code repository or not.
@@ -113,8 +170,5 @@ repo_assert=( [ -e '{}/.git' -o -e '{}/.sl' -o -e '{}/GemFile' -o -e '{}/__main_
 maybe_repos |
   "${batch[@]}" \
     find % -mindepth 0 -maxdepth 0 -exec ${repo_assert[@]} ';' -print |
-  if [ "$recursive" -eq 1 ]; then
-    include_submodules
-  else
-    sed 's ^\(.\+\)/\([^\/]\+\) \0'"$sep"'\2 '
-  fi
+  if [ "$recursive" -eq 1 ]; then add_subprojects; else cat; fi |
+  expand_repos_with_title
