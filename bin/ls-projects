@@ -118,12 +118,13 @@ expand_repos_with_title() {
       -v sep="$sep" \
       -v repo_path_aliases="$REPO_PATH_ALIASES" \
       -e 'BEGIN {
-  c1 = split(repo_path_aliases, alias_lines, ":")
-  for (i = 1; i <= c1; i++) {
+  alias_count = split(repo_path_aliases, alias_lines, ":")
+  for (i = 1; i <= alias_count; i++) {
     c2 = split(alias_lines[i], alias_record, ",")
     src = alias_record[1]
     dest = alias_record[2]
-    aliases[src] = dest;
+    aliases[i][1] = src;
+    aliases[i][2] = dest;
   }
 }' \
       -e 'function basename(path, _repo_segments, _repo_segments_count) {
@@ -134,7 +135,8 @@ expand_repos_with_title() {
   return 1 == index(prefix, substr(str, 0, length(prefix)))
 }' \
       -e 'function repo_title(path) {
-  for (alias in aliases) {
+  for (i = 1; i <= alias_count; i++) {
+    alias = aliases[i][1]
     if (string_prefix_p(path, alias)) {
       path = substr(path, length(alias))
       # Remove leading / prefix.
@@ -142,8 +144,8 @@ expand_repos_with_title() {
         path = substr(path, 2)
       }
       # Append aliased prefix.
-      if (aliases[alias]) {
-        path = aliases[alias] "/" path
+      if (aliases[i][2]) {
+        path = aliases[i][2] "/" path
       }
       return path
     }
