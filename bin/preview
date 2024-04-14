@@ -112,12 +112,15 @@ INCLUDE_DIR="${INCLUDE_DIR:-0}"                                                 
 # │ Generic Previewers for File Nodes │
 # └───────────────────────────────────┘
 
-preview_dir() {
-  if [ "$INCLUDE_DIR" -eq 1 ]; then
-    ls -d --color=always "$1"
-    echo "${1//?/-}"
+preview_dir_project() {
+  if [ -e "$1/.git" ]; then
+    onefetch --no-art --no-title --no-color-palette -- "$1"
+  else
+    false
   fi
+}
 
+preview_dir_contents() {
   list=$(ls "$1" --color=always --group-directories-first -1)
   if [ -n "$list" ]; then
     echo "$list"
@@ -126,6 +129,16 @@ preview_dir() {
   else
     echo "Empty"
   fi
+}
+
+preview_dir() {
+  if [ "$INCLUDE_DIR" -eq 1 ]; then
+    ls -d --color=always "$1"
+    echo "${1//?/-}"
+  fi
+
+  preview_dir_project "$1" ||
+    preview_dir_contents "$1"
 }
 
 preview_socket() {
