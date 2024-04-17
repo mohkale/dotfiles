@@ -101,6 +101,11 @@ add_subprojects() {
     if [ -e "$it/.gitmodules" ]; then
       sub_projects=$(git config --file "$it/.gitmodules" --get-regexp path |
                        cut -d' ' -f 2- |
+                       while read -r subit; do
+                           if [ -e "$it/$subit/.git" ]; then
+                               echo "$subit"
+                           fi
+                       done |
                        tr '\n' ,)
       sub_projects="${sub_projects/%,/}"
     fi
