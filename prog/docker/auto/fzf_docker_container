@@ -2,7 +2,7 @@
 fzf_docker_container() {
   local USAGE HELP
   read -r -d '' USAGE <<EOF
-Usage: fzf_docker_container [-h] [-c CMD]
+Usage: fzf_docker_container [-h] [-u USER] [-c CMD]
 EOF
 
   read -r -d '' HELP <<EOF
