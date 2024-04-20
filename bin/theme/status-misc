@@ -88,7 +88,7 @@ if __name__ == "__main__":
 
     def parse_args() -> argparse.Namespace:
         """Parse command line arguments."""
-        parser = argparse.ArgumentParser()
+        parser = argparse.ArgumentParser(fromfile_prefix_chars='@')
 
         # NOTE: The orders of these determines order in output.
         parser.add_argument(

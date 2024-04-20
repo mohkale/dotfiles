@@ -118,7 +118,7 @@ class StatusMiscSegment(abc.ABC):
     def main(cls):
         """Main function for running segment as stand-alone script."""
         # Parse command line arguments
-        parser = argparse.ArgumentParser()
+        parser = argparse.ArgumentParser(fromfile_prefix_chars='@')
         shared_arguments(parser)
         cls.parser_args(parser, lambda flag: f"--{flag}")
         args = parser.parse_args()

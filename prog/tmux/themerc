@@ -17,48 +17,48 @@ set -g status-left-style  default
 set -g status-right-style default
 
 # [[https://github.com/mohkale/an-old-hope-theme][an-old-hope]] Colors
-%hidden AOH_VERY_LIGHT_GREY="#cbcdd2"
-%hidden AOH_LIGHT_GREY="#848794"
-%hidden AOH_GREY="#686b78"
-%hidden AOH_DARK_GREY="#45474f"
-%hidden AOH_VERY_DARK_GREY="#1c1d21"
+set -g @theme-aoh-very-light-grey "#cbcdd2"
+set -g @theme-aoh-light-grey      "#848794"
+set -g @theme-aoh-grey            "#686b78"
+set -g @theme-aoh-dark-grey       "#45474f"
+set -g @theme-aoh-very-dark-grey  "#1c1d21"
 
-%hidden AOH_BLACK="#3b3d45"
-%hidden AOH_RED="#eb3d54"
-%hidden AOH_GREEN="#78bd65"
-%hidden AOH_YELLOW="#e5cd52"
-%hidden AOH_BLUE="#4fb4d8"
-%hidden AOH_MAGENTA="#c46eb1"
-%hidden AOH_ORANGE="#f39959"
-%hidden AOH_CYAN="#85e0c9"
-%hidden AOH_WHITE="#ffffff"
+set -g @theme-aoh-black           "#3b3d45"
+set -g @theme-aoh-red             "#eb3d54"
+set -g @theme-aoh-green           "#78bd65"
+set -g @theme-aoh-yellow          "#e5cd52"
+set -g @theme-aoh-blue            "#4fb4d8"
+set -g @theme-aoh-magenta         "#c46eb1"
+set -g @theme-aoh-orange          "#f39959"
+set -g @theme-aoh-cyan            "#85e0c9"
+set -g @theme-aoh-white           "#ffffff"
 
-%hidden AOH_BRIGHT_GREY="#525560"
-%hidden AOH_BRIGHT_RED="#f1223e"
-%hidden AOH_BRIGHT_GREEN="#6cc653"
-%hidden AOH_BRIGHT_YELLOW="#edcd2c"
-%hidden AOH_BRIGHT_BLUE="#21acde"
-%hidden AOH_BRIGHT_MAGENTA="#ce64b7"
-%hidden AOH_BRIGHT_ORANGE="#ef7c2a"
-%hidden AOH_BRIGHT_CYAN="#63e9c7"
-%hidden AOH_BRIGHT_WHITE="#ffffff"
+set -g @theme-aoh-bright-grey     "#525560"
+set -g @theme-aoh-bright-red      "#f1223e"
+set -g @theme-aoh-bright-green    "#6cc653"
+set -g @theme-aoh-bright-yellow   "#edcd2c"
+set -g @theme-aoh-bright-blue     "#21acde"
+set -g @theme-aoh-bright-magenta  "#ce64b7"
+set -g @theme-aoh-bright-orange   "#ef7c2a"
+set -g @theme-aoh-bright-cyan     "#63e9c7"
+set -g @theme-aoh-bright-white    "#ffffff"
 
 # Theme Vars
-%hidden TMUX_FG="#909090"
-%hidden TMUX_BG="#18181b"
+set -g @theme-tmux-fg "#909090"
+set -g @theme-tmux-bg "#18181b"
 
-%hidden TMUX_HL=$AOH_BLUE                                                                          # Used for general purpose highlighting
-%hidden TMUX_FLAG_HL=$AOH_RED                                                                      # Used for window flag highlighting
+set -Fg @theme-tmux-hl      '#{@theme-aoh-blue}'                                                   # Used for general purpose highlighting
+set -Fg @theme-tmux-flag-hl '#{@theme-aoh-red}'                                                    # Used for window flag highlighting
 
 # Colors associated with the current tmux state.
-set -g @theme-state-copying $AOH_ORANGE                                                            # Tmux when selecting regions to copy
-set -g @theme-state-visual $AOH_YELLOW                                                             # Tmux when paging content
-set -g @theme-state-search $AOH_MAGENTA                                                            # Tmux when searching index
-set -g @theme-state-prefix $AOH_GREEN                                                              # Prefix-key indicator
-set -g @theme-state-session $TMUX_HL                                                               # Session name background
+set -Fg @theme-state-copying '#{@theme-aoh-orange}'                                                # Tmux when selecting regions to copy
+set -Fg @theme-state-visual  '#{@theme-aoh-yellow}'                                                # Tmux when paging content
+set -Fg @theme-state-search  '#{@theme-aoh-magenta}'                                               # Tmux when searching index
+set -Fg @theme-state-prefix  '#{@theme-aoh-green}'                                                 # Prefix-key indicator
+set -Fg @theme-state-session '#{@theme-tmux-hl}'                                                   # Session name background
 
-set -g @theme-active-window-flash bg=$TMUX_FG,fg=$TMUX_BG                                          # Briefly set window-active-style to this when selecting a new window
-set -g @theme-active-window-flash-duration 0                                                       # Duration for which window-flash should be active, set to 0 to disable
+set -Fg @theme-active-window-flash 'bg=#{@theme-tmux-fg},fg=#{@theme-tmux-bg}'                     # Briefly set window-active-style to this when selecting a new window
+set -g  @theme-active-window-flash-duration 0                                                      # Duration for which window-flash should be active, set to 0 to disable
 
 set-hook -gu after-select-pane
 %if '#{>:#{@theme-active-window-flash-duration},0}'
@@ -78,21 +78,21 @@ set-hook -gu after-select-pane
 %endif
 
 set -g @theme-sep ' | '                                                                            # Optional seperator between pane/prog-name and meta-info
-set -g @theme-df-mount $AOH_BRIGHT_BLUE                                                            # Color for mount names in status line
-set -g @theme-df-full $AOH_RED                                                                     # Color for mounted drives that're full
-set -g @theme-df-large $AOH_ORANGE                                                                 # Color for mounted drives that're almost full
-set -g @theme-df-medium $AOH_YELLOW                                                                # Color for mounted drives that're getting pretty large
-set -g @theme-cpu-1 $AOH_GREEN                                                                     # First CPU level divider (smallest percentage)
-set -g @theme-cpu-2 $AOH_YELLOW
-set -g @theme-cpu-3 $AOH_ORANGE
-set -g @theme-cpu-4 $AOH_RED                                                                       # Last CPU level divider (largest percentage)
-set -g @theme-battery-1 $AOH_RED                                                                   # First battery level divider (basically empty)
-set -g @theme-battery-2 $AOH_ORANGE
-set -g @theme-battery-3 $AOH_YELLOW
-set -g @theme-battery-4 $AOH_GREEN                                                                 # Last battery level divider (basically full)
-set -g @theme-battery-charging $AOH_YELLOW
-set -g @theme-mpd-playing $AOH_BLUE                                                                # MPD icon when mpd is playing something.
-set -g @theme-mpd-paused $AOH_MAGENTA                                                              # MPD icon when mpd is not playing.
+set -Fg @theme-df-mount '#{@theme-aoh-bright-blue}'                                                # Color for mount names in status line
+set -Fg @theme-df-full '#{@theme-aoh-red}'                                                         # Color for mounted drives that're full
+set -Fg @theme-df-large '#{@theme-aoh-orange}'                                                     # Color for mounted drives that're almost full
+set -Fg @theme-df-medium '#{@theme-aoh-yellow}'                                                    # Color for mounted drives that're getting pretty large
+set -Fg @theme-cpu-1 '#{@theme-aoh-green}'                                                         # First CPU level divider (smallest percentage)
+set -Fg @theme-cpu-2 '#{@theme-aoh-yellow}'
+set -Fg @theme-cpu-3 '#{@theme-aoh-orange}'
+set -Fg @theme-cpu-4 '#{@theme-aoh-red}'                                                           # Last CPU level divider (largest percentage)
+set -Fg @theme-battery-1 '#{@theme-aoh-red}'                                                       # First battery level divider (basically empty)
+set -Fg @theme-battery-2 '#{@theme-aoh-orange}'
+set -Fg @theme-battery-3 '#{@theme-aoh-yellow}'
+set -Fg @theme-battery-4 '#{@theme-aoh-green}'                                                     # Last battery level divider (basically full)
+set -Fg @theme-battery-charging '#{@theme-aoh-yellow}'
+set -Fg @theme-mpd-playing '#{@theme-aoh-blue}'                                                    # MPD icon when mpd is playing something.
+set -Fg @theme-mpd-paused '#{@theme-aoh-magenta}'                                                  # MPD icon when mpd is not playing.
 
 # Obscure status line sections depending on the available width.
 set -g @theme-hide-title-width 130                                                                 # Hide pane title
@@ -111,30 +111,30 @@ set -g @theme-show-prefix-on-session-name 0                                     
 %hidden TMUX_OPT_NAME_MAX_LEN=50                                                                   # Maximum length of pane title on status line
 
 # default statusbar colors
-set -g status-style fg=$TMUX_FG,bg=$TMUX_BG,default
+set -Fg status-style 'fg=#{@theme-tmux-fg},bg=#{@theme-tmux-bg},default'
 
-set -g window-status-style fg=$TMUX_FG
-set -g window-status-format " #I #W"
+set -Fg window-status-style 'fg=#{@theme-tmux-fg}'
+set -g  window-status-format " #I #W"
 
 # active window title colors
-set -g window-status-current-style fg=$TMUX_HL,bright
-set -g window-status-current-format " #[bold]#W"
+set -Fg window-status-current-style  'fg=#{@theme-tmux-hl},bright'
+set -g  window-status-current-format " #[bold]#W"
 
 # message text
-set -g message-style bg=$TMUX_BG,fg=$AOH_CYAN
+set -Fg message-style 'bg=#{@theme-tmux-bg},fg=#{@theme-aoh-cyan}'
 
 # clock
-set -g clock-mode-colour $AOH_CYAN
+set -Fg clock-mode-colour '#{@theme-aoh-cyan}'
 
 # pane (and popup) border colors
-set -g pane-active-border-style fg=$TMUX_HL
-set -g pane-border-style fg=$AOH_GREY
-set -g popup-border-lines single
-set -g popup-border-style fg=$TMUX_HL
+set -Fg pane-active-border-style 'fg=#{@theme-tmux-hl}'
+set -Fg pane-border-style 'fg=#{@theme-aoh-grey}'
+set -g  popup-border-lines single
+set -Fg popup-border-style 'fg=#{@theme-tmux-hl}'
 
 # pane number display
-set -g display-panes-active-colour $AOH_CYAN
-set -g display-panes-colour $AOH_GREY
+set -Fg display-panes-active-colour '#{@theme-aoh-cyan}'
+set -Fg display-panes-colour '#{@theme-aoh-grey}'
 
 # Reverse engineer the default window flags so that you can modify indicators and add
 # indicators for as of yet unsupported window flag indicators.
@@ -151,7 +151,7 @@ set -g display-panes-colour $AOH_GREY
 #{?window_zoomed_flag,Z,}\
 #{?#{&&:#{pane_in_mode},#{pane_unseen_changes}},U,}\
 '
-%hidden TMUX_FMT_WINFLAGS="#{?#{==:$TMUX_FMT_WINFLAGS,},,#{=1:@theme-winflag-sep}#[bright,fg=$TMUX_FLAG_HL]$TMUX_FMT_WINFLAGS#[default]#{=-1:@theme-winflag-sep}}"
+%hidden TMUX_FMT_WINFLAGS="#{?#{==:$TMUX_FMT_WINFLAGS,},,#{=1:@theme-winflag-sep}#[bright,fg=#{@theme-tmux-flag-hl}]$TMUX_FMT_WINFLAGS#[default]#{=-1:@theme-winflag-sep}}"
 
 # Detect monitored flags across all windows in all sessions and then show a single
 # indicator character on the status-line. Useful if you want to know about these flags
@@ -171,21 +171,21 @@ set -g display-panes-colour $AOH_GREY
 # name with the current tmux state as it shifts. This includes segments for when the
 # prefix is active, when you're in visual mode and when you're copying some text.
 set -g status-left "\
-#[fg=$TMUX_BG,\
+#[fg=#{@theme-tmux-bg},\
   bg=#{?selection_present,#{@theme-state-copying},#{?search_present,#{@theme-state-search},#{?pane_in_mode,#{@theme-state-visual},}}},\
   bright]\
 #[push-default]\
 #{?selection_present, COPY ,#{?search_present, FIND ,#{?pane_in_mode, META ,}}}\
 #[pop-default]#[default]\
 \
-#[fg=$TMUX_BG,\
+#[fg=#{@theme-tmux-bg},\
   bg=#{@theme-state-prefix},\
   bright]\
 #[push-default]\
 #{?#{&&:#{client_prefix},#{!=:#{@theme-show-prefix-on-session-name},1}}, TMUX ,}\
 #[pop-default]#[default]\
 \
-#[fg=$TMUX_BG,\
+#[fg=#{@theme-tmux-bg},\
   bg=#{?#{&&:#{client_prefix},#{@theme-show-prefix-on-session-name}},#{@theme-state-prefix},#{@theme-state-session}},\
   bright]\
 #[push-default]\
@@ -214,21 +214,21 @@ set -g window-status-activity-style ""
 # for it as well.
 # * The current date and time (truncated to just time if the window is too small).
 set -g status-right " \
-#[default,bg=$TMUX_BG,fg=$TMUX_FG]#[push-default]\
+#[default,bg=#{@theme-tmux-bg},fg=#{@theme-tmux-fg}]#[push-default]\
 #{?#{e|>=:#{client_width},#{@theme-hide-title-width}},#{?#{&&:#{!=:#{host},#{pane_title}},#{!=:#{pane_title},}},#{=/$TMUX_OPT_NAME_MAX_LEN/...:pane_title}#{?#{==:#{@theme-sep},}, ,#{@theme-sep}},#{?#{!=:#{E:@status-message},},#{E:@status-message}#{?#{==:#{@theme-sep},}, ,#{@theme-sep}},}},}
 \
-#{?#{e|>=:#{client_width},#{@theme-hide-misc-width}},#(echo; theme-status-misc --unbuffer --reset-style '#[default]' --suffix '#{?#{==:#{@theme-sep},}, ,#{@theme-sep}}' --enable systemd --enable docker --enable github --enable mpd --enable transmission --enable notmuch --disable battery --enable disk-free --disable cpu-load --notmuch-hide-zero --notmuch-icon '󰇮 ' --notmuch-icon-style '#[fg=$AOH_WHITE]' --notmuch-unread-style '#[fg=$AOH_GREEN]' --notmuch-flagged-style '#[fg=$AOH_BRIGHT_MAGENTA]' --notmuch-dev-todo-style '#[fg=$AOH_BRIGHT_BLUE]' --github-hide-zero --github-icon ' ' --github-icon-style '#[fg=$AOH_WHITE]' --github-count-style '#[fg=$AOH_BRIGHT_BLUE]' --mpd-icon ' ' --mpd-hide-when-zero --mpd-playing-style '#[fg=#{@theme-mpd-playing}]' --mpd-paused-style '#[fg=#{@theme-mpd-paused}]' --transmission-icon ' ' --transmission-icon-style '#[fg=$AOH_BRIGHT_BLUE]' --transmission-hide-zero --transmission-sections downloading_high_priority downloading seeding checking incomplete --transmission-section-styles '#[fg=$AOH_ORANGE]' '' '#[fg=$AOH_GREEN]' '#[fg=$AOH_BRIGHT_MAGENTA]' --battery-charging ''  --battery-charging-style '#[fg=#{@theme-battery-charging}]' --battery-level ' ' ' ' ' ' ' ' ' ' --battery-count 1 --battery-threshold 10 '#[fg=#{@theme-battery-1}]' --battery-threshold 20 '#[fg=#{@theme-battery-2}]' --battery-threshold 40 '#[fg=#{@theme-battery-3}]' --battery-threshold 60 '#[fg=#{@theme-battery-4}]' --battery-alert ' ' --battery-alert-style '#[blink fg=#{@theme-battery-1}]' --docker-icon ' ' --docker-icon-style '#[fg=$AOH_BRIGHT_BLUE]' --docker-hide-zero --docker-total-style '#[fg=$AOH_RED]' --docker-status RUNNING CREATED PAUSED RESTARTING --docker-status-style CREATED '#[fg=$AOH_GREEN]' --docker-status-style PAUSED '#[fg=$AOH_YELLOW]' --docker-status-style RESTARTING '#[fg=$AOH_YELLOW]' --disk-free-show-bytes --disk-free-thresholds 80 '#[fg=#{@theme-df-medium}]' --disk-free-thresholds 95 '#[fg=#{@theme-df-large}]' --disk-free-thresholds 100 '#[fg=#{@theme-df-full}]' --disk-free-mount-style '#[bold fg=#{@theme-df-mount}]' --systemd-icon ' ' --systemd-icon-style '#[fg=$AOH_GREEN]' --systemd-active-hide-zero --systemd-starting-style '#[fg=$AOH_ORANGE]' --systemd-starting-hide-zero --systemd-failed-style '#[fg=$AOH_RED]' --systemd-failed-hide-zero --systemd-hide-active-unless-other --systemd-filter-user-units),}\
+#{?#{e|>=:#{client_width},#{@theme-hide-misc-width}},#(echo; theme-status-misc '@$TMUX_HOME/theme/argv/status-misc.long.argv'),}\
 \
-#{?#{e|<:#{client_width},#{@theme-hide-misc-width}},#(echo ""; theme-disk-free --unbuffer --reset-style '#[default]' --show-bytes --mount-style '#[bold fg=#{@theme-df-mount}]' --thresholds 80 '#[fg=#{@theme-df-medium}]' --thresholds 95 '#[fg=#{@theme-df-large}]' --thresholds 100 '#[fg=#{@theme-df-full}]')#{?#{==:#{@theme-sep},}, ,#{@theme-sep}},}\
+#{?#{e|<:#{client_width},#{@theme-hide-misc-width}},#(echo ""; theme-status-misc '@$TMUX_HOME/theme/argv/status-misc.short.argv')#{?#{==:#{@theme-sep},}, ,#{@theme-sep}},}\
 \
-#(echo ""; theme-cpu-load --unbuffer --reset-style '#[default]' --thresholds 30 '#[fg=#{@theme-cpu-1}]' --thresholds 50 '#[fg=#{@theme-cpu-2}]' --thresholds 70 '#[fg=#{@theme-cpu-3}]' --thresholds 90 '#[fg=#{@theme-cpu-4}]' --symbol '•' --join '')\
+#(echo ""; theme-cpu-load '@$TMUX_HOME/theme/argv/cpu-load.argv')\
 \
 #[default]#{?#{==:#{@theme-sep},}, ,#{@theme-sep}}\
 #{?#{e|>=:#{client_width},#{@theme-hide-host-width}},#{host}(#{=$TMUX_OPT_CMD_MAX_LEN:pane_current_command}) ,}\
 #(echo ""; $TMUX_HOME/theme/tmux-title -c '#{client_tty}' | prog-icons -lf) \
 #[pop-default]\
 \
-#[default,bg=$TMUX_HL,fg=$TMUX_BG]#[push-default]\
+#[default,bg=#{@theme-tmux-hl},fg=#{@theme-tmux-bg}]#[push-default]\
  #{?#{e|>=:#{client_width},#{@theme-shrink-date-width}},%d-%b-%Y %H:%M,%H:%M} \
 #[pop-default]\
 "

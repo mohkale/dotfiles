@@ -1,0 +1,17 @@
+--unbuffer
+--reset-style
+#[default]
+--enable
+disk-free
+--disk-free-show-bytes
+--disk-free-mount-style
+#[bold fg=#{@theme-df-mount}]
+--disk-free-thresholds
+80
+#[fg=#{@theme-df-medium}]
+--disk-free-thresholds
+95
+#[fg=#{@theme-df-large}]
+--disk-free-thresholds
+100
+#[fg=#{@theme-df-full}]
