@@ -6,6 +6,12 @@
 # affect of working with python files but specifying them every time can become
 # redundant.
 
+# ┌──────────┐
+# │ Projects │
+# └──────────┘
+
+.worktrees/
+
 # ┌──────────────────┐
 # │ Operating System │
 # └──────────────────┘
