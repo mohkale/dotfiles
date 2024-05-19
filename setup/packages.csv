@@ -78,6 +78,7 @@ rclone,which:rclone,pacman:rclone
 rclone-browser,which:rclone-browser,yay:rclone-browser
 rclone-mount-service,stat:/usr/lib/systemd/user/rclone@.service,yay:rclone-mount-service
 rubocop,which:rubocop,gem:rubocop
+ruff,which:ruff,pipx:ruff
 rust,which:rust,choco:rust,pacman:rust
 rust-analyzer,which:rust-analyzer,yay:rust-analyzer
 shellcheck,which:shellcheck,yay:shellcheck-bin,apt:shellcheck
