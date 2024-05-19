@@ -34,6 +34,7 @@ ghc,which:ghc,choco:GHC,pacman:ghc
 gimp,which:gimp,pacman:gimp,choco:gimp
 golang,which:go,choco:golang,yay:go,gotools
 golang,which:golang,choco:ipython,yay:go,gotools
+godoc,which:godoc,go:golang.org/x/tools/cmd/godoc@latest
 gopls,which:gopls,go:golang.org/x/tools/gopls@latest,pacman:gopls
 gst-plugins-good,,pacman:gst-plugins-good
 gstreamer,,pacman:gstreamer

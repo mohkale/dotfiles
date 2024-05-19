@@ -1,1 +1,1 @@
-packagex golang
+packagex golang godoc
