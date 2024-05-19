@@ -63,6 +63,7 @@ Icon?
 .project
 .metadata
 .lcldev/
+.venv/
 CMakeUserPresets.json
 # bin
 # bin/**
