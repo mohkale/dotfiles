@@ -48,7 +48,7 @@ RUN apt-get update                              \
  && touch /var/log/auth.log                     \
  && apt-get clean                               \
  && rm -rf /var/lib/apt/lists/*                 \
- && python3 -m pip install yt-dlp
+ && python3 -m pip install --break-system-packages yt-dlp
 
 ###############################################################################
 #                              Entrypoint Command                             #
