@@ -1,8 +1,8 @@
 # Package, Predicate, Package Install Specs...
-avahi,which:avahi-daemon,pacman:avahi
 airvpn,which:eddie-ui,yay:eddie-ui-git
 airvpn-cli,which:eddie-ui,yay:eddie-cli-git
 alacritty,which:alacritty,pacman:alacritty
+avahi,which:avahi-daemon,pacman:avahi
 basedpyright,which:basedpyright-langserver,pipx:basedpyright
 bash-language-server,which:bash-language-server,yay:bash-language-server
 black,which:black,pipx:black
@@ -25,16 +25,16 @@ dockerfile-language-server,which:docker-langserver,yarn:dockerfile-language-serv
 dolphin,which:dolphin,pacman:dolphin
 emacs,which:emacs,apt:emacs,choco:emacs,yay:libgccjit,emacs-git
 eslint,which:eslint,yarn:eslint,npm:eslint
-fava,which:fava,pacman:fava
+fava,which:fava,pipx:fava
 ffmpeg,which:ffmpeg,pacman:ffmpeg
 firefox,which:firefox,choco:firefox,pacman:firefox
 flake8,which:flake8,pipx:flake8
 fzf,which:fzf,apt:fzf,pacman:fzf
 ghc,which:ghc,choco:GHC,pacman:ghc
 gimp,which:gimp,pacman:gimp,choco:gimp
+godoc,which:godoc,go:golang.org/x/tools/cmd/godoc@latest
 golang,which:go,choco:golang,yay:go,gotools
 golang,which:golang,choco:ipython,yay:go,gotools
-godoc,which:godoc,go:golang.org/x/tools/cmd/godoc@latest
 gopls,which:gopls,go:golang.org/x/tools/gopls@latest,pacman:gopls
 gst-plugins-good,,pacman:gst-plugins-good
 gstreamer,,pacman:gstreamer
@@ -74,7 +74,7 @@ py-psutil,python-module:psutil,pip:psutil
 pycodestyle,which:pycodestyle,pipx:pycodestyle
 pydocstyle,which:pydocstyle,pipx:pydocstyle
 pylint,which:pylint,pipx:pylint
-python-lsp-server,which:pylsp,pipx:python-lsp-server[rope] --preinstall pyls-isort --preinstall python-lsp-black --preinstall pyls-isort --preinstall pyls-mypy --preinstall python-lsp-ruff
+python-lsp-server,which:pylsp,pipx:python-lsp-server[rope] --preinstall pyls-isort --preinstall python-lsp-black --preinstall pyls-isort --preinstall pylsp-mypy --preinstall python-lsp-ruff
 qbittorrent-cli,which:qbt,yay:qbittorrent-cli-bin
 rclone,which:rclone,pacman:rclone
 rclone-browser,which:rclone-browser,yay:rclone-browser
