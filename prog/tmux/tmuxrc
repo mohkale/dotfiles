@@ -20,7 +20,7 @@ set -g prompt-history-limit 100000
 set -g history-file "$XDG_STATE_HOME/tmux_history"                   # Persist tmux prompt input in a local config file
 set -sg escape-time 10                                               # small enough for nvim and alt-keys :smile:.
 set -ga terminal-overrides ",*256col*:Tc,*24bit*:Tc"                 # enable true-color
-set -s extended-keys on                                              # support [[https://github.com/tmux/tmux/wiki/Modifier-Keys#extended-keys][xterm]] extension keys
+set -s extended-keys always                                          # support [[https://github.com/tmux/tmux/wiki/Modifier-Keys#extended-keys][xterm]] extension keys
 set -as terminal-features 'st*:extkeys'                              # allow extended-keys with st just like xterm
 set -gq message-limit 10000                                          # Store upto this many messages in the log
 set -g set-clipboard on                                              # Save to clipboard but don't read back from it
