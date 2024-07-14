@@ -60,6 +60,7 @@ mullvadvpn,which:mullvad,yay:mullvad-vpn-bin
 node,which:node,apt:nodejs,choco:nodejs,pacman:nodejs
 notify-send,which:notify-send,pipx:notify-send
 npm,which:npm,apt:npm,pacman:npm
+oxlint,which:oxlint,yarn:oxlint,npm:oxlint
 pass,which:pass,yay:pass
 pass-tomb,which:pass-tomb,yay:pass-tomb
 perl,which:perl,pacman:perl
@@ -82,6 +83,9 @@ rubocop,which:rubocop,gem:rubocop
 ruff,which:ruff,pipx:ruff
 rust,which:rust,choco:rust,pacman:rust
 rust-analyzer,which:rust-analyzer,yay:rust-analyzer
+sbt,which:sbt,yay:sbt
+scala,which:scala,yay:scala
+scala-metals,which:metals,yay:metals
 shellcheck,which:shellcheck,yay:shellcheck-bin,apt:shellcheck
 shfmt,which:shfmt,pacman:shfmt
 smartmontools,which:smartctl,pacman:smartmontools
