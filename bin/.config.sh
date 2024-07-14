@@ -24,6 +24,7 @@ link                                            \
   "$XDG_BIN_DIR/git-fzlog"                      \
   "$XDG_BIN_DIR/git-prompt"                     \
   "$XDG_BIN_DIR/group-seq"                      \
+  "$XDG_BIN_DIR/hex2dec"                        \
   "$XDG_BIN_DIR/ignore-exit"                    \
   "$XDG_BIN_DIR/image2ascii"                    \
   "$XDG_BIN_DIR/img2pdf"                        \

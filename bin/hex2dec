@@ -1,0 +1,175 @@
+#!/usr/bin/env python3-dotfiles-venv
+import argparse
+import functools
+import itertools
+import logging
+import math
+import string
+import sys
+from typing import Any, Generator, NamedTuple, Tuple
+
+
+class Base(NamedTuple):
+    prefix: str
+    base: int
+    name: str
+    charset: list[str]
+
+
+NUMERIC_BASES = {
+    "b": Base("b", 2, "Binary", list("01")),
+    "o": Base("o", 8, "Octal", list(string.octdigits)),
+    "d": Base("d", 10, "Decimal", list(string.digits)),
+    "x": Base("x", 16, "Hex", list(string.digits) + list("ABCDEFabdef")),
+}
+
+
+def _parse_input(num: str, default_base: Base) -> Tuple[Base, str]:
+    if len(num) >= 2 and num[0] == "0" and num[1] in NUMERIC_BASES:
+        return NUMERIC_BASES[num[1]], num[2:]
+    return default_base, num
+
+
+def _convert_base(num: int, base: Base) -> str:
+    if num == 0:
+        return [0]
+    result = ""
+    while num:
+        result = base.charset[num % base.base] + result
+        num //= base.base
+    if not result:
+        return "0"
+    return result
+
+
+@functools.lru_cache(maxsize=len(NUMERIC_BASES))
+def _columns_for_value_at_base(num: int, base: int) -> int:
+    return round(math.log(num, base))
+
+
+def _convert_bases(num: int, bases: [Base], pad_to: int, prefix_base: bool) -> [str]:
+    assert len(bases) > 0
+    result = []
+    for base in bases:
+        num_output = _convert_base(num, base)
+
+        columns = _columns_for_value_at_base(pad_to, base.base)
+        num_output = num_output.rjust(columns, "0")
+
+        if prefix_base:
+            num_output = "0" + base.prefix + num_output
+        result.append(num_output)
+    return result
+
+
+def parse_args() -> argparse.Namespace:
+    def read_from_stdin() -> Generator[str, None, None]:
+        try:
+            for line in sys.stdin:
+                yield line.rstrip()
+        except KeyboardInterrupt:
+            logging.debug("Encountered keyboard interrupt. Exiting.")
+
+    parser = argparse.ArgumentParser(
+        description=f"""
+    Swiss army script for converting between different numeric representations.
+    Supported bases are
+        {', '.join(f'{base.prefix} ({base.name})' for base in NUMERIC_BASES.values())}.
+    Numeric types are either individual character sequences of the supported number
+    base or a string with prefix 0{{BASE}}{{NUMBER}}. For example 0b0101.
+    """
+    )
+    parser.add_argument(
+        "numbers", nargs="*", help="Explicit set of numbers to convert."
+    )
+    parser.add_argument(
+        "-",
+        "--read-stdin",
+        action="store_true",
+        help="Read numbers to convert from stdin",
+    )
+    parser.add_argument(
+        "-i",
+        "--default-base",
+        choices=NUMERIC_BASES.keys(),
+        default="d",
+        help="Default base for numbers without a 0{BASE} prefix (default: Decimal).",
+    )
+    parser.add_argument(
+        "-o",
+        "--convert-to",
+        choices=NUMERIC_BASES.keys(),
+        action="append",
+        help="Specific bases to convert the input to. Defaults to all bases (default: All).",
+    )
+    parser.add_argument(
+        "-c",
+        "--pad-to",
+        metavar="BITSIZE",
+        default=32,
+        type=int,
+        help="Pad to number of columns needed to represent BITSIZE bits in the output representation (default: 64).",
+    )
+    parser.add_argument(
+        "-P",
+        "--no-prefix-base",
+        action="store_false",
+        dest="prefix_base",
+        help="Don't prefix output with the base of the representation.",
+    )
+    # parser.add_argument("-")
+    args = parser.parse_args()
+
+    try:
+        args.default_base = NUMERIC_BASES[args.default_base]
+    except KeyError:
+        parser.error(f"Unsupported --default-base {args.default_base}")
+
+    if not args.convert_to:
+        args.convert_to = list(NUMERIC_BASES.keys())
+    try:
+        args.convert_to = [NUMERIC_BASES[prefix] for prefix in args.convert_to]
+    except KeyError as ex:
+        parser.error(f"Unsupported output base: {ex[0]}")
+
+    input_streams = []
+    if args.numbers:
+        input_streams.append(num for num in args.numbers)
+    if args.read_stdin:
+        input_streams.append(read_from_stdin())
+    if not input_streams:
+        parser.error("No numbers supplied for conversion")
+    args.number_stream = itertools.chain.from_iterable(input_streams)
+
+    args.pad_to = 2**args.pad_to
+
+    try:
+        from mohkale.pylog.config import use_config as use_logging_config
+    except ImportError:
+        logging.basicConfig(level=logging.INFO)
+    else:
+        use_logging_config("hex2dec", level=logging.INFO)
+
+    return args
+
+
+def main(args: Any) -> bool:
+    any_errors = False
+    for num_input in args.number_stream:
+        input_base, num_input = _parse_input(num_input, args.default_base)
+        try:
+            num = int(num_input, input_base.base)
+        except ValueError:
+            logging.error("Failed to parse %s with base %d", num_input, input_base.base)
+            any_errors = True
+            continue
+        print(
+            " ".join(
+                _convert_bases(num, args.convert_to, args.pad_to, args.prefix_base)
+            )
+        )
+    return not any_errors
+
+
+if __name__ == "__main__":
+    sys.exit(0 if main(parse_args()) else 1)
