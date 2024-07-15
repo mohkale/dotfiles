@@ -22,3 +22,4 @@
 --map-syntax "*.csproj:XML"
 --map-syntax "*.docker:Dockerfile"
 --map-syntax "Dockerfile.*:Dockerfile"
+--map-syntax "*.vcxproj*:XML"
