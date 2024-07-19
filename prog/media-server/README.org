@@ -667,7 +667,7 @@ calling =docker-compose "$@"=.
       *Note*: Because my media-server is so resource intensive I prefer not to leave it
       running indefinitely. Due to this (and because I usually run a VPN on my
       media-server host for regular internet browsing as well) I've moved the Pork
-      bun DDNS configuration into an externally raspberry-pi host which I then route
+      bun DDNS configuration into an external raspberry-pi host which I then route
       to from my media-server if necessary. This configuration reflects this setup.
 
       Firstly I setup a docker-compose configuration for a service that can update
