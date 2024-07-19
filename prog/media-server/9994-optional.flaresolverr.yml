@@ -1,0 +1,21 @@
+---
+services:
+  flaresolverr:
+    container_name: ms-flaresolverr
+    environment:
+      TZ: "$TZ"
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    logging:
+      driver: "$LOGGING_DRIVER"
+    profiles:
+      - anime
+      - books
+      - comics
+      - movies
+      - music
+      - tv-shows
+    restart: unless-stopped
+
+  prowlarr:
+    depends_on:
+      - flaresolverr

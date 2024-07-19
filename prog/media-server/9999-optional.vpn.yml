@@ -74,3 +74,5 @@ services:
     <<: *vpn-config
   sonarr:
     <<: *vpn-config
+  flaresolverr:
+    <<: *vpn-config

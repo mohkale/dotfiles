@@ -17,6 +17,7 @@
 #+HTML:   <a style="margin-left: 4px;" href="https://www.authelia.com/"><img src="https://img.shields.io/badge/authelia-latest:latest-success?logo=Auth0&style=for-the-badge&logoColor=success"/></a>
 #+HTML:   <a style="margin-left: 4px;" href="https://heimdall.site/"><img src="https://img.shields.io/badge/authelia-latest:latest-blueviolet?logo=Dash&style=for-the-badge&logoColor=blueviolet"/></a>
 #+HTML:   <a style="margin-left: 4px;" href="https://github.com/serjs/socks5-server"><img src="https://img.shields.io/badge/socksproxy-latest:latest-yellow?logo=Envoy%20Proxy&style=for-the-badge&logoColor=yellow"/></a>
+#+HTML:   <a style="margin-left: 4px;" href="https://github.com/FlareSolverr/FlareSolverr"><img src="https://img.shields.io/badge/flaresolverr-latest:latest-orange?logo=Cloudflare&style=for-the-badge&logoColor=orange"/></a>
 #+HTML: </div>
 
 Complete personal media server configuration in Docker.
@@ -960,6 +961,12 @@ calling =docker-compose "$@"=.
 
 ** Flood fails with "Failed to access runtime directory"
    Run =chmod 777= on your flood data directory.
+
+** Bypassing cloudflare protection for certain trackers/indexers
+
+   Some torrent trackers employ aggressive cloudflare protection which makes usage in
+   prowlarr untenable. You can bypass this using a service called flaresolverr. To
+   enable set the flaresolverr profile and follow the guide from [[https://trash-guides.info/Prowlarr/prowlarr-setup-flaresolverr/][TRaSH]].
 
 * Appendix                                                          :ARCHIVE:
 # Local Variables:

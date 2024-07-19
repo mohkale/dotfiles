@@ -26,6 +26,7 @@
 #     books
 #     comics
 #     dashboard
+#     flaresolverr
 #     http-proxy
 #     movies
 #     music
@@ -102,6 +103,10 @@ if is_profile_enabled socks-proxy; then
     exit 1
   fi
   add_compose_file 9998-optional.socks-proxy
+fi
+
+if is_profile_enabled flaresolverr; then
+  add_compose_file 9994-optional.flaresolverr
 fi
 
 export COMPOSE_PROFILES="${MEDIA_SERVER_PROFILES}"
