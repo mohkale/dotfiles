@@ -16,21 +16,24 @@ Optional arguments:
   -h       Show this help message and exit
   -u USER  Specify user to run within container
   -c CMD   Specify command to run within container
+  -s SHELL Specify shell to use to run CMD
 EOF
 
   local cmd='bash -li'
+  local shell='bash'
   local args=(
     exec --interactive --tty
     --env COLUMNS="$(tput cols)"
     --env LINES="$(tput lines)"
     --env TERM=screen-256color
   )
-  while getopts 'hc:u:' OPTION; do
+  while getopts 'hc:u:s:' OPTION; do
     case "$OPTION" in
       h) echo "$HELP"
          return 0 ;;
       \?) echo "$USAGE"
           return 1 ;;
+      s) shell="$OPTARG" ;;
       c) cmd="$OPTARG" ;;
       u) args+=( --user "$OPTARG" ) ;;
     esac
@@ -49,6 +52,6 @@ EOF
             _mk_fzf "${fzf_args[@]}" |
             cut -d"$sep" -f1) &&
       [ -n "$id" ]; then
-    docker "${args[@]}" "$id" bash -c "$cmd"
+    docker "${args[@]}" "$id" "$shell" -c "$cmd"
   fi
 }
