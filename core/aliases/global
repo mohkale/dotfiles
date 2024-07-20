@@ -80,7 +80,8 @@ od      xopen .
 stamp   sh -c '[ "$#" -eq 0 ] && exit 0; printf "%s\0" "$@" | xargs -r0 -I{} date -d @{}' --
 dig     dig +noall +answer
 digs    dig +short
-whatsmyip curl icanhazip.com
+icanhazip curl icanhazip.com
+whatsmyip icanhazip
 
 cookie       cookiecutter
 cookies@dirx $XDG_DEV_HOME/cookiecutters
@@ -241,7 +242,9 @@ shenv@file       $XDG_CONFIG_HOME/shenv
 shenvl@file      $XDG_CONFIG_HOME/shenv.local
 al@file          $XDG_CONFIG_HOME/aliases
 alg@file         $XDG_CONFIG_HOME/aliases/global
+algp@file        $XDG_CONFIG_HOME/aliases/global.private
 all@file         $XDG_CONFIG_HOME/aliases/linux
+allp@file        $XDG_CONFIG_HOME/aliases/linux.private
 au@file          $XDG_CONFIG_HOME/autoloads/cmds
 vimrc@file       $XDG_CONFIG_HOME/vim
 lfrc@file        $XDG_CONFIG_HOME/lf/lfrc
