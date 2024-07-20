@@ -40,7 +40,7 @@ import   {args[1]}   readarr.prometheus      {args[0]}   readarr-prometheus     
 import   {args[1]}   sonarr.prometheus       {args[0]}   sonarr-prometheus                   80
 
 # Media Servers
-import   {args[1]}   jellyfin                {args[0]}   {$MEDIA_SERVER_HOST:jellyfin}     8096
+import   {args[1]}   jellyfin                {args[0]}   {$JELLYFIN_HOST:jellyfin}         8096
 import   {args[1]}   kavita                  {args[0]}   {$MEDIA_SERVER_HOST:kavita}       5000
 import   {args[1]}   navidrome               {args[0]}   {$MEDIA_SERVER_HOST:navidrome}    4533
 

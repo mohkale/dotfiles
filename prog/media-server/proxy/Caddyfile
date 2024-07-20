@@ -13,6 +13,10 @@
 #   should default to the hostname of the container the service is running under.
 #   Setting this allows you to run all service containers in the same network (for
 #   example to support VPN routing).
+#
+# JELLYFIN_HOST
+#   Jellyfin service hostname. This is distinct from MEDIA_SERVER_HOST because
+#   Jellyfin could be mounted into the host network for DLNA support.
 
 # ┌────────────────┐
 # │ Global Options │

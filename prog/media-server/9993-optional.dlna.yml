@@ -1,0 +1,32 @@
+---
+services:
+  jellyfin:
+    # For now this requires mounting Jellyfin into the host network.
+    network_mode: host
+
+  caddy:
+    # Setup a route to the docker gateway so Jellyfin on the host OS network can
+    # still be reached.
+    environment:
+      JELLYFIN_HOST: host.docker.internal
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # I tried experimenting with DLNA but keeping Jellyfin within the bridge network.
+  # Unfortunately jellyfin can't resolve the correct broadcast address for the router
+  # network IP addresses.
+
+  # gluetun:
+  #   environment:
+  #     # Jellyfin auto-discovery sub-net
+  #     FIREWALL_OUTBOUND_SUBNETS: 239.255.255.250/32
+  #   ports:
+  #     # Jellyfin public port
+  #     - 8096:8096/tcp
+  #     # Jellyfin auto-discovery ports
+  #     - 1900:1900/udp
+  #     - 7359:7359/udp
+
+  # jellyfin:
+  #   environment:
+  #     JELLYFIN_PublishedServerUrl: http://jellyfin.mk-desktop.local

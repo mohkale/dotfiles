@@ -26,6 +26,7 @@
 #     books
 #     comics
 #     dashboard
+#     dlna
 #     flaresolverr
 #     http-proxy
 #     movies
@@ -107,6 +108,10 @@ fi
 
 if is_profile_enabled flaresolverr; then
   add_compose_file 9994-optional.flaresolverr
+fi
+
+if is_profile_enabled dlna; then
+  add_compose_file 9993-optional.dlna
 fi
 
 export COMPOSE_PROFILES="${MEDIA_SERVER_PROFILES}"

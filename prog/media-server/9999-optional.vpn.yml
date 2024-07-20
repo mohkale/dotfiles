@@ -41,15 +41,14 @@ services:
   caddy:
     environment:
       MEDIA_SERVER_HOST: gluetun
+      JELLYFIN_HOST: gluetun
 
   # Update services to route through the VPN network.
-  jellyfin: &vpn-config
+  kavita: &vpn-config
     depends_on:
       gluetun:
         condition: service_healthy
     network_mode: "service:gluetun"
-  kavita:
-    <<: *vpn-config
   navidrome:
     <<: *vpn-config
   qbittorrent:

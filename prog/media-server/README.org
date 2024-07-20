@@ -968,6 +968,18 @@ calling =docker-compose "$@"=.
    prowlarr untenable. You can bypass this using a service called flaresolverr. To
    enable set the flaresolverr profile and follow the guide from [[https://trash-guides.info/Prowlarr/prowlarr-setup-flaresolverr/][TRaSH]].
 
+** Treating Jellyfin as a DLNA/uPnP Server
+
+   DLNA/uPnP is a system that allows supporting devices on the same network to stream
+   content between each other. Where possible a native client app is preferred but
+   when this isn't possible uPnP is a nice generally applicable standard for
+   broadcasting content.
+
+   To enable you should set the dlna profile. This will run jellyfin in the host OS
+   network instead of through a bridge networked container. Next you need to navigate
+   to jellyfin admin settings, install the DLNA plugin. You may also have to unblock
+   uPnP/DLNA at your router level. Many routers disable this feature for protection.
+
 * Appendix                                                          :ARCHIVE:
 # Local Variables:
 # jinx-local-words: "Authelia Bittorrent Caddy Emby GParted Jellyfin Kodi Lidarr MiB Navidrome Prowlarr QBittorrent Radarr Readarr Sonarr TiB authelia daemonize dockerised localhost porkbun prowlarr proxying routable systemd uncorrectable usenet"
