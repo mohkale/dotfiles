@@ -8,19 +8,20 @@
 # when one of the original journal files are modified.
 
 if [ -z "$LEDGER_FILE" ]; then
-  dir=$(dirname "$(dirname "$0")")
+  cd "$(dirname "$(dirname "$0")")" || exit 1
 else
   if ! [ -e "$LEDGER_FILE" ]; then
     echo "error: hledger-fava: LEDGER_FILE not found '$LEDGER_FILE'."
     exit 1
   fi
-  dir=$(dirname "$LEDGER_FILE")
+  cd "$(dirname "$(readlink -f "$LEDGER_FILE")")" || exit 1
 fi
 
-export_file="$dir/.export.beancount"
+export_file="$(mktemp)"
+trap 'rm -v $export_file' EXIT SIGHUP
 
 # Need to watch all journals just to ensure watcher is executed properly.
-journals=$(find "$dir/" -mindepth 1 -maxdepth 1 \( -iname '*.journal.gpg' -or \( -iname '*.journal' -and -not -exec [ -e {}.gpg ] \; \) \) -print | sed 's/\.gpg$//')
+journals=$(find . -mindepth 1 -maxdepth 1 \( -iname '*.journal.gpg' -or \( -iname '*.journal' -and -not -exec [ -e {}.gpg ] \; \) \) -print | sed 's/\.gpg$//')
 if [ -z "$journals" ]; then
   echo "error: hledger-fava: failed to find any journal files."
   exit 1
@@ -37,8 +38,7 @@ fi
 export_cmd="$export_cmd > $(printf %q "$export_file")"
 eval "$export_cmd"
 
-trap 'rm -v '"$export_file" EXIT SIGHUP
 # Will automatically be killed on SIGHUP.
-entr -nrpc sh -c "echo hledger-fava: recompiling beancount journal; $export_cmd" <<< "$journals" &
+entr -nrpc sh -c "clear; echo hledger-fava: recompiling beancount journal; $export_cmd" <<< "$journals" &
 
 fava "$export_file"
