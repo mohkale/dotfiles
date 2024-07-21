@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
 <!DOCTYPE gui SYSTEM 'kpartgui.dtd'>
-<gui version="38" name="dolphin">
+<gui name="dolphin" version="39">
  <MenuBar>
   <Menu name="file">
    <Action name="new_menu"/>
@@ -49,13 +49,14 @@
    <Action name="show_in_groups"/>
    <Action name="show_hidden_files"/>
    <Separator/>
-   <Action name="split_view"/>
+   <Action name="split_view_menu"/>
+   <Action name="popout_split_view"/>
    <Action name="split_stash"/>
    <Action name="redisplay"/>
    <Action name="stop"/>
    <Separator/>
    <Action name="panels"/>
-   <Menu name="location_bar" icon="edit-select-text">
+   <Menu icon="edit-select-text" name="location_bar">
     <text context="@title:menu">Location Bar</text>
     <Action name="editable_location"/>
     <Action name="replace_location"/>
@@ -76,8 +77,8 @@
    <Action name="change_remote_encoding"/>
   </Menu>
  </MenuBar>
- <ToolBar alreadyVisited="1" noMerge="1" name="mainToolBar">
-  <text translationDomain="dolphin" context="@title:menu">Main Toolbar</text>
+ <ToolBar alreadyVisited="1" name="mainToolBar" noMerge="1">
+  <text context="@title:menu" translationDomain="dolphin">Main Toolbar</text>
   <Action name="go_back"/>
   <Action name="go_forward"/>
   <Separator name="separator_0"/>
@@ -121,6 +122,7 @@
   </disable>
  </State>
  <ActionProperties scheme="Default">
+  <Action name="activate_last_tab" shortcut="Alt+0; "/>
   <Action name="activate_next_tab" shortcut="Ctrl+]; Ctrl+Tab"/>
   <Action name="activate_prev_tab" shortcut="Ctrl+[; Ctrl+Shift+Tab"/>
   <Action name="compact" priority="0"/>
@@ -138,7 +140,7 @@
   <Action name="icons" priority="0"/>
   <Action name="new_menu" priority="0"/>
   <Action name="show_filter_bar" shortcut="Ctrl+S"/>
-  <Action name="show_hidden_files" icon="gnumeric-column-unhide" priority="0"/>
+  <Action icon="gnumeric-column-unhide" name="show_hidden_files" priority="0"/>
   <Action name="show_preview" priority="0" shortcut="Ctrl+P"/>
   <Action name="split_stash" shortcut=""/>
   <Action name="split_view" priority="0"/>
@@ -149,6 +151,5 @@
   <Action name="view_zoom_in" priority="0"/>
   <Action name="view_zoom_out" priority="0"/>
   <Action name="view_zoom_reset" priority="0"/>
-  <Action name="activate_last_tab" shortcut="Alt+0; "/>
  </ActionProperties>
 </gui>

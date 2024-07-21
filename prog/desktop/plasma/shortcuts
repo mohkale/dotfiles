@@ -41,8 +41,9 @@ mute=Volume Mute,Volume Mute,Mute
 [ksmserver]
 Halt Without Confirmation=none,,Shut Down Without Confirmation
 Lock Session=Meta+L,Meta+L\tScreensaver,Lock Session
-Log Out=none,Ctrl+Alt+Del,Log Out
+Log Out=none,Ctrl+Alt+Del,Show Logout Prompt
 Log Out Without Confirmation=none,,Log Out Without Confirmation
+LogOut=none,,Log Out
 Reboot=none,,Reboot
 Reboot Without Confirmation=none,,Reboot Without Confirmation
 Shut Down=none,,Shut Down
@@ -129,7 +130,7 @@ Switch to Screen Below=none,,Switch to Screen Below
 Switch to Screen to the Left=none,,Switch to Screen to the Left
 Switch to Screen to the Right=none,,Switch to Screen to the Right
 Toggle=none,none,Toggle Show Paint
-Toggle Night Color=none,none,Toggle Night Light
+Toggle Night Color=none,none,Suspend/Resume Night Light
 Toggle Window Raise/Lower=none,,Toggle Window Raise/Lower
 ToggleCurrentThumbnail=Meta+Ctrl+T,Meta+Ctrl+T,Toggle Thumbnail for Current Window
 ToggleMouseClick=none,Meta+*,Toggle Mouse Click Effect
@@ -256,6 +257,7 @@ powerProfile=Battery\tMeta+B,Battery\tMeta+B,Switch Power Profile
 
 [plasmashell]
 _k_friendly_name=plasmashell
+activate application launcher=Meta\tAlt+F1,Meta\tAlt+F1,Activate Application Launcher
 activate task manager entry 1=Meta+1,Meta+1,Activate Task Manager Entry 1
 activate task manager entry 10=Meta+0,Meta+0,Activate Task Manager Entry 10
 activate task manager entry 2=Meta+2,Meta+2,Activate Task Manager Entry 2

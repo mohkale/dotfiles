@@ -38,6 +38,9 @@ BorderActivate=3
 BorderActivateAll=5
 BorderActivateClass=9
 
+[Effect-shakecursor]
+Magnification=10
+
 [Effect-windowview]
 BorderActivate=3
 BorderActivateAll=5
