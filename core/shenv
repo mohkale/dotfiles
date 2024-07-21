@@ -114,6 +114,9 @@ esac
 
 if command -v nvim >/dev/null 2>&1; then
   alias vim=nvim
+  alias vi=nvim
+elif command -v vim >/dev/null 2>&1; then
+  alias vi=vim
 fi
 
 if command -v codium >/dev/null 2>&1; then
