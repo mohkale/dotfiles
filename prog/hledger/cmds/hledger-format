@@ -1,0 +1,186 @@
+#!/usr/bin/env python3
+# Helper script to normalize the formatting of hledger files.
+
+import argparse
+import enum
+import re
+import string
+import sys
+
+GLOBAL_COMMENT_LEVEL = 4
+DOUBLE_COMMENT_LEVEL = 0
+TRANSACTION_AMOUNT_INDENT_LEVEL = 60
+TRANSACTION_COMMENT_INDENT_LEVEL = 100
+
+
+class LineType(enum.Enum):
+    ACCOUNT_ENTRY = enum.auto()  # revenues:interest:foobar -26.63
+    TRANSACTION = enum.auto()  # 2024-06-17 ISA Interest
+    COMMENT1 = enum.auto()  # ; Foobar
+    COMMENT2 = enum.auto()  # ;; Foobar
+    OTHER = enum.auto()  # include, D, etc.
+
+
+def _match_line_type(line: str) -> LineType:
+    if re.match(r"\s*[0-9-]+\s", line):
+        return LineType.TRANSACTION
+    elif re.match(r"\s+[a-z0-9-:+]+(\s|$)", line, re.IGNORECASE):
+        return LineType.ACCOUNT_ENTRY
+    elif re.match(r"\s*;;.*", line):
+        return LineType.COMMENT2
+    elif re.match(r"\s*;.*", line):
+        return LineType.COMMENT1
+    else:
+        return LineType.OTHER
+
+
+def _pad_comment(line: str, indent_level: int):
+    return "".rjust(indent_level) + line.lstrip()
+
+
+class _TransactionTokenizer(object):
+    class Tokens(enum.Enum):
+        ACCOUNT = enum.auto()
+        AMOUNT = enum.auto()
+        BALANCE = enum.auto()
+        EXCHANGE = enum.auto()
+        COMMENT = enum.auto()
+        # For internal use only.
+        _SKIP_WHITESPACE = enum.auto()
+
+    _ACCOUNT_CHARS = set(string.ascii_letters + string.digits + "-+: ")
+    _CURRENCY_CHARS = {"$"}
+
+    @classmethod
+    def _split_amount(cls, amount: str):
+        split_chars = [
+            ("@@", cls.Tokens.EXCHANGE),
+            ("@", cls.Tokens.EXCHANGE),
+            ("=", cls.Tokens.BALANCE),
+        ]
+
+        token_type = cls.Tokens.AMOUNT
+        for char, next_token_type in split_chars:
+            try:
+                split_pos = amount.index(char)
+            except ValueError:
+                continue
+            else:
+                yield token_type, amount[:split_pos].rstrip()
+                amount = amount[split_pos:]
+                token_type = next_token_type
+        yield token_type, amount.rstrip()
+
+    @classmethod
+    def tokens(cls, line: str):
+        state = cls.Tokens._SKIP_WHITESPACE
+        post_whitespace_state = cls.Tokens.ACCOUNT
+        buffer = ""
+        index = 0
+        while index <= len(line):
+            if index == len(line):
+                char, char_is_eof = None, True
+            else:
+                char, char_is_eof = line[index], False
+            index += 1
+            match state:
+                case cls.Tokens._SKIP_WHITESPACE:
+                    if char not in string.whitespace:
+                        state = post_whitespace_state
+                        buffer = ""
+                        index -= 1
+                case cls.Tokens.ACCOUNT:
+                    if not char_is_eof and char not in cls._ACCOUNT_CHARS:
+                        raise RuntimeError(
+                            "Unsupported character in account", char, line
+                        )
+                    if char_is_eof or (char == " " and buffer.endswith(" ")):
+                        yield state, buffer[:-1]
+                        state = cls.Tokens._SKIP_WHITESPACE
+                        post_whitespace_state = cls.Tokens.AMOUNT
+                    else:
+                        buffer += char
+                case cls.Tokens.AMOUNT:
+                    if char_is_eof or char == ";":
+                        buffer = buffer.strip()
+                        if buffer:
+                            yield from cls._split_amount(buffer)
+                        if not char_is_eof:
+                            index -= 1
+                        buffer = ""
+                        state = cls.Tokens.COMMENT
+                    else:
+                        buffer += char
+                case cls.Tokens.COMMENT:
+                    if char_is_eof:
+                        yield state, buffer
+                    else:
+                        buffer += char
+                case _:
+                    raise RuntimeError("Unknown state", state)
+
+
+def _pad_transaction(line: str):
+    new_line = "".ljust(GLOBAL_COMMENT_LEVEL)
+    for token_type, token in _TransactionTokenizer.tokens(line):
+        match token_type:
+            case _TransactionTokenizer.Tokens.ACCOUNT:
+                new_line += token
+            case _TransactionTokenizer.Tokens.AMOUNT:
+                new_line += "  "
+                new_line += token.rjust(
+                    TRANSACTION_AMOUNT_INDENT_LEVEL - (len(new_line) - 1)
+                )
+            case (
+                _TransactionTokenizer.Tokens.BALANCE
+                | _TransactionTokenizer.Tokens.EXCHANGE
+            ):
+                new_line += " " + token
+            case _TransactionTokenizer.Tokens.COMMENT:
+                new_line = new_line.ljust(TRANSACTION_COMMENT_INDENT_LEVEL)
+                new_line += token
+            case _:
+                raise RuntimeError("Unimplemented transaction token type", token_type)
+
+    return new_line
+
+
+def run_format(file) -> bool:
+    result = True
+    for line in file:
+        line = line.rstrip()
+        match _match_line_type(line):
+            case LineType.OTHER | LineType.TRANSACTION:
+                print(line)
+            case LineType.COMMENT1:
+                print(_pad_comment(line, GLOBAL_COMMENT_LEVEL))
+            case LineType.COMMENT2:
+                print(_pad_comment(line, DOUBLE_COMMENT_LEVEL))
+            case LineType.ACCOUNT_ENTRY:
+                print(_pad_transaction(line))
+            case _:
+                print(f"UNFORMATTED({_match_line_type(line)}):", line, file=sys.stderr)
+                result = False
+    return result
+
+
+def _parse_args():
+    parser = argparse.ArgumentParser()
+    input_group = parser.add_argument_group("Input group")
+    input_group = input_group.add_mutually_exclusive_group(required=True)
+    input_group.add_argument(
+        "-f", "--file", type=argparse.FileType("r", encoding="utf-8"), help=""
+    )
+    input_group.add_argument(
+        "-",
+        dest="file",
+        action="store_const",
+        const=sys.stdin,
+        help="Read from stdin instead of a file",
+    )
+    args = parser.parse_args()
+    return args
+
+
+if __name__ == "__main__":
+    sys.exit(0 if run_format(_parse_args().file) else 1)
