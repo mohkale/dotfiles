@@ -19,8 +19,6 @@ jctl-purge        sudo journalctl --vacuum-time=1w
 fsck              fsck -M -T
 
 hl                hledger --color=always
-hlq               bash -c 'query="$1"; shift; hledger --color=always "@$XDG_CONFIG_HOME/hledger/queries/$query" "$@"' hledger-query
-hlz               $XDG_DOCUMENTS_DIR/ledger/bin/hledger-fzquery
 hlac              hl accounts
 hlacc             hlac
 hlb               hl balance
@@ -43,7 +41,10 @@ hlfccx            hlfcc -X £
 hlr               hl register
 hlrx              hlr -X £
 hla               hl activity
-hlxr              $XDG_DOCUMENTS_DIR/ledger/bin/hledger-xr | tee -a $XDG_DOCUMENTS_DIR/ledger/xrates.journal
+
+hlq               bash -c 'query="$1"; shift; hledger --color=always "@$XDG_CONFIG_HOME/hledger/queries/$query" "$@"' hledger-query
+hlz               hledger-fzquery
+hlxr              hledger-xr | tee -a $XDG_DOCUMENTS_DIR/ledger/xrates.journal
 
 nord              nordvpn
 nordc             nordvpn connect

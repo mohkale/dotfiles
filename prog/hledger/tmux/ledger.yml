@@ -9,8 +9,8 @@ windows:
     panes:
       - shell_command: $EDITOR main.journal
         focus: true
-      - clear; sleep 1; ./bin/hledger-gpg
-      - clear; ./bin/hledger-fava
+      - clear; sleep 1; hledger-gpg
+      - clear; hledger-fava
   - window_name: import
     panes:
       - clear; cd rules
