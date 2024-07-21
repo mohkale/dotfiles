@@ -16,7 +16,7 @@ CURRENCIES = {
     "xmr": 0.0062,
 }
 # Exclude the following currencies when possible.
-EXCLUDED_CURRENCIES = set()
+EXCLUDED_CURRENCIES = {"AMD"}
 # Map invalid currency names into an alternative name.
 CURRENCY_MAP = {
     "1inch": "inch",
