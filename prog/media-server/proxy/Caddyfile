@@ -34,11 +34,24 @@ import /etc/caddy/local.d/Caddyfile.global
 # │    Snippets    │
 # └────────────────┘
 
+(error_pages) {
+	handle_errors 5xx {
+		reverse_proxy error-pages:8080 {
+			replace_status {err.status_code}
+
+			header_up X-Host       {upstream_hostport}
+			header_up X-Code       {err.status_code}
+			header_up X-Request-Id {http.request.uuid}
+		}
+	}
+}
+
 (service_proxy_to) {
 	#(service, TLD, service_host, port)
 	{args[0]}.{args[1]} {
 		# authorize with guests_policy
 		reverse_proxy {args[2]}:{args[3]}
+		import error_pages
 	}
 }
 
@@ -47,6 +60,7 @@ import /etc/caddy/local.d/Caddyfile.global
 	{args[0]}.{args[1]} {
 		import authelia_forward_auth {args[1]}
 		reverse_proxy {args[2]}:{args[3]}
+		import error_pages
 	}
 }
 

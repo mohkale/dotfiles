@@ -19,3 +19,14 @@ services:
       # that you don't want to be removed.
       - $XDG_CONFIG_HOME/media-server/caddy/data:/data
       - $XDG_CONFIG_HOME/media-server/caddy/config:/config
+
+  error-pages:
+    container_name: ms-error-pages
+    environment:
+      TEMPLATE_NAME: app-down
+      SEND_SAME_HTTP_CODE: true
+      SHOW_DETAILS: true
+    image: ghcr.io/tarampampam/error-pages
+    logging:
+      driver: "$LOGGING_DRIVER"
+    restart: unless-stopped
