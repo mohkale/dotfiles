@@ -605,10 +605,12 @@ calling =docker-compose "$@"=.
      site-address and any service running on a subdomain of that address.
 
      #+CAPTION: Sample DNS configuration to route to your server from the media subdomain of =site.com=.
-     | Record Type | Host             |        Answer |
-     |-------------+------------------+---------------|
-     | A           | media.site.com   | 27.241.155.98 |
-     | A           | *.media.site.com | 27.241.155.98 |
+     | Record Type | Host             | Answer                                  |
+     |-------------+------------------+-----------------------------------------|
+     | A           | media.site.com   | 27.241.155.98                           |
+     | A           | *.media.site.com | 27.241.155.98                           |
+     | AAAA        | media.site.com   | 2714:d863:fdce:8ceb:31b0:a023:d197:24e6 |
+     | AAAA        | *.media.site.com | 2714:d863:fdce:8ceb:31b0:a023:d197:24e6 |
 
 **** Dynamic IP Routing
      If your routers IP is instead dynamic then you will need some way to consistently
@@ -757,6 +759,45 @@ calling =docker-compose "$@"=.
      Note: This will make your server fully accessible through the internet. If you
      haven't, you should definitely consider setting up some sort of authentication on
      the server to restrict access only to you.
+
+**** Bypassing ISPs CG-NAT issues with IPv6
+     CG-NAT is a technology where ISPs while combine multiple IPv4 addresses for
+     different customers into a single IPv4 addresses. This means the ISP functions
+     like a light VPN and multiple users may be using the same IPv4 address as you.
+     Unfortunately it also means your ISP won't forward IPv4 packets for externally
+     initiated connections to your router because it can't deterministically know
+     which of the multiple routers broadcasting the same IPv4 address the packet is
+     meant for.
+
+     This shouldn't have a big impact on most services but will almost certainly
+     break DDNS support. The only way to bypass this is to have a static IP
+     provisioned (at an extra fee of course 👿) or try registering IPv6 DNS records
+     instead and hope CG-NAT is not enabled for it. As of writing (25-07-2024) CG-NAT
+     is not trivially (read cheap) to setup for ISPs so enabling IPv6 is not a
+     priority for most and likely won't be for a long time.
+
+     Luckily ddns-updater supports IPv6 as well, but docker doesn't (very well). To
+     update DNS records with IPv6 you must first [[https://docs.docker.com/config/daemon/ipv6/][enable IPv6 support in your docker
+     daemon]]. To test if IPv6 is working as at the docker daemon level you can use
+     the curl docker container like so:
+     #+begin_src shell
+       docker run --rm -it curlimages/curl -6 icanhazip.com
+     #+end_src
+
+     After this you can simply set =ip_version= to /ipv6/ instead of /ipv4/ in your
+     ddns-updater configuration file and restart the service. At least it would be
+     nice if you could 😢. I could not for some reason docker-compose seemed to have
+     it's own issues with IPv6 independent of the docker daemon. I ended up
+     translating my previous docker-compose configuration into a docker command and
+     that at least seems to work. Try testing this and swapping the command in your
+     service file to use this instead.
+
+     #+begin_src shell
+       # To start the service
+       docker run --rm -d --name ms-ddns-updater --publish 8000:8000 --volume /etc/media-server/config/ddns-updater:/updater/data qmcgaw/ddns-updater
+       # To stop the service
+       docker stop ms-ddns-updater
+     #+end_src
 
 *** Authorised Access with Authelia
     If you intend to access your media-server over the public internet you should
