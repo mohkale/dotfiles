@@ -1,0 +1,20 @@
+# -*- caddyfile -*-
+#
+# Caddy internal service definitions.
+#
+# Like [[file:Caddyfile.services]] but for services that don't need to be routable
+# within the caddy managed domains. These are defined for convenience and
+# debugging in the primary site address but not for public domains.
+
+# Importer         | Subdomain             | TLD       | Host                            | Port
+
+import   {args[1]}   prometheus              {args[0]}   prometheus                        9090
+import   {args[1]}   bazarr.prometheus       {args[0]}   bazarr-prometheus                   80
+import   {args[1]}   lidarr.prometheus       {args[0]}   lidarr-prometheus                   80
+import   {args[1]}   prowlarr.prometheus     {args[0]}   prowlarr-prometheus                 80
+import   {args[1]}   qbittorrent.prometheus  {args[0]}   qbit-prometheus                  17871
+import   {args[1]}   radarr.prometheus       {args[0]}   radarr-prometheus                   80
+import   {args[1]}   readarr.prometheus      {args[0]}   readarr-prometheus                  80
+import   {args[1]}   sonarr.prometheus       {args[0]}   sonarr-prometheus                   80
+
+import   {args[1]}   flaresolverr            {args[0]}   {$MEDIA_SERVER_HOST:flaresolverr} 8191
