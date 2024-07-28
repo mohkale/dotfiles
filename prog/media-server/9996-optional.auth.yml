@@ -13,27 +13,6 @@ services:
     volumes:
       - $XDG_CONFIG_HOME/media-server/authelia:/config
 
-  fail2ban:
-    cap_add:
-      - NET_ADMIN
-      - NET_RAW
-    container_name: ms-fail2ban
-    depends_on:
-      authelia:
-        condition: service_healthy
-    environment:
-      PUID: "$PUID"
-      PGID: "$PGID"
-      TZ: "$TZ"
-    logging:
-      driver: "$LOGGING_DRIVER"
-    image: lscr.io/linuxserver/fail2ban:latest
-    restart: unless-stopped
-    volumes:
-      - fail2ban-logs:/config/log
-      - $XDG_CONFIG_HOME/media-server/fail2ban:/config/fail2ban
-      - $XDG_CONFIG_HOME/media-server/authelia:/remotelogs/authelia:ro
-
   caddy:
     depends_on:
       authelia:
@@ -49,6 +28,3 @@ services:
       # it with the REVERSEPROXYUSERHEADER on localhost and on remote
       # connections it should be authorized with authelia.
       ND_REVERSEPROXYWHITELIST: 0.0.0.0/0
-
-volumes:
-  fail2ban-logs:

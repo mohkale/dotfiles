@@ -905,10 +905,12 @@ calling =docker-compose "$@"=.
     after enough of them updates your hosts firewall rules to ban subsequent
     requests.
 
-    This media-server configuration sets up fail2ban alongside authelia but the out
-    of box configuration will not do anything. To ban users that fail to login
-    through authelia you need to customise [[file:$XDG_CONFIG_HOME/media-server/fail2ban/jail.local][jail.local]] file. I'd recommend the
-    following configuration but you can customize and extend it at your discretion.
+    While it is possible to use fail2ban through docker, I've had issues getting
+    iptable chains set in container to sync back to the host operating system. It
+    would be simpler to install and setup locally outside of docker and point
+    configurations to files mounted into the service container.
+
+    Here's a sample [[file:$XDG_CONFIG_HOME/media-server/fail2ban/jail.local][jail.local]] file.
     #+begin_src conf
       [DEFAULT]
 
