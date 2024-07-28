@@ -776,28 +776,13 @@ calling =docker-compose "$@"=.
      is not trivially (read cheap) to setup for ISPs so enabling IPv6 is not a
      priority for most and likely won't be for a long time.
 
-     Luckily ddns-updater supports IPv6 as well, but docker doesn't (very well). To
-     update DNS records with IPv6 you must first [[https://docs.docker.com/config/daemon/ipv6/][enable IPv6 support in your docker
-     daemon]]. To test if IPv6 is working as at the docker daemon level you can use
-     the curl docker container like so:
-     #+begin_src shell
-       docker run --rm -it curlimages/curl -6 icanhazip.com
-     #+end_src
-
-     After this you can simply set =ip_version= to /ipv6/ instead of /ipv4/ in your
-     ddns-updater configuration file and restart the service. At least it would be
-     nice if you could 😢. I could not for some reason docker-compose seemed to have
-     it's own issues with IPv6 independent of the docker daemon. I ended up
-     translating my previous docker-compose configuration into a docker command and
-     that at least seems to work. Try testing this and swapping the command in your
-     service file to use this instead.
-
-     #+begin_src shell
-       # To start the service
-       docker run --rm -d --name ms-ddns-updater --publish 8000:8000 --volume /etc/media-server/config/ddns-updater:/updater/data qmcgaw/ddns-updater
-       # To stop the service
-       docker stop ms-ddns-updater
-     #+end_src
+     Luckily ddns-updater supports IPv6 as well, but docker doesn't (very well). At
+     this point I'd suggest moving the ddns-updater configuration to your primary
+     media-server host and running it through a native install instead of docker.
+     This would mean your home network is inaccessible if your ISP moves your IPv6
+     address :cry:. I'd also suggest setting some kind of raspberry pi SSH host for
+     keeping things accessible remotely even when your primary media-server is
+     offline.
 
 *** Authorised Access with Authelia
     If you intend to access your media-server over the public internet you should
