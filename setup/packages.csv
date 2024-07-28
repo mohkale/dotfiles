@@ -65,6 +65,7 @@ pass,which:pass,yay:pass
 pass-tomb,which:pass-tomb,yay:pass-tomb
 perl,which:perl,pacman:perl
 polybar,which:polybar,yay:polybar
+postfix,which:postfix,pacman:postfix
 proselint,which:proselint,yay:proselint,pipx:proselint
 py-asyncinotify,python-module:asyncinotify,pip:asyncinotify
 py-ffpb,python-module:ffpb,pip:ffpb

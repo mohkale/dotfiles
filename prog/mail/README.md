@@ -1,5 +1,7 @@
 # Mail Configuration
 
+## Distributed Synchronisation with Notmuch
+
 I manage emails using [notmuch][notmuch] and [emacs][emacs].
 
 I have several mail accounts setup and configured using [isync](./isync). These mails
@@ -29,3 +31,11 @@ master server).
 At this point I'd recommend setting up cron jobs to run `notmuch new` on both the
 server and the clients. The server will fetch mail from any configured remote
 accounts and the clients will fetch mail and tags from the server.
+
+## Local Mail with Postfix
+
+In many cases it's useful to have a MUA registered on your Linux host. This assists
+with things like notifications, alerts, etc. I'd recommend setting up
+[postfix][postfix].
+
+[postfix]: https://wiki.archlinux.org/title/Postfix
