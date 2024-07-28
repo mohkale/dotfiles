@@ -22,6 +22,7 @@ services:
       driver: "$LOGGING_DRIVER"
     profiles:
       - qbittorrent
+    restart: unless-stopped
     volumes:
       - $XDG_CONFIG_HOME/media-server/qbittorrent:/config
       - $PWD/qbittorrent/scripts:/scripts
