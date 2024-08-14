@@ -1,1 +1,1 @@
-0 15 * * 7 if command -v mail; then echo 'Testing' | mail -s 'Test local delivery' $USER@localhost; fi
+0 15 * * 7 if command -v mail; then echo 'Testing' | chronic mail -s 'Test local delivery' $USER@localhost; fi
