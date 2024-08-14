@@ -125,7 +125,7 @@ _run_cmd_at() { #(dir, cmd)
   local dir="$1"; shift
   local dir_quoted; dir_quoted="$(printf %q "$(_abspath "$dir")")"
   if [ "$dry_run" -eq 0 ]; then
-    if pushd "$1" >/dev/null 2>&1; then
+    if pushd "$dir" >/dev/null; then
       "$@"
       popd >/dev/null || exit 1
     fi
