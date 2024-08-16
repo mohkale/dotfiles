@@ -38,6 +38,7 @@ export PYLINTRC="$XDG_CONFIG_HOME"/pylintrc
 export MYPY_CACHE_DIR="$XDG_CACHE_HOME"/mypy
 export PIPENV_IGNORE_VIRTUALENVS=1
 export POETRY_HOME="$XDG_CONFIG_HOME"/poetry                                    # poetry
+export RUFF_CACHE_DIR="$XDG_CACHE_HOME"/ruff
 
 export IPYTHONDIR="$XDG_CONFIG_HOME"/jupyter                                    # iPython (jupyter notebooks)
 export JUPYTER_CONFIG_DIR="$XDG_CONFIG_HOME"/jupyter
@@ -134,3 +135,7 @@ irssi --config=$XDG_CONFIG_HOME/irssi/config \
 export ICEAUTHORITY="$XDG_CACHE_HOME"/ICEauthority
 
 export DOCKER_CONFIG="$XDG_CONFIG_HOME"/docker
+
+export DOTNET_CLI_HOME="$XDG_DATA_HOME"/dotnet
+export NUGET_PACKAGES="$XDG_CACHE_HOME"/NuGetPackages
+export OMNISHARPHOME="$XDG_CONFIG_HOME"/omnisharp
