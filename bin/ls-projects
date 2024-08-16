@@ -154,20 +154,24 @@ expand_repos_with_title() {
   return _repo_segments[_repo_segments_count]
 }' \
       -e 'function string_prefix_p(str, prefix) {
-  return 1 == index(prefix, substr(str, 0, length(prefix)))
+  return length(str) >= length(prefix) && 1 == index(prefix, substr(str, 0, length(prefix)))
 }' \
       -e 'function repo_title(path) {
   for (i = 1; i <= alias_count; i++) {
     alias = aliases[i][1]
     if (string_prefix_p(path, alias)) {
-      path = substr(path, length(alias))
+      if (length(path) == length(alias)) {
+        path = ""
+      } else {
+        path = substr(path, length(alias))
+      }
       # Remove leading / prefix.
       if (substr(path, 0, 1) == "/") {
         path = substr(path, 2)
       }
       # Append aliased prefix.
       if (aliases[i][2]) {
-        path = aliases[i][2] "/" path
+        path = aliases[i][2] (path ? "/" path : "")
       }
       return path
     }
