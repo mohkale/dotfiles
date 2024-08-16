@@ -1,5 +1,0 @@
-#+TITLE: Core
-
-Here you'll find the stuff I always install, regardless of the distribution or
-environment. This includes [[file:aliases/][aliases]], [[file:walls/][wallpapers]], shell-specific configurations
-and other basic fundamental configurations for setting up a usable system.

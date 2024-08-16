@@ -22,14 +22,14 @@ fi
 
 # Source and export XDG files for the current platform.
 if [ "$("$root"/bin/ls-platform)" = windows ]; then
-  xdg_file="$root/core/user-dirs.windows"
+  xdg_file="$root/core/shell/user-dirs.windows"
 else
-  xdg_file="$root/core/user-dirs"
+  xdg_file="$root/core/shell/user-dirs"
 fi
 
 # shellcheck disable=SC1090
 source "$xdg_file"
-source "$root/core/xdgenv"
+source "$root/core/shell/xdgenv"
 xdgvars=$(sed -e '/^#/d' -e '/^$/d' -e 's/^\(.\+\)=\(.\+\)$/\1/' "$xdg_file")
 IFS=$'\n'
 for var in $xdgvars; do

@@ -27,10 +27,10 @@
 [submodule "prog/pass/store"]
 	path = prog/pass/store
 	url = git@github.com:mohkale/pass.git
-[submodule "core/walls"]
-	path = core/walls
-	url = git@github.com:mohkale/dotfiles-wallpapers.git
 [submodule "prog/browsers/brave/startpage"]
 	path = prog/browsers/brave/startpage
 	url = https://github.com/deepjyoti30/startpage.git
 	ignore = dirty
+[submodule "core/repos/walls"]
+	path = core/repos/walls
+	url = git@github.com:mohkale/dotfiles-wallpapers.git
