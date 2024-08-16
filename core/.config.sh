@@ -9,7 +9,6 @@ link ~/.ignore                                    \
      "$XDG_CONFIG_HOME/inputrc"                   \
      "$XDG_CONFIG_HOME/prog-icons"                \
      "$XDG_CONFIG_HOME/dircolors"                 \
-     "$XDG_CONFIG_HOME/games.edn"                 \
      "$XDG_CONFIG_HOME/diricons"                  \
      "$XDG_CONFIG_HOME/.curlrc"                   \
      xdgenv:"$XDG_CONFIG_HOME/xdg"                \

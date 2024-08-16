@@ -213,9 +213,6 @@ cmd open-bookmark $. $XDG_CONFIG_HOME/lf/auto/setup-fzf; . $XDG_CONFIG_HOME/auto
 map oP open-password
 cmd open-password $bash -c '. $XDG_CONFIG_HOME/lf/auto/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/fzpass; fzpass'
 
-map og open-game
-cmd open-game $. $XDG_CONFIG_HOME/lf/auto/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/open_game; open_game
-
 ## Change to directory (non-interactively)
 map gt cd /tmp/
 map g/ cd /

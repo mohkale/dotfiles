@@ -391,12 +391,6 @@ bind -Tm-commands M run -b 'bash -c '"'"'\
   cd_mount\
 '"'"
 
-bind -Tm-commands g run -b 'bash -c '"'"'\
-  . $HOME/.config/tmux/cmds/setup-fzf;\
-  . $HOME/.config/autoloads/cmds/open_game;\
-  open_game\
-'"'"
-
 bind -Tm-commands m run -b 'bash -c '"'"'\
   . $HOME/.config/tmux/cmds/setup-fzf;\
   . $HOME/.config/autoloads/cmds/fzf_man;\

@@ -1,4 +1,0 @@
-;; -*- mode: clojure -*- Game configuration
-{:env
- #game/set-env {"ROOT" #game/expand "$HOME/media/games"}
- :games (#game/load-games #game/expand "$ROOT/games.edn")}

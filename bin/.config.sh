@@ -37,7 +37,6 @@ link                                            \
   "$XDG_BIN_DIR/ls-distro"                      \
   "$XDG_BIN_DIR/ls-exec"                        \
   "$XDG_BIN_DIR/ls-fs-shortcuts"                \
-  "$XDG_BIN_DIR/ls-games"                       \
   "$XDG_BIN_DIR/ls-graphics-card"               \
   "$XDG_BIN_DIR/ls-platform"                    \
   "$XDG_BIN_DIR/ls-projects"                    \
