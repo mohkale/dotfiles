@@ -1,7 +1,7 @@
 if bots mail.server; then
+  makedir "$XDG_DOCUMENTS_DIR/backups/mail"
   link server.cron:"$XDG_CONFIG_HOME/cron-user.d/notmuch-server.cron"
 elif bots mail.client; then
-  makedir "$XDG_DOCUMENTS_DIR/mail-backups"
   link client.cron:"$XDG_CONFIG_HOME/cron-user.d/notmuch-client.cron"
   if bots mail.local; then
     packagex postfix
