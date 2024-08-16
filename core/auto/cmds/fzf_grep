@@ -5,7 +5,11 @@
 fzf_grep() {
   local grepper prompt
   if command -v rg >/dev/null 2>&1; then
-    grepper="rg --no-column --line-number --no-heading --color=always --smart-case -- "
+    grepper="rg --no-column --line-number --no-heading --color=always --smart-case"
+    if [ "${FZF_GREP_RESPECT_PROJECT_IGNORE:-1}" -eq 0 ]; then
+      grepper="$grepper --no-ignore"
+    fi
+    grepper="$grepper -- "
     prompt='Ripgrep to files: '
   else
     grepper="project-files -f | xargs -r -d '\n' grep -P --color=always --binary-files=without-match --line-number --regexp "

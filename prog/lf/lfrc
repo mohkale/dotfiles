@@ -256,6 +256,9 @@ cmd cdltemp ${{
 map gs fzf-grep
 cmd fzf-grep $. $XDG_CONFIG_HOME/lf/auto/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/fzf_grep; fzf_grep
 
+map gS fzf-grep-no-ignore
+cmd fzf-grep-no-ignore $. $XDG_CONFIG_HOME/lf/auto/setup-fzf; . $XDG_CONFIG_HOME/autoloads/cmds/fzf_grep; FZF_GREP_RESPECT_PROJECT_IGNORE=0 fzf_grep
+
 map cls $true
 
 ## Select files/directories (interactively)

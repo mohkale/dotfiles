@@ -122,6 +122,7 @@ gf      fzf_file
 gm      cd_mount
 gp      cd_project
 gs      fzf_grep
+gS      FZF_GREP_RESPECT_PROJECT_IGNORE=0 fzf_grep
 gu      cd_project_root
 gx      edit_executables
 oe      select_path
