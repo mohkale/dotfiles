@@ -3,6 +3,7 @@
 clean                                           \
   ~/                                            \
   "$XDG_CONFIG_HOME"                            \
+  "$XDG_DATA_HOME"                              \
   "$XDG_DATA_HOME/applications"
 
 makedir \
