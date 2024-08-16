@@ -61,8 +61,6 @@ services:
     <<: *vpn-config
   lidarr:
     <<: *vpn-config
-  mylar3:
-    <<: *vpn-config
   prowlarr:
     <<: *vpn-config
   radarr:
