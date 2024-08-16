@@ -22,12 +22,31 @@ esac
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"                    # Make less more friendly for non-text input files, see lesspipe(1)
 
 # Generate lesskey configuration file when it's out of date.
-# shellcheck disable=SC1083
+_less_needs_lesskey() {
+  if command -v less >/dev/null 2>&1; then
+    local less_ver
+    less_ver=$(less --version |
+                 while IFS=' ' read -r less version rest; do
+                   echo "$version"
+                   break
+                 done)
+    [ "$less_ver" -le 582 ]
+  else
+    # Cancel early. It would be weird for lesskey to be available
+    # but less to not be.
+    return 0
+  fi
+}
 if [ -n "$LESSKEY" ] &&
-  command -v lesskey >/dev/null 2>&1 &&
-  [ -e "$LESSKEY.base" ] &&
-  { ! [ -e "$LESSKEY" ] || [ "$LESSKEY.base" -nt "$LESSKEY" ]; }; then
-  lesskey "$LESSKEY.base"
+   [ -e "$LESSKEY.base" ] &&
+   { ! [ -e "$LESSKEY" ] || [ "$LESSKEY.base" -nt "$LESSKEY" ]; }; then
+  if _less_needs_lesskey; then
+    if command -v lesskey >/dev/null 2>&1; then
+      lesskey "$LESSKEY.base"
+    fi
+  else
+    cp -f "$LESSKEY.base" "$LESSKEY"
+  fi
 fi
 
 # Apply custom color scheme for ls (for some reason this doesn't
