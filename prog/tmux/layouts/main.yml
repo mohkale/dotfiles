@@ -5,9 +5,10 @@ start_directory: ~/
 
 windows:
   - window_name: dash
-    layout: even-vertical
+    layout: even-horizontal
     panes:
       - gotop || htop || top || exit
+      - nvtop || exit
   - window_name: net
     panes:
       - nethogs || nload || iftop || exit

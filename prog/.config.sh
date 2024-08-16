@@ -42,6 +42,7 @@ import -b                                       \
   media-server/transmission                     \
   media-server/qbittorrent                      \
   network-manager                               \
+  nvtop                                         \
   pass                                          \
   polybar                                       \
   ranger                                        \

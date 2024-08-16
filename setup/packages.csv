@@ -60,6 +60,7 @@ mullvadvpn,which:mullvad,yay:mullvad-vpn-bin
 node,which:node,apt:nodejs,choco:nodejs,pacman:nodejs
 notify-send,which:notify-send,pipx:notify-send
 npm,which:npm,apt:npm,pacman:npm
+nvtop,which:nvtop,pacman:nvtop
 oxlint,which:oxlint,yarn:oxlint,npm:oxlint
 pass,which:pass,yay:pass
 pass-tomb,which:pass-tomb,yay:pass-tomb
