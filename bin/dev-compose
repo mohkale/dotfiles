@@ -45,6 +45,8 @@ LOCAL_TMUXP_CONFIG = LOCAL_CONFIG_DIR / "tmuxp.yaml"
 
 # Main docker-compose files. Only one of these should exist in a project.
 MAIN_COMPOSE_FILES = [
+    pathlib.Path("compose.yaml"),
+    pathlib.Path("compose.yml"),
     pathlib.Path("docker-compose.yaml"),
     pathlib.Path("docker-compose.yml"),
     pathlib.Path(".dev-compose.yml"),
@@ -59,6 +61,8 @@ MAIN_DOCKERFILE = [pathlib.Path("Dockerfile")]
 # dev-compose will supply them one after the other to docker-compose so
 # later entries in this list will override the earlier ones.
 EXTRA_COMPOSE_FILES = [
+    pathlib.Path("compose.override.yaml"),
+    pathlib.Path("compose.override.yml"),
     pathlib.Path("docker-compose.override.yaml"),
     pathlib.Path("docker-compose.override.yml"),
     LOCAL_COMPOSE_FILE,
