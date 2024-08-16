@@ -142,8 +142,13 @@ if command -v codium >/dev/null 2>&1; then
   alias code=codium
 fi
 
-[ -r "$XDG_CONFIG_HOME/shenv.local" ] &&
-  . "$XDG_CONFIG_HOME/shenv.local"
+if [ -e "$XDG_CONFIG_HOME"/shenv.d ]; then
+  for profile_file in "$XDG_CONFIG_HOME"/shenv.d/*; do
+    # shellcheck disable=SC1090
+    . "$profile_file"
+  done
+fi
+unset profile_file
 
 unset shell
 

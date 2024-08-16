@@ -236,10 +236,11 @@ qt          pushd $(mktemp -d)
 lt          mcd   "$(date +"${XDG_TEMP_DIR:-$HOME/.local/temp}/%Y%m%d.%H%M%S")"
 
 # filesystem-shortcuts
-profile@file     ~/.profile
+prof@file        ~/.profile
+profl@file       $XDG_CONFIG_HOME/profile.d/99-profile.local
 gconf@file       $XDG_CONFIG_HOME/git/config
 shenv@file       $XDG_CONFIG_HOME/shenv
-shenvl@file      $XDG_CONFIG_HOME/shenv.local
+shenvl@file      $XDG_CONFIG_HOME/shenv.d/99-shenv.local
 al@file          $XDG_CONFIG_HOME/aliases
 alg@file         $XDG_CONFIG_HOME/aliases/global
 algp@file        $XDG_CONFIG_HOME/aliases/global.private
