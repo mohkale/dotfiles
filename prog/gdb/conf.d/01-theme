@@ -21,7 +21,7 @@ def setup_prompt(color_map):
 
     # Actual body of the prompt before adding metadata and styling.
     PROMPT_CONTENT = ">>>"
-    PROMPT_SUFFIX = " \[\033]133;A\007\]"
+    PROMPT_SUFFIX = " \033]133;A\007"
 
     def colorise(string, color):
         if color not in color_map or gdb.convenience_variable("USECOLOR") == 0:
@@ -47,11 +47,11 @@ if os.environ.get("TERM") != "dumb":
     gdb.prompt_hook = setup_prompt(
         {
             # Reset all color codes
-            "reset": "\[\e[0m\]",
+            "reset": "\033[0m",
             # Inferior process is not running
-            "idle": "\[\e[90m\]",
+            "idle": "\033[90m",
             # Inferior process is running
-            "active": "\[\e[1;35m\]",
+            "active": "\033[1;35m",
         }
     )
 
