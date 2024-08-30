@@ -12,10 +12,10 @@ iproute    traceroute
 btctl             bluetoothctl
 sctl              systemctl
 ssctl             sd sctl
-jctl              journalctl --no-pager
-jctlr             journalctl --reverse
-jctl-errors       journalctl --priority 3 --catalog --boot
-jctl-purge        sudo journalctl --vacuum-time=1w
+jctl              SYSTEMD_COLORS=true journalctl --no-pager
+jctlr             jctl --reverse
+jctl-errors       jctl --priority 3 --catalog --boot
+jctl-purge        sd jctl --vacuum-time=1w
 fsck              fsck -M -T
 
 hl                hledger --color=always
