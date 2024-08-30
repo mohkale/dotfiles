@@ -12,6 +12,8 @@ set $COLOR_CPUFLAGS = $RED
 # Setup a Python IDLE like prompt. When color is enabled the prompt will default
 # to a dim color and switch to a more colorful prompt when there's a process
 # running.
+#
+# We use [[https://stackoverflow.com/a/55773513][\001 and \002]] to mark sequences that don't affect the prompt length.
 
 python
 import os
@@ -21,7 +23,7 @@ def setup_prompt(color_map):
 
     # Actual body of the prompt before adding metadata and styling.
     PROMPT_CONTENT = ">>>"
-    PROMPT_SUFFIX = " \[\033]133;A\007\]"
+    PROMPT_SUFFIX = " \001\033]133;A\007\002"
 
     def colorise(string, color):
         if color not in color_map or gdb.convenience_variable("USECOLOR") == 0:
@@ -47,11 +49,11 @@ if os.environ.get("TERM") != "dumb":
     gdb.prompt_hook = setup_prompt(
         {
             # Reset all color codes
-            "reset": "\[\e[0m\]",
+            "reset": "\001\033[0m\002",
             # Inferior process is not running
-            "idle": "\[\e[90m\]",
+            "idle": "\001\033[90m\002",
             # Inferior process is running
-            "active": "\[\e[1;35m\]",
+            "active": "\001\033[1;35m\002",
         }
     )
 
