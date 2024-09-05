@@ -377,6 +377,11 @@ do_riff() {
   rifftree -s -- "$1"
 }
 
+do_diff() {
+  # shellcheck disable=2002
+  ( cat "$1" | colordiff --colorse=yes --nobanner ) && return
+}
+
 # ┌────────────────────────┐
 # │ Extension Associations │
 # └────────────────────────┘
@@ -410,6 +415,7 @@ case "$FILE_EXTENSION" in
   mp3)             do_video "$FILE_PATH" ;;
   idx)             do_riff "$FILE_PATH" ;;
   iso)             do_iso "$FILE_PATH" ;;
+  diff|patch)      do_diff "$FILE_PATH" ;;
 
   md) highlight_bat -l markdown -- "$FILE_PATH" ;;
   csv) highlight_bat -l csv -- "$FILE_PATH" ;;
