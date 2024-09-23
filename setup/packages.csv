@@ -36,6 +36,7 @@ godoc,which:godoc,go:golang.org/x/tools/cmd/godoc@latest
 golang,which:go,choco:golang,yay:go,gotools
 golang,which:golang,choco:ipython,yay:go,gotools
 gopls,which:gopls,go:golang.org/x/tools/gopls@latest,pacman:gopls
+gradle,which:gradle,pacman:gradle
 gst-plugins-good,,pacman:gst-plugins-good
 gstreamer,,pacman:gstreamer
 haskell-language-server,which:haskell-language-server-wrapper,yay:haskell-language-server
@@ -43,6 +44,8 @@ hledger,which:hledger,pacman:hledger-bin
 html-tidy,which:tidy,pacman:tidy
 imagemagick,which:convert,choco:imagemagick,pacman:imagemagick
 ipython,which:ipython,pipx:ipython
+java,which:javac,pacman:jdk17-openjdk
+jdtls,which:jdtls,yay:jdtls
 jellyfin-media-player,which:jellyfinmediaplayer,yay:jellyfin-media-player
 jsonlint,which:jsonlint,yarn:jsonlint,npm:jsonlint
 ledger2beancount,which:ledger2beancount,pacman:ledger2beancount
@@ -54,6 +57,7 @@ lua,which:lua,yay:lua
 luarocks,which:luarocks,yay:luarocks
 markdownlint,which:mdl,gem:mdl
 marksman,which:marksman,yay:marksman-bin
+maven,which:mvn,pacman:maven
 mpv,which:mpv,yay:mpv-full
 mpv-mpris,stat:/usr/lib/mpv-mpris/mpris.so,yay:mpv-mpris
 mullvadvpn,which:mullvad,yay:mullvad-vpn-bin
