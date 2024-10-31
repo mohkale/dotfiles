@@ -34,6 +34,7 @@ class _QbittorrentStatus(enum.Enum):
     MISSING_FILES = "missingFiles"
     UPLOADING = "uploading"
     PAUSED_COMPLETE = "pausedUP"
+    STOPPED_COMPLETE = "stoppedUP"
     QUEUED_COMPLETE = "queuedUP"
     STALLED_COMPLETE = "stalledUP"
     CHECKING_COMPLETE = "checkingUP"
@@ -46,6 +47,7 @@ class _QbittorrentStatus(enum.Enum):
     STALLED_DOWNLOADING = "stalledDL"
     CHECKING_DOWNLOADING = "checkingDL"
     FORCED_DOWNLOADING = "forcedDL"
+    STOPPED_DOWNLOADING = "stoppedDL"
     CHECKING_RESUME_DATA = "checkingResumeData"
     MOVING = "moving"
     UNKNOWN = "unknown"
@@ -59,6 +61,7 @@ class _QbittorrentStatus(enum.Enum):
                 QT.MISSING_FILES: "MissingFiles",
                 QT.UPLOADING: "Seeding",
                 QT.PAUSED_COMPLETE: "Paused",
+                QT.STOPPED_COMPLETE: "Paused",
                 QT.QUEUED_COMPLETE: "Queued",
                 QT.STALLED_COMPLETE: "Stalled",
                 QT.CHECKING_COMPLETE: "Checking",
@@ -71,6 +74,7 @@ class _QbittorrentStatus(enum.Enum):
                 QT.STALLED_DOWNLOADING: "Stalled",
                 QT.CHECKING_DOWNLOADING: "Checking",
                 QT.FORCED_DOWNLOADING: "Downloading",
+                QT.STOPPED_DOWNLOADING: "Paused",
                 QT.CHECKING_RESUME_DATA: "Checking",
                 QT.MOVING: "Moving",
                 QT.UNKNOWN: "Unknown",
