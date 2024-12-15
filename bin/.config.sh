@@ -44,6 +44,7 @@ link                                            \
   "$XDG_BIN_DIR/ls-teleport-nodes"              \
   "$XDG_BIN_DIR/make-icons"                     \
   "$XDG_BIN_DIR/moji"                           \
+  "$XDG_BIN_DIR/motd"                           \
   "$XDG_BIN_DIR/passgen"                        \
   "$XDG_BIN_DIR/preview"                        \
   "$XDG_BIN_DIR/prog-icons"                     \
