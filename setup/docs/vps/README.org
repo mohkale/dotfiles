@@ -41,6 +41,16 @@ services :sunglasses:.
     sd ufw status verbose
   #+END_SRC
 
+* Message of The Day
+  Its nice when you're greeted by a useful MOTD script on login that shares some
+  metadata about useful installation locations. I have one setup in my dotfiles but
+  to plug it into login you must install the script somewhere executable by any user
+  and update [[file:/etc/pam.d/system-login]] to run it like so:
+
+  #+BEGIN_SRC text
+    session    optional   pam_exec.so          stdout /usr/bin/scripts/motd.sh
+  #+END_SRC
+
 * Platform Specific Guide
 ** OVH IPv6 Enablement
 

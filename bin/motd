@@ -1,10 +1,5 @@
 #!/usr/bin/env bash
 # Sample motd *Message of the Day* script to invoke on SSH logins.
-#
-# You can install this script at the end of your login profile /etc/profile
-# ~/.profile (and/or ~/.bash_profile) or globally for all users using PAM
-# by adding the following to `/etc/pam.d/system-login`:
-#   session    optional   pam_exec.so          stdout /usr/bin/scripts/motd.sh
 
 set -eu -o pipefail
 
