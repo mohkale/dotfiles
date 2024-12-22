@@ -1,5 +1,5 @@
 #+STARTUP: showall
-# #+TITLE: Dotfiles
+#+TITLE: Dotfiles
 #+OPTIONS: title:nil
 #+HTML_HEAD: <link rel=icon href=https://mohkale.gitlab.io/favicon.ico type=image/x-icon>
 
