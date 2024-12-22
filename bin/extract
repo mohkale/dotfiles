@@ -48,6 +48,20 @@ extract_archive() { #(archive)
       tar -xzvf "$archive_file" -C "$output_dir" ;;
     *.tar.xz|*.txz)
       tar -xJvf "$archive_file" -C "$output_dir" ;;
+    *.gz)
+      local dest="$output_dir/$(basename "$archive_file")"
+      case "$dest" in
+          *.gz) dest="${dest%.gz}" ;;
+          *) echo "extract: error: Cannot gzip deflate '$archive_file' because it is not suffixed with .gz" >&2
+             return 1
+             ;;
+      esac
+      if [ -e "$dest" ]; then
+          echo "extract: error: Refusing to gzip extract '$archive_file' because destination '$dest' already exists" >&2
+          return 1
+      fi
+      gzip -d "$archive_file" -c > "$dest" || rm -f "$dest"
+      ;;
     *.tar|*.tar.*|*.cbt|*.gem)
       tar -xvf "$archive_file" -C "$output_dir" ;;
     *.zip|*.cbz)
