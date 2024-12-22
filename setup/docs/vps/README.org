@@ -1,0 +1,69 @@
+#+TITLE: Virtual Private Server
+
+VPS setup guide.
+
+I host a VPS instance to provide common access to various services. It's convenient
+having a constantly online host with a fixed ip address to run cheap and lightweight
+services :sunglasses:.
+
+* Mail Server
+  As opposed to the basic mail client setup in [[file:../../../prog/mail/README.md]], a
+  dedicated publicly accessible mail server will require a little more setup to harden
+  and secure the host.
+
+  TODO: Sync documentation.
+  + Dovecot, Postfix.
+  + SpamAssassin
+  + DNS MX records
+
+* Firewall
+
+  For any host you plan to make accessible over the network you should setup a
+  firewall. A bare minimum is blocking all incoming traffic and allowing outgoing
+  traffic. Then piecemeal open up the firewall for the specific ports you want to be
+  publicly reachable.
+
+  I'd recommend [[https://wiki.archlinux.org/title/Uncomplicated_Firewall][Uncomplicated Firewall]] for basic setups.
+
+  #+BEGIN_SRC bash
+    sd ufw default allow outgoing
+    sd ufw default deny incoming
+    sd ufw allow 22/tcp
+    sd ufw app list
+    sd ufw allow ssh
+    sd ufw allow http
+    sd ufw allow https
+    sd ufw allow 25/tcp  # smtp
+    sd ufw allow 143/tcp # imap
+    sd ufw allow 993/tcp # imaps
+    sd ufw allow 110/tcp # pop3
+    sd ufw allow 995/tcp # pop3s
+    sd ufw status verbose
+  #+END_SRC
+
+* Platform Specific Guide
+** OVH IPv6 Enablement
+
+   OVH provides IPv6 addresses to cloud instances for free but hosts have to register
+   the gateway and IPv6 address manually instead of relying on DHCP to auto assign
+   one. The guide [[https://help.ovhcloud.com/csm/en-gb-vps-configuring-ipv6?id=kb_article_view&sysparm_article=KB0047569][here]] walks you through how to register this but at a high level you
+   must setup the following configuration file with the gateway and address
+   information from the OVH portal:
+
+   #+BEGIN_SRC yaml
+     ---
+     network:
+       version: 2
+       ethernets:
+         eth0:
+           dhcp6: false
+           match:
+           name: eth0
+           addresses:
+           - THE_IP_ADDRESS/THE_NETMASK
+           routes:
+           - to: THE_GATEWAY_ADDRESS
+             scope: link
+           - to: ::/0
+             via: THE_GATEWAY_ADDRESS
+   #+END_SRC yaml
