@@ -1,4 +1,4 @@
 */5 *  * * * . ~/.profile; chronic cron-retry mail-sync mail-sync
-0   12 * * * . ~/.profile; mkdir -m700 -p "$XDG_DOCUMENTS_DIR/backups/notmuch-tags" && notmuch dump --gzip --output="$XDG_DOCUMENTS_DIR/backups/notmuch-tags/notmuch-dump.$(date +\%Y-\%m-\%d).gzip"
+0   12 * * * . ~/.profile; mkdir -m700 -p "$XDG_DOCUMENTS_DIR/backups/notmuch-tags" && notmuch dump --gzip --output="$XDG_DOCUMENTS_DIR/backups/notmuch-tags/notmuch-dump.$(date +\%Y-\%m-\%d).gz"
 0   12 * * * . ~/.profile; if [ -e "$XDG_DOCUMENTS_DIR/backups/notmuch-tags/" ]; then find "$XDG_DOCUMENTS_DIR/backups/notmuch-tags/" -type f -not -newermt "$(date -d "$(date +\%F) -7 days" +\%F)" -delete; fi
 5   4  * * 3 . ~/.profile; mkdir -m700 -p "$XDG_DOCUMENTS_DIR/backups/local-mail" && chronic tar cf "$XDG_DOCUMENTS_DIR/backups/local-mail/backup.tar.gz" -I "gzip --best" ~/Maildir/
