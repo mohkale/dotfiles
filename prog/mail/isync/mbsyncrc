@@ -6,6 +6,7 @@ User mohkalsin@gmail.com
 PassCmd "pass web/google.com/mohkalsin@gmail.com | pcregrep -o1 '  mail: (.+)$' | head -n1"
 SSLType IMAPS
 CertificateFile /etc/ssl/certs/ca-certificates.crt
+Timeout 60
 
 IMAPStore mohkalsin-gmail-remote
 Account mohkalsin-gmail
@@ -30,6 +31,7 @@ User mohkalex@gmail.com
 PassCmd "pass web/google.com/mohkalex@gmail.com | pcregrep -o1 '  mail: (.+)$' | head -n1"
 SSLType IMAPS
 CertificateFile /etc/ssl/certs/ca-certificates.crt
+Timeout 60
 
 IMAPStore mohkalex-gmail-remote
 Account mohkalex-gmail
