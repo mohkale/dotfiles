@@ -11,14 +11,24 @@ prog="$(basename "$0")"
 
 echo
 echo "###############################################################################"
-echo "#                       Notmuch New Mail Tagging Script                       #"
+echo "#                           Notmuch Post New Script                           #"
 echo "###############################################################################"
 echo
 
 local_file=$(dirname "$0")/post-new.local
 if [ -x "$local_file" ]; then
+  echo "###############################################################################"
+  echo "#                         Notmuch Local Tagging Script                        #"
+  echo "###############################################################################"
+  echo
+
   "$local_file" "$@"
 fi
+
+echo "###############################################################################"
+echo "#                       Notmuch New Mail Tagging Script                       #"
+echo "###############################################################################"
+echo
 
 tag_config=$(dirname "$0")/post-new.tags
 if [ -e "$tag_config" ]; then
