@@ -23,6 +23,11 @@
 	redir https://jellyfin.{args[0]}{uri}
 }
 
+# Fallback HTTP domain for unregistered domain requests.
+http://*.{args[0]} {
+	import error_pages 501
+}
+
 # Importer         | Subdomain             | TLD       | Host                            | Port
 
 import   {args[1]}   gluetun                 {args[0]}   {$MEDIA_SERVER_HOST:gluetun}      8000
