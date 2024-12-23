@@ -96,3 +96,7 @@ agd               apt-get build-dep
 
 # Attach to a running process based on its process id.
 gdbp              gdb --pid
+
+bootdown          sd shutdown now
+restart           sd shutdown --reboot now
+restart-force     sd systemctl --force --force reboot
