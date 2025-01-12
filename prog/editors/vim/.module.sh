@@ -1,5 +1,5 @@
 packages                                        \
-  apt:vim                                       \
+  apt:vim-gtk3                                  \
   msys:vim                                      \
   choco:vim                                     \
   pacman:vim

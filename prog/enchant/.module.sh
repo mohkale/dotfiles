@@ -1,4 +1,4 @@
-packages pacman:enchant,aspell,aspell-en
+packages pacman:enchant,aspell,aspell-en apt:libenchant-2-dev
 
 # To avoid shared object loading warnings I install all supported extra
 # backends.

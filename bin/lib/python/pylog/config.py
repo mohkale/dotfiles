@@ -34,9 +34,17 @@ class ConfigExtensions(enum.Enum):
     and appending it to the filename we expect to find.
     """
 
-    JSON = functools.partial(json.load)
-    YAML = functools.partial(_load_yaml)
-    YML = functools.partial(_load_yaml)
+    def decode(self, file: typing.TextIO) -> None:
+        if self == ConfigExtensions.JSON:
+            return json.load(file)
+        elif self == ConfigExtensions.YAML or self == ConfigExtensions.YML:
+            return _load_yaml(file)
+        else:
+            assert False, f"Unsupported extension {self}"
+
+    JSON = enum.auto()
+    YAML = enum.auto()
+    YML = enum.auto()
 
 
 LOGGING_CONFIG_DIR = pathlib.Path(os.environ.get('XDG_CONFIG_HOME', '~/.config')).expanduser() / 'pylog'
@@ -80,7 +88,7 @@ def load_config(script: typing.Optional[str], default=None):
             if not path.exists():
                 continue
             with open(path, 'r') as fd:
-                config = merge_dict(ext.value(fd), config)
+                config = merge_dict(ext.decode(fd), config)
             loaded = True
             break
     return config if loaded else default

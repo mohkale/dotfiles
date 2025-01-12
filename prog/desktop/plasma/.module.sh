@@ -21,7 +21,6 @@ fi
 packages pacman:plasma-meta
 
 if bots wayland; then
-  packages pacman:plasma-wayland-session
   case "$("$DOTFILES/bin/ls-graphics-card")" in
     *nvidia*)
       packages pacman:egl-wayland ;;
