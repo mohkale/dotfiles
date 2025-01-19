@@ -15,13 +15,3 @@ services:
       # These still need to be public so that peer port-forwarding works.
       - $QBITTORRENT_PEER_PORT:$QBITTORRENT_PEER_PORT
       - $QBITTORRENT_PEER_PORT:$QBITTORRENT_PEER_PORT/udp
-
-  transmission:
-    network: host
-    ports:
-      # This is left public for convenience. TODO Support masked transmission
-      # peer port.
-      - 9091:9091
-      # These still need to be public so that peer port-forwarding works.
-      - $TRANSMISSION_PEER_PORT:$TRANSMISSION_PEER_PORT
-      - $TRANSMISSION_PEER_PORT:$TRANSMISSION_PEER_PORT/udp

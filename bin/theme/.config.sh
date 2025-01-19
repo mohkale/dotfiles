@@ -12,8 +12,7 @@ link                                            \
   "$XDG_BIN_DIR/mpd-playback"                   \
   "$XDG_BIN_DIR/notmuch"                        \
   "$XDG_BIN_DIR/status-misc"                    \
-  "$XDG_BIN_DIR/systemd"                        \
-  "$XDG_BIN_DIR/transmission"
+  "$XDG_BIN_DIR/systemd"
 
 import -f langs/python
 packagex py-github py-psutil py-mpd2

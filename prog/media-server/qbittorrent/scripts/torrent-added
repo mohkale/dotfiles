@@ -26,7 +26,7 @@ def _parse_args() -> argparse.Namespace:
         metavar="FILE",
         default=watcher.watcher_file(BACKEND),
         type=pathlib.Path,
-        help="transmission daemon configuration file",
+        help="Bittorrent daemon configuration file",
     )
 
     logging_group = parser.add_argument_group("Logging")
@@ -76,7 +76,7 @@ def _parse_args() -> argparse.Namespace:
 
     logging.debug("Reading configuration files")
 
-    logging.debug("Reading Transmission watcher config file=%s", args.watcher_config)
+    logging.debug("Reading watcher config file=%s", args.watcher_config)
     args.watcher_config = watcher.WatcherConfig.from_file(args.watcher_config)
 
     logging.debug("Reading torrent-added script environment")

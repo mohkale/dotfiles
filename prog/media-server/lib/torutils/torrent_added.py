@@ -2,10 +2,11 @@
 torrent-added script helpers.
 
 The routines in this script will be invoked every time a new torrent is added to
-Transmission. At the moment all it does is detect when the new torrent is created
-with a "specific" label and move it to a different incomplete torrent directory
-compared to the default directory. See the "downloadDirectoryLabels" configuration
-option in watcher.json for more information about how this is configured.
+a BitTorrent daemon. At the moment all it does is detect when the new torrent is
+created with a "specific" label and move it to a different incomplete torrent
+directory compared to the default directory. See the "downloadDirectoryLabels"
+configuration option in watcher.json for more information about how this is
+configured.
 """
 
 import logging

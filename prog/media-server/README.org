@@ -6,7 +6,6 @@
 #+HTML: <div align="right" style="display: flex; justify-content: flex-end">
 #+HTML:   <a style="margin-left: 4px;" href="https://jellyfin.org/"><img src="https://img.shields.io/badge/jellyfin-latest-%23AA5CC3?logo=jellyfin&style=for-the-badge&logoColor=%2300A4DC"/></a>
 #+HTML:   <a style="margin-left: 4px;" href="https://www.navidrome.org/"><img src="https://img.shields.io/badge/navidrome-latest-yellow?logo=Apple%20Music&style=for-the-badge&logoColor=yellow"/></a>
-#+HTML:   <a style="margin-left: 4px;" href="https://transmissionbt.com/"><img src="https://img.shields.io/badge/transmission-3.00r6-orange?logo=tor%20browser&style=for-the-badge&logoColor=orange"/></a>
 #+HTML:   <a style="margin-left: 4px;" href="https://sonarr.tv/"><img src="https://img.shields.io/badge/sonarr-latest-yellow?logo=TV%20Time&style=for-the-badge&logoColor=yellow"/></a>
 #+HTML:   <a style="margin-left: 4px;" href="https://radarr.video/"><img src="https://img.shields.io/badge/radarr-latest-brightgreen?logo=coveralls&style=for-the-badge&logoColor=brightgreen"/></a>
 #+HTML:   <a style="margin-left: 4px;" href="https://lidarr.audio/"><img src="https://img.shields.io/badge/lidarr-latest-%23FB5BC5?logo=iTunes&style=for-the-badge&logoColor=%23FB5BC5"/></a>
@@ -218,7 +217,7 @@ calling =docker-compose "$@"=.
       each of these indexers (found under _Settings/General_ on each of them).
 
 
-   *Note*: You may want to add a download client entry for Transmission/qBittorrent in
+   *Note*: You may want to add a download client entry for your bittorrent daemon in
    prowlarr as well. This will allow you to perform searches directly from prowlarr
    and add them to the download queue.
 
@@ -232,18 +231,11 @@ calling =docker-compose "$@"=.
    Is a music media-server. I prefer it to Jellyfin for music mostly because of the
    nicer interface.
 
-** Transmission                                                  :bittorrent:
-   When using transmission you should update each indexer and tracker services
-   configuration to route to Transmission. This will be ~host=transmission~ and
-   =port=9091=.
-
-   I'd also recommend disabling the hide advanced checkbox and setting the Directory
-   option for the services to =/media/downloads/[INDEXER]= to ensure media related
-   downloads are kept on the same mount as your media directory.
-
 ** qBittorrent                                                   :bittorrent:
-   Is an alternative BitTorrent client. By default the username and password for the
-   qBittorrent Docker image is admin/adminadmin.
+   Is a BitTorrent client.
+
+   By default the username for the qBittorrent Docker image is admin and a unique
+   password will be logged when the application starts up.
 
    Add qBittorrent as a download client to each indexer/tracker. You should setup a
    client category of =[INDEXER]= and update the corresponding qBittorrent category to
@@ -252,7 +244,7 @@ calling =docker-compose "$@"=.
    After setup update the default torrent management mode to automatic and change the
    default save path to =/downloads/incomplete=. We cannot use the incomplete torrents
    path option because it overrides the categories path so leave that option disabled.
-   Completed torrents will be moved by the torrent-done script directly.
+   Completed torrents will be moved by the [[file:qbittorrent/scripts/torrent-done][torrent-done]] script directly.
 
 ** flood                                                                 :ui:
    Is a web UI for rTorrent, Transmission and qBittorrent.
@@ -260,7 +252,7 @@ calling =docker-compose "$@"=.
    On setup you will be asked to setup a user and password and then enter your client
    details.
 
-** Scrutiny
+** Scrutiny                                                              :ui:
    Scrutiny is a nice web UI for monitoring hard-drive health and S.M.A.R.T. reports.
    After enabling you'll need to mount the underlying disk devices for any disks you
    want scrutiny to query the reports for into the scrutiny container. Unfortunately
@@ -440,17 +432,17 @@ calling =docker-compose "$@"=.
    otherwise needing to configure things outside of the container environment. The
    help on the settings page should direct you to all the information you need.
 
-** Notifications from Transmission
-   Transmission is configured to notify the logged in user when a torrent completes
+** Notifications from QBittorrent
+   QBittorrent is configured to notify the logged in user when a torrent completes
    using =libnotify= and the =notify-send= helper script. This doesn't work out of the
    box with the current configuration because the logged-in users D-Bus session isn't
    accessible in the container. This can be worked around by simply mounting the
-   D-Bus runtime directory into the transmission service.
+   D-Bus runtime directory into the qBittorrent service.
 
    #+begin_src yaml
      ---
      services:
-       transmission:
+       qbittorrent:
          environment:
            XDG_RUNTIME_DIR: $XDG_RUNTIME_DIR
            # Should be within $XDG_RUNTIME_DIR.
@@ -506,16 +498,16 @@ calling =docker-compose "$@"=.
     the steps.
 
     *Note*: If you do not use the VPN support documented here then port forwarding
-    should work automatically. The transmission container will automatically reuse
-    the network of the host container for the transmission peer ports.
+    should work automatically. The QBittorrent container will automatically reuse
+    the network of the host container for the QBittorrent peer ports.
 
     After this all you have to do is make your download clients use the port you
     reserved instead of the default peer port. This can be done by simply setting the
-    ~TRANSMISSION_PEER_PORT~ and =QBITTORRENT_PEER_PORT= environment variables to your
-    peer port. You must also update the gluetun configuration to not block packets
-    from the forwarded port at the VPN firewall level (this is disabled by default
-    because if you haven't setup port forwarding you wouldn't traffic from the
-    default transmission peer port to reach your host).
+    =QBITTORRENT_PEER_PORT= environment variables to your peer port. You must also
+    update the gluetun configuration to not block packets from the forwarded port at
+    the VPN firewall level (this is disabled by default because if you haven't setup
+    port forwarding you wouldn't traffic from the default service peer port to reach
+    your host).
 
     #+CAPTION: Sample override for [[file:9999-optional.vpn.override.yml]] which allows the forwarded port through the firewall.
     #+begin_src yaml
@@ -523,7 +515,10 @@ calling =docker-compose "$@"=.
       services:
         gluetun:
           environment:
-            FIREWALL_VPN_INPUT_PORTS: $TRANSMISSION_PEER_PORT,$QBITTORRENT_PEER_PORT
+            FIREWALL_VPN_INPUT_PORTS: $QBITTORRENT_PEER_PORT
+          ports:
+            - $QBITTORRENT_PEER_PORT:$QBITTORRENT_PEER_PORT
+            - $QBITTORRENT_PEER_PORT:$QBITTORRENT_PEER_PORT/udp
     #+end_src
 
 *** Socks Proxy

@@ -41,7 +41,7 @@ class _DestPath(NamedTuple):
     # name of the torrent).
     dest_dir: pathlib.Path
 
-    # The source file the torrent was added from with the [[file:~/.config/dotfiles/prog/media-server/transmission/cmds/transmission-watcher][transmission-watcher]]
+    # The source file the torrent was added from with the [[file:~/.config/dotfiles/prog/media-server/cmds/torwatcher][torwatcher]]
     # if it exists. This file should be removed after the torrent is moved to
     # its new location.
     added_file: Optional[pathlib.Path]

@@ -25,13 +25,12 @@ services:
 
       # Set this in the override file to allow port forwarding from your VPN to your
       # bittorrent application.
-      # FIREWALL_VPN_INPUT_PORTS: $TRANSMISSION_PEER_PORT
+      # FIREWALL_VPN_INPUT_PORTS: $QBITTORRENT_PEER_PORT
     image: qmcgaw/gluetun
     logging:
       driver: "$LOGGING_DRIVER"
     ports:
-      # Transmission service ports (see [[file:no-vpn.docker-compose.yml]]).
-      - 9091:9091
+      # Bittorrent daemon service ports (see [[file:no-vpn.docker-compose.yml]]).
       - 8756:8756
     volumes:
       - $XDG_CONFIG_HOME/media-server/gluetun:/gluetun
@@ -52,8 +51,6 @@ services:
   navidrome:
     <<: *vpn-config
   qbittorrent:
-    <<: *vpn-config
-  transmission:
     <<: *vpn-config
   flood:
     <<: *vpn-config

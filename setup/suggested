@@ -47,10 +47,6 @@ presets=(
   [develop/c]="gdb clangd cmake-language-server"
   [develop/c.doc]="C/C++ programming language"
 
-  ## Used for torrent boxes which I use to download torrents
-  [torrent]="transmission tor"
-  [torrent.doc]="Torrent downloading and uploading configurations"
-
   # Play games
   [games]="steam"
   [games.doc]="For machines where I like to play games, both modern and retro"

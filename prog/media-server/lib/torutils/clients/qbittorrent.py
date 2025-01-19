@@ -77,11 +77,11 @@ class QBittorrentDaemonClient(TorrentClient):
 
         if overrides:
             logging.warning(
-                "Unsupported transmission overrides=%s for qbittorrent", overrides
+                "Unsupported overrides=%s for qbittorrent", overrides
             )
 
         logging.debug(
-            "Overrode transmission args=%s with new-args=%s",
+            "Overrode torrent-add args=%s with new-args=%s",
             repr(overrides),
             repr(new_overrides),
         )

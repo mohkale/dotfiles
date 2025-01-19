@@ -7,12 +7,10 @@ windows:
     panes:
       - shell_command:
         - media-server up --detach --no-recreate
-        - sleep 2
-        - media-server exec transmission true && tremc --skip-version-check
   - window_name: torrent
     layout: even-vertical
     panes:
-      - media-server-logs transmission qbittorrent
+      - media-server-logs qbittorrent
       - torwatcher
   - window_name: jellyfin
     panes:

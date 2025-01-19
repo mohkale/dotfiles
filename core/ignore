@@ -35,8 +35,6 @@ __pycache__/
 .config/libreoffice/
 .config/unity3d/
 .config/Code - OSS/
-.config/transmission-daemon/resume/*
-.config/transmission-daemon/torrents/*
 
 .config/VSCodium/logs/
 .config/VSCodium/Cache*/

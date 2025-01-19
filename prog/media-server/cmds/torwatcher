@@ -373,7 +373,7 @@ async def uploader(
     config
         Watcher configuration.
     daemon_alive_event
-        Event which is `set` if the transmission daemon is running.
+        Event which is `set` if the bittorrent daemon is running.
     queue
         Async queue.
     """
@@ -540,7 +540,7 @@ def main() -> bool:
     except ImportError:
         logging.basicConfig(level=args.log_level)
     else:
-        use_logging_config("transmission-watcher", level=args.log_level)
+        use_logging_config("torwatcher", level=args.log_level)
 
     try:
         return asyncio.run(

@@ -21,11 +21,11 @@
   ],
 
   // Added torrents directory. After a file from the watch directory has been
-  // added to transmission it will be moved to this directory. The dirname of the
-  // file under this directory will match the dirname of it relative to the torrents
-  // directory (excluding any stripped rule prefixes configured below). The basename
-  // of the file will contain the hash of the added torrent (as returned by
-  // transmission) and the same suffix as the original file.
+  // added to the bittorrent daemon it will be moved to this directory. The dirname
+  // of the file under this directory will match the dirname of it relative to the
+  // torrents directory (excluding any stripped rule prefixes configured below). The
+  // basename of the file will contain the hash of the added torrent (as returned by
+  // your bittorrent daemon) and the same suffix as the original file.
   //
   // Once a torrent completes if a file matching the original .magnet or .torrent
   // file is found in the added directory it will be moved to a path under the same
@@ -40,7 +40,7 @@
     "incomplete": "incomplete",
     // Torrent watcher directory. This directory will be watched for new .torrent
     // or .magnet files and once detected they will be automatically added to
-    // transmission.
+    // your bittorrent daemon.
     "watch": "torrents",
     // Default subdirectory for completed torrents to be moved to. Once a torrent
     // is completed and was downloaded to the incomplete directory and there's no
@@ -50,10 +50,10 @@
   },
 
   // Automatically move torrents from one download-directory to another based on
-  // the labels it got assigned when first added to Transmission. When a new torrent
-  // is added to Transmission with any of the labels below and it is downloading to
-  // the incomplete sub-directory of its download root, it will be moved to the
-  // download root configured here.
+  // the labels it got assigned when first added to your bittorrent daemon. When a
+  // new torrent is added to Bittorrent with any of the labels below and it is
+  // downloading to the incomplete sub-directory of its download root, it will be
+  // moved to the download root configured here.
   "downloadDirectoryLabels": [
     {
       "label": "media",
@@ -64,7 +64,7 @@
   // Watcher rules.
   //
   // This configuration defines a set of rules to override the arguments forwarded
-  // to transmission when a new torrent is added based on file-paths. It works by
+  // to Bittorrent when a new torrent is added based on file-paths. It works by
   // unwinding and stripping away directory prefixes, updating a set of overrides
   // as you do so. For example a torrent in "@start/tv-shows/foobar" will actually
   // be interpreted as "tv-shows/foobar" with the @start prefix causing the watcher

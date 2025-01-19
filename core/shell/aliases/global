@@ -183,7 +183,7 @@ buku-tags buku -t
 ## jq
 jqr jq --raw-output
 
-# Transmission and QBittorrent
+# QBittorrent
 trr     qctl_fzf
 trs     qctl start
 trp     qctl pause
@@ -191,7 +191,6 @@ trd     qctl remove
 trl     qctl list
 trv     qctl verify
 qremote qbt
-tremote transmission-remote
 torclip clipsink -l - | grep --line-buffer '^magnet' | tee /dev/tty | tctl add -
 
 ## jupyter

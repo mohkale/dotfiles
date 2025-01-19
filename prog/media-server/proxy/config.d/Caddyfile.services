@@ -44,7 +44,6 @@ import   {args[1]}   navidrome               {args[0]}   {$MEDIA_SERVER_HOST:nav
 
 # Bittorrent Clients
 import   {args[1]}   qbittorrent             {args[0]}   {$MEDIA_SERVER_HOST:qbittorrent}  8756
-import   {args[1]}   transmission            {args[0]}   {$MEDIA_SERVER_HOST:transmission} 9091
 
 # User Interfaces
 import   {args[1]}   flood                   {args[0]}   {$MEDIA_SERVER_HOST:flood}        3000

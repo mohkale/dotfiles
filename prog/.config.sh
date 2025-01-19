@@ -39,7 +39,6 @@ import -b                                       \
   libinput                                      \
   media/*                                       \
   media-server                                  \
-  media-server/transmission                     \
   media-server/qbittorrent                      \
   network-manager                               \
   nvtop                                         \

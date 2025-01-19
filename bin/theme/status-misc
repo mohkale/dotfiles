@@ -27,7 +27,6 @@ for _module_name, _file_name in (
     ("status_misc.mpd_playback", "mpd-playback"),
     ("status_misc.notmuch", "notmuch"),
     ("status_misc.systemd", "systemd"),
-    ("status_misc.transmission", "transmission"),
 ):
     # pylint: disable=deprecated-method,no-value-for-parameter
     importlib.machinery.SourceFileLoader(

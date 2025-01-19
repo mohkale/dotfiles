@@ -8,7 +8,6 @@ from . import clients
 class TorrentBackend(enum.IntEnum):
     """Possible torrent daemon backends.
     """
-    TRANSMISSION = enum.auto()
     QBITTORRENT = enum.auto()
 
     @classmethod
@@ -19,8 +18,6 @@ class TorrentBackend(enum.IntEnum):
     @property
     def title(self):
         """Pretty name for a torrent backend."""
-        if self == TorrentBackend.TRANSMISSION:
-            return "Transmission"
         if self == TorrentBackend.QBITTORRENT:
             return "qBittorrent"
         return "Unknown"
@@ -39,16 +36,12 @@ class TorrentBackend(enum.IntEnum):
         )
 
     def _config_dir_basename(self) -> str:
-        if self == TorrentBackend.TRANSMISSION:
-            return "transmission"
         if self == TorrentBackend.QBITTORRENT:
             return "qbittorrent"
         raise ValueError(f"Unknown torrent-backend={self}")
 
     def client(self):
         """Client for interacting with a torrent backend."""
-        if self == TorrentBackend.TRANSMISSION:
-            return clients.TransmissionDaemonClient(self.config_dir() / "settings.json")
         if self == TorrentBackend.QBITTORRENT:
             return clients.QBittorrentDaemonClient(self.config_dir() / "client-settings.json")
         raise ValueError(f"torrent-backend={self} has no supported client")
