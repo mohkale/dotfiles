@@ -11,6 +11,7 @@ import                                          \
   desktop
 
 import -b                                       \
+  av/*                                          \
   avahi                                         \
   bat                                           \
   browsers/*                                    \
@@ -37,7 +38,6 @@ import -b                                       \
   lazydocker                                    \
   lf                                            \
   libinput                                      \
-  media/*                                       \
   media-server                                  \
   media-server/qbittorrent                      \
   network-manager                               \
