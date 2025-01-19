@@ -35,6 +35,7 @@ import   {args[1]}   gluetun                 {args[0]}   {$MEDIA_SERVER_HOST:glu
 # Dashboards
 import   {args[1]}   heimdall                {args[0]}   heimdall                            80
 import   {args[1]}   grafana                 {args[0]}   grafana                           3000
+import   {args[1]}   scrutiny                {args[0]}   scrutiny                          8080
 
 # Media Servers
 import   {args[1]}   jellyfin                {args[0]}   {$JELLYFIN_HOST:jellyfin}         8096

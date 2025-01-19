@@ -1,0 +1,18 @@
+---
+services:
+  scrutiny:
+    cap_add:
+      - SYS_RAWIO
+    container_name: ms-scrutiny
+    image: ghcr.io/analogj/scrutiny:master-omnibus
+    logging:
+      driver: "$LOGGING_DRIVER"
+    volumes:
+      - /run/udev:/run/udev:ro
+      - $XDG_CONFIG_HOME/media-server/scrutiny/config:/opt/scrutiny/config
+      - $XDG_CONFIG_HOME/media-server/scrutiny/influxdb:/opt/scrutiny/influxdb
+    profiles:
+      - smart
+
+    # You have to define devices sections for all the drives you want scrutiny
+    # to collect metrics for in the override file.

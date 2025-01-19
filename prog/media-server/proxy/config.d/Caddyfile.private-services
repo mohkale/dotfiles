@@ -18,3 +18,5 @@ import   {args[1]}   readarr.prometheus      {args[0]}   readarr-prometheus     
 import   {args[1]}   sonarr.prometheus       {args[0]}   sonarr-prometheus                   80
 
 import   {args[1]}   flaresolverr            {args[0]}   {$MEDIA_SERVER_HOST:flaresolverr} 8191
+
+import   {args[1]}   admin.scrutiny          {args[0]}   scrutiny                          8086

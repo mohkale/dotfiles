@@ -33,6 +33,7 @@
 #     music
 #     qbittorrent
 #     socks-proxy
+#     smart
 #     test
 #     transmission
 #     tv-shows
@@ -112,6 +113,10 @@ fi
 
 if is_profile_enabled dlna; then
   add_compose_file 9993-optional.dlna
+fi
+
+if is_profile_enabled smart; then
+  add_compose_file 9992-optional.scrutiny
 fi
 
 export COMPOSE_PROFILES="${MEDIA_SERVER_PROFILES}"
