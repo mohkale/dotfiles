@@ -18,7 +18,7 @@ jctl-errors       jctl --priority 3 --catalog --boot
 jctl-purge        sd jctl --vacuum-time=1w
 fsck              fsck -M -T
 
-hl                hledger --color=always
+hl                hledger --color=always --pager=no
 hlac              hl accounts
 hlacc             hlac
 hlb               hl balance
