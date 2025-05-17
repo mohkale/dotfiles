@@ -57,3 +57,6 @@ import   {args[1]}   radarr                  {args[0]}   {$MEDIA_SERVER_HOST:rad
 import   {args[1]}   readarr                 {args[0]}   {$MEDIA_SERVER_HOST:readarr}      8787
 import   {args[1]}   shoko                   {args[0]}   {$MEDIA_SERVER_HOST:shoko}        8111
 import   {args[1]}   sonarr                  {args[0]}   {$MEDIA_SERVER_HOST:sonarr}       8989
+
+# Metrics
+import   {args[1]}   prometheus              {args[0]}   prometheus                        9090

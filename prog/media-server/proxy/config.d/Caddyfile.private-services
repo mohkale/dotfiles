@@ -8,7 +8,6 @@
 
 # Importer         | Subdomain             | TLD       | Host                            | Port
 
-import   {args[1]}   prometheus              {args[0]}   prometheus                        9090
 import   {args[1]}   bazarr.prometheus       {args[0]}   bazarr-prometheus                   80
 import   {args[1]}   lidarr.prometheus       {args[0]}   lidarr-prometheus                   80
 import   {args[1]}   prowlarr.prometheus     {args[0]}   prowlarr-prometheus                 80
