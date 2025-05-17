@@ -14,7 +14,6 @@ services:
       driver: "$LOGGING_DRIVER"
     profiles:
       - books
-      - comics
     restart: unless-stopped
     volumes:
       - $XDG_CONFIG_HOME/media-server/readarr:/config

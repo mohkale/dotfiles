@@ -152,5 +152,4 @@ services:
     image: ghcr.io/onedr0p/exportarr:latest
     profiles:
       - books
-      - comics
     restart: unless-stopped
