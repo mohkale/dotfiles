@@ -46,8 +46,8 @@ link                                                    \
 makedir "$(pwd)/proxy/local.d"
 run-cmd-at "$(pwd)/proxy" touch local.d/Caddyfile.{global,snippets,routes}
 
-packagex jellyfin-media-player mpv-mpris
-link /usr/lib/mpv-mpris/mpris.so:~/.local/share/jellyfinmediaplayer/scripts/mpris.so
+packagex jellyfin-mpv-shim mpv-mpris
+link "$XDG_CONFIG_HOME/systemd/user/jellyfin-mpv-shim.service"
 package pip pandas "-r$(pwd)/lib/requirements.txt"
 
 import watcher qbittorrent

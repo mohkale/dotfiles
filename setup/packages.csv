@@ -46,7 +46,7 @@ imagemagick,which:convert,choco:imagemagick,pacman:imagemagick
 ipython,which:ipython,pipx:ipython
 java,which:javac,pacman:jdk17-openjdk
 jdtls,which:jdtls,yay:jdtls
-jellyfin-media-player,which:jellyfinmediaplayer,yay:jellyfin-media-player
+jellyfin-mpv-shim,which:jellyfin-mpv-shim,yay:jellyfin-mpv-shim
 jsonlint,which:jsonlint,yarn:jsonlint,npm:jsonlint
 ledger2beancount,which:ledger2beancount,pacman:ledger2beancount
 lf,which:lf,yay:lf-git,choco:lf,go:github.com/gokcehan/lf@latest

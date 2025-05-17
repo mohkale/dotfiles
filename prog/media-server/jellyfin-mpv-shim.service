@@ -1,0 +1,10 @@
+[Unit]
+Description=Jellyfin MPV Shim
+PartOf=media-server.service
+After=media-server.service
+
+[Service]
+ExecStart=jellyfin-mpv-shim
+
+[Install]
+WantedBy=basic.target
