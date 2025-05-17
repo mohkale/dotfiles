@@ -1,7 +1,7 @@
 # Jellyfin Media Server Dockerfile -- -*- dockerfile -*-
 
 ARG DOTNET_VERSION=6.0
-FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION} as plugin-builder
+FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION} AS plugin-builder
 
 RUN mkdir /plugins
 
