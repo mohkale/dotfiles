@@ -27,6 +27,8 @@ services:
       # bittorrent application.
       # FIREWALL_VPN_INPUT_PORTS: $QBITTORRENT_PEER_PORT
     image: qmcgaw/gluetun
+    healthcheck:
+      retries: 10
     logging:
       driver: "$LOGGING_DRIVER"
     ports:
