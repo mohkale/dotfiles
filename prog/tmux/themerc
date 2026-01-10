@@ -91,8 +91,6 @@ set -Fg @theme-battery-2 '#{@theme-aoh-orange}'
 set -Fg @theme-battery-3 '#{@theme-aoh-yellow}'
 set -Fg @theme-battery-4 '#{@theme-aoh-green}'                                                     # Last battery level divider (basically full)
 set -Fg @theme-battery-charging '#{@theme-aoh-yellow}'
-set -Fg @theme-mpd-playing '#{@theme-aoh-blue}'                                                    # MPD icon when mpd is playing something.
-set -Fg @theme-mpd-paused '#{@theme-aoh-magenta}'                                                  # MPD icon when mpd is not playing.
 
 # Obscure status line sections depending on the available width.
 set -g @theme-hide-title-width 130                                                                 # Hide pane title

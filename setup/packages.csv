@@ -76,7 +76,6 @@ proselint,which:proselint,yay:proselint,pipx:proselint
 py-asyncinotify,python-module:asyncinotify,pip:asyncinotify
 py-ffpb,python-module:ffpb,pip:ffpb
 py-github,python-module:github,pip:pygithub
-py-mpd2,python-module:mpd,pip:python-mpd2
 py-psutil,python-module:psutil,pip:psutil
 pycodestyle,which:pycodestyle,pipx:pycodestyle
 pydocstyle,which:pydocstyle,pipx:pydocstyle

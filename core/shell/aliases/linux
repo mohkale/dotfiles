@@ -57,14 +57,6 @@ mvpnc             mullvad connect --wait
 mvpnr             mullvad reconnect --wait
 mvpnd             mullvad disconnect --wait
 
-mpo               sh -c 'ncmpcpp "$@" || ncmpc "$@" || fmpd "$@"' 'mpd-client'
-mpq               fmpd queue
-mpf               fmpd files
-mpt               fmpd all
-mpa               fmpd albums
-mpp               fmpd playlists
-mpt               fmpd tags
-
 dd                docker
 dd-clean          docker system prune
 dd-erase          docker system prune --all

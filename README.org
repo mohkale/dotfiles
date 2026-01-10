@@ -85,6 +85,4 @@ My dotfile repository, happily brought to you by [[file:setup/dotty][dotty]] :bo
 
   [[file:.github/emacs.png]]
 
-  [[file:.github/mpd+ncmpcpp.png]]
-
 #  LocalWords:  tmux
