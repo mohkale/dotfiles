@@ -479,6 +479,58 @@ makedir() {
 }
 # Mkdir }}}
 
+# Mkfile {{{
+#  __  __ _     __ _ _
+# |  \/  | | __/ _(_) | ___
+# | |\/| | |/ / |_| | |/ _ \
+# | |  | |   <|  _| | |  __/
+# |_|  |_|_|\_\_| |_|_|\___|
+#
+
+_mkfile_usage='Usage: touchx [-h] [-m MODE] PATH [PATH...]'
+read -d '' -r _mkfile_help <<EOF
+$_mkfile_usage
+
+Positional arguments:
+  PATH  path to a file to create
+
+Optional arguments:
+  -h  Show this help message and exit
+  -m  Set the file modes of any new files
+EOF
+makefile() {
+  local makefile_args=( )
+  local OPTIND
+  while getopts 'hm:' OPTION; do
+    case "$OPTION" in
+      h) echo "$_makedir_help"
+         return 0 ;;
+      \?) echo "$_makedir_usage" >&2
+          return 1 ;;
+      m) makefile_args+=( -m "$OPTARG" ) ;;
+    esac
+  done
+  shift "$((OPTIND-1))"
+
+  _skip_directive makefile && return
+
+  local it
+  while [ "$#" -gt 0 ]; do
+    it="$1"; shift
+    if [ -L "$it" ] || [ -d "$it" ]; then
+      trace 'Skipping creating files because it already exists: %s' "$it"
+    elif [ -e "$it" ]; then
+      warn 'Cannot create file because %s already exists' "$it"
+    else
+      it="$(_abspath "$it")"
+      info 'Creating file %s' "$it"
+      # shellcheck disable=SC2086
+      _run_cmd install "${makefile_args[@]}" /dev/null -- "$it"
+    fi
+  done
+}
+# Mkfile }}}
+
 # Clean {{{
 #       _
 #   ___| | ___  __ _ _ __
