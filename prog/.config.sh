@@ -42,7 +42,6 @@ import -b                                       \
   media-server/qbittorrent                      \
   network-manager                               \
   nvtop                                         \
-  pass                                          \
   polybar                                       \
   ranger                                        \
   rclone                                        \

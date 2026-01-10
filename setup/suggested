@@ -57,7 +57,7 @@ presets=(
   [user]="brave firefox gimp mail.client"
   [user.doc]="General purpose programs for regular interactive use"
   [user.windows]="itunes"
-  [user.linux]="mpd cava pass dolphin"
+  [user.linux]="mpd cava dolphin"
 )
 
 preset_keys=$(printf '%s\n' "${!presets[@]}" | grep -v '\.\|^default$')

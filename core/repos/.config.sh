@@ -7,7 +7,7 @@ if is-unix; then
 fi
 link-to "$XDG_PICTURES_DIR/wallpapers" ./walls/*.{png,jpg,jpeg,gif}
 
-for it in "org:$DOTFILES_ORG_REPO" "pass:$PASSWORD_STORE_REPO"; do
+for it in "org:$DOTFILES_ORG_REPO"; do
   IFS=: read -r dir repo <<< "$it"
   if [ -n "$repo" ]; then
     if [ -d "$dir" ]; then

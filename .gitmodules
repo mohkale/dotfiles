@@ -24,9 +24,6 @@
 	branch = nsxiv
 	path = prog/sxiv/src
 	url = git@github.com:mohkale/sxiv.git
-[submodule "prog/pass/store"]
-	path = prog/pass/store
-	url = git@github.com:mohkale/pass.git
 [submodule "prog/browsers/brave/startpage"]
 	path = prog/browsers/brave/startpage
 	url = https://github.com/deepjyoti30/startpage.git
