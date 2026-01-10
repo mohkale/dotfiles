@@ -23,7 +23,7 @@ docker,which:docker,pacman:docker
 docker-compose,which:docker-compose,pacman:docker-compose
 dockerfile-language-server,which:docker-langserver,yarn:dockerfile-language-server-nodejs,npm:dockerfile-language-server-nodejs
 dolphin,which:dolphin,pacman:dolphin
-emacs,which:emacs,apt:emacs,choco:emacs,yay:libgccjit,emacs-git
+emacs,which:emacs,apt:emacs,choco:emacs,yay:libgccjit+emacs-git
 eslint,which:eslint,yarn:eslint,npm:eslint
 fava,which:fava,pipx:fava
 ffmpeg,which:ffmpeg,pacman:ffmpeg

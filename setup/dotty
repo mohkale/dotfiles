@@ -912,7 +912,7 @@ packages() {
   while IFS=: read -r pacman pkgs_str _; do
     trace 'Checking whether package manager %s is available' "$pacman"
     if package "$pacman"; then
-      IFS=, read -r -a pkgs <<< "$pkgs_str"
+      IFS=',+' read -r -a pkgs <<< "$pkgs_str"
       package "$pacman" "${pkgs[@]}"
       return "$?"
     fi
