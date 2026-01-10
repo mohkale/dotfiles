@@ -48,6 +48,7 @@ import -b                                       \
   ripgrep                                       \
   shells/*                                      \
   smart                                         \
+  smarthome/*                                   \
   spectacle                                     \
   sxiv                                          \
   terminal/*                                    \

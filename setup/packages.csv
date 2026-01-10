@@ -52,6 +52,7 @@ ledger2beancount,which:ledger2beancount,pacman:ledger2beancount
 lf,which:lf,yay:lf-git,choco:lf,go:github.com/gokcehan/lf@latest
 libinput-gestures,which:libinput-gestures,yay:libinput-gestures
 librewolf,which:librewolf,yay:librewolf-bin
+lnxlink,which:lnxlink,pipx:lnxlink
 lollypop,which:lollypop,pacman:lollypop
 lua,which:lua,yay:lua
 luarocks,which:luarocks,yay:luarocks

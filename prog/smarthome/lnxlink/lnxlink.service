@@ -1,0 +1,13 @@
+[Unit]
+Description=LNXlink
+After=network-online.target multi-user.target
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=5
+
+ExecStart=%h/.local/bin/lnxlink -c %h/.config/lnxlink/config.yaml
+
+[Install]
+WantedBy=default.target

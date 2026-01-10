@@ -1,0 +1,79 @@
+mqtt:
+  prefix: lnxlink
+  clientId: clientid
+  server: localhost
+  port: 1883
+  auth:
+    user: username
+    pass: ""
+
+    # If you your MQTT server is available over the internet and you want TLS connections.
+    #tls: true
+    #keyfile: /home/mohkale/.config/lnxlink/certs/publisher-key.pem
+    #certfile: /home/mohkale/.config/lnxlink/certs/publisher-cert.pem
+    #ca_certs: /home/mohkale/.config/lnxlink/ca-certificates/consumer-cert.pem
+
+  # Auto enable discovery to make lnxlink appear on the MQTT server automatically.
+  discovery:
+    enabled: true
+    prefix: homeassistant
+  lwt:
+    enabled: true
+    qos: 1
+  clear_on_off: true
+
+# MQTT message settings
+update_interval: 5
+update_on_change: false
+
+# Module configuration
+modules: null
+custom_modules: null
+exclude:
+- audio_select
+- battery
+- beacondb
+- boot_select
+- bluetooth
+- brightness
+- fullscreen
+- gpio
+- gpu
+- idle
+- inference_time
+- ir_remote
+- keep_alive
+- keyboard_hotkeys
+- media
+- mouse
+- notify
+- power_profile
+- restful
+- screen_onoff
+- screenshot
+- send_keys
+- speech_recognition
+- steam
+- systemd
+- webcam
+- wol
+- xdg_open
+- statistics
+
+settings:
+  statistics: null
+  disk_usage:
+    include_disks: []
+    exclude_disks: []
+    detailed_info: true
+  docker:
+    include: []
+    exclude: []
+    check_update: 24
+    expose_controls: true
+  mounts:
+    autocheck: false
+    directories: []
+  bash:
+    allow_any_command: false
+    expose: []
