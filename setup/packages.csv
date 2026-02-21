@@ -56,6 +56,7 @@ lnxlink,which:lnxlink,pipx:lnxlink
 lollypop,which:lollypop,pacman:lollypop
 lua,which:lua,yay:lua
 luarocks,which:luarocks,yay:luarocks
+lua-language-server,which:lua-language-server,pacman:lua-language-server
 markdownlint,which:mdl,gem:mdl
 marksman,which:marksman,yay:marksman-bin
 maven,which:mvn,pacman:maven
