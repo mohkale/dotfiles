@@ -92,3 +92,6 @@ gdbp              gdb --pid
 bootdown          sd shutdown now
 restart           sd shutdown --reboot now
 restart-force     sd systemctl --force --force reboot
+
+# watch for ping repeatedly
+wping             watch ping -c 1 -W 1

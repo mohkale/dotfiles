@@ -254,6 +254,8 @@ dircolors@file   $XDG_CONFIG_HOME/dircolors
 tmuxrc@file      $TMUX_HOME/tmux.conf
 brain@dirx       $XDG_DOCUMENTS_DIR/brain
 media@dirx       $XDG_MEDIA_HOME
+mediadl@dirx     $XDG_MEDIA_HOME/downloads
+mediacn@dirx     $XDG_MEDIA_HOME/content
 
 h@dirx           ~
 rp@dirx          $XDG_DEV_HOME/repos
