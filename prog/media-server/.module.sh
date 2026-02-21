@@ -46,7 +46,7 @@ link                                                    \
 makedir "$(pwd)/proxy/local.d"
 run-cmd-at "$(pwd)/proxy" touch local.d/Caddyfile.{global,snippets,routes}
 
-packagex jellyfin-mpv-shim mpv-mpris
+packagex jellyfin-mpv-shim
 link \
     "jellyfin-mpv-shim.conf:$XDG_CONFIG_HOME/systemd/user/conf.json" \
     "$XDG_CONFIG_HOME/systemd/user/torwatcher.service" \

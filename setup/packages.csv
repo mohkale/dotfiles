@@ -62,6 +62,7 @@ marksman,which:marksman,yay:marksman-bin
 maven,which:mvn,pacman:maven
 mbake,which:mbake,pipx:mbake
 mpv,which:mpv,yay:mpv-full
+mpv-shim-default-shaders,stat:/usr/share/mpv-shim-default-shaders/shaders,yay:mpv-shim-default-shaders
 mpv-mpris,stat:/usr/lib/mpv-mpris/mpris.so,yay:mpv-mpris
 mullvadvpn,which:mullvad,yay:mullvad-vpn-bin
 node,which:node,apt:nodejs,choco:nodejs,pacman:nodejs
