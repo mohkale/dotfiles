@@ -22,6 +22,23 @@ services:
       - $XDG_CONFIG_HOME/media-server/prometheus/config:/etc/prometheus
       - $XDG_CONFIG_HOME/media-server/prometheus/data:/prometheus
 
+  mylar3-prometheus:
+    container_name: ms-mylar3-prometheus
+    depends_on:
+      prometheus:
+        condition: service_started
+      mylar3:
+        condition: service_started
+    environment:
+      MYLAR3_API_URI: http://mylar3:8090/api
+      MYLAR3_API_KEY: $MYLAR3_PROMETHEUS_API_KEY
+    image: ghcr.io/esanchezm/prometheus-mylar3-exporter:latest
+    logging:
+      driver: "$LOGGING_DRIVER"
+    profiles:
+      - comics
+    restart: unless-stopped
+
   qbit-prometheus:
     container_name: ms-qbit-prometheus
     depends_on:
