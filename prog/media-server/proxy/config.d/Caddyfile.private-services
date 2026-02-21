@@ -15,6 +15,7 @@ import   {args[1]}   qbittorrent.prometheus  {args[0]}   qbit-prometheus        
 import   {args[1]}   radarr.prometheus       {args[0]}   radarr-prometheus                   80
 import   {args[1]}   readarr.prometheus      {args[0]}   readarr-prometheus                  80
 import   {args[1]}   sonarr.prometheus       {args[0]}   sonarr-prometheus                   80
+import   {args[1]}   authelia.prometheus     {args[0]}   authelia                          9959
 import   {args[1]}   mylar3.prometheus       {args[0]}   mylar3-prometheus                 9091
 import   {args[1]}   flaresolverr.prometheus {args[0]}   {$MEDIA_SERVER_HOST:flaresolverr} 8192
 
