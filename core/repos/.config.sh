@@ -7,6 +7,7 @@ if is-unix; then
 fi
 link-to "$XDG_PICTURES_DIR/wallpapers" ./walls/*.{png,jpg,jpeg,gif}
 
+# shellcheck disable=SC2066
 for it in "org:$DOTFILES_ORG_REPO"; do
   IFS=: read -r dir repo <<< "$it"
   if [ -n "$repo" ]; then
