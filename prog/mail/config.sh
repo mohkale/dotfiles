@@ -11,6 +11,7 @@ fi
 
 if bots mail.server; then
   import isync
+  link "$HOME/.config/notmuch/default/config":~/.notmuch-config
 fi
 
 import notmuch
