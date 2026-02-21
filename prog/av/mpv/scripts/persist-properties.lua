@@ -1,0 +1,1 @@
+../external-modules/mpv-persist-properties/persist-properties.lua
