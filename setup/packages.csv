@@ -109,6 +109,7 @@ typescript-language-server,which:typescript-language-server,yarn:typescript-lang
 vale,which:vale,yay:vale
 vim-language-server,which:vim-language-server,yarn:vim-language-server,npm:vim-language-server
 vlc,which:vlc,choco:vlc,pacman:vlc
+vlc-plugin-matroska,stat:/usr/lib/vlc/plugins/demux/libmkv_plugin.so,pacman:vlc-plugin-matroska
 vscode-css-languageserver,which:css-languageserver,yarn:vscode-css-languageserver-bin,npm:vscode-css-languageserver-bin
 vscode-json-languageserver,which:vscode-json-languageserver,yarn:vscode-json-languageserver,npm:vscode-json-languageserver
 wget,which:wget,pacman:wget
