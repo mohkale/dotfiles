@@ -71,7 +71,6 @@ npm,which:npm,apt:npm,pacman:npm
 nvtop,which:nvtop,pacman:nvtop
 oxlint,which:oxlint,yarn:oxlint,npm:oxlint
 pass,which:pass,yay:pass
-pass-tomb,which:pass-tomb,yay:pass-tomb
 perl,which:perl,pacman:perl
 polybar,which:polybar,yay:polybar
 postfix,which:postfix,pacman:postfix
