@@ -42,6 +42,7 @@ class _TransactionTokenizer(object):
     class Tokens(enum.Enum):
         ACCOUNT = enum.auto()
         AMOUNT = enum.auto()
+        CURRENCY_PREFIX = enum.auto()
         CURRENCY_SUFFIX = enum.auto()
         BALANCE = enum.auto()
         EXCHANGE = enum.auto()
@@ -56,8 +57,8 @@ class _TransactionTokenizer(object):
     def _split_currency_suffix(cls, amount: str):
         price_buffer = ""
         for word in amount.split(" "):
-            is_price = word.replace(".", "", 1).isdigit()
-            price_buffer += word + (" " if price_buffer else "")
+            is_price = word.replace(".", "", 1).replace('-', "").isdigit()
+            price_buffer += (" " if price_buffer else "") + word
             if is_price:
                 break
 
@@ -118,7 +119,7 @@ class _TransactionTokenizer(object):
                             "Unsupported character in account", char, line
                         )
                     if char_is_eof or (char == " " and buffer.endswith(" ")):
-                        yield state, buffer[:-1]
+                        yield state, buffer.rstrip()
                         state = cls.Tokens._SKIP_WHITESPACE
                         post_whitespace_state = cls.Tokens.AMOUNT
                     else:
@@ -162,6 +163,8 @@ def _pad_transaction(line: str):
                 new_line += " " + token
             case _TransactionTokenizer.Tokens.COMMENT:
                 new_line = new_line.ljust(TRANSACTION_COMMENT_INDENT_LEVEL)
+                if not new_line.endswith('  '):
+                    new_line += '  '
                 new_line += token
             case _:
                 raise RuntimeError("Unimplemented transaction token type", token_type)
