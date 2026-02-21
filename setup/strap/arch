@@ -195,7 +195,7 @@ info 'installing setup pre-requisites'
 _install_setup_packages
 
 info 'checking for destination disk/s'
-sd_devices=$(lsblk --json -O | jq -rc '.blockdevices | .[] | select(.name|test("^sd"))' )
+sd_devices=$(lsblk --json -O | jq -rc '.blockdevices | .[] | select(.name|test("^(sd|nvme)"))' )
 if [ -z "$sd_devices" ]; then
     error 'unable to locate any standard hard disk devices'
     exit 1
@@ -381,6 +381,8 @@ info 'installing core system utilities'
 install_package 'sudo'
 install_package 'python3'
 install_package 'git'
+install_package 'git-lfs'
+install_package 'iwd'
 
 info 'setting up the sudo user group'
 groupadd -f sudo
@@ -396,7 +398,7 @@ while ! passwd "$user" </dev/tty; do :; done
 
 info 'setting up new users home'
 su "$user"
-cd "$HOME"
+cd "/home/$user"
 
 info 'configuring users dotfiles'
 if [ -z "$dotfile_repo" ]; then
