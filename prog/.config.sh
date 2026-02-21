@@ -26,6 +26,7 @@ import -b                                       \
   dropbox                                       \
   enchant                                       \
   ffmpeg                                        \
+  fzf                                           \
   games/*                                       \
   gdb                                           \
   gimp                                          \
