@@ -65,8 +65,6 @@ map <c-s> :push /
 map gr reload
 map gR :reload; sync
 map cd push :cd<space>
-map ,g push :glob-select<space>
-map ,u push :glob-unselect<space>
 $lf -remote "send $id map ,r source ${XDG_CONFIG_HOME:-$HOME/.config}/lf/lfrc"
 
 cmd down-parent-directory :updir; set dironly true; down; set nodironly; open
@@ -566,6 +564,20 @@ cmd select-dirs &{{
         sed '/^$/d' | sort | uniq -u |
         xargs -d '\n' -r -I{} lf -remote "send $id toggle \"{}\""
     lf -remote "send $id sync"
+}}
+
+map ,g push :select-glob<space>
+map ,u push :glob-unselect<space>
+cmd select-glob &{{
+    select_glob() {
+        files="$(printf '%s\0' "$@" | sed 's/ /\\ /g;s/\x00/ /g')"
+        lf -remote "send $id :unselect; toggle $files"
+    }
+
+    [ "$#" -eq 1 ] || exit
+
+    # recursive glob and failglob are not supported in POSIX sh
+    select_glob $1
 }}
 
 # Clipboard
