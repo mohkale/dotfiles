@@ -601,6 +601,9 @@ cmd yank-basename &{{
         clip -t
 }}
 
+map yl yank-link
+cmd yank-link &echo "$fx" | xargs -r -d '\n' readlink -e -- | clip -t
+
 map y. yank-basename-without-extension
 cmd yank-basename-without-extension &{{
     echo "$fx" |
