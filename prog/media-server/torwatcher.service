@@ -1,0 +1,10 @@
+[Unit]
+Description=Tor Watcher
+PartOf=media-server.service
+After=media-server.service
+
+[Service]
+ExecStart=/bin/sh -lip -c 'torwatcher'
+
+[Install]
+WantedBy=basic.target

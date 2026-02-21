@@ -11,7 +11,7 @@ windows:
     layout: even-vertical
     panes:
       - media-server-logs qbittorrent
-      - torwatcher
+      - journalctl --user -u torwatcher --follow
   - window_name: jellyfin
     panes:
       - media-server-logs jellyfin kavita navidrome

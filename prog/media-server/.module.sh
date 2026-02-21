@@ -47,7 +47,10 @@ makedir "$(pwd)/proxy/local.d"
 run-cmd-at "$(pwd)/proxy" touch local.d/Caddyfile.{global,snippets,routes}
 
 packagex jellyfin-mpv-shim mpv-mpris
-link "$XDG_CONFIG_HOME/systemd/user/jellyfin-mpv-shim.service"
+link \
+    "jellyfin-mpv-shim.conf:$XDG_CONFIG_HOME/systemd/user/conf.json" \
+    "$XDG_CONFIG_HOME/systemd/user/torwatcher.service" \
+    "$XDG_CONFIG_HOME/systemd/user/jellyfin-mpv-shim.service"
 package pip pandas "-r$(pwd)/lib/requirements.txt"
 
 import watcher qbittorrent
