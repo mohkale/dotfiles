@@ -15,6 +15,7 @@ services:
       gluetun:
         condition: service_healthy
     environment:
+      REQUIRE_AUTH: "false"
       PROXY_PORT: 1080
     logging:
       driver: "$LOGGING_DRIVER"
