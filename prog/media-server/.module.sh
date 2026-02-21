@@ -47,6 +47,14 @@ makedir "$(pwd)/proxy/local.d"
 run-cmd-at "$(pwd)/proxy" touch local.d/Caddyfile.{global,snippets,routes}
 
 packagex jellyfin-mpv-shim
+link -i \
+  "$XDG_CONFIG_HOME/mpv/mpv.conf:$XDG_CONFIG_HOME/jellyfin-mpv-shim/mpv.conf" \
+  "$XDG_CONFIG_HOME/mpv/scripts:$XDG_CONFIG_HOME/jellyfin-mpv-shim/scripts" \
+  "$XDG_CONFIG_HOME/mpv/shaders:$XDG_CONFIG_HOME/jellyfin-mpv-shim/shaders" \
+  "$XDG_CONFIG_HOME/mpv/fonts:$XDG_CONFIG_HOME/jellyfin-mpv-shim/fonts" \
+  "$XDG_CONFIG_HOME/mpv/script-opts:$XDG_CONFIG_HOME/jellyfin-mpv-shim/script-opts" \
+  "$XDG_CONFIG_HOME/mpv/script-modules:$XDG_CONFIG_HOME/jellyfin-mpv-shim/script-modules" \
+  "$XDG_CONFIG_HOME/mpv/input.conf:$XDG_CONFIG_HOME/jellyfin-mpv-shim/input.conf"
 link \
     "jellyfin-mpv-shim.conf:$XDG_CONFIG_HOME/systemd/user/conf.json" \
     "$XDG_CONFIG_HOME/systemd/user/torwatcher.service" \
