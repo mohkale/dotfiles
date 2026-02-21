@@ -16,6 +16,7 @@ import   {args[1]}   radarr.prometheus       {args[0]}   radarr-prometheus      
 import   {args[1]}   readarr.prometheus      {args[0]}   readarr-prometheus                  80
 import   {args[1]}   sonarr.prometheus       {args[0]}   sonarr-prometheus                   80
 import   {args[1]}   mylar3.prometheus       {args[0]}   mylar3-prometheus                 9091
+import   {args[1]}   flaresolverr.prometheus {args[0]}   {$MEDIA_SERVER_HOST:flaresolverr} 8192
 
 import   {args[1]}   flaresolverr            {args[0]}   {$MEDIA_SERVER_HOST:flaresolverr} 8191
 
