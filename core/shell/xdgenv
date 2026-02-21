@@ -18,6 +18,7 @@ export SOLARGRAPH_CACHE="$XDG_CACHE_HOME"/solargraph                            
 
 export _JAVA_OPTIONS=-Djava.util.prefs.userRoot="$XDG_CONFIG_HOME"/java         # OpenJDK
 export GRADLE_USER_HOME="$XDG_CACHE_HOME"/gradle                                # Gradle
+export MAVEN_OPTS=-Dmaven.repo.local="$XDG_CACHE_HOME"/maven/repository         # Maven
 
 export LESSKEY="$XDG_CONFIG_HOME"/less/lesskey                                  # Less is More
 export LESSHISTFILE="$XDG_STATE_HOME"/less/history
