@@ -1006,7 +1006,7 @@ calling =docker-compose "$@"=.
 ** Bypassing cloudflare protection for certain trackers/indexers
 
    Some torrent trackers employ aggressive cloudflare protection which makes usage in
-   prowlarr untenable. You can bypass this using a service called flaresolverr. To
+   prowlarr untenable. You can bypass this using a service called byparr. To
    enable set the flaresolverr profile and follow the guide from [[https://trash-guides.info/Prowlarr/prowlarr-setup-flaresolverr/][TRaSH]].
 
 ** Treating Jellyfin as a DLNA/uPnP Server

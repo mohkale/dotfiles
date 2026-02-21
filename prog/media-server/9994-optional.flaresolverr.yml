@@ -1,10 +1,10 @@
 ---
 services:
-  flaresolverr:
-    container_name: ms-flaresolverr
+  byparr:
+    container_name: ms-byparr
     environment:
       TZ: "$TZ"
-    image: ghcr.io/flaresolverr/flaresolverr:latest
+    image: ghcr.io/thephaseless/byparr:latest
     logging:
       driver: "$LOGGING_DRIVER"
     profiles:
@@ -18,4 +18,4 @@ services:
 
   prowlarr:
     depends_on:
-      - flaresolverr
+      - byparr

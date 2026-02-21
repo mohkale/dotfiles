@@ -70,5 +70,5 @@ services:
     <<: *vpn-config
   sonarr:
     <<: *vpn-config
-  flaresolverr:
+  byparr:
     <<: *vpn-config
