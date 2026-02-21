@@ -22,11 +22,13 @@
 # │ Global Options │
 # └────────────────┘
 
-# {
-# 	log {
-# 		level debug
-# 	}
-# }
+{
+	# log {
+	# 	level debug
+	# }
+
+	metrics
+}
 
 import /etc/caddy/local.d/Caddyfile.global
 
@@ -92,6 +94,11 @@ import /etc/caddy/local.d/Caddyfile.snippets
 # ┌────────────────┐
 # │     Routes     │
 # └────────────────┘
+
+# Hardcoded metrics path because this cannot be reverse proxied.
+http://caddy.prometheus.localhost, http://localhost:2020 {
+	metrics
+}
 
 import /etc/caddy/config.d/Caddyfile.services {$SITE_ADDRESS} service_proxy_to
 import /etc/caddy/config.d/Caddyfile.private-services {$SITE_ADDRESS} service_proxy_to
