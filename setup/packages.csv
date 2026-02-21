@@ -59,6 +59,7 @@ luarocks,which:luarocks,yay:luarocks
 markdownlint,which:mdl,gem:mdl
 marksman,which:marksman,yay:marksman-bin
 maven,which:mvn,pacman:maven
+mbake,which:mbake,pipx:mbake
 mpv,which:mpv,yay:mpv-full
 mpv-mpris,stat:/usr/lib/mpv-mpris/mpris.so,yay:mpv-mpris
 mullvadvpn,which:mullvad,yay:mullvad-vpn-bin
