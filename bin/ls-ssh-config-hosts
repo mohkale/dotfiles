@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Echo out all hosts configured in ~/.ssh/config
+
+sed --quiet 's/^[[:space:]]*Host[[:space:]]\+\(.\+\)/\1/p' "$HOME/.ssh/config" |
+  while read -r host; do
+    echo "$host:ssh $host"
+  done

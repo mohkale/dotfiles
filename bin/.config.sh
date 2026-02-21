@@ -40,6 +40,7 @@ link                                            \
   "$XDG_BIN_DIR/ls-graphics-card"               \
   "$XDG_BIN_DIR/ls-platform"                    \
   "$XDG_BIN_DIR/ls-projects"                    \
+  "$XDG_BIN_DIR/ls-ssh-config-hosts"            \
   "$XDG_BIN_DIR/ls-ssh-aliases"                 \
   "$XDG_BIN_DIR/ls-teleport-nodes"              \
   "$XDG_BIN_DIR/make-icons"                     \
