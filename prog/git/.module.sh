@@ -15,8 +15,4 @@ link-to "$GIT_CONFIG_DIR/config.d/" config.d/*
 
 run-cmd touch "$GIT_CONFIG_DIR/config.d/local"
 
-packages                                        \
-  apt:git                                       \
-  msys:git                                      \
-  choco:git                                     \
-  yay:git,perl-authen-sasl,perl-io-socket-ssl
+packagex git

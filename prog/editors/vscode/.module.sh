@@ -1,6 +1,4 @@
-packages                                        \
-  yay:vscodium-bin,vscodium-bin-marketplace     \
-  choco:vscodium
+packagex vscodium
 
 link                                                \
   "$XDG_CONFIG_HOME/VSCodium/User/settings.json"    \

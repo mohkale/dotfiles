@@ -1,1 +1,1 @@
-packages pacman:networkmanager,network-manager-applet
+packagex networkmanager

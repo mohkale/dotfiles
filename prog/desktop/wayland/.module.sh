@@ -1,3 +1,1 @@
-# packages pacman:xorg-xwayland
-
-packages pacman:wl-clipboard
+packagex wl-clipboard

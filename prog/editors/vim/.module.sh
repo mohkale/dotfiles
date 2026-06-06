@@ -1,8 +1,4 @@
-packages                                        \
-  apt:vim-gtk3                                  \
-  msys:vim                                      \
-  choco:vim                                     \
-  pacman:vim
+packagex vim
 
 link                                            \
   "$XDG_CONFIG_HOME/vim/init.vim"               \

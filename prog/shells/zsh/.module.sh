@@ -1,7 +1,4 @@
-packages                                        \
-  apt:zsh                                       \
-  pacman:zsh                                    \
-  msys:zsh
+packagex zshell
 
 link-to "$XDG_CONFIG_HOME/zshell" ./{bindings,bindings-emacs,bindings-vim,theme}
 # As much as it pains me but because zshell doesn't source

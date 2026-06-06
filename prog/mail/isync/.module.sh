@@ -7,5 +7,5 @@ if bots mail.server; then
 
   link-to "$XDG_BIN_DIR/" bin/*
 
-  packages pacman:isync
+  packagex isync
 fi

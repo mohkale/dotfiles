@@ -1,4 +1,4 @@
-packages pacman:ranger
+packagex ranger
 
 link                                            \
   "$XDG_CONFIG_HOME/ranger/commands.py"         \

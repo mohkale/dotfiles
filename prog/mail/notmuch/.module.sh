@@ -4,4 +4,4 @@ link notmuchrc:"$XDG_CONFIG_HOME/notmuch/default/config"
 
 import hooks
 
-packages yay:notmuch,muchsync
+packagex notmuch muchsync

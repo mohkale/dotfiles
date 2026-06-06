@@ -1,8 +1,4 @@
-packages pacman:enchant,aspell,aspell-en apt:libenchant-2-dev
-
-# To avoid shared object loading warnings I install all supported extra
-# backends.
-# packages pacman:nuspell,libvoikko,hunspell,hspell
+packagex libenchant
 
 link \
   "$XDG_CONFIG_HOME/enchant/enchant.ordering" \

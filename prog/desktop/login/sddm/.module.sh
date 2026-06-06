@@ -1,1 +1,1 @@
-packages pacman:sddm
+packagex sddm

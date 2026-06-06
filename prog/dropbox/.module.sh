@@ -1,3 +1,1 @@
-packages                                        \
-  choco:dropbox                                 \
-  yay:dropbox
+packagex dropbox

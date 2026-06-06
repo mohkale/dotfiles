@@ -7,10 +7,15 @@ link-to "$XDG_BIN_DIR/" ./cmds/*
 run-cmd touch "$XDG_CONFIG_HOME/Xresources/local"
 run-cmd touch "$XDG_CONFIG_HOME/xprofile.local"
 
-packages                                                            \
-  apt:xclip                                                         \
-  yay:xorg,xorg-xinit,xbindkeys,xorg-setxkbmap,wmctrl,xdotool,xclip
-packagex notify-send
+packagex                                        \
+  xorg                                          \
+  xbindkeys                                     \
+  xclip                                         \
+  xdotool                                       \
+  wmctrl                                        \
+  setxkbmap                                     \
+  xbindkeys                                     \
+  notify-send
 
 if [ -e "$DOTFILES/setup/cache/arch" ]; then
   info 'Installing Graphics Drivers for Xorg'

@@ -1,4 +1,4 @@
-packages pacman:yakuake
+packagex yakuake
 
 makedir "$XDG_DATA_HOME/yakuake/kns_skins"
 

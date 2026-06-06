@@ -1,4 +1,4 @@
-packages yay:wireguard-tools,nordvpn-bin
+packagex wireguard nordvpn
 
 # Nordvpn socket access needs the nordvpn group.
 run-cmd sudo usermod -aG nordvpn "$USER"
