@@ -1,0 +1,7 @@
+[Unit]
+Description=LNXlink Screen Lock Inhibitor Daemon 
+# This unit is not meant to be enabled. It will start and stop itself as lnxlink triggers it.
+
+[Service]
+Type=simple
+ExecStart=/home/mohkale/.config/lnxlink/lnxlink-screen-lock-inhibitor-daemon.py
