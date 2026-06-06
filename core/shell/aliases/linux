@@ -19,18 +19,18 @@ jctl-purge        sd jctl --vacuum-time=1w
 fsck              fsck -M -T
 
 hl                hledger --color=always --pager=no
+hlx               hl -X £
 hlac              hl accounts
 hlacc             hlac
-hlb               hl balance
-hlbx              hlb -X £
+hlb               hl  balance
+hlbx              hlx balance
 hlp               hl import --dry
-hlpx              hlp -X £
 hli               hl import
-hlbs              hl balancesheet --no-elide
-hlbsx             hlbs -X £
+hlbs              hl  balancesheet --no-elide
+hlbsx             hlx balancesheet --no-elide
 hlbse             hl balancesheetequity --no-elide
-hlis              hl incomestatement --no-elide
-hlisx             hlis -X £
+hlis              hl  incomestatement --no-elide
+hlisx             hlx incomestatement --no-elide
 hlisy             hlis --period "$(date +%Y)"
 hlbu              hl balance --budget -MB -b "$(date -d "$(date +%Y-%m-1) -2 month" +%Y-%m)"
 hlbux             hlbu -X £
@@ -38,9 +38,11 @@ hlfc              hl balance --monthly --begin="$(date -d "$(date +%Y-%m-1) -1 m
 hlfcc             hlfc --cumulative
 hlfcx             hlfc -X £
 hlfccx            hlfcc -X £
-hlr               hl register
-hlrx              hlr -X £
+hlr               hl  register
+hlrx              hlx register
 hla               hl activity
+hls               hl  print
+hlsx              hlx print
 
 hlq               bash -c 'query="$1"; shift; hledger --color=always "@$XDG_CONFIG_HOME/hledger/queries/$query" "$@"' hledger-query
 hlz               hledger-fzquery
