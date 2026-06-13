@@ -20,8 +20,8 @@ cmake-language-server,which:cmake-language-server,pipx:cmake-language-server
 cookiecutter,which:cookiecutter,pipx:cookiecutter
 devcontainers-cli,which:devcontainer,yarn:@devcontainers/cli,npm:@devcontainers/cli
 direnv,which:direnv,pacman:direnv
-docker-compose,which:docker-compose,pacman:docker-compose
 docker,which:docker,pacman:docker
+docker-compose,which:docker-compose,pacman:docker-compose+docker-buildx
 dockerfile-language-server,which:docker-langserver,yarn:dockerfile-language-server-nodejs,npm:dockerfile-language-server-nodejs
 docker,which:docker,pacman:docker
 dolphin,which:dolphin,pacman:dolphin
