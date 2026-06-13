@@ -68,6 +68,7 @@ RUN >/usr/share/entrypoint.sh printf '%s\n'                                     
       'chown abc:abc /config'                                                                                                   \
       'chown abc:abc /cache'                                                                                                    \
       ''                                                                                                                        \
+      'mkdir -p /config/plugins'                                                                                                \
       'find /config/plugins/ -xtype l -delete'                                                                                  \
       'runuser -u abc -- rsync -r --quiet /usr/share/jellyfin-plugins/ /config/plugins/'                                        \
       ''                                                                                                                        \
