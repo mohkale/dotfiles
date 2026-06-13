@@ -61,4 +61,4 @@ link \
     "$XDG_CONFIG_HOME/systemd/user/jellyfin-mpv-shim.service"
 package pip pandas "-r$(pwd)/lib/requirements.txt"
 
-import watcher qbittorrent
+import watcher qbittorrent docker
