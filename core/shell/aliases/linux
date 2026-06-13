@@ -97,3 +97,6 @@ restart-force     sd systemctl --force --force reboot
 
 # watch for ping repeatedly
 wping             watch ping -c 1 -W 1
+
+ms                media-server
+msl               media-server-logs
