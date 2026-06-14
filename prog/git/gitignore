@@ -163,6 +163,7 @@ netrwhist
 # Emacs Lisp
 *.elc
 .cask/
+.eask/
 
 # Latex
 *.acn
