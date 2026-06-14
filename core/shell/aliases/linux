@@ -100,3 +100,5 @@ wping             watch ping -c 1 -W 1
 
 ms                media-server
 msl               media-server-logs
+
+dot-python3       python3-dotfiles-venv
