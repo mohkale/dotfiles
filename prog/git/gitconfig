@@ -130,3 +130,6 @@
 	path = config.d/github
 	path = config.d/gitlab
 	path = config.d/local
+
+[remote "origin"]
+	followRemoteHEAD = always
