@@ -131,6 +131,7 @@ thefuck,which:thefuck,pacman:thefuck
 tmuxp,which:tmuxp,pipx:tmuxp
 tmux,which:tmux,apt:tmux,msys:tmux,yay:tmux-git
 tor-browser,,choco:tor-browser,yay:tor-browser
+trash-cli,which:trash,yay:trash-cli
 tremc,which:tremc,yay:tremc-git
 typescript-language-server,which:typescript-language-server,yarn:typescript-language-server,npm:typescript-language-server
 vale,which:vale,yay:vale

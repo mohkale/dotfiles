@@ -13,6 +13,6 @@ if package yay; then
           nmap                                  \
           parallel                              \
           pv                                    \
-          ark                                   \
-          trash-cli
+          ark
 fi
+packagex trash-cli
