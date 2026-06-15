@@ -150,8 +150,8 @@ if [ -n "$filelist" ]; then cat "$filelist"; else printf '%s\n' "${files[@]}"; f
 kioclient5 mv -- "$@" trash:/
 printf "trashed: %s\n" "$@"
 ' 'trash'
-    elif can_use 'trash-cli' && command -v trash-put >/dev/null 2>&1; then
-        xargs -d '\n' -r trash-put -v --
+    elif can_use 'trash-cli' && command -v trash >/dev/null 2>&1; then
+        xargs -d '\n' -r trash -v --
     elif [ "${remove:-0}" -eq 1 ]; then
         xargs -d '\n' -r rm -rv --
     else
