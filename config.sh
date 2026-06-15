@@ -40,6 +40,7 @@ fi
 [ -e "$dist/arch"   ] && import dist/arch
 [ -e "$dist/ubuntu" ] && import dist/ubuntu
 is-windows            && import dist/windows
+is-darwin             && import dist/macos
 is-linux              && import dist/linux
 
 import bin prog
