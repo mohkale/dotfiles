@@ -90,7 +90,7 @@ for fzf_script in /usr/share/fzf/key-bindings.zsh /etc/profile.d/fzf.zsh; do
     bindkey '\ec' capitalize-word                                                 # Restore default alt-c binding.
 
     # shellcheck disable=SC2034
-    FZF_CTRL_R_OPTS="$FZF_SHELL_OPTS --history '""$XDG_DATA_HOME""'/fzf/history/sh-history"
+    FZF_CTRL_R_OPTS="$FZF_SHELL_OPTS --history '""$XDG_STATE_HOME""'/fzf/history/sh-history"
     break
   fi
 done

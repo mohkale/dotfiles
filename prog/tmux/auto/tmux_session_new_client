@@ -14,7 +14,7 @@ tmux_session_new_client() {
   local fzf_args=(
     -d "$SEP" --with-nth 5.. --ansi
     --preview-window=50% --preview 'ttls-preview {1} {3}'
-    --history "${XDG_DATA_HOME:-$HOME/.locale/share}"/fzf/history/tmux_session_new_client
+    --history "${XDG_STATE_HOME:-$HOME/.locale/state}"/fzf/history/tmux_session_new_client
   )
 
   local args=( "$@" )

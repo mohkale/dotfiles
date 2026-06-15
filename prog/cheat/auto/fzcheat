@@ -9,7 +9,7 @@ function fzcheat() {
                    --bind 'ctrl-m:execute:cheat -c {1} | $PAGER'
                    --preview 'cheat -c {1}'
                    --prompt "Cheatsheet: "
-                   --history "${XDG_DATA_HOME:-$HOME/.locale/share}"/fzf/history/fzf_cheat )
+                   --history "${XDG_STATE_HOME:-$HOME/.locale/state}"/fzf/history/fzf_cheat )
   [ -z "$*" ] || fzf_args+=( -q "$*" )
 
   cheat -l |
