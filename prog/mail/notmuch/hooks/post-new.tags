@@ -14,10 +14,13 @@
 -new +inbox +sent -- tag:new and query:from-me and -query:to-me
 
 # miscellaneous mappings
--new +inbox +uni  -- tag:new and from:@sheffield.ac.uk
+-new        +uni  -- tag:new and from:@sheffield.ac.uk
 -new +inbox +eula -- tag:new and from:@communications.paypal.com and subject:"/PayPal legal agreements/"
 -new +inbox +eula -- tag:new and from:@email.dominosmarketing.co.uk and subject:"updated Privacy Policy"
 -new +inbox +eula -- tag:new and from:"Google Play" and subject:"Updates to Google Play Terms of Service"
+-new +inbox +eula -- tag:new and from:"Trading 212" and subject:"updating our terms"
+-new +inbox +eula -- tag:new and from:"Team Vinted" and subject:"T&Cs"
+-new +inbox +eula -- tag:new and from:"Uber One" and subject:'Uber One benefits'
 
 # Alerts
 -new +inbox +unread +a/price              -- tag:new and from:@steampowered.com and subject:'Steam wishlist now on sale'
@@ -25,31 +28,33 @@
 -new +inbox +unread +a/price              -- tag:new and from:@email.gog.com and subject:'Items on your wishlist are now discounted'
 -new +inbox +unread +a/price              -- tag:new and from:noreply@camelcamelcamel.com and subject:'Price drop alert'
 -new                +a/price              -- tag:new and from:noreply@camelcamelcamel.com and subject:"/^Your price watch for/"
--new                +a/event              -- tag:new and from:DICE and ( subject:"/^Waiting List: /" or subject:"/^Buy now: /" )
+-new                +a/event              -- tag:new and from:DICE and ( subject:"/^(Waiting|Wait) [Ll]ist: /" or subject:"/^Buy now: /" or subject:"today:" or subject:"the date has changed" )
 -new +inbox +unread +a/release            -- tag:new and from:webmaster@blu-ray.com and subject:'new release notification'
 -new +inbox +unread +a/price              -- tag:new and from:metalposters@displate.com content:"Limited Edition"
--new +inbox +unread +a/price              -- tag:new and from:noreply-travel@google.com and ( subject:"tracked route" or subject:"Prices for your tracked flights" )
+-new +inbox +unread +a/price              -- tag:new and from:noreply-travel@google.com and ( subject:"tracked route" or subject:"Prices for your tracked flights" or subject:"Your tracked flight to" )
 -new +inbox +unread +a/price              -- tag:new and from:info@travellingman.com and subject:'/Your request.*now available/'
 -new +inbox +unread +a/security +security -- tag:new and from:@haveibeenpwned.com and subject:"/^Confirm your Have I Been Pwned registration/"
 -new        +unread +a/devci    +dev      -- tag:new and from:notifications@github.com and subject:"/PR run failed|Run failed:/"
 -new        +unread +a/devci    +dev      -- tag:new and from:"ELPA update" and subject:"Tarball build failure"
 -new        +unread +a/report             -- tag:new and from:@lloydsbank.co.uk and ( ( subject:account and subject:information ) or subject:"account message" or subject:"message about your product" )
--new        +unread +a/report             -- tag:new and from:mymoneynoreply@aviva.com and subject:"My Money Notification"
--new        +unread +a/report             -- tag:new and from:@NEWCASTLE.CO.UK and subject:"monthly statement"
--new        +unread +a/report             -- tag:new and from:Barclaycard and ( subject:"statement here" or subject:'/quick look at your Direct Debit/' )
--new        +unread +a/report             -- tag:new and from:NatWest and subject:"statement"
--new +inbox -unread +a/report             -- tag:new and from:@trading212.com and subject:'/Account Activity statement/'
--new +inbox -unread +a/report             -- tag:new and from:Monzo and subject:'Your statement'
--new +inbox -unread +a/report             -- tag:new and from:Vanguard and subject:'You have new documents'
--new +inbox -unread +a/report             -- tag:new and from:"Trading 212" and subject:"Monthly statement"
--new +inbox -unread +a/report             -- tag:new and from:"Octopus Energy" and subject:"Your energy statement"
--new +inbox +unread +a/travel             -- tag:new and from:"Transport for London" and ( subject:"/^London Underground strike update/" or subject:"/Weekend travel advice/" or subject:"/DLR update/" )
+-new        +unread +a/report +finance    -- tag:new and from:mymoneynoreply@aviva.com and subject:"My Money Notification"
+-new        +unread +a/report +finance    -- tag:new and from:@NEWCASTLE.CO.UK and subject:"monthly statement"
+-new        +unread +a/report +finance    -- tag:new and from:Barclaycard and ( subject:"statement is here" or subject:'/quick look at your Direct Debit/' )
+-new        +unread +a/report +finance    -- tag:new and from:NatWest and subject:"statement"
+-new +inbox -unread +a/report +finance    -- tag:new and from:@trading212.com and ( subject:'/Account Activity statement/' or subject:"Cost and charges" )
+-new +inbox -unread +a/report +finance    -- tag:new and from:Monzo and subject:'Your statement'
+-new +inbox -unread +a/report +finance    -- tag:new and from:Vanguard and subject:'You have new documents'
+-new +inbox -unread +a/report +finance    -- tag:new and from:"Trading 212" and subject:"Monthly statement"
+-new +inbox -unread +a/report +finance    -- tag:new and from:"Octopus Energy" and subject:"Your energy statement"
+-new +inbox +unread +a/travel             -- tag:new and from:"Transport for London" and ( subject:"/^London Underground strike update/" or subject:"travel advice" or subject:"update" or subject:"service tonight" )
 -new +inbox +unread +a/travel             -- tag:new and from:"National Express" and ( subject:"update to your journey" or subject:"Get ready for your departure" )
 -new +inbox +unread +a/travel             -- tag:new and from:@cbp.dhs.gov
 -new +inbox +unread +a/travel             -- tag:new and from:news@email-emr.co.uk
 -new +inbox +unread +a/travel             -- tag:new and from:"British Airways" and ( subject:"message about your flight" or subject:"changes to Booking Reference" or subject:"Only a few days to go" )
+-new +inbox +unread +a/travel             -- tag:new and from:"Trainline" and subject:"Get ready for"
+-new +inbox +unread +a/reservation        -- tag:new and from:"MEININGER Hotels" and subject:"Check-in online"
 -new +inbox +unread +a/expiry             -- tag:new and from:"Dynadot Accounts" and subject:"/Domain Expiration Notice/"
--new +inbox +unread +a/expiry             -- tag:new and from:support@porkbun.com and subject:"/Domain Renewal Notice/"
+-new +inbox +unread +a/expiry             -- tag:new and from:support@porkbun.com and ( subject:"/Domain Renewal Notice/" )
 -new +inbox -unread +a/reservation        -- tag:new and from:reserve-noreply@google.com
 -new +inbox -unread +a/reservation        -- tag:new and from:'Resy Reservations'
 -new +inbox -unread +a/reservation        -- tag:new and from:'TheFork' and subject:"Your booking confirmation"
@@ -66,7 +71,23 @@
 -new +inbox +unread +a/event              -- tag:new and from:"Royal Ballet and Opera" and subject:"/^You're coming to see/"
 -new +inbox +unread +a/event              -- tag:new and from:"TicketWeb Orders" and subject:"/^Event Reminder:/"
 -new +inbox +unread +a/event              -- tag:new and from:"Almeida Theatre" and subject:"We can't wait to see you today"
+-new +inbox +unread +a/event              -- tag:new and from:"Islington Assembly Hall" and subject:"show information"
 -new +inbox +unread +a/release            -- tag:new and from:"jake cornell" and subject:"new single"
+-new        +unread +a/house-search       -- tag:new and from:property@alert.rightmove.co.uk
+-new +inbox +unread +a/event              -- tag:new and from:"#WeTouchGrass" and ( subject:"tomorrow" or subject:"DETAILS" )
+-new +inbox +unread +a/event              -- tag:new and from:Eventbrite and subject:"Get your tickets for"
+-new +inbox +unread +a/release            -- tag:new and from:hmv.com and subject:"update on your order"
+-new +inbox +unread +a/event              -- tag:new and from:"Bank of England Museum" and subject:"Reminder for"
+-new +inbox +unread +a/travel             -- tag:new and from:@eurostar.com and ( subject:"Check border rules" or subject:"seating plan on your train has changed" or subject:"Your seat has changed" or subject:'/depart (earlier|later) than planned/' or subject:"Essential info for your trip" or subject:"Important info about your departure" or subject:"Temporary food entry restrictions" or subject:"Important travel info" )
+-new +inbox +unread +a/event              -- tag:new and from:Box.Office@bfi.org.uk and subject:"IMPORTANT"
+-new +inbox +unread +a/event              -- tag:new and from:boxofficemanager@princecharlescinema.com and subject:'Screen Swap'
+-new +inbox +unread +a/event              -- tag:new and from:'Resident Advisor' and subject:'Get ready for'
+-new +inbox +unread +a/event              -- tag:new and from:'Roundhouse' and ( subject:'ready for' or subject:'EVENT REMINDER' or subject:'ticket access code' or subject:'How to access your ticket' )
+-new +inbox +unread +a/event +critical    -- tag:new and from:"The Garden Cinema" and subject:"Waiting list notification"
+-new +inbox +unread +a/event              -- tag:new and from:"The O2" and subject:"Get ready for"
+-new +inbox +unread +a/event              -- tag:new and from:"AXS" and subject:"Important Event Information"
+-new +inbox +unread +a/event              -- tag:new and from:donotreply@seetickets.com and subject:"need to know before your visit"
+-new +inbox +unread +a/event              -- tag:new and from:@e.barbican.org.uk and subject:"Your upcoming visit"
 
 # Sign in notifications (useful but slightly annoying)
 -new +inbox +unread +sign-in                -- tag:new and from:@steampowered.com and ( subject:"/Access from new /" or subject:"/New sign in/" )
@@ -80,13 +101,14 @@
 -new +inbox +unread +sign-in +security      -- tag:new and from:Google and ( subject:"Google Verification Code" or 'subject:"/New sign-in using a backup code/"' )
 -new +inbox +unread +sign-in +security      -- tag:new and from:"Samsung account" and subject:"/^Easily verify/"
 -new +inbox -unread +sign-in                -- tag:new and ( from:OVHcloud or from:"Customer Service OVH" ) and ( subject:"Notification of connection to your OVHcloud account" or subject:"Confirm your login request" )
+-new +inbox -unread          +security      -- tag:new and from:OVHcloud subject:"customer change communication"
 -new +inbox -unread +sign-in                -- tag:new and from:"Firefox Accounts" and ( subject:"New sign-in to Firefox" or subject:"Approve sign-in" )
 -new +inbox -unread +sign-in                -- tag:new and from:@gog.com and subject:"Two-step authentication"
 -new +inbox -unread +sign-in                -- tag:new and from:@gog.com and subject:"Two-step authentication"
 -new +inbox -unread +sign-in                -- tag:new and from:Twitch and subject:"/Log-?in/"
 -new +inbox -unread +sign-in                -- tag:new and from:pixiv and subject:"New login"
 -new +inbox -unread +sign-in                -- tag:new and from:Uphold and subject:"/Did you just try to sign in/"
--new +inbox -unread +sign-in                -- tag:new and from:Mozilla and subject:"New sign-in to Firefox"
+-new +inbox -unread +sign-in                -- tag:new and from:Mozilla and ( subject:"Approve sign-in" or subject:"New sign-in to Firefox" or subject:"New sign-in to your Mozilla account" or subject:"/Use [0-9]+ to sign in/" )
 -new +inbox -unread +sign-in                -- tag:new and from:amazon and subject:Sign-in
 -new +inbox -unread +sign-in                -- tag:new and from:Dropbox and subject:"/is your Dropbox security code/"
 -new +inbox -unread +sign-in                -- tag:new and from:KuCoin and subject:"Login Notification"
@@ -98,7 +120,7 @@
 -new +inbox -unread +sign-in                -- tag:new and from:@docusign.net and ( subject:'New Device Login' or subject:'Verify New Device' )
 -new +inbox -unread +sign-in                -- tag:new and from:sa.noreply@samsung-mail.com and subject:"New sign-in"
 -new +inbox -unread +sign-in                -- tag:new and from:"Trading 212" and subject:Login
--new +inbox -unread          +security      -- tag:new and from:"American Express" and subject:"SafeKey Code"
+-new +inbox -unread          +security      -- tag:new and from:"American Express" and ( subject:"SafeKey Code" or subject:"SafeKey Verification Code" )
 -new +inbox -unread +sign-in                -- tag:new and from:"Etsy" and ( subject:"recently sign into" or subject:"security code" )
 -new +inbox -unread +sign-in                -- tag:new and from:Airbnb and subject:"New login"
 -new +inbox -unread +sign-in +security      -- tag:new and from:Airbnb and subject:"security code"
@@ -106,6 +128,17 @@
 -new +inbox -unread +sign-in                -- tag:new and from:"Shelly Cloud" and subject:"verification code"
 -new +inbox -unread +sign-in                -- tag:new and from:"noreply@emishealth.com" and subject:"new access to online account"
 -new +inbox -unread +sign-in                -- tag:new and from:no-reply@account.moneysupermarketmail.com and subject:"Did you just sign in"
+-new +inbox -unread +sign-in +security      -- tag:new and from:alltheanime and subject:"account password reset"
+-new +inbox -unread +sign-in                -- tag:new and from:Booking.com and subject:"your verification code"
+-new +inbox -unread +sign-in                -- tag:new and from:Shop and subject:"Sign in"
+-new +inbox -unread +sign-in                -- tag:new and from:Eurostar and subject:"make sure this is you"
+-new +inbox -unread +sign-in                -- tag:new and from:DPD and subject:"Email verification"
+-new +inbox -unread +sign-in                -- tag:new and from:Facebook and subject:'Did you just log in'
+-new +inbox -unread +sign-in                -- tag:new and from:AliExpress.com and subject:"verification code"
+-new +inbox -unread +sign-in                -- tag:new and from:eventim.co.uk and subject:"Check your last login"
+-new +inbox -unread +sign-in                -- tag:new and from:Ticketmaster and subject:"New Sign In"
+-new +inbox -unread +sign-in                -- tag:new and from:"Virgin Media O2" and subject:"Sign in"
+-new +inbox +unread +sign-in                -- tag:new and from:@mcdonalds.com and body:"Log in to your account"
 
 # Automatically mark developer related content
 -new +inbox +unread +dev -- tag:new and from:help-debbugs@gnu.org
@@ -114,28 +147,45 @@
 -new +inbox +unread +dev -- tag:new and from:@gitlab.freedesktop.org
 -new +inbox +unread +dev -- tag:new and ( from:@debbugs.gnu.org or to:debbugs.gnu.org )
 
+# Support emails
+-new +inbox -unread +support -- tag:new and from:"Evri Support"
+-new -inbox         +spam    -- tag:new and from:repairs@berghaus.com and subject:"Share your views"
+-new +inbox +unread +support -- tag:new and from:repairs@berghaus.com
+-new +inbox +unread +support -- tag:new and from:reimburse@vitality.co.uk
+-new +inbox +unread +support -- tag:new and from:optical@vitality.co.uk and subject:"care request"
+-new +inbox -unread +support -- tag:new and from:DR_NoReply@eastmidlandsrailway.co.uk
+-new +inbox -unread +support -- tag:new and from:"National Express" and subject:'query case'
+-new +inbox -unread +support -- tag:new and from:service@paypal.co.uk and ( subject:"We've received your PayPal case" or subject:'/.* contacted .* for more information/' )
+
 # Financial transactions
 -new +inbox +unread +finance                               -- tag:new and from:@just-eat.co.uk and subject:'order confirmed'
 -new +inbox +unread +finance                               -- tag:new and from:receipts@dojo.tech
 -new +inbox +unread +finance                               -- tag:new and from:orders@care.boots.com and subject:'Order confirmation'
--new +inbox +unread          +delivery                     -- tag:new and from:orders@care.boots.com and subject:'Your order has left our warehouse'
+-new +inbox +unread          +delivery                     -- tag:new and from:orders@care.boots.com and ( subject:'Your order has left our warehouse' or subject:"order has been dispatched" )
 -new +inbox +unread          +delivery                     -- tag:new and from:FedEx
 -new +inbox +unread          +delivery                     -- tag:new and from:PostNL
 -new +inbox +unread +finance                               -- tag:new and from:automailer@e-paycapita.com and subject:'Payment Authentication Receipt'
 -new +inbox +unread +finance                               -- tag:new and from:lululemon and subject:"Thanks for your lululemon order"
 -new +inbox +unread          +delivery                     -- tag:new and from:lululemon and ( subject:"shipping your lululemon order" or subject:"out for delivery" or subject:"has been delivered" )
--new +inbox +unread +finance                               -- tag:new and from:service@paypal.co.uk and ( subject:"You've authorised a payment" or subject:"Receipt for your PayPal payment" or subject:"Receipt for your payment to" or subject:'You sent an automatic payment' )
--new +inbox +unread +finance                 +s/ovh        -- tag:new and from:customersupport@ovh.co.uk and subject:"/notice of charge for automatic renewal/"
--new +inbox +unread +finance                               -- tag:new and from:customersupport@ovh.co.uk and subject:"Invoice available"
+-new +inbox +unread +finance                               -- tag:new and from:service@paypal.co.uk and ( subject:"You've authorised a payment" or subject:"Receipt for your PayPal payment" or subject:"Receipt for your payment to" or subject:'You sent an automatic payment' or subject:"£" or subject:"GBP" )
+-new +inbox -unread          +support                      -- tag:new and from:service@paypal.co.uk and ( subject:"You have messages from" or subject:"Your PayPal claim" or subject:'/contacted .* for more information/' )
+-new +inbox +unread +finance                 +s/qobuz      -- tag:new and from:Qobuz and subject:"renewal"
+-new +inbox +unread +finance                 +s/ovh        -- tag:new and from:"OVHcloud" and subject:"/notice of charge for automatic renewal/"
+-new +inbox +unread +finance                               -- tag:new and from:"OVHcloud" and subject:"Invoice available"
 -new +inbox +unread +finance                               -- tag:new and from:@notifications.kfc.co.uk and subject:'KFC Orders'
 -new +inbox +unread +finance                               -- tag:new and from:Fanatical and subject:'/Thank you for your Fanatical order/'
 -new +inbox +unread +finance                               -- tag:new and from:"Steam Support" and ( subject:"Steam purchase" or subject:"activating product" )
+-new +inbox +unread +finance +support                      -- tag:new and from:"Steam Support" and subject:"been refunded"
+-new +inbox +unread          +support                      -- tag:new and from:"Steam Support" and subject:"refund request has been received"
 -new +inbox +unread +finance                               -- tag:new and from:@greenmangaming.com and subject:"Order Confirmation"
 -new +inbox +unread +finance                               -- tag:new and from:"East Midlands Railway" and ( subject:'booking confirmation' or subject:'etickets' )
 -new +inbox +unread +finance                               -- tag:new and from:"Northern" and ( subject:'etickets' or subject:'booking confirmation' )
 -new +inbox +unread +finance                               -- tag:new and from:"Avanti West Coast" and subject:'Booking Confirmation'
+-new +inbox +unread +finance                               -- tag:new and from:Trainline and ( subject:"booking confirmation" or subject:"Your etickets" )
+-new +inbox +unread +finance                               -- tag:new and from:@trainsplit.com and ( subject:"Booking Ref" or subject:"Your e-tickets" )
 -new +inbox +unread +finance           +home               -- tag:new and from:@britishgas.co.uk and subject:"/^Thanks for your payment$/"
--new +inbox +unread +finance           +home               -- tag:new and from:@octopus.energy and ( subject:"We'll take payment" or subject:"/Confirmation of your .* payment/" or subject:"/^ACTION: /" )
+-new +inbox +unread +finance           +home +critical     -- tag:new and from:@octopus.energy and subject:"saving session"
+-new +inbox +unread +finance           +home               -- tag:new and from:@octopus.energy and ( subject:"/We'll take.* payment/" or subject:"/Confirmation of your .* payment/" or subject:"/^ACTION: /" )
 -new +inbox +unread +finance                               -- tag:new and from:"Displate" and subject:'new Displate order'
 -new +inbox +unread          +delivery                     -- tag:new and from:"Displate" and subject:"/Your (order|Displate) tracking number is ready/"
 -new +inbox +unread +finance                 +s/displate   -- tag:new and from:"Displate" and ( subject:"/Yay! One more month of you being amazing/" or subject:"/Club voucher is here/" )
@@ -143,13 +193,14 @@
 -new +inbox +unread +finance                 +l/lwn        -- tag:new and from:subs@LWN.net
 -new +inbox +unread +finance                               -- tag:new and from:@joybuggy.com and ( subject:'Order confirmation' or subject:'Order completed' )
 -new +inbox +unread +finance                 +l/monevator  -- tag:new and from:"Monevator" and subject:"Your receipt"
--new +inbox +unread +finance                 +s/amzn-prime -- tag:new and from:@amazon.co.uk and ( subject:"/Amazon Prime (Student Membership )?Cancelled/" or subject:"/Welcome to (Prime Student|Amazon Prime)/" or subject:"/Confirmation of Prime Membership Change/" or subject:"/membership has ended/" or subject:"/membership is expring/" )
--new +inbox +unread          +delivery                     -- tag:new and from:@amazon.co.uk and ( ( subject:"/^Your Amazon.co.uk order of /" and subject:"/has been dispatched$/" ) or subject:"/has shipped/" or subject:"/out for delivery/" or subject:"/was delivered/" or subject:"/^Arriving [Tt]oday:/" or subject:"/^Delivered:/" or subject:"/Delivery attempted/" or subject:"/Delivery estimate update/" or subject:"/^Dispatched: /" )
--new +inbox +unread +finance                               -- tag:new and from:@amazon.co.uk and ( subject:"/^Your Amazon.co.uk order of /" or subject:"/Your order has been cancelled/" or subject:"/^Benefit Confirmation for your Order/" or subject:"Benefit Confirmation" or subject:"/^Refund on order/" or subject:'/You saved additional money/' or subject:'Cancellation' )
+-new +inbox +unread +finance                 +s/amzn-prime -- tag:new and from:@amazon.co.uk and ( subject:"/Amazon Prime (Student Membership )?Cancelled/" or subject:"/Welcome to (Prime Student|Prime for Students|Amazon Prime)/" or subject:"/Confirmation of Prime Membership Change/" or subject:"/membership has ended/" or subject:"/membership is expring/" )
+-new +inbox +unread          +delivery                     -- tag:new and from:@amazon.co.uk and ( ( subject:"/^Your Amazon.co.uk order of /" and subject:"/has been dispatched$/" ) or subject:"/has shipped/" or subject:"/Out for delivery/" or subject:"/was delivered/" or subject:"/^Arriving [Tt]oday:/" or subject:"/^Delivered:/" or subject:"/Delivery attempted/" or subject:"/Delivery estimate update/" or subject:"/^Dispatched: /" or subject:"Delay in shipping" or subject:"expecting your Amazon parcel" or subject:"Delivery update" )
+-new +inbox +unread +finance                               -- tag:new and from:@amazon.co.uk and ( subject:"/^Your Amazon.co.uk order of /" or subject:"/Items? cancelled successfully/" or subject:"/Your order has been cancelled/" or subject:"/^Benefit Confirmation for your Order/" or subject:"Benefit Confirmation" or subject:"/^Refund on order/" or subject:'/You saved additional money/' or subject:'Cancellation' or subject:"Ordered:" )
 -new +inbox +unread +finance                               -- tag:new and from:"Amazon Pay" and subject:"/^Your payment to .* is complete/"
 -new +inbox +unread +finance                               -- tag:new and from:Audible.co.uk and subject:"/order is (complete|confirmed)/"
 -new +inbox +unread          +delivery                     -- tag:new and from:@ebay.com and ( subject:"/Order delivered/" or subject:"/Important information regarding delivery/" )
 -new +inbox +unread          +delivery                     -- tag:new and from:@ups.com and subject:"/Package Ready for Pickup|Parcel Delivered|Parcel Ready for Collection|Parcel Has Been Collected|(^UPS Update:)|UPS Exception Notification|UPS Shipping Notification|UPS Schedule Delivery Update/"
+-new        +unread +finance                               -- tag:new and from:@acct.epicgames.com and subject:"Your Epic Games Receipt"
 -new +inbox +unread +finance                               -- tag:new and from:@acct.epicgames.com
 -new +inbox +unread +finance                               -- tag:new and from:Cineworld and subject:"/^Cineworld Tickets for /"
 -new +inbox -unread +finance                               -- tag:new and from:@gog.com and subject:"/Your order .* is complete/"
@@ -157,25 +208,25 @@
 -new +inbox -unread +finance +delivery                     -- tag:new and from:Currys and ( subject:"preparing your order" or subject:"working your order" or subject:"ready to collect" )
 -new +inbox -unread +finance                               -- tag:new and from:@scan.co.uk and subject:"Scan invoice"
 -new +inbox -unread +finance                               -- tag:new and from:@uber.com and subject:"/Your .* order with Uber Eats/"
--new +inbox -unread +finance                               -- tag:new and from:service@t.zavvi.com and subject:"/Thanks for your order/"
--new +inbox -unread          +delivery                     -- tag:new and from:service@t.zavvi.com and ( subject:"/Order dispatched/" or subject:'/^Your Zavvi order/' )
--new +inbox -unread +finance                 +support      -- tag:new and from:DR_NoReply@eastmidlandsrailway.co.uk
--new +inbox -unread                          +support      -- tag:new and from:"National Express" and subject:'query case'
+-new +inbox -unread +finance                               -- tag:new and from:Zavvi and subject:"Thanks for your order"
+-new +inbox -unread          +delivery                     -- tag:new and from:Zavvi and ( subject:"Order dispatched" or subject:"Order Status Update" or subject:'/^Your Zavvi order/' or subject:'been delivered' )
 -new +inbox -unread +finance                               -- tag:new and ( from:donotreply.bfiimax.tickets@bfi.org.uk or from:@tickets-whatson.bfi.org.uk )
+-new +inbox -unread +finance                               -- tag:new and from:"ODEON Cinemas" and subject:'Booking Confirmation'
 -new +inbox -unread +finance                               -- tag:new and from:Vue and ( subject:"/Your Vue (booking|tickets) for /" or subject:"Your tickets for" )
+-new +inbox -unread +finance                               -- tag:new and from:VuePass and ( subject:"shipment from order" or subject:'confirmed' )
 -new +inbox -unread +finance                               -- tag:new and from:@zettle.com and subject:"/Receipt from /"
 -new +inbox -unread +finance                               -- tag:new and from:@hmv.co.uk and subject:"/Your order .*: Order confirmation/"
 -new +inbox -unread          +delivery                     -- tag:new and from:@hmv.co.uk and ( subject:"/Your order .*: Dispatched/" or subject:"/Your order .*: Items ready for collection/" )
--new +inbox -unread +finance                               -- tag:new and from:@traditionalshaving.co.uk and subject:"Order confirmation"
--new +inbox -unread          +delivery                     -- tag:new and from:@traditionalshaving.co.uk and ( subject:Shipped or subject:"Package in transit" )
+-new +inbox -unread +finance                               -- tag:new and from:@traditionalshaving.co.uk and ( subject:"Order confirmation" or subject:'/Order .* confirmed/' )
+-new +inbox -unread          +delivery                     -- tag:new and from:@traditionalshaving.co.uk and ( subject:Shipped or subject:"Package in transit" or subject:"delivered" or subject:"A shipment from order" )
 -new +inbox -unread +finance +delivery                     -- tag:new and from:noreply@rmg-ebusiness.com and subject:"Customs Charges Paid"
 -new +inbox -unread          +delivery                     -- tag:new and from:no-reply@royalmail.com and ( subject:"/Your (Royal Mail )?parcel from/" or subject:"/Redelivery Confirmation/" or subject:"Item advised" )
--new +inbox -unread          +delivery                     -- tag:new and ( ( from:"Deutsche Post Customer Portal" and subject:"Information about shipment" ) or ( from:"DHL eCommerce" and subject:"Tracking Status Update" ) )
+-new +inbox -unread          +delivery                     -- tag:new and ( ( from:"Deutsche Post Customer Portal" and subject:"Information about shipment" ) or ( from:"DHL eCommerce" and subject:"Tracking Status Update" ) or from:"DHL Paket" or from:"DHL EXPRESS" or from:"DHL - DO NOT REPLY" or from:"Deutsche Post Customer Portal" )
 -new +inbox -unread +finance                               -- tag:new and from:@fastspring.com and subject:"/here is a link to manage your orders/"
 -new +inbox -unread +finance                               -- tag:new and from:@pimoroni.com and subject:"/Order .* confirmed/"
 -new +inbox -unread          +delivery                     -- tag:new and from:@pimoroni.com and subject:"/shipment from order .* is on the way/"
 -new +inbox -unread +finance                               -- tag:new and from:googleplay-noreply@google.com and subject:"/Your Google Play Order Receipt/"
--new +inbox -unread +finance                               -- tag:new and from:@porkbun.com and subject:"Order Thank You"
+-new +inbox -unread +finance                               -- tag:new and from:@porkbun.com and ( subject:"Order Thank You" or subject:"Auto Renewal Invoice" )
 -new +inbox -unread +finance                               -- tag:new and from:'Fopp Covent Garden' and subject:'/receipt from Fopp Covent Garden/'
 -new +inbox -unread          +delivery                     -- tag:new and from:@evri.com
 -new +inbox -unread          +delivery                     -- tag:new and from:@asendia.com
@@ -197,16 +248,18 @@
 -new +inbox -unread +finance                               -- tag:new and from:landsend@myorder.landsend.co.uk and subject:"order confirmed"
 -new +inbox -unread          +delivery                     -- tag:new and from:"B&Q" and subject:"ready to collect"
 -new +inbox -unread +finance                               -- tag:new and from:DICE and ( subject:"Your tickets" or subject:"/^Returned:/" )
--new +inbox +unread +finance                               -- tag:new and from:Uniqlo and ( subject:"invoice" or subject:'/received your order/' )
--new +inbox +unread          +delivery                     -- tag:new and from:Uniqlo and ( subject:delivered or subject:'/order will be with you shortly/' or subject:'/order is on its way/' )
+-new +inbox +unread +finance                               -- tag:new and from:Uniqlo and ( subject:"invoice" or subject:'/received your order/' or subject:"UNIQLO purchase" )
+-new +inbox +unread          +delivery                     -- tag:new and from:Uniqlo and ( subject:delivered or subject:"ready to ship" or subject:'/order will be with you shortly/' or subject:'/order is on its way/' )
 -new +inbox +unread          +delivery                     -- tag:new and from:no-reply@email.hived.space
 -new +inbox +unread +finance                               -- tag:new and from:support@hyperoptic.com and ( subject:"Hyperoptic bill is ready" or subject:"Thanks for your payment" )
--new +inbox +unread +finance                               -- tag:new and from:support@zuludiver.com and subject:"Order confirmed"
+-new +inbox +unread +finance                               -- tag:new and from:support@zuludiver.com and subject:"/Order .* confirmed/"
 -new +inbox +unread +finance                               -- tag:new and from:WHSmith and ( subject:"order confirmed" or subject:'/Thank you for your order/' )
+-new +inbox +unread +finance                               -- tag:new and from:Lumie and subject:'/Order .* confirmed/'
+-new +inbox +unread          +delivery                     -- tag:new and from:Lumie and ( subject:"deliver your parcel" or subject:"expecting your Lumie parcel" )
 -new +inbox +unread +finance                               -- tag:new and from:"Trading 212" and ( subject:"Deposit successful" or subject:"money on its way" )
 -new +inbox +unread +finance                               -- tag:new and from:IKEA and ( subject:"/Thank you for your IKEA order/" or subject:"Proof payment" )
 -new +inbox +unread +finance                               -- tag:new and from:IKEA and ( subject:"ready for collection" or subject:"has been collected" )
--new +inbox +unread +finance                               -- tag:new and from:alltheanime and subject:"order confirmed"
+-new +inbox +unread +finance                               -- tag:new and from:alltheanime and subject:'Order .* confirmed'
 -new +inbox +unread          +delivery                     -- tag:new and from:alltheanime and subject:"shipment from order"
 -new +inbox +unread +finance                               -- tag:new and from:"Anime On Line" and ( subject:"order confirmation" or subject:"payment accepted" )
 -new +inbox +unread          +delivery                     -- tag:new and from:"Anime On Line" and subject:shipped
@@ -214,7 +267,10 @@
 -new +inbox -unread +finance                               -- tag:new and from:@mobiles.co.uk and ( subject:"order complete" or subject:'Cashback Claim Accepted' )
 -new +inbox +unread +finance                               -- tag:new and from:edocuments@mobiles.co.uk and subject:"recent purchase"
 -new +inbox +unread          +delivery                     -- tag:new and from:Erika@erikasoriginals.com and subject:"strap shipped"
--new +inbox +unread +finance                               -- tag:new and from:"American Express" and ( subject:"Direct Debit Adjustment" or subject:"Your latest statement is ready" )
+-new +inbox +unread +finance                               -- tag:new and from:"American Express" and subject:"Direct Debit Adjustment"
+-new +inbox +unread +finance                     +a/report -- tag:new and from:"American Express" and subject:"Your latest statement is ready"
+-new +inbox +unread +finance                     +a/report -- tag:new and from:"HSBC UK" and ( subject:"statement is available" or subject:"Annual Statement" )
+-new        +unread +finance                               -- tag:new and from:Barclaycard and subject:"received your Barclaycard payment"
 -new +inbox +unread +finance                               -- tag:new and from:info@argos.co.uk and subject:'/Thank you for your Argos order/'
 -new +inbox +unread          +delivery                     -- tag:new and from:info@argos.co.uk and subject:'/Your Click & Collect order is ready/'
 -new +inbox +unread +finance +delivery                     -- tag:new and from:info@argos.co.uk and subject:'/Thanks for collecting your order/'
@@ -224,7 +280,7 @@
 -new +inbox +unread +finance +promotion                    -- tag:new and from:RicherSounds and subject:Quote
 -new +inbox +unread          +delivery                     -- tag:new and from:yourdelivery@dpd.co.uk and ( subject:"expecting parcel" or subject:"change delivery date" or subject:"will be delivered today" or subject:"deliver safe place" )
 -new +inbox +unread +finance                               -- tag:new and from:"Etsy Transactions" and subject:'/Your Etsy Purchase/'
--new +inbox +unread +finance +delivery                     -- tag:new and from:Etsy and ( subject:"order shipped" or subject:"another package" or subject:"It's here" )
+-new +inbox +unread          +delivery                     -- tag:new and ( ( from:Etsy and ( subject:"order shipped" or subject:"another package" or subject:"It's here" or subject:"Deutsche Post has your order" ) ) or from:"Etsy Delivery Notifications" )
 -new +inbox +unread +finance                               -- tag:new and from:"London Philharmonic Orchestra" and subject:"Thank You for Your Order"
 -new +inbox +unread +finance                               -- tag:new and from:Airbnb and ( subject:"your receipt" or subject:'/Reservation confirmed/' )
 -new +inbox +unread          +support                      -- tag:new and from:Airbnb and subject:'/^Reservation at /'
@@ -238,7 +294,12 @@
 -new +inbox +unread +finance                               -- tag:new and from:boxofficemanager@princecharlescinema.com
 -new +inbox +unread +finance                               -- tag:new and from:"Maya Mobile" and ( subject:"eSIM is ready" or subject:"Payment Receipt" )
 -new +inbox +unread +finance                               -- tag:new and from:Twickets and ( subject:"Thank You For Your Purchase" or subject:"/^Returned:/" )
--new +inbox +unread +finance                               -- tag:new and from:Ticketmaster and ( subject:"/^Order Confirmation/" or subject:"/^You’re in/" )
+-new +inbox +unread                          +a/price      -- tag:new and from:Twickets and subject:"/tickets? .* has just been posted/"
+-new +inbox +unread +finance                               -- tag:new and from:Ticketmaster and ( subject:"/^Order Confirmation/" or subject:"/^You’re in/" or subject:"You've accepted" )
+-new +inbox +unread +finance                               -- tag:new and from:Ticketmaster and subject:"/has transferred a .* ticket to you/"
+-new +inbox +unread                          +a/event      -- tag:new and from:Ticketmaster@customerservice.tmm.ticketmaster.co.uk and subject:"Your Tickets Are Ready"
+-new +inbox +unread                          +a/event      -- tag:new and from:Ticketmaster and ( subject:"just a reminder" or subject:"Instructions For Mobile Entry" or subject:"Event Reminder" or subject:"NEW GATE TIME" or subject:"Get Ready For" or subject:"Important Information" or subject:"Access Your Mobile Tickets" )
+-new +inbox +unread                          +a/event      -- tag:new and from:"Ticketmaster Fan Support" and subject:"NEW DOOR TIME"
 -new +inbox +unread +finance                               -- tag:new and from:"Shelly Store UK" and subject:"/Your order .+ has been received/"
 -new +inbox +unread +finance                               -- tag:new and from:"Philips Hue" and subject:"Your order has been confirmed"
 -new +inbox +unread +finance +scheduled                    -- tag:new and from:tickets@nationalexpress.com
@@ -246,15 +307,83 @@
 -new +inbox +unread +finance                               -- tag:new and from:"iD Mobile" and subject:"monthly bill is ready"
 -new +inbox +unread +finance                               -- tag:new and from:boxoffice@boxoffice.royalcourttheatre.com
 -new +inbox +unread          +delivery                     -- tag:new and from:support@darntough.uk and subject:"/A shipment from order .* is on the way/"
--new +inbox +unread          +delivery                     -- tag:new and from:customerservice@email.sportsshoes.com and subject:"Your order has shipped"
+-new +inbox +unread +finance                               -- tag:new and from:SportsShoes.com and subject:"Order Confirmation"
+-new +inbox +unread          +delivery                     -- tag:new and from:SportsShoes.com and subject:"Your order has shipped"
+-new +inbox +unread +finance                               -- tag:new and from:AliExpress and subject:'order confirmed'
+-new +inbox +unread          +delivery                     -- tag:new and from:AliExpress and ( subject:"ready to ship" or subject:"order shipped" or subject:"left the departure region" or subject'has been delivered' or subject:'is out for delivery' or subject:'left carrier facility' or subject:'with local carrier' or subject:'in your country/region' or subject:'has cleared customs' or subject:'collected by the carrier' or subject:'delivery update' or subject:'order closed' or subject:'awaiting confirmation' or subject:"has been delivered" or subject:"is at the delivery center" )
+-new +inbox +unread +finance +support                      -- tag:new and from:service@paypal.co.uk and subject:'/Your refund from .* is on the way/'
+-new +inbox +unread          +delivery                     -- tag:new and from:ONESE8 and subject:'/Package .* has been received at OneSe8/'
+-new +inbox +unread          +delivery                     -- tag:new and from:Yodel and subject:"Manage your delivery"
+-new +inbox +unread +finance                               -- tag:new and from:PaliKitchen and subject:'Order Confirmation'
+-new +inbox +unread +finance                               -- tag:new and from:O2 and ( subject:"Your O2 bill is ready" or subject:'/Adjustment to your .*Direct Debit payment/' or subject:"added your credit" )
+-new +inbox +unread +finance                               -- tag:new and from:@billing.o2.com
+-new +inbox +unread +finance                               -- tag:new and from:verkauf@outdoor-works.de and subject:"order confirmation"
+-new +inbox +unread          +delivery                     -- tag:new and from:verkauf@outdoor-works.de and subject:"Confirmation of Dispatch"
+-new +inbox +unread +finance                               -- tag:new and from:"Zippo UK" and ( subject:"Your invoice" or subject:"/Order .* confirmed/" )
+-new +inbox +unread          +delivery                     -- tag:new and from:"Zippo UK" and ( subject:"Shipping update" or subject:"is on the way" )
+-new +inbox +unread +finance                               -- tag:new and from:sales@handmadeleatherbelts.co.uk
+-new +inbox +unread +finance                               -- tag:new and from:"Team Vinted" and subject:"Your receipt for"
+-new +inbox +unread          +delivery                     -- tag:new and from:"Team Vinted" and ( subject:"confirmation needed" or subject:"Order update for" )
+-new +inbox +unread +finance                 +support      -- tag:new and from:"Team Vinted" and ( subject:"Your refund for" or subject:"New message about" )
+-new +inbox +unread                          +a/price      -- tag:new and from:"Team Vinted" and ( subject:"Your offer was accepted for" or subject:"New offer for" or subject:"discounted to" )
+-new +inbox +unread +finance                               -- tag:new and from:"Black Screen Records" and subject:'/Order .* confirmed/'
+-new +inbox +unread          +delivery                     -- tag:new and from:"Black Screen Records" and ( subject:"on its way" or subject:"ready to be shipped" or subject:"delivered" )
+-new +inbox +unread +finance                               -- tag:new and from:"Sakura Watches" and subject:"Order update"
+-new +inbox +unread          +delivery                     -- tag:new and from:notifications@relaytech.co
+-new +inbox +unread +finance                               -- tag:new and from:TodayTix and subject:"Order confirmed"
+-new +inbox +unread +finance                               -- tag:new and from:@mcdonalds.com and ( subject:"Thanks for your order" or subject:"order cancelled" )
+-new +inbox +unread +finance                               -- tag:new and from:"Mens Pharmacy" and ( subject:approved or subject:"order receipt" )
+-new +inbox +unread          +delivery                     -- tag:new and from:"Mens Pharmacy" and subject:shipped
+-new +inbox +unread +finance                               -- tag:new and from:"RA Tickets" and subject:"Your order for"
+-new +inbox +unread +finance                               -- tag:new and from:"Bibisama Apparel" and subject:'/Order .* confirmed/'
+-new +inbox +unread +finance                               -- tag:new and from:support@nabucasa.com and subject:"subscription receipt"
+-new +inbox +unread +finance                               -- tag:new and from:Rio and subject:"Booking Confirmation"
+-new +inbox +unread +finance                               -- tag:new and from:@thecoronettheatre.com and subject:"Confirmation of your order"
+-new +inbox +unread +finance                               -- tag:new and from:"HMRC Online Payments" and subject:"sent a payment"
+-new +inbox +unread +finance                               -- tag:new and from:"HMRC digital" and subject:"new tax calculation"
+-new +inbox +unread +finance                               -- tag:new and from:tickets@boxoffice.sohotheatre.com
+-new +inbox +unread +finance                               -- tag:new and from:Waitrose and subject:"order details"
+-new +inbox +unread +finance                               -- tag:new and from:'Waitrose & Partners' and subject:'Collection confirmed'
+-new +inbox +unread +finance                               -- tag:new and from:ZULUDIVER and subject:'/Order .* confirmed/'
+-new +inbox +unread +finance                               -- tag:new and from:"DARK SUGARS COCOA HOUSE" and subject:'/Order .* confirmed/'
+-new +inbox +unread          +delivery                     -- tag:new and from:"DARK SUGARS COCOA HOUSE" and subject:'ready for pickup'
+-new +inbox +unread +finance                               -- tag:new and from:Lenovo and subject:"Thank you for your order"
+-new +inbox +unread +finance                               -- tag:new and from:'The Pi Hut' and subject:'shipment from order'
+-new +inbox +unread +finance                               -- tag:new and from:'Lumie' and subject:'Thank you for your order'
+-new +inbox +unread +finance                               -- tag:new and from:Booking.com and subject:"This is your receipt"
+-new +inbox +unread +finance                               -- tag:new and from:noreply@booking.com and subject:"booking is confirmed"
+-new +inbox +unread                    +a/travel           -- tag:new and from:@property.booking.com
+-new +inbox +unread +finance                               -- tag:new and from:@eurail.com and subject:"Your reservation"
+-new +inbox +unread +finance                               -- tag:new and from:Spotify and subject:"order confirmation"
+-new +inbox +unread +finance                               -- tag:new and from:"The Font" and subject:"order confirmation"
+-new +inbox +unread +finance                               -- tag:new and from:Eventbrite and subject:"Order Confirmation"
+-new +inbox +unread +finance                               -- tag:new and from:Sky and subject:'confirm your order'
+-new +inbox +unread +finance                               -- tag:new and from:Donorbox and subject:'Will be Charged'
+-new +inbox +unread +finance                               -- tag:new and from:'Bolt UK' and subject:'Your Bolt trip'
+-new +inbox +unread +finance                               -- tag:new and from:'Loop Earplugs' and subject:'/Order .* confirmed/'
+-new +inbox +unread          +delivery                     -- tag:new and from:'Loop Earplugs' and subject:'shipment from order'
+-new +inbox +unread +finance                               -- tag:new and from:'FastSpring Checkout'
+-new +inbox +unread +finance                               -- tag:new and from:'Lotus Zen Incense' and subject:'/Order .* confirmed/'
+-new +inbox +unread          +delivery                     -- tag:new and from:'Lotus Zen Incense' and subject:'shipment from order'
+-new +inbox +unread          +delivery                     -- tag:new and from:Shop and subject:'/Track your .* order/'
+-new +inbox +unread +finance                               -- tag:new and from:"The Garden Cinema" and subject:"Booking Confirmation"
+-new +inbox +unread +finance                               -- tag:new and from:"LV= Insurance" and subject:"lovely to have you insured with us"
+-new +inbox +unread +finance                               -- tag:new and from:"The National Gallery" and subject:"Thank you for your order"
+-new +inbox +unread +finance                               -- tag:new and from:"RMG Bookings"
+-new +inbox +unread +finance                               -- tag:new and from:@koreanfilm.co.uk and subject:"Your tickets"
+-new +inbox +unread +finance                               -- tag:new and from:Freetrade and subject:'/received.* interest payment/'
+-new +inbox +unread +finance                               -- tag:new and from:"MEININGER Hotels" and subject:"your reservation"
 
 # Home Related
 -new +inbox +unread +home       -- tag:new and from:@octopus.energy
 -new +inbox +unread +home       -- tag:new and from:@britishgas.co.uk
 -new +inbox +unread +home       -- tag:new and from:@nowtv.com
 -new +inbox +unread +home       -- tag:new and from:@eonnext.com
--new +inbox +unread +home       -- tag:new and info@team.hyperoptic.com
+-new +inbox +unread +home       -- tag:new and from:info@team.hyperoptic.com
 -new +inbox +unread +home +s/lv -- tag:new and from:lv@insurance.lv.co.uk
+-new +inbox +unread       +delivery -- tag:new and from:"ONESE8" and subject:'/Package .* has been received/'
+-new +inbox +unread +home       -- tag:new and from:"ONESE8"
+-new +inbox +unread +home       -- tag:new and from:"TV Licensing"
 
 # Promotional mail unlinked to a tracked mailing list (borderline spam)
 -new        +unread +promotion                      -- tag:new and from:Hyatt@em.hyatt.com
@@ -263,42 +392,49 @@
 -new        +unread +promotion                      -- tag:new and from:info@n.zavvi.com
 -new        +unread +promotion                      -- tag:new and from:hello@maya.net and body:'/received a newsletter/'
 -new        +unread +promotion                      -- tag:new and from:info@traditionalshaving.co.uk and body:'/If you would like to unsubscribe/'
+-new        +unread +promotion                      -- tag:new and from:"Darn Tough Vermont"
+-new        +unread +promotion                      -- tag:new and ( from:info@news.philips-hue.com or subject:info@email.philips-hue.com )
+-new        +unread +promotion                      -- tag:new and from:"Lotus Zen Incense" and ( body:"SPECIAL OFFER" or subject:"Something for you" )
 -new +inbox +unread +promotion                      -- tag:new and from:"Caffè Nero" and subject:"unlocked a reward"
+-new        +unread +promotion                      -- tag:new and from:"TACS Watches"
+-new +inbox +unread +promotion +critical            -- tag:new and from:Eurostar and subject:"Sale now on"
+-new        +unread +promotion                      -- tag:new and from:@e.eurostar.com
 
 # Mailing Lists and subscriptions (and promotions for above)
 -new +inbox +unread +l/lwn                                     -- tag:new and from:lwn@lwn.net and ( subject:"/newly freed content/" or subject:'Weekly Edition available' )
--new +inbox +unread +l/eff                                     -- tag:new and from:@eff.org
+-new        +unread +l/eff                                     -- tag:new and from:@eff.org
 -new +inbox +unread +l/dont-pay                                -- tag:new and from:info@dontpay.uk
 -new        +unread +l/mse                   +promotion        -- tag:new and from:@moneysupermarketmail.com
 -new +inbox +unread +l/mse                                     -- tag:new and from:@moneysavingexpert.com
 -new +inbox +unread +l/monevator                               -- tag:new and from:theinvestor@monevator.com
+-new +inbox +unread +l/bfi                   +promotion +critical -- tag:new and from:no-reply@bfimessages.org.uk and ( body:"be joined by" or body:"join us" )
 -new +inbox +unread +l/bfi                   +promotion        -- tag:new and from:no-reply@bfimessages.org.uk and ( subject:'Priority Booking' or from:'BFI Shop' )
--new +inbox +unread +l/bfi                                     -- tag:new and ( from:no-reply@bfimessages.org.uk or from:'BFI Membership' )
--new +inbox +unread +l/bletchley                               -- tag:new and from:@email-bletchleypark.org.uk
+-new        +unread +l/bfi                                     -- tag:new and ( from:no-reply@bfimessages.org.uk or from:'BFI Membership' )
+-new        +unread +l/bletchley             +promotion +event -- tag:new and from:@email-bletchleypark.org.uk
 -new +inbox +unread +l/british-museum                          -- tag:new and from:@britishmuseum.org
--new        +unread +l/zuludiver                               -- tag:new and from:@zuludiver.com
+-new        +unread +l/zuludiver             +promotion        -- tag:new and from:@zuludiver.com
 -new        +unread +l/microsoft-devlogs                       -- tag:new and from:"Microsoft Developer Blogs"
--new +inbox +unread +l/dbrand                                  -- tag:new and from:robots@dbrand.com
+-new        +unread +l/dbrand                +promotion        -- tag:new and from:robots@dbrand.com
 -new +inbox +unread +s/audible                                 -- tag:new and from:@audible.co.uk and ( subject:"Welcome to Audible" or subject:"paused Audible membership" or subject:"cancelled your membership" )
 -new +inbox +unread +s/audible                                 -- tag:new and from:"Google Play" and subject:"Your Audible: Audio Entertainment subscription will be cancelled"
 -new +inbox +unread +l/gabby-bryan                             -- tag:new and from:"Gabby Bryan"
 -new +inbox +unread +l/coding-horror                           -- tag:new and from:follow.it and subject:"Coding Horror"
 -new        +unread +l/the-audiophile-man                      -- tag:new and from:"The Audiophile Man"
--new +inbox +unread +l/mcm                                     -- tag:new and from:"MCM Comic Con"
+-new +inbox +unread +l/mcm                   +promotion +event -- tag:new and from:"MCM Comic Con"
 -new +inbox +unread +l/ann                                     -- tag:new and from:newsletter@animenewsnetwork.com
--new +inbox +unread +l/anime-limited                           -- tag:new and ( from:"Anime Limited" or from:"alltheanime" or from:"All the Anime" )
--new +inbox +unread +l/forbidden-planet                        -- tag:new and ( from:"Forbidden Planet" or from:"FP Newsletter" )
+-new +inbox +unread +l/anime-limited         +promotion        -- tag:new and ( from:"Anime Limited" or from:"alltheanime" or from:"All the Anime" )
+-new        +unread +l/forbidden-planet      +promotion        -- tag:new and ( from:"Forbidden Planet" or from:"FP Newsletter" )
 -new +inbox +unread +l/erikasoriginals                         -- tag:new and from:office@erikasoriginals.com
 -new        +unread +l/qobuz-club                              -- tag:new and from:hello@hello.qobuz.com
--new +inbox +unread +l/science-museum        +promotion        -- tag:new and from:@sciencemuseum.ac.uk
+-new        +unread +l/science-museum        +promotion        -- tag:new and from:@sciencemuseum.ac.uk
 -new        +unread +l/richer-sounds-vip     +promotion        -- tag:new and from:vipdeals@richersoundsvip.com
 -new        +unread +l/google-store          +promotion        -- tag:new and from:googlestore-noreply@google.com
--new        +unread +l/eurostar              +promotion        -- tag:new and from:@e.eurostar.com
 -new        +unread +l/anker                 +promotion        -- tag:new and from:newsletter@news.anker.com
 -new        +unread +l/sevenoaks             +promotion        -- tag:new and from:news@ssav.co.uk
--new        +unread +l/jermyn-street-theatre +promotion +event -- tag:new and from:prioritybookings@jermynstreettheatre.co.uk
--new        +unread +l/almeida-theatre       +promotion +event -- tag:new and from:"Almeida Theatre" and body:"signed up to receive marketing emails"
+-new        +unread +l/jermyn-street-theatre +promotion +event -- tag:new and from:@jermynstreettheatre.co.uk
+-new        +unread +l/almeida-theatre       +promotion +event -- tag:new and from:"Almeida Theatre" and body:'/signed up to receive (marketing )?emails/'
 -new        +unread +l/royal-court-theatre   +promotion +event -- tag:new and from:Royal.Court@arts-mail.co.uk
+-new        +unread +l/theatre-503           +promotion +event -- tag:new and from:"Theatre503"
 -new        +unread +l/rbo                   +promotion +event -- tag:new and from:"Royal Ballet and Opera" and body:"Unsubscribe from Marketing emails"
 -new        +unread +l/donmar-warehouse      +promotion +event -- tag:new and from:info@mailing.donmarwarehouse.com
 -new        +unread +l/bandsintown           +promotion +event -- tag:new and from:"/@(f2f|ppt|updates|courriel)\.bandsintown.com/"
@@ -307,7 +443,8 @@
 -new        +unread +l/v&a                   +promotion +event -- tag:new and from:@email-vam.org.uk
 -new        +unread +l/national-theatre      +promotion +event -- tag:new and from:@nationaltheatre.org.uk
 -new        +unread +l/lpo                   +promotion +event -- tag:new and from:@lpo.org.uk
--new        +unread +l/national-opera        +promotion +event -- tag:new and from:@news.eno.org
+-new        +unread +l/national-opera        +promotion +event -- tag:new and ( from:@news.eno.org or from:@emails.eno.org )
+-new        +spam                                              -- tag:new and from:@e.barbican.org.uk and ( subject:"Welcome to the Barbican" or subject:"hope you enjoyed your visit" or subject:"Thanks for visiting" )
 -new        +unread +l/barbican              +promotion +event -- tag:new and from:@e.barbican.org.uk
 -new        +unread +l/park-up               +promotion +event -- tag:new and from:"Park Theatre"
 -new        +unread +l/old-vic               +promotion +event -- tag:new and from:@oldvictheatre.com
@@ -319,22 +456,59 @@
 -new        +unread +l/live-nation           +promotion +event -- tag:new and from:email@info.livenation.co.uk
 -new        +unread +l/national-gallery      +promotion +event -- tag:new and from:"The National Gallery"
 -new +inbox +unread +l/space-talk            +promotion +event -- tag:new and from:"Space Talk"
+-new        +unread +l/japan-house           +promotion        -- tag:new and from:"The Shop at Japan House London"
 -new        +unread +l/japan-house           +promotion +event -- tag:new and from:"Japan House London"
 -new        +unread +s/blackpink                               -- tag:new and from:"BLACKPINK"
--new        +unread +l/wellcome-collection                     -- tag:new and from:"Wellcome Collection"
+-new        +unread +l/wellcome-collection   +promotion +event -- tag:new and from:"Wellcome Collection"
 -new        +unread +l/nmap                                    -- tag:new and from:announce-request@nmap.org
 -new        +unread +l/prince-charles        +promotion +event -- tag:new and from:e-mail@princecharlescinema.com
--new        +unread +l/joe-hisaishi          +promotion +event -- tag:new and from:info@us.umusic-online.com
--new        +unread                          +promotion +event -- tag:new and from:info@email.meetup.com and ( subject:"Can you make" or subject:"Just scheduled" or subject:"New group suggestions" )
--new        +unread +l/royal-botanic-gardens +promotion +event -- tag:new and from:email@enews.kew.org
+-new        +unread +l/musicians             +promotion +event -- tag:new and from:"Jake Cornell"
+-new        +unread +l/musicians             +promotion +event -- tag:new and from:"Joe Hisaishi"
+-new        +unread +l/musicians             +promotion +event -- tag:new and from:"Conan Gray"
+-new        +unread +l/musicians             +promotion +event -- tag:new and from:"Benjamin Steer"
+-new        +unread +l/musicians             +promotion +event -- tag:new and from:"Olivia Dean"
+-new        +unread +l/musicians             +promotion +event -- tag:new and from:"Ellur HQ"
+-new        +unread +l/meetup                +promotion +event -- tag:new and from:info@email.meetup.com and ( subject:"Can you make" or subject:"/Join [0-9]+ .* at /" or subject:"Just scheduled" or subject:"New group suggestion" or subject:"A waitlist is available for" or subject:"Meetup tomorrow" or subject:"posted in" )
+-new        +unread +l/royal-botanic-gardens +promotion +event -- tag:new and ( from:@enews.kew.org or from:@emails.kew.org )
 -new        +unread +l/southwark-playhouse   +promotion +event -- tag:new and from:"Southwark Playhouse"
 -new        +unread +l/bridge-theatre        +promotion +event -- tag:new and from:"Bridge Theatre"
 -new        +unread +l/hadestown             +promotion +event -- tag:new and from:"Hadestown West End"
+-new        +unread                          +spam             -- tag:new and from:"Ents24" and subject:"Need Your Help"
 -new        +unread +l/ents24                +promotion +event -- tag:new and from:"Ents24"
 -new        +unread +l/roundhouse            +promotion +event -- tag:new and from:"Roundhouse"
 -new        +unread                          +promotion +event -- tag:new and from:"AEG Presents"
+-new        +unread +l/the-o2                +spam             -- tag:new and from:"The O2" and subject:"Thanks for coming to see"
 -new        +unread +l/the-o2                +promotion +event -- tag:new and from:"The O2"
 -new        +unread                          +promotion +event -- tag:new and from:"OVO Arena Wembley"
+-new        +unread                          +promotion +event -- tag:new and from:"Live From The Clock Tower"
+-new +inbox +unread +l/blackhorse-workshop   +promotion +event -- tag:new and from:"Blackhorse Workshop"
+-new        +unread +l/juno-records          +promotion        -- tag:new and from:"Juno Records"
+-new        +unread +l/coronet-theatre       +promotion +event -- tag:new and from:"TheCoronetTheatre@arts-mail.co.uk"
+-new +inbox +unread +l/the-garden-cinema     +promotion +event -- tag:new and from:"The Garden Cinema" and subject:"Members Update"
+-new        +unread +l/the-garden-cinema     +promotion +event -- tag:new and from:"The Garden Cinema"
+-new        +unread +l/korean-cultural-centre                  -- tag:new and from:pr@kccuk.org.uk
+-new        +unread +l/curzon                +promotion +event -- tag:new and ( from:"Curzon Cinemas" or from:"Curzon" )
+-new        +unread +l/southbank-center      +promotion +event -- tag:new and ( from:"Southbank Centre" or from:"National Poetry Library" )
+-new        +unread +l/otherside-promotions  +promotion +event -- tag:new and from:"Other Side Promotions"
+-new        +unread +l/cheapskate            +promotion +event -- tag:new and from:"hello@cheapskatelondon.com"
+-new        +unread +l/red-events            +promotion +event -- tag:new and from:"RED EVENTS"
+-new        +unread +l/tate                  +promotion +event -- tag:new and from:@i.tate.org.uk
+-new        +unread +l/british-street-food   +promotion        -- tag:new and from:richard@britishstreetfood.co.uk
+-new        +unread +l/olivia-dean           +promotion +event -- tag:new and from:"Olivia Dean"
+-new        +unread +l/sofar-sounds          +promotion +event -- tag:new and from:info@sofarsounds.com
+-new        +unread +l/eventim               +promotion +event -- tag:new and from:"Eventim UK"
+-new        +unread +l/detail                                  -- tag:new and ( from:newsletter@detail.de or from:events@detail.de or from:mail@detail.de )
+-new        +unread +l/bibisama              +promotion        -- tag:new and from:info@bibisama.com
+-new        +unread +l/letterkenny           +promotion        -- tag:new and from:@letterkenny.tv
+-new        +unread +l/animangapop           +promotion +event -- tag:new and from:welcome@animangapop.co.uk
+-new        +unread +l/we-touch-grass        +promotion +event -- tag:new and from:"#WeTouchGrass"
+-new        +unread +l/english-heritage      +promotion +event -- tag:new and from:"English Heritage"
+-new        +unread +l/hadestown             +promotion +event -- tag:new and from:"Hadestown"
+-new        +unread +l/hayward-gallery       +promotion +event -- tag:new and from:"Hayward Gallery"
+-new        +unread +l/vectiskarma                             -- tag:new and from:info@vectiskarma.co.uk
+-new        +unread +l/artificial-kreativity +promotion +event -- tag:new and from:artificialkreativity@substack.com
+-new        +unread +l/design-museum         +promotion +event -- tag:new and from:@designmuseum.org
+-new        +unread +l/lorier                +promotion        -- tag:new and from:LORIER
 
 # Tag any mail in the bin as deleted.
 -new       +deleted -- folder:/\[Gmail\]/ and folder:/Bin$/
@@ -349,7 +523,7 @@
 -new +spam -inbox -- tag:new and from:@deliveroo.co.uk and ( from:@feedback.deliveroo.com or from:@announcement.deliveroo.co.uk )
 -new +spam -inbox -- tag:new and from:@just-eat.co.uk and ( from:@update.just-eat.co.uk or ( from:@orders.just-eat.co.uk and subject:"👍 OR 👎" ) )
 -new +spam -inbox -- tag:new and from:offers@marketing.ebuyer.com
--new +spam -inbox -- tag:new and from:@dropbox.com and subject:'no need to delete anything yet'
+-new +spam -inbox -- tag:new and from:@dropbox.com and ( subject:'no need to delete anything yet' or subject:"almost out of space" )
 -new +spam -inbox -- tag:new and from:news@email.railcard.co.uk and subject:'save %'
 -new +spam -inbox -- tag:new and from:@onskil.com and subject:'Next Opportunity'
 -new +spam -inbox -- tag:new and from:@deliveroo.com and subject:"/We'd love to hear from you/"
@@ -378,6 +552,33 @@
 -new +spam -inbox -- tag:new and from:"Caffè Nero"
 -new +spam -inbox -- tag:new and from:"HMV (UK)" and subject:"How many stars would you give"
 -new +spam -inbox -- tag:new and from:Songkick and subject:'/^Tell us about /'
+-new +spam -inbox -- tag:new and from:AliExpress and ( subject:"how did it go" or subject:"Waiting for your feedback" )
+-new +spam -inbox -- tag:new and from:service@paypal.co.uk and subject:"Get a quicker payment experience on trusted devices"
+-new +spam -inbox -- tag:new and from:"Transport for London" and ( subject:"What do you think about" or subject:"Celbrate" or subject:"let's look back" or subject:"Tickets still available" )
+-new +spam -inbox -- tag:new and from:"Evri Feedback"
+-new +spam -inbox -- tag:new and from:"Yodel" and subject:"Rate your delivery"
+-new +spam -inbox -- tag:new and from:"Lloyds Bank" and subject:"You have a new message from us"
+# Literally every time I use cafe nero.
+-new +spam -inbox -- tag:new and from:support@nealstreet.tech and subject:"Problem transacting"
+-new +spam -inbox -- tag:new and from:tellasda@emails.asda.com
+-new +spam -inbox -- tag:new and from:Booking.com and subject:"waiting for your review"
+-new +spam -inbox -- tag:new and from:"Lufthansa Customer Feedback"
+-new +spam -inbox -- tag:new and from:"noreply-lenovo-gb@bazaarvoice-cgc.com"
+-new +spam -inbox -- tag:new and from:DICE and subject:"how was it"
+-new +spam -inbox -- tag:new and ( from:@review.nandos.co.uk or from:@reviews.yumpingo.com )
+-new +spam -inbox -- tag:new and from:"The National Gallery" and subject:"feedback"
+-new +spam -inbox -- tag:new and from:"The Old Vic" and subject:"feedback"
+-new +spam -inbox -- tag:new and from:"HMV" and subject:"reminder to review"
+-new +spam -inbox -- tag:new and from:"OVO Arena Wembley" and subject:"hear about your experience"
+-new +spam -inbox -- tag:new and from:@designmuseum.org and subject:"Thank you for visiting"
+-new +spam -inbox -- tag:new and from:"The Coronet Theatre" and subject:"Thank you for coming"
+-new +spam -inbox -- tag:new and from:"Tell Asda"
+-new +spam -inbox -- tag:new and from:"MEININGER Hotel" and subject:"Rate"
+-new +spam -inbox -- tag:new and from:Booking.com and subject:"Rate"
+-new +spam -inbox -- tag:new and from:Eurostar and subject:"How was your recent journey"
+-new +spam -inbox -- tag:new and from:Google and subject:'Your .* storage is .* full'
+-new +spam -inbox -- tag:new and from:Boots and subject:'review'
+-new +spam -inbox -- tag:new and from:DICE and subject:'What did you think'
 
 # Remove new tag and attach defaults for rest of new mail
 -new +inbox +unread -- tag:new
