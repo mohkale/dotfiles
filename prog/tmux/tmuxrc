@@ -32,6 +32,7 @@ set -g pane-border-status off # top                                  # Don't sho
 set -g scroll-on-clear on                                            # Scroll window to top before clearing so later history scrolling isn't truncated
 set -g focus-events on                                               # Enable terminal focus events when supported
 setw -g aggressive-resize on                                         # Auto-resize window to fit smallest and largest session, not much recent
+set -g theme terminal                                                # Use the terminal color schema over a tmux custom one
 
 # Assign the TERM environment variable depending on the current
 # terminal. I'll add support for other true-color terms as I use
