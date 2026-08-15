@@ -6,10 +6,49 @@ fzf_ssh() {
                    --history "${XDG_STATE_HOME:-$HOME/.locale/state}"/fzf/history/ssh
                    --preview 'echo {2..} | preview -l bash -'
                    --preview-window=down:1 )
-  [ -z "$*" ] || fzf_args+=( -q "$*" )
+
+  read -r -d '' USAGE <<-EOF
+Usage: fzf_ssh [-h] [-m MODULE]
+EOF
+  read -r -d '' HELP <<-EOF
+$USAGE
+
+Optional arguments:
+  -h
+    Show this help message and exit
+  -m MODULE
+    Only include ssh aliases from MODULE, one of:
+    * ssh-config-hosts
+    * ssh-aliases
+    * teleport-nodes
+EOF
+
+  local OPTION OPTIND
+  local host_modules=( )
+  while getopts 'hm:' OPTION; do
+    case "$OPTION" in
+      h) echo "$HELP"
+         return 0 ;;
+      m) host_modules+=( "$OPTARG" ) ;;
+      \?) echo "$USAGE"
+          return 1 ;;
+    esac
+  done
+  shift $((OPTIND - 1))
+  [ -z "$*" ] || fzf_args+=( --query "$*" )
 
   local cmd
-  cmd=$({ ls-ssh-config-hosts; ls-ssh-aliases; ls-teleport-nodes; } |
+  cmd=$({
+         if [ "${#host_modules}" -eq 0 ] || [[ "${host_modules[*]}" =~ ssh-config-hosts ]]; then
+           ls-ssh-config-hosts
+         fi
+         if [ "${#host_modules}" -eq 0 ] || [[ "${host_modules[*]}" =~ ssh-aliases ]]; then
+           ls-ssh-aliases
+         fi
+         if [ "${#host_modules}" -eq 0 ] || [[ "${host_modules[*]}" =~ teleport-nodes ]]; then
+           ls-teleport-nodes
+         fi
+       } |
           sed 's/:/\t/' |
           _mk_fzf "${fzf_args[@]}" |
           cut -d $'\t' -f 2-)
