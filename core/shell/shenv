@@ -52,10 +52,10 @@ fi
 # Apply custom color scheme for ls (for some reason this doesn't
 # work in ~/.profile :?).
 if [ -z "$LS_COLORS" ] &&
-   [ -x /usr/bin/dircolors ] &&
+   command -v dircolors >/dev/null 2>&1 &&
    [ -r "$XDG_CONFIG_HOME/dircolors" ]; then
-  eval "$(/usr/bin/dircolors -b "$XDG_CONFIG_HOME/dircolors")" ||
-      eval "$(/usr/bin/dircolors -b)"
+  eval "$(dircolors -b "$XDG_CONFIG_HOME/dircolors")" ||
+      eval "$(dircolors -b)"
   # shellcheck disable=SC2153
   export LF_COLORS="$LS_COLORS:.git/=35:.github/=35"
 fi
