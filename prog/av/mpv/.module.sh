@@ -1,3 +1,4 @@
+sync-submodule external-modules/*
 packagex mpv mpv-mpris mpv-shim-default-shaders
 
 clean -r "$XDG_CONFIG_HOME/mpv"

@@ -31,3 +31,22 @@
 [submodule "core/repos/walls"]
 	path = core/repos/walls
 	url = git@github.com:mohkale/dotfiles-wallpapers.git
+[submodule "prog/av/mpv/external-modules/Seme4eg-mpv-scripts"]
+	path = prog/av/mpv/external-modules/Seme4eg-mpv-scripts
+	url = https://github.com/Seme4eg/mpv-scripts
+[submodule "prog/av/mpv/external-modules/mpv-libunity"]
+	path = prog/av/mpv/external-modules/mpv-libunity
+	url = https://github.com/mrlotfi/mpv-libunity
+[submodule "prog/av/mpv/external-modules/mpv-fastforward"]
+	path = prog/av/mpv/external-modules/mpv-fastforward
+	url = https://github.com/zsugabubus/mpv-fastforward
+[submodule "prog/av/mpv/external-modules/mpv-persist-properties"]
+	path = prog/av/mpv/external-modules/mpv-persist-properties
+	url = https://github.com/d87/mpv-persist-properties
+[submodule "prog/av/mpv/external-modules/thumbfast"]
+	path = prog/av/mpv/external-modules/thumbfast
+	url = https://github.com/po5/thumbfast
+[submodule "prog/av/mpv/external-modules/thumbfast-vanilla-osc"]
+	path = prog/av/mpv/external-modules/thumbfast-vanilla-osc
+	url = https://github.com/po5/thumbfast
+	branch = vanilla-osc
