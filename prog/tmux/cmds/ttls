@@ -72,9 +72,17 @@ enabled() {
 # The format of the output should be "backend:cmd:cmd-arg:[cd-dir]:id:[meta]".
 
 list_tmux_sessions() {
+  local attach_command=attach-session
+  if [ -n "$TMUX" ]; then
+      if local client_id=$(tmux display-message -p '#{client_tty}'); then
+          local attach_command="switch-client -c $client_id"
+      else
+          local attach_command=switch-client
+      fi
+  fi
   tmux \
     list-sessions \
-    -F "tmux${SEP}tmux attach-session -t${SEP}#{session_id}${SEP}${SEP}#S${SEP}#{t:session_created}"
+    -F "tmux${SEP}tmux ${attach_command} -t${SEP}#{session_id}${SEP}${SEP}#S${SEP}#{t:session_created}"
 }
 
 list_tmuxp() {
