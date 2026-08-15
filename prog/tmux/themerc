@@ -149,7 +149,7 @@ set -Fg display-panes-colour '#{@theme-aoh-grey}'
 #{?window_zoomed_flag,Z,}\
 #{?#{&&:#{pane_in_mode},#{pane_unseen_changes}},U,}\
 '
-%hidden TMUX_FMT_WINFLAGS="#{?#{==:$TMUX_FMT_WINFLAGS,},,#{=1:@theme-winflag-sep}#[bright,fg=#{@theme-tmux-flag-hl}]$TMUX_FMT_WINFLAGS#[default]#{=-1:@theme-winflag-sep}}"
+%hidden TMUX_FMT_WINFLAGS="#{?#{==:$TMUX_FMT_WINFLAGS,},,#{=1:@theme-winflag-sep}#[bright fg=#{@theme-tmux-flag-hl}]$TMUX_FMT_WINFLAGS#[default]#{=-1:@theme-winflag-sep}}"
 
 # Detect monitored flags across all windows in all sessions and then show a single
 # indicator character on the status-line. Useful if you want to know about these flags
