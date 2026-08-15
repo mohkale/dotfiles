@@ -15,4 +15,4 @@ link-to "$GIT_CONFIG_DIR/config.d/" config.d/*
 
 run-cmd touch "$GIT_CONFIG_DIR/config.d/local"
 
-packagex git
+packagex git github-cli

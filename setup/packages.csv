@@ -36,6 +36,7 @@ fzf,which:fzf,apt:fzf,pacman:fzf
 ghc,which:ghc,choco:GHC,pacman:ghc
 gimp,which:gimp,pacman:gimp,choco:gimp
 git,which:git,apt:git,msys:git,choco:git,yay:git+perl-authen-sasl+perl-io-socket-ssl
+github-cli,which:gh,pacman:github-cli,brew:gh
 godoc,which:godoc,go:golang.org/x/tools/cmd/godoc@latest
 golang,which:go,choco:golang,yay:go,gotools
 golang,which:golang,choco:ipython,yay:go,gotools
