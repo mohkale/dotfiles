@@ -93,7 +93,7 @@ nvtop,which:nvtop,pacman:nvtop
 oxlint,which:oxlint,yarn:oxlint,npm:oxlint
 pass,which:pass,yay:pass
 perl,which:perl,pacman:perl
-pipx,which:pipx,apt:python3-pipx,msys:python-pipx,pacman:python-pipx
+pipx,which:pipx,apt:python3-pipx,msys:python-pipx,pacman:python-pipx,brew:pipx
 pkgconf,which:pkg-config,brew:pkgconf
 polybar,which:polybar,yay:polybar
 postfix,which:postfix,pacman:postfix
