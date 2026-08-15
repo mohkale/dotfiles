@@ -1,1 +1,1 @@
-packagex trash-cli
+packagex trash-cli pkgconf
